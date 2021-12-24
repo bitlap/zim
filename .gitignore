@@ -1,0 +1,10 @@
+.bloop
+.metals
+.idea
+target
+project/target
+project/project
+project/metals.sbt
+Makefile
+.bsp
+.idea
