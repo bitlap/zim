@@ -8,7 +8,7 @@
 ```
 zim-master
 ├─ .github
-│    └─ workflows
+│    └─ workflows   
 │           └─ ScalaCI.yml              -- GitHub action 配置
 ├─ .gitignore
 ├─ .jvmopts
@@ -22,20 +22,20 @@ zim-master
 │    ├─ build.properties                -- sbt版本
 │    └─ plugins.sbt                     -- 项目所依赖的插件配置
 └─ src
-└─ main
-├─ resources
-│    ├─ application.conf                -- 数据库和服务配置
-│    └─ logback.xml                     -- 日志配置
-└─ scala
-└─ org
-└─ bitlap
-└─ zim
-├─ ZimServer.scala        -- 程序入口，项目启动的main方法
-├─ api                    -- 基于tapir的API（基于akka http实现）和Endpoint定义
-├─ application            -- zio项目模块管理，聚合了service
-├─ configuration          -- zio集成各框架的项目配置
-├─ domain                 -- 领域对象或其他简单的样例类
-└─ repository             -- scalikejdbc的dao层实现（基于scalikejdbc stream和zio stream实现）
+       └─ main
+              ├─ resources
+              │    ├─ application.conf  -- 数据库和服务配置
+              │    └─ logback.xml       -- 日志配置
+              └─ scala
+                     └─ org
+                            └─ bitlap
+                                   └─ zim
+                                          ├─ ZimServer.scala        -- 程序入口，项目启动的main方法
+                                          ├─ api                    -- 基于tapir的API（基于akka http实现）和Endpoint定义
+                                          ├─ application            -- zio项目模块管理，聚合了service
+                                          ├─ configuration          -- zio集成各框架的项目配置
+                                          ├─ domain                 -- 领域对象或其他简单的样例类
+                                          └─ repository             -- scalikejdbc的dao层实现（基于scalikejdbc stream和zio stream实现）
 ```
 
 ## 技术栈
