@@ -2,7 +2,6 @@ package org.bitlap.zim.configuration
 
 import org.bitlap.zim.application.{ UserApplication, UserService }
 import org.bitlap.zim.configuration.InfrastructureConfiguration.ZInfrastructureConfiguration
-import org.bitlap.zim.domain.model.UserDBO
 import zio._
 
 /**

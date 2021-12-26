@@ -1,6 +1,6 @@
 package org.bitlap.zim
 
-import org.bitlap.zim.domain.model.UserDBO
+import org.bitlap.zim.domain.model.User
 import scalikejdbc.streams._
 import scalikejdbc.{ NoExtractor, SQL, _ }
 
@@ -13,11 +13,11 @@ import scalikejdbc.{ NoExtractor, SQL, _ }
  */
 package object repository {
 
-  private[repository] def queryFindById(table: TableDefSQLSyntax, id: Long): SQL[UserDBO, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => UserDBO(rs))
+  private[repository] def queryFindById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
+    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => User(rs))
 
-  private[repository] def queryFindAll(table: TableDefSQLSyntax): StreamReadySQL[UserDBO] =
-    sql"SELECT * FROM ${table}".list().map(r => UserDBO(r)).iterator()
+  private[repository] def queryFindAll(table: TableDefSQLSyntax): StreamReadySQL[User] =
+    sql"SELECT * FROM ${table}".list().map(r => User(r)).iterator()
 
   private[repository] def queryDeleteById(table: TableDefSQLSyntax, id: Long): SQL[Nothing, NoExtractor] =
     sql"DELETE FROM ${table} WHERE id = ${id}"

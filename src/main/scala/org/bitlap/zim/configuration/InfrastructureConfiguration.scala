@@ -1,7 +1,7 @@
 package org.bitlap.zim.configuration
 
 import org.bitlap.zim.configuration.properties.{ MysqlConfigurationProperties, ZimConfigurationProperties }
-import org.bitlap.zim.domain.model.UserDBO
+import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.repository.UserRepository
 import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings }
 import zio._
@@ -35,7 +35,7 @@ final class InfrastructureConfiguration {
 
   lazy val zimConfigurationProperties: ZimConfigurationProperties = ZimConfigurationProperties()
 
-  lazy val userRepository: UserRepository[UserDBO] = UserRepositoryImpl(mysqlConfigurationProperties.databaseName)
+  lazy val userRepository: UserRepository[User] = UserRepositoryImpl(mysqlConfigurationProperties.databaseName)
 
 }
 
@@ -52,7 +52,7 @@ object InfrastructureConfiguration {
   val mysqlConfigurationProperties: URIO[ZInfrastructureConfiguration, MysqlConfigurationProperties] =
     ZIO.access(_.get.mysqlConfigurationProperties)
 
-  val userRepository: URIO[ZInfrastructureConfiguration, UserRepository[UserDBO]] =
+  val userRepository: URIO[ZInfrastructureConfiguration, UserRepository[User]] =
     ZIO.access(_.get.userRepository)
 
   val live: ULayer[ZInfrastructureConfiguration] =

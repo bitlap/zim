@@ -34,7 +34,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
   implicit def encodeGeneric[T <: Product]: Encoder[T] = (a: T) => {
     if (a == null) Json.Null else {
       a match {
-        case u: User => User.userEncoder(u)
+        case u: User => User.encoder(u)
         case _ => Json.Null
       }
     }

@@ -1,8 +1,8 @@
 package org.bitlap.zim.application
 
-import org.bitlap.zim.domain.model.{ User, UserDBO }
+import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.repository.UserRepository
-import zio.{ Has, stream }
+import zio.{ stream, Has }
 
 /**
  * 用户服务
@@ -11,20 +11,18 @@ import zio.{ Has, stream }
  * @since 2021/12/25
  * @version 1.0
  */
-private final class UserService(userRepository: UserRepository[UserDBO]) extends UserApplication {
+private final class UserService(userRepository: UserRepository[User]) extends UserApplication {
 
-  override def findById(id: Long): stream.Stream[Throwable, User] = {
+  override def findById(id: Long): stream.Stream[Throwable, User] =
     userRepository.findById(id).map(user => User(user.id, user.username))
-  }
 
-  override def findAll(): stream.Stream[Throwable, User] = {
+  override def findAll(): stream.Stream[Throwable, User] =
     userRepository.findAll().map(user => User(user.id, user.username))
-  }
 }
 
 object UserService {
 
   type ZUserApplication = Has[UserApplication]
 
-  def apply(userRepository: UserRepository[UserDBO]): UserApplication = new UserService(userRepository)
+  def apply(userRepository: UserRepository[User]): UserApplication = new UserService(userRepository)
 }

@@ -1,6 +1,6 @@
 package org.bitlap.zim.repository
 
-import org.bitlap.zim.domain.model.UserDBO
+import org.bitlap.zim.domain.model.User
 import scalikejdbc._
 import scalikejdbc.streams._
 import zio._
@@ -17,18 +17,18 @@ import scala.language.implicitConversions
  * @since 2021/12/25
  * @version 1.0
  */
-private final class UserRepositoryImpl(databaseName: String) extends UserRepository[UserDBO] {
+private final class UserRepositoryImpl(databaseName: String) extends UserRepository[User] {
 
-  override def insert(dbo: UserDBO): stream.Stream[Throwable, Long] = ???
+  override def insert(dbo: User): stream.Stream[Throwable, Long] = ???
 
-  override def findAll(): stream.Stream[Throwable, UserDBO] = {
-    queryFindAll(UserDBO.table)
+  override def findAll(): stream.Stream[Throwable, User] = {
+    queryFindAll(User.table)
   }
 
   override def deleteById(id: Long): stream.Stream[Throwable, Int] = ???
 
-  override def findById(id: Long): stream.Stream[Throwable, UserDBO] = {
-    queryFindById(UserDBO.table, id)
+  override def findById(id: Long): stream.Stream[Throwable, User] = {
+    queryFindById(User.table, id)
   }
 
   private[repository] implicit def executeOperation(sqlUpdateWithGeneratedKey: SQLUpdateWithGeneratedKey): stream.Stream[Throwable, Long] = {
@@ -54,25 +54,25 @@ private final class UserRepositoryImpl(databaseName: String) extends UserReposit
 
 object UserRepositoryImpl {
 
-  def apply(databaseName: String): UserRepository[UserDBO] =
+  def apply(databaseName: String): UserRepository[User] =
     new UserRepositoryImpl(databaseName)
 
-  type ZUserRepository = Has[UserRepository[UserDBO]]
+  type ZUserRepository = Has[UserRepository[User]]
 
-  def findAll(): stream.ZStream[ZUserRepository, Throwable, UserDBO] =
+  def findAll(): stream.ZStream[ZUserRepository, Throwable, User] =
     stream.ZStream.accessStream(_.get.findAll())
 
-  def findById(id: Int): stream.ZStream[ZUserRepository, Throwable, UserDBO] =
+  def findById(id: Int): stream.ZStream[ZUserRepository, Throwable, User] =
     stream.ZStream.accessStream(_.get.findById(id))
 
-  def insert(query: UserDBO): stream.ZStream[ZUserRepository, Throwable, Long] =
+  def insert(query: User): stream.ZStream[ZUserRepository, Throwable, Long] =
     stream.ZStream.accessStream(_.get.insert(query))
 
   def deleteById(id: Int): stream.ZStream[ZUserRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.deleteById(id))
 
   val live: ZLayer[Has[String], Nothing, ZUserRepository] =
-    ZLayer.fromService[String, UserRepository[UserDBO]](UserRepositoryImpl(_))
+    ZLayer.fromService[String, UserRepository[User]](UserRepositoryImpl(_))
 
   def make(databaseName: String): ULayer[ZUserRepository] =
     ZLayer.succeed(databaseName) >>> live

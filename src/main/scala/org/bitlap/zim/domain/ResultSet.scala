@@ -10,16 +10,31 @@ import org.bitlap.zim.configuration.SystemConstant
  * @author 梦境迷离
  */
 class ResultSet[T](
-                    val data: T,
-                    val code: Int = SystemConstant.SUCCESS,
-                    val msg: String = SystemConstant.SUCCESS_MESSAGE
-                  )
+  val data: T,
+  val code: Int = SystemConstant.SUCCESS,
+  val msg: String = SystemConstant.SUCCESS_MESSAGE
+)
 
 object ResultSet {
-
   def apply[T](
-                data: T = null,
-                code: Int = SystemConstant.SUCCESS,
-                msg: String = SystemConstant.SUCCESS_MESSAGE
-              ): ResultSet[T] = new ResultSet(data, code, msg)
+    data: T = null,
+    code: Int = SystemConstant.SUCCESS,
+    msg: String = SystemConstant.SUCCESS_MESSAGE
+  ): ResultSet[T] = new ResultSet(data, code, msg)
 }
+
+class ResultSets[T](
+  val data: List[T] = Nil,
+  val code: Int = SystemConstant.SUCCESS,
+  val msg: String = SystemConstant.SUCCESS_MESSAGE
+)
+
+object ResultSets {
+  def apply[T](
+    data: List[T] = Nil,
+    code: Int = SystemConstant.SUCCESS,
+    msg: String = SystemConstant.SUCCESS_MESSAGE
+  ): ResultSets[T] = new ResultSets(data, code, msg)
+}
+
+case class ResultPageSet[T](override val data: T, pages: Int) extends ResultSet(data)
