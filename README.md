@@ -3,7 +3,7 @@
 
 基于scala、zio、tapir、akka-http、scalikejdbc、redis实现的纯异步、函数式、流式API的LayIM。
 
-> 感兴趣的关注一下，也可以一起开发。本项目旨在不利于任何Java库，完全基于ZIO。
+> 感兴趣的关注一下，也可以一起开发。本项目旨在学习。
 
 ## 项目结构
 
