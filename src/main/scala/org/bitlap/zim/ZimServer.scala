@@ -16,7 +16,7 @@ object ZimServer extends ZimServiceConfiguration with zio.App {
 
   private lazy val loggingLayer: URLayer[Console with Clock, Logging] =
     Logging.console(
-      logLevel = LogLevel.Info,
+      logLevel = LogLevel.Debug,
       format = LogFormat.ColoredLogFormat()
     ) >>> Logging.withRootLoggerName("ZimApplication")
 

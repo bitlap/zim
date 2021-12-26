@@ -1,18 +1,18 @@
 package org.bitlap.zim.api.endpoint
 
+import akka.event.slf4j.Logger
 import akka.http.scaladsl.model
-import akka.http.scaladsl.model.StatusCodes.InternalServerError
+import akka.http.scaladsl.model.StatusCodes.{ InternalServerError, NotFound }
 import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
 import akka.http.scaladsl.server.Directives.{ complete, extractUri }
 import akka.http.scaladsl.server.ExceptionHandler
-import io.circe.generic.auto._
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.configuration.SystemConstant
 import org.bitlap.zim.domain.ZimError.BusinessException
 import org.bitlap.zim.domain.{ ResultSet, ZimError }
 import sttp.model.StatusCode
 import sttp.tapir.{ EndpointOutput, _ }
-import zio.logging
+import akka.http.scaladsl.server.RejectionHandler
 
 /**
  * 错误处理
@@ -36,19 +36,34 @@ trait ApiErrorMapping extends ApiJsonCodec {
         .description(internalServerErrorDescription)
     )
 
-  private[api] implicit def myExceptionHandler: ExceptionHandler = ExceptionHandler {
+  // 注意这里是PartialFunction，不能使用`_`匹配
+  private[api] implicit def customExceptionHandler: ExceptionHandler = ExceptionHandler {
     case e: BusinessException =>
       extractUri { uri =>
-        logging.log.error(s"Request to $uri could not be handled normally cause by BusinessException")
+        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.getCause}")
         val result = ResultSet(code = e.code, msg = if (e.msg != null) e.msg else SystemConstant.ERROR_MESSAGE)
         val resp = HttpEntity(ContentTypes.`application/json`, result.asJson.noSpaces)
         complete(HttpResponse(InternalServerError, entity = resp))
       }
-    case _: RuntimeException =>
+    case e: Exception =>
       extractUri { uri =>
-        logging.log.error(s"Request to $uri could not be handled normally cause by RuntimeException")
-        val resp = HttpEntity(ContentTypes.`application/json`, ResultSet().asJson.noSpaces)
+        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.getCause}")
+        val resp = HttpEntity(
+          ContentTypes.`application/json`,
+          ResultSet(code = SystemConstant.ERROR, msg = SystemConstant.ERROR_MESSAGE).asJson.noSpaces
+        )
         complete(HttpResponse(InternalServerError, entity = resp))
       }
   }
+
+  // 处理404
+  implicit def customRejectionHandler: RejectionHandler =
+    RejectionHandler
+      .newBuilder()
+      .handleNotFound {
+        val result = ResultSet(code = 404)
+        val resp = HttpEntity(ContentTypes.`application/json`, result.asJson.noSpaces)
+        complete(HttpResponse(NotFound, entity = resp))
+      }
+      .result()
 }
