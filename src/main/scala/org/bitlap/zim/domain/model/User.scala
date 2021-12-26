@@ -4,7 +4,7 @@ import io.circe._
 import io.circe.generic.semiauto._
 import scalikejdbc.{ WrappedResultSet, _ }
 
-import java.util.Date
+import java.time.{ LocalDateTime, ZonedDateTime }
 
 /**
  * 用户
@@ -28,7 +28,7 @@ case class User(
   sign: String,
   avatar: String,
   email: String,
-  createDate: Date,
+  createDate: ZonedDateTime,
   sex: Int,
   status: String,
   active: String
@@ -49,7 +49,7 @@ object User extends SQLSyntaxSupport[User] {
     rs.string("sign"),
     rs.string("avatar"),
     rs.string("email"),
-    Date.from(rs.dateTime("createDate").toInstant),
+    rs.dateTime("create_date"),
     rs.int("sex"),
     rs.string("status"),
     rs.string("active")

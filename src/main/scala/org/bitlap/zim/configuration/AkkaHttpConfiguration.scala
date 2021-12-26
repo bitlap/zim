@@ -22,10 +22,12 @@ final class AkkaHttpConfiguration(infrastructureConfiguration: InfrastructureCon
     for {
       eventualBinding <- Task {
         implicit lazy val untypedSystem: actor.ActorSystem = actorSystem
-        Http().newServerAt(
-          infrastructureConfiguration.zimConfigurationProperties.interface,
-          infrastructureConfiguration.zimConfigurationProperties.port
-        ).bind(route)
+        Http()
+          .newServerAt(
+            infrastructureConfiguration.zimConfigurationProperties.interface,
+            infrastructureConfiguration.zimConfigurationProperties.port
+          )
+          .bind(route)
       }
       server <- Task
         .fromFuture(_ => eventualBinding)
@@ -41,9 +43,7 @@ final class AkkaHttpConfiguration(infrastructureConfiguration: InfrastructureCon
         .fork
       _ <- UIO(
         actorSystem.log.info(
-          s"Server online at http://${infrastructureConfiguration.zimConfigurationProperties.interface}:${infrastructureConfiguration.zimConfigurationProperties.port}/${
-            OpenApi().openapi
-          }"
+          s"Server online at http://${infrastructureConfiguration.zimConfigurationProperties.interface}:${infrastructureConfiguration.zimConfigurationProperties.port}/${OpenApi().openapi}"
         )
       )
       _ <- server.join

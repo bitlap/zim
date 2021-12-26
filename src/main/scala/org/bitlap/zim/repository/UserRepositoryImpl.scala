@@ -21,35 +21,33 @@ private final class UserRepositoryImpl(databaseName: String) extends UserReposit
 
   override def insert(dbo: User): stream.Stream[Throwable, Long] = ???
 
-  override def findAll(): stream.Stream[Throwable, User] = {
+  override def findAll(): stream.Stream[Throwable, User] =
     queryFindAll(User.table)
-  }
 
   override def deleteById(id: Long): stream.Stream[Throwable, Int] = ???
 
-  override def findById(id: Long): stream.Stream[Throwable, User] = {
+  override def findById(id: Long): stream.Stream[Throwable, User] =
     queryFindById(User.table, id)
-  }
 
-  private[repository] implicit def executeOperation(sqlUpdateWithGeneratedKey: SQLUpdateWithGeneratedKey): stream.Stream[Throwable, Long] = {
+  private[repository] implicit def executeOperation(
+    sqlUpdateWithGeneratedKey: SQLUpdateWithGeneratedKey
+  ): stream.Stream[Throwable, Long] =
     ZStream.fromEffect(
       Task.effect(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sqlUpdateWithGeneratedKey.apply()))
     )
-  }
 
-  private[repository] implicit def executeUpdateOperation(sqlUpdate: SQLUpdate): stream.Stream[Throwable, Int] = {
+  private[repository] implicit def executeUpdateOperation(sqlUpdate: SQLUpdate): stream.Stream[Throwable, Int] =
     ZStream.fromEffect(
       Task.effect(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sqlUpdate.apply()))
     )
-  }
 
-  private[repository] implicit def executeSQLOperation[T](sql: SQL[T, HasExtractor]): stream.Stream[Throwable, T] = {
+  private[repository] implicit def executeSQLOperation[T](sql: SQL[T, HasExtractor]): stream.Stream[Throwable, T] =
     ZStream.fromIterable(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sql.list().apply()))
-  }
 
-  private[repository] implicit def executeStreamOperation[T](streamReadySQL: StreamReadySQL[T]): stream.Stream[Throwable, T] = {
+  private[repository] implicit def executeStreamOperation[T](
+    streamReadySQL: StreamReadySQL[T]
+  ): stream.Stream[Throwable, T] =
     (NamedDB(Symbol(databaseName)) readOnlyStream streamReadySQL).toStream()
-  }
 }
 
 object UserRepositoryImpl {

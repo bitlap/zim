@@ -5,6 +5,11 @@
 
 > 感兴趣的关注一下，也可以一起开发。本项目旨在学习。
 
+## 默认API 
+
+JSON文档： `http://localhost:9000/api/v1.0/docs`
+心跳：`http://localhost:9000/api/v1.0/health`
+
 ## 项目结构
 
 ```
@@ -57,6 +62,7 @@ zim-master
   - akka-http
   - akka-steam
   - akka-actor
+  - akka-slf4j
 - jdbc
   - scalikejdbc 
   - scalikejdbc-streams

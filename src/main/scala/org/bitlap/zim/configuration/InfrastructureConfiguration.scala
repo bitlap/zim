@@ -5,6 +5,7 @@ import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.repository.UserRepository
 import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings }
 import zio._
+import org.bitlap.zim.repository.UserRepositoryImpl
 
 /**
  * 基础设施配置
@@ -14,8 +15,6 @@ import zio._
  * @version 1.0
  */
 final class InfrastructureConfiguration {
-
-  import org.bitlap.zim.repository.UserRepositoryImpl
 
   ConnectionPool.add(
     Symbol(mysqlConfigurationProperties.databaseName),

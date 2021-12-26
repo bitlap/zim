@@ -6,7 +6,6 @@ import org.bitlap.zim.configuration.ApiConfiguration.ZApiConfiguration
 import org.bitlap.zim.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import zio.{ TaskLayer, ULayer, ZLayer }
 
-
 /**
  * 全局的服务依赖管理
  *

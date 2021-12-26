@@ -14,10 +14,10 @@ import zio.{ stream, Has }
 private final class UserService(userRepository: UserRepository[User]) extends UserApplication {
 
   override def findById(id: Long): stream.Stream[Throwable, User] =
-    userRepository.findById(id).map(user => User(user.id, user.username))
+    userRepository.findById(id)
 
   override def findAll(): stream.Stream[Throwable, User] =
-    userRepository.findAll().map(user => User(user.id, user.username))
+    userRepository.findAll()
 }
 
 object UserService {

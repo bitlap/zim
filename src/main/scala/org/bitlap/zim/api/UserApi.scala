@@ -1,6 +1,5 @@
 package org.bitlap.zim.api
 
-
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
@@ -21,29 +20,29 @@ import zio._
  * @since 2021/12/25
  * @version 1.0
  */
-final class UserApi(userApplication: UserApplication)(implicit materializer: Materializer) extends ApiJsonCodec with ApiErrorMapping {
+final class UserApi(userApplication: UserApplication)(implicit materializer: Materializer)
+    extends ApiJsonCodec
+    with ApiErrorMapping {
 
   // 定义所有接口的路由
-  val route: Route = Route.seal(userGetAllRoute ~ userGetRoute)
+  lazy val route: Route = Route.seal(userGetAllRoute ~ userGetRoute)
 
-  lazy val userGetRoute: Route = AkkaHttpServerInterpreter.toRoute(UserEndpoint.userGetOneEndpoint) {
-    id =>
-      val userStream = userApplication.findById(id)
-      val resp = userStream.mapError({
-        case e: BusinessException => BusinessException(SystemConstant.ERROR, e.msg)
-        case e: Exception => e
-      })
-      buildMonoResponse[User](resp)
+  lazy val userGetRoute: Route = AkkaHttpServerInterpreter.toRoute(UserEndpoint.userGetOneEndpoint) { id =>
+    val userStream = userApplication.findById(id)
+    val resp = userStream.mapError({
+      case e: BusinessException => BusinessException(SystemConstant.ERROR, e.msg)
+      case e: Exception         => e
+    })
+    buildMonoResponse[User](resp)
   }
 
-  lazy val userGetAllRoute: Route = AkkaHttpServerInterpreter.toRoute(UserEndpoint.userGetAllEndpoint) {
-    _ =>
-      val userStream = userApplication.findAll()
-      val resp = userStream.mapError[ZimError]({
-        case e: BusinessException => BusinessException(SystemConstant.ERROR, e.msg)
-        case e: Exception => BusinessException(SystemConstant.ERROR, e.getMessage)
-      })
-      buildFlowResponse[User](resp)
+  lazy val userGetAllRoute: Route = AkkaHttpServerInterpreter.toRoute(UserEndpoint.userGetAllEndpoint) { _ =>
+    val userStream = userApplication.findAll()
+    val resp = userStream.mapError[ZimError]({
+      case e: BusinessException => BusinessException(SystemConstant.ERROR, e.msg)
+      case e: Exception         => BusinessException(SystemConstant.ERROR, e.getMessage)
+    })
+    buildFlowResponse[User](resp)
   }
 }
 

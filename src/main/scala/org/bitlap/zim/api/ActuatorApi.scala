@@ -1,6 +1,5 @@
 package org.bitlap.zim.api
 
-
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.DebuggingDirectives
 import org.bitlap.zim.ZimBuildInfo
@@ -20,8 +19,10 @@ import scala.concurrent.Future
 final class ActuatorApi {
 
   // https://doc.akka.io/docs/akka-http/current/routing-dsl/directives/debugging-directives/logRequestResult.html
-  val route: Route = DebuggingDirectives.logRequestResult("actuator-logger") {
-    AkkaHttpServerInterpreter.toRoute(ActuatorEndpoint.healthEndpoint)(_ => Future.successful(Right(ZimBuildInfo.toMap)))
+  lazy val route: Route = DebuggingDirectives.logRequestResult("actuator-logger") {
+    AkkaHttpServerInterpreter.toRoute(ActuatorEndpoint.healthEndpoint)(_ =>
+      Future.successful(Right(ZimBuildInfo.toMap))
+    )
   }
 
 }

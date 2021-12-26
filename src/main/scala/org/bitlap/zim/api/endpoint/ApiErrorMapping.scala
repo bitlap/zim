@@ -31,7 +31,9 @@ trait ApiErrorMapping extends ApiJsonCodec {
   private[api] lazy val statusInternalServerError: EndpointOutput.StatusMapping[ZimError.BusinessException] =
     statusMapping(
       StatusCode.InternalServerError,
-      anyJsonBody[ZimError.BusinessException].example(ZimError.BusinessException()).description(internalServerErrorDescription)
+      anyJsonBody[ZimError.BusinessException]
+        .example(ZimError.BusinessException())
+        .description(internalServerErrorDescription)
     )
 
   private[api] implicit def myExceptionHandler: ExceptionHandler = ExceptionHandler {

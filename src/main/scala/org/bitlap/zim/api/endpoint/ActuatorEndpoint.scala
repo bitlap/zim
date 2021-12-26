@@ -23,7 +23,7 @@ trait ActuatorEndpoint {
   private[api] lazy val healthDescriptionResource: String = "Zim Service Health Check Endpoint"
 
   private[api] lazy val healthEndpoint: Endpoint[Unit, StatusCode, HealthInfo, Any] = {
-    endpoint
+    ApiEndpoint.baseEndpoint
       .in(healthResource)
       .name(healthNameResource)
       .description(healthDescriptionResource)
@@ -34,7 +34,7 @@ trait ActuatorEndpoint {
   private[api] implicit lazy val buildInfoCodec: JsonCodec[HealthInfo] =
     implicitly[JsonCodec[Json]].map(_ => ZimBuildInfo.toMap)(_ =>
       parse(ZimBuildInfo.toJson) match {
-        case Left(_) => throw new RuntimeException("health doesn't work")
+        case Left(_)      => throw new RuntimeException("health doesn't work")
         case Right(value) => value
       }
     )

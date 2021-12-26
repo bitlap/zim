@@ -32,30 +32,35 @@ trait ApiJsonCodec extends BootstrapRuntime {
 
   // User不能使用`asJson`，会爆栈
   implicit def encodeGeneric[T <: Product]: Encoder[T] = (a: T) => {
-    if (a == null) Json.Null else {
+    if (a == null) Json.Null
+    else {
       a match {
         case u: User => User.encoder(u)
-        case _ => Json.Null
+        case _       => Json.Null
       }
     }
   }
 
-  implicit def encodeGenericResultSet[T <: Product]: Encoder[ResultSet[T]] = (a: ResultSet[T]) => Json.obj(
-    ("data", a.data.asJson),
-    ("msg", Json.fromString(a.msg)),
-    ("code", Json.fromInt(a.code))
-  )
+  implicit def encodeGenericResultSet[T <: Product]: Encoder[ResultSet[T]] =
+    (a: ResultSet[T]) =>
+      Json.obj(
+        ("data", a.data.asJson),
+        ("msg", Json.fromString(a.msg)),
+        ("code", Json.fromInt(a.code))
+      )
 
-  implicit def encodeGenericResultSets[T <: Product]: Encoder[ResultSet[List[T]]] = (a: ResultSet[List[T]]) => Json.obj(
-    ("data", a.data.asJson),
-    ("msg", Json.fromString(a.msg)),
-    ("code", Json.fromInt(a.code))
-  )
+  implicit def encodeGenericResultSets[T <: Product]: Encoder[ResultSet[List[T]]] =
+    (a: ResultSet[List[T]]) =>
+      Json.obj(
+        ("data", a.data.asJson),
+        ("msg", Json.fromString(a.msg)),
+        ("code", Json.fromInt(a.code))
+      )
 
   private[api] implicit lazy val stringCodec: JsonCodec[String] =
     implicitly[JsonCodec[Json]].map(json => json.noSpaces)(string =>
       parse(string) match {
-        case Left(_) => throw new RuntimeException("ApiJsonCoded")
+        case Left(_)      => throw new RuntimeException("ApiJsonCoded")
         case Right(value) => value
       }
     )
@@ -63,7 +68,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
   private[api] implicit def zimErrorCodec[A <: ZimError]: JsonCodec[A] =
     implicitly[JsonCodec[Json]].map(json =>
       json.as[A] match {
-        case Left(_) => throw new RuntimeException("MessageParsingError")
+        case Left(_)      => throw new RuntimeException("MessageParsingError")
         case Right(value) => value
       }
     )(error => error.asJson)
@@ -77,7 +82,8 @@ trait ApiJsonCodec extends BootstrapRuntime {
         msg <- c.get[String]("msg")
       } yield BusinessException(code = code, msg = msg).asInstanceOf[A]
 
-  private[api] def buildFlowResponse[T <: Product]: stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, NotUsed]]] = respStream => {
+  private[api] def buildFlowResponse[T <: Product]
+    : stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, NotUsed]]] = respStream => {
     val list = ListBuffer[T]()
     val resp = for {
       _ <- respStream.foreach(u => ZIO.effect(list.append(u)))
@@ -90,7 +96,8 @@ trait ApiJsonCodec extends BootstrapRuntime {
     )
   }
 
-  private[api] def buildMonoResponse[T <: Product]: stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, NotUsed]]] = respStream => {
+  private[api] def buildMonoResponse[T <: Product]
+    : stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, NotUsed]]] = respStream => {
     val list = ListBuffer[T]()
     val resp = for {
       _ <- respStream.foreach(u => ZIO.effect(list.append(u)))

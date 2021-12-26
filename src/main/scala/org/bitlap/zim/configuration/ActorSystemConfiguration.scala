@@ -24,7 +24,6 @@ object ActorSystemConfiguration {
     } yield actorSystem
   }
 
-
   val live: ZLayer[ZInfrastructureConfiguration, Throwable, ZActorSystemConfiguration] = ZLayer
     .fromAcquireRelease(actorSystem)(actorSystem => UIO.succeed(actorSystem.terminate()).ignore)
 

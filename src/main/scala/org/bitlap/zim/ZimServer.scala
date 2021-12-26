@@ -4,7 +4,7 @@ import org.bitlap.zim.configuration.{ AkkaHttpConfiguration, ApiConfiguration, Z
 import zio._
 import zio.clock.Clock
 import zio.console.Console
-import zio.logging.{ LogFormat, LogLevel, Logging, log }
+import zio.logging.{ log, LogFormat, LogLevel, Logging }
 
 /**
  * main方法

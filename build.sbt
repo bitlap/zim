@@ -9,9 +9,12 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.6",
     libraryDependencies ++= zioDeps ++ tapirDeps ++ commonDeps,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
-  ).enablePlugins(GitVersioning, BuildInfoPlugin)
+  )
+  .enablePlugins(GitVersioning, BuildInfoPlugin)
 
 // Aliases
 addCommandAlias("rel", "reload")
 addCommandAlias("com", "all compile test:compile it:compile")
 addCommandAlias("fmt", "all scalafmtSbt scalafmtAll")
+
+(Compile / compile) := ((Compile / compile) dependsOn scalafmtAll).value

@@ -10,10 +10,10 @@ import com.typesafe.config.{ Config, ConfigFactory }
  * @version 1.0
  */
 final case class ZimConfigurationProperties(
-                                             name: String,
-                                             interface: String,
-                                             port: Int
-                                           ) {
+  name: String,
+  interface: String,
+  port: Int
+) {
 
   def withName(name: String): ZimConfigurationProperties =
     copy(name = name)

@@ -45,8 +45,10 @@ object ApiConfiguration {
   val live: ZLayer[ZApplicationConfiguration with ZMaterializer, Throwable, ZApiConfiguration] =
     ZLayer.fromServices[ApplicationConfiguration, Materializer, ApiConfiguration](ApiConfiguration(_, _))
 
-  def make(applicationConfiguration: ApplicationConfiguration, materializer: Materializer): TaskLayer[ZApiConfiguration] =
+  def make(
+    applicationConfiguration: ApplicationConfiguration,
+    materializer: Materializer
+  ): TaskLayer[ZApiConfiguration] =
     ZLayer.succeed(applicationConfiguration) ++ ZLayer.succeed(materializer) >>> live
 
 }
-

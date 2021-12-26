@@ -10,17 +10,16 @@ import com.typesafe.config.{ Config, ConfigFactory }
  * @version 1.0
  */
 case class MysqlConfigurationProperties(
-                                         url: String,
-                                         user: String,
-                                         password: String,
-                                         databaseName: String,
-                                         initialSize: Integer,
-                                         maxSize: Integer,
-                                         connectionTimeoutMillis: Long,
-                                         validationQuery: String,
-                                         driverName: String
-
-                                       ) {
+  url: String,
+  user: String,
+  password: String,
+  databaseName: String,
+  initialSize: Integer,
+  maxSize: Integer,
+  connectionTimeoutMillis: Long,
+  validationQuery: String,
+  driverName: String
+) {
 
   def withUrl(url: String): MysqlConfigurationProperties =
     copy(url = url)

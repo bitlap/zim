@@ -18,7 +18,8 @@ trait UserEndpoint extends ApiErrorMapping {
 
   private[api] lazy val queryResource: EndpointInput[Unit] = "user"
   private[api] lazy val queryParameter: EndpointInput.Query[Long] = query[Long]("id")
-    .example(10086L).description("query parameter")
+    .example(10086L)
+    .description("query parameter")
 
   private[api] lazy val queryUserResource: EndpointInput[Long] = queryResource / "getOne" / queryParameter
   private[api] lazy val queriesDescriptionGetResource: String = "Queries Get Endpoint"
@@ -31,7 +32,6 @@ trait UserEndpoint extends ApiErrorMapping {
       .description(queriesDescriptionGetResource)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
       .errorOut(oneOf(statusInternalServerError, statusDefault))
-
 
   private[api] lazy val queriesResource: EndpointInput[Unit] = queryResource / "getAll"
   private[api] lazy val userGetAllEndpoint: Endpoint[Unit, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
