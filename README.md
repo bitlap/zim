@@ -1,4 +1,6 @@
 # zim
+[![Build](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml/badge.svg?branch=master)](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml)
+
 基于scala、zio、tapir、akka-http、scalikejdbc、redis实现的纯异步函数式LayIM。
 
 ## 技术栈
