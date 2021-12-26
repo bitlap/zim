@@ -1,4 +1,4 @@
-package org.bitlap.zim.api.document
+package org.bitlap.zim.api.endpoint
 
 import io.circe.Json
 import io.circe.parser._

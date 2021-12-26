@@ -2,7 +2,7 @@ package org.bitlap.zim.api
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import org.bitlap.zim.api.document.{ ActuatorEndpoint, ApiEndpoint, UserEndpoint }
+import org.bitlap.zim.api.endpoint.{ ActuatorEndpoint, ApiEndpoint, UserEndpoint }
 import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.openapi.{ Contact, Info, License }

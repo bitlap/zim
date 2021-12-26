@@ -1,4 +1,4 @@
-package org.bitlap.zim.api.document
+package org.bitlap.zim.api.endpoint
 
 
 import sttp.tapir.{ EndpointInput, _ }

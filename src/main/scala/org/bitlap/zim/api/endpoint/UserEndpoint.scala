@@ -1,4 +1,4 @@
-package org.bitlap.zim.api.document
+package org.bitlap.zim.api.endpoint
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
@@ -8,6 +8,7 @@ import sttp.capabilities.akka.AkkaStreams
 import sttp.tapir._
 
 /**
+ * 用户接口的端点
  *
  * @author 梦境迷离
  * @since 2021/12/25
