@@ -16,7 +16,7 @@ object Dependencies {
     val `akka-http` = "10.1.10"
     val akka = "2.5.32"
     val circe = "0.14.1"
-    val scalikejdbc = "3.5.0"
+    val scalikejdbc = "4.0.0"
     val logback = "1.2.3"
     val config = "1.4.1"
     val mysql = "8.0.25"
