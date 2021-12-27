@@ -10,7 +10,9 @@ object BuildInfoSettings {
 
   val value: Seq[Def.Setting[_]] = Seq(
     buildInfoObject := "ZimBuildInfo",
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, gitCommitString) ++ Seq[BuildInfoKey](Compile / libraryDependencies),
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, gitCommitString) ++ Seq[BuildInfoKey](
+      Compile / libraryDependencies
+    ),
     buildInfoPackage := s"${organization.value}.zim",
     buildInfoOptions ++= Seq(BuildInfoOption.ToJson, BuildInfoOption.BuildTime),
     gitCommitString := git.gitHeadCommit.value.getOrElse("Not Set")

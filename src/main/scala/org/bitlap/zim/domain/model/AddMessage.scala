@@ -6,7 +6,8 @@ import scalikejdbc.{ WrappedResultSet, _ }
 
 import java.time.LocalDateTime
 
-/** 添加消息
+/**
+ * 添加消息
  *
  * @see table:t_add_message
  * @param id 暂时都使用`Int`

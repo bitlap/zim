@@ -3,7 +3,8 @@ package org.bitlap.zim.domain
 import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 import io.circe.{ Decoder, Encoder }
 
-/** 添加好友、群组
+/**
+ * 添加好友、群组
  *
  * @param groupId 好友列表id或群组id
  * @param remark  附言
