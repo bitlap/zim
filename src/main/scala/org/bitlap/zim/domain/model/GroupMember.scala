@@ -3,7 +3,8 @@ import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 import scalikejdbc.{ WrappedResultSet, _ }
 
-/** 群组成员
+/**
+ * 群组成员
  *
  * @see table:t_group_members
  * @param gid 群组编号

@@ -1,7 +1,6 @@
 import sbt._
 
 /**
- *
  * @author 梦境迷离
  * @since 2021/12/25
  * @version 1.0
@@ -13,13 +12,13 @@ object Dependencies {
     val `zio-logging` = "0.5.14"
     val tapir = "0.17.20"
     val `tapir-swagger` = "0.18.3"
-    val `akka-http` = "10.1.10"
+    val `akka-http` = "10.1.15"
     val akka = "2.5.32"
     val circe = "0.14.1"
-    val scalikejdbc = "4.0.0"
-    val logback = "1.2.3"
+    val scalikejdbc = "3.5.0"
+    val logback = "1.2.10"
     val config = "1.4.1"
-    val mysql = "8.0.25"
+    val mysql = "8.0.27"
     val `zio-interop-reactiveStreams` = "1.3.8"
   }
 

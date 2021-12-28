@@ -3,7 +3,8 @@ package org.bitlap.zim.domain
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 
-/** 我发送的消息和我的信息
+/**
+ * 我发送的消息和我的信息
  *
  * @param id       我的id
  * @param username 我的昵称
