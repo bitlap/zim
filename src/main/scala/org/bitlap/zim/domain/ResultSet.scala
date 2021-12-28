@@ -2,7 +2,8 @@ package org.bitlap.zim.domain
 
 import org.bitlap.zim.configuration.SystemConstant
 
-/** 结果集
+/**
+ * 结果集
  *
  * @param code 状态，0表示成功，其他表示失败
  * @param msg  额外信息

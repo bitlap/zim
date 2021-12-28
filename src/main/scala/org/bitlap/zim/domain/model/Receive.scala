@@ -4,7 +4,8 @@ import io.circe._
 import io.circe.generic.semiauto._
 import scalikejdbc.{ WrappedResultSet, _ }
 
-/** 收到的消息
+/**
+ * 收到的消息
  * @see table:t_message
  * @param toid      发送给哪个用户
  * @param id        消息的来源ID（如果是私聊，则是用户id，如果是群聊，则是群组id）
