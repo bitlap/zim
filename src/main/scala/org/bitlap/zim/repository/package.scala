@@ -1,8 +1,8 @@
 package org.bitlap.zim
 
 import org.bitlap.zim.domain.model.User
-import scalikejdbc.{ NoExtractor, SQL, _ }
 import scalikejdbc.streams._
+import scalikejdbc.{ NoExtractor, SQL, _ }
 import sqls.count
 
 /**
@@ -14,7 +14,7 @@ import sqls.count
  */
 package object repository {
 
-  private[repository] lazy val u = User.syntax("u")
+  private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
 
   private[repository] def queryFindById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => User(rs))
@@ -32,7 +32,7 @@ package object repository {
    * @param sex
    * @return 这种stream只有一个元素
    */
-  private[repository] def countUser(username: Option[String], sex: Option[Int]): StreamReadySQL[Int] =
+  private[repository] def _countUser(username: Option[String], sex: Option[Int]): StreamReadySQL[Int] =
     withSQL {
       select(count(u.id))
         .from(User as u)
@@ -51,7 +51,7 @@ package object repository {
    * @param sex
    * @return
    */
-  private[repository] def findUser(username: Option[String], sex: Option[Int]): StreamReadySQL[User] =
+  private[repository] def _findUser(username: Option[String], sex: Option[Int]): StreamReadySQL[User] =
     withSQL {
       select
         .from(User as u)
@@ -71,7 +71,7 @@ package object repository {
    * @param uid
    * @return
    */
-  private[repository] def updateAvatar(table: TableDefSQLSyntax, avatar: String, uid: Int): SQLUpdate =
+  private[repository] def _updateAvatar(table: TableDefSQLSyntax, avatar: String, uid: Int): SQLUpdate =
     sql"update $table set avatar=${avatar} where id=${uid};".update()
 
   /**
@@ -82,7 +82,7 @@ package object repository {
    * @param uid
    * @return
    */
-  private[repository] def updateSign(table: TableDefSQLSyntax, sign: String, uid: Int): SQLUpdate =
+  private[repository] def _updateSign(table: TableDefSQLSyntax, sign: String, uid: Int): SQLUpdate =
     sql"update $table set sign = ${sign} where id = ${uid};".update()
 
   /**
@@ -93,7 +93,7 @@ package object repository {
    * @param user
    * @return
    */
-  private[repository] def updateUserInfo(table: TableDefSQLSyntax, id: Int, user: User): SQLUpdate =
+  private[repository] def _updateUserInfo(table: TableDefSQLSyntax, id: Int, user: User): SQLUpdate =
     sql"update $table set username= ${user.username}, sex = ${user.sex}, sign = ${user.sign}, password = ${user.password} where id = ${id}; "
       .update()
 
@@ -105,7 +105,7 @@ package object repository {
    * @param uid
    * @return
    */
-  private[repository] def updateUserStatus(table: TableDefSQLSyntax, status: String, uid: Int): SQLUpdate =
+  private[repository] def _updateUserStatus(table: TableDefSQLSyntax, status: String, uid: Int): SQLUpdate =
     sql"update $table set status = ${status} where id = ${uid};".update()
 
   /**
@@ -115,7 +115,7 @@ package object repository {
    * @param activeCode
    * @return
    */
-  private[repository] def activeUser(table: TableDefSQLSyntax, activeCode: String): SQLUpdate =
+  private[repository] def _activeUser(table: TableDefSQLSyntax, activeCode: String): SQLUpdate =
     sql"update $table set status = 'offline' where active = ${activeCode};".update()
 
   /**
@@ -126,7 +126,7 @@ package object repository {
    * @param gid
    * @return
    */
-  private[repository] def findUserByGroupId(
+  private[repository] def _findUserByGroupId(
     table: TableDefSQLSyntax,
     memberTable: TableDefSQLSyntax,
     gid: Int
@@ -144,7 +144,7 @@ package object repository {
    * @param fgid
    * @return
    */
-  private[repository] def findUsersByFriendGroupIds(
+  private[repository] def _findUsersByFriendGroupIds(
     table: TableDefSQLSyntax,
     friendGroupMemberTable: TableDefSQLSyntax,
     fgid: Int
@@ -161,7 +161,7 @@ package object repository {
    * @param user
    * @return
    */
-  private[repository] def saveUser(table: TableDefSQLSyntax, user: User): SQLUpdateWithGeneratedKey =
+  private[repository] def _saveUser(table: TableDefSQLSyntax, user: User): SQLUpdateWithGeneratedKey =
     sql"insert into t_user(username,password,email,create_date,active) values(${user.username},${user.password},${user.email},${user.createDate},${user.active});"
       .updateAndReturnGeneratedKey("id")
 
@@ -172,7 +172,7 @@ package object repository {
    * @param email
    * @return 这种stream只有一个元素
    */
-  private[repository] def matchUser(table: TableDefSQLSyntax, email: String): StreamReadySQL[User] =
+  private[repository] def _matchUser(table: TableDefSQLSyntax, email: String): StreamReadySQL[User] =
     sql"select id,username,email,avatar,sex,sign,password,status,active,create_date from $table where email = ${email};"
       .map(rs => User(rs))
       .list()

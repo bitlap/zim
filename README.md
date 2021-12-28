@@ -1,14 +1,15 @@
 # zim
 [![Build](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml/badge.svg?branch=master)](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml)
 
-基于scala、zio、tapir、akka-http、scalikejdbc、redis实现的纯异步、函数式、流式API的LayIM。
+基于scala、zio、tapir、akka-http、circe、scalikejdbc、redis实现的纯异步、函数式、流式API的LayIM。
 
 > 感兴趣的关注一下，也可以一起开发。本项目旨在学习。
 
 ## 默认API 
 
-JSON文档： `http://localhost:9000/api/v1.0/docs`
-心跳：`http://localhost:9000/api/v1.0/health`
+- JSON文档： `http://localhost:9000/api/v1.0/docs`
+- 心跳：`http://localhost:9000/api/v1.0/health`
+- Main方法入口：`ZimServer.scala#run`
 
 ## 项目结构
 
@@ -38,11 +39,11 @@ zim-master
                             └─ bitlap
                                    └─ zim
                                           ├─ ZimServer.scala        -- 程序入口，项目启动的main方法
-                                          ├─ api                    -- 基于tapir的API（基于akka http实现）和Endpoint定义
+                                          ├─ api                    -- 基于tapir的API（akka http实现）和Endpoint定义
                                           ├─ application            -- zio项目模块管理，聚合了service
                                           ├─ configuration          -- zio集成各框架的项目配置
                                           ├─ domain                 -- 领域对象或其他简单的样例类
-                                          └─ repository             -- scalikejdbc的dao层实现（基于scalikejdbc stream和zio stream实现）
+                                          └─ repository             -- scalikejdbc的dao层实现（scalikejdbc stream和zio stream实现）
 ```
 
 ## 技术栈
