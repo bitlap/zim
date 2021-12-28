@@ -5,7 +5,8 @@ import io.circe.generic.semiauto._
 import org.bitlap.zim.domain.Group
 import scalikejdbc._
 
-/** 群组信息
+/**
+ * 群组信息
  *
  * @see table:t_group
  * @param id        群组id

@@ -6,7 +6,7 @@ lazy val root = (project in file("."))
     organization := "org.bitlap",
     name := "zim",
     version := "0.0.1",
-    scalaVersion := "2.13.6",
+    scalaVersion := "2.13.7",
     libraryDependencies ++= zioDeps ++ tapirDeps ++ commonDeps,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
   )

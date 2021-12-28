@@ -4,7 +4,8 @@ import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 import org.bitlap.zim.domain.model.User
 
-/** 好友列表
+/**
+ * 好友列表
  *
  * 好友列表也是一种group
  *

@@ -4,7 +4,8 @@ import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 import org.bitlap.zim.domain.model.User
 
-/** 返回添加好友、群组消息
+/**
+ * 返回添加好友、群组消息
  *
  * @param id
  * @param uid        用户id
