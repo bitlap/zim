@@ -5,7 +5,7 @@ import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.repository.UserRepository
 import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings }
 import zio._
-import org.bitlap.zim.repository.UserRepositoryImpl
+import org.bitlap.zim.repository.TangibleUserRepository
 
 /**
  * 基础设施配置
@@ -34,7 +34,7 @@ final class InfrastructureConfiguration {
 
   lazy val zimConfigurationProperties: ZimConfigurationProperties = ZimConfigurationProperties()
 
-  lazy val userRepository: UserRepository[User] = UserRepositoryImpl(mysqlConfigurationProperties.databaseName)
+  lazy val userRepository: UserRepository[User] = TangibleUserRepository(mysqlConfigurationProperties.databaseName)
 
 }
 

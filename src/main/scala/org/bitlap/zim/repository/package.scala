@@ -1,8 +1,9 @@
 package org.bitlap.zim
 
 import org.bitlap.zim.domain.model.User
-import scalikejdbc.streams._
 import scalikejdbc.{ NoExtractor, SQL, _ }
+import scalikejdbc.streams._
+import sqls.count
 
 /**
  * 用户操作SQL
@@ -13,6 +14,8 @@ import scalikejdbc.{ NoExtractor, SQL, _ }
  */
 package object repository {
 
+  private[repository] lazy val u = User.syntax("u")
+
   private[repository] def queryFindById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => User(rs))
 
@@ -20,6 +23,158 @@ package object repository {
     sql"SELECT * FROM ${table}".list().map(r => User(r)).iterator()
 
   private[repository] def queryDeleteById(table: TableDefSQLSyntax, id: Long): SQL[Nothing, NoExtractor] =
-    sql"DELETE FROM ${table} WHERE id = ${id}"
+    sql"DELETE FROM ${table} WHERE id = ${id};"
 
+  /**
+   * 根据用户名和性别统计用户
+   *
+   * @param username
+   * @param sex
+   * @return 这种stream只有一个元素
+   */
+  private[repository] def countUser(username: Option[String], sex: Option[Int]): StreamReadySQL[Int] =
+    withSQL {
+      select(count(u.id))
+        .from(User as u)
+        .where(
+          sqls.toAndConditionOpt(
+            username.map(un => sqls.like(u.username, un)),
+            sex.map(sex => sqls.eq(u.sex, sex))
+          )
+        )
+    }.toList().map(rs => rs.get[Int]("id")).iterator()
+
+  /**
+   * 根据用户名和性别查询用户
+   *
+   * @param username
+   * @param sex
+   * @return
+   */
+  private[repository] def findUser(username: Option[String], sex: Option[Int]): StreamReadySQL[User] =
+    withSQL {
+      select
+        .from(User as u)
+        .where(
+          sqls.toAndConditionOpt(
+            username.map(un => sqls.like(u.username, un)),
+            sex.map(sex => sqls.eq(u.sex, sex))
+          )
+        )
+    }.map(rs => User(rs)).list().iterator()
+
+  /**
+   * 更新用户头像
+   *
+   * @param table
+   * @param avatar
+   * @param uid
+   * @return
+   */
+  private[repository] def updateAvatar(table: TableDefSQLSyntax, avatar: String, uid: Int): SQLUpdate =
+    sql"update $table set avatar=${avatar} where id=${uid};".update()
+
+  /**
+   * 更新签名
+   *
+   * @param table
+   * @param sign
+   * @param uid
+   * @return
+   */
+  private[repository] def updateSign(table: TableDefSQLSyntax, sign: String, uid: Int): SQLUpdate =
+    sql"update $table set sign = ${sign} where id = ${uid};".update()
+
+  /**
+   * 更新用户信息
+   *
+   * @param table
+   * @param id
+   * @param user
+   * @return
+   */
+  private[repository] def updateUserInfo(table: TableDefSQLSyntax, id: Int, user: User): SQLUpdate =
+    sql"update $table set username= ${user.username}, sex = ${user.sex}, sign = ${user.sign}, password = ${user.password} where id = ${id}; "
+      .update()
+
+  /**
+   * 更新用户状态
+   *
+   * @param table
+   * @param sign
+   * @param uid
+   * @return
+   */
+  private[repository] def updateUserStatus(table: TableDefSQLSyntax, status: String, uid: Int): SQLUpdate =
+    sql"update $table set status = ${status} where id = ${uid};".update()
+
+  /**
+   * 激活用户账号
+   *
+   * @param table
+   * @param activeCode
+   * @return
+   */
+  private[repository] def activeUser(table: TableDefSQLSyntax, activeCode: String): SQLUpdate =
+    sql"update $table set status = 'offline' where active = ${activeCode};".update()
+
+  /**
+   * 根据群组ID查询群里用户的信息
+   *
+   * @param table
+   * @param memberTable
+   * @param gid
+   * @return
+   */
+  private[repository] def findUserByGroupId(
+    table: TableDefSQLSyntax,
+    memberTable: TableDefSQLSyntax,
+    gid: Int
+  ): StreamReadySQL[User] =
+    sql"select id,username,status,sign,avatar,email from $table where id in(select uid from $memberTable where gid = ${gid});"
+      .map(rs => User(rs))
+      .list()
+      .iterator()
+
+  /**
+   * 根据好友列表ID查询用户信息列表
+   *
+   * @param table
+   * @param friendGroupMemberTable
+   * @param fgid
+   * @return
+   */
+  private[repository] def findUsersByFriendGroupIds(
+    table: TableDefSQLSyntax,
+    friendGroupMemberTable: TableDefSQLSyntax,
+    fgid: Int
+  ): StreamReadySQL[User] =
+    sql"select id,username,avatar,sign,status,email,sex from $table where id in(select uid from $friendGroupMemberTable where fgid = ${fgid});"
+      .map(rs => User(rs))
+      .list()
+      .iterator()
+
+  /**
+   * 保存用户信息
+   *
+   * @param table
+   * @param user
+   * @return
+   */
+  private[repository] def saveUser(table: TableDefSQLSyntax, user: User): SQLUpdateWithGeneratedKey =
+    sql"insert into t_user(username,password,email,create_date,active) values(${user.username},${user.password},${user.email},${user.createDate},${user.active});"
+      .updateAndReturnGeneratedKey("id")
+
+  /**
+   * 根据邮箱匹配用户
+   *
+   * @param table
+   * @param email
+   * @return 这种stream只有一个元素
+   */
+  private[repository] def matchUser(table: TableDefSQLSyntax, email: String): StreamReadySQL[User] =
+    sql"select id,username,email,avatar,sex,sign,password,status,active,create_date from $table where email = ${email};"
+      .map(rs => User(rs))
+      .list()
+      .iterator()
 }
