@@ -3,7 +3,8 @@ package org.bitlap.zim.domain
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 
-/** 添加好友
+/**
+ * 添加好友
  *
  * @param mid  自己的id
  * @param mgid 分组id

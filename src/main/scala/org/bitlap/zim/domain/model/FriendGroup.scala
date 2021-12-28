@@ -3,7 +3,8 @@ import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 import scalikejdbc._
 
-/** 用户创建的好友列表
+/**
+ * 用户创建的好友列表
  *
  * @see table:t_friend_group
  * @param id        分组ID
