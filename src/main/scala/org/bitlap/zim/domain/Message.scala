@@ -3,7 +3,8 @@ package org.bitlap.zim.domain
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 
-/** 消息
+/**
+ * 消息
  *
  * @see table:t_message
  * @param `type` 随便定义，用于在服务端区分消息类型
