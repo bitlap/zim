@@ -1,6 +1,6 @@
 package org.bitlap.zim.repository
 
-import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.model.{ AddFriends, GroupMember, User }
 import scalikejdbc._
 import scalikejdbc.streams._
 import zio._
@@ -19,6 +19,7 @@ import scala.language.implicitConversions
  */
 private final class TangibleUserRepository(databaseName: String) extends UserRepository[User] {
 
+  // 有些没用的可能需要删掉，抽象出真正几个repository通用的到base repository
   override def insert(dbo: User): stream.Stream[Throwable, Int] = ???
 
   override def findAll(): stream.Stream[Throwable, User] =
@@ -74,6 +75,35 @@ private final class TangibleUserRepository(databaseName: String) extends UserRep
     streamReadySQL: StreamReadySQL[T]
   ): stream.Stream[Throwable, T] =
     (NamedDB(Symbol(databaseName)) readOnlyStream streamReadySQL).toStream()
+
+  override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
+    _countUser(username, sex)
+
+  override def findUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, User] =
+    _findUser(username, sex)
+
+  override def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int] =
+    _updateAvatar(User.table, avatar, uid)
+
+  override def updateSign(sign: String, uid: Int): stream.Stream[Throwable, Int] = _updateSign(User.table, sign, uid)
+
+  override def updateUserInfo(id: Int, user: User): stream.Stream[Throwable, Int] =
+    _updateUserInfo(User.table, id, user)
+
+  override def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Int] =
+    _updateUserStatus(User.table, status, uid)
+
+  override def activeUser(activeCode: String): stream.Stream[Throwable, Int] = _activeUser(User.table, activeCode)
+
+  override def findUserByGroupId(gid: Int): stream.Stream[Throwable, User] =
+    _findUserByGroupId(User.table, GroupMember.table, gid)
+
+  override def findUsersByFriendGroupIds(fgid: Int): stream.Stream[Throwable, User] =
+    _findUsersByFriendGroupIds(User.table, AddFriends.table, fgid)
+
+  override def saveUser(user: User): stream.Stream[Throwable, Long] = _saveUser(User.table, user)
+
+  override def matchUser(email: String): stream.Stream[Throwable, User] = _matchUser(User.table, email)
 }
 
 object TangibleUserRepository {
@@ -84,7 +114,7 @@ object TangibleUserRepository {
   type ZUserRepository = Has[UserRepository[User]]
 
   /**
-   * todo 这里只留公开方法
+   * todo 这里只留公开方法，没用的需要删掉
    * @return
    */
   def findAll(): stream.ZStream[ZUserRepository, Throwable, User] =
