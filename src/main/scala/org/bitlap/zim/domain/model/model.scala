@@ -12,10 +12,10 @@ import java.time.ZonedDateTime
  */
 package object model {
 
-  implicit val encodeInstant: Encoder[ZonedDateTime] =
+  implicit val encodeDate: Encoder[ZonedDateTime] =
     Encoder.encodeString.contramap[ZonedDateTime](t => if (t == null) "" else t.toString)
 
-  implicit val decodeInstant: Decoder[ZonedDateTime] = Decoder.decodeString.emapTry { str =>
+  implicit val decodeDate: Decoder[ZonedDateTime] = Decoder.decodeString.emapTry { str =>
     Try {
       if (str == null) ZonedDateTime.now() else ZonedDateTime.parse(str)
     }

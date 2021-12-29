@@ -30,9 +30,9 @@ object GroupList extends SQLSyntaxSupport[GroupList] {
 
   def apply(rs: WrappedResultSet): GroupList = GroupList(
     rs.int("id"),
-    rs.string("groupname"),
+    rs.string("group_name"),
     rs.string("avatar"),
-    rs.int("createId")
+    rs.int("create_id")
   )
 
 }
