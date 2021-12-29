@@ -23,6 +23,6 @@ object FriendGroup extends SQLSyntaxSupport[FriendGroup] {
   def apply(rs: WrappedResultSet): FriendGroup = FriendGroup(
     rs.int("id"),
     rs.int("uid"),
-    rs.string("groupname")
+    rs.string("group_name")
   )
 }

@@ -39,9 +39,9 @@ object AddMessage extends SQLSyntaxSupport[AddMessage] {
 
   def apply(rs: WrappedResultSet): AddMessage = AddMessage(
     rs.int("id"),
-    rs.int("fromUid"),
-    rs.int("toUid"),
-    rs.int("groupId"),
+    rs.int("from_uid"),
+    rs.int("to_uid"),
+    rs.int("group_id"),
     rs.string("remark"),
     rs.int("agree"),
     rs.int("type"),
