@@ -1,8 +1,8 @@
 package org.bitlap.zim
 
-import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.model.{GroupList, User}
 import scalikejdbc.streams._
-import scalikejdbc.{ NoExtractor, SQL, _ }
+import scalikejdbc.{NoExtractor, SQL, _}
 import sqls.count
 
 /**
@@ -15,6 +15,7 @@ import sqls.count
 package object repository {
 
   private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
+  private[repository] lazy val g: scalikejdbc.QuerySQLSyntaxProvider[scalikejdbc.SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
 
   private[repository] def queryFindById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => User(rs))
@@ -177,4 +178,44 @@ package object repository {
       .map(rs => User(rs))
       .list()
       .iterator()
+
+
+  /**
+   * 创建群
+   *
+   * @param table
+   * @param groupList
+   * @return
+   */
+  private[repository] def _createGroup(table: TableDefSQLSyntax, groupList: GroupList): SQLUpdateWithGeneratedKey =
+    sql"insert into ${table}(group_name,avatar,create_id) values(${groupList.groupname},${groupList.avatar},${groupList.createId})"
+      .updateAndReturnGeneratedKey("id")
+
+
+  /**
+   * 删除群
+   *
+   * @param table
+   * @param id
+   * @return
+   */
+  private[repository] def _deleteGroup(table: TableDefSQLSyntax, id: Int): SQLUpdate =
+    sql"delete from $table where id = ${id}"
+      .update()
+
+
+  /**
+   * 根据群id查询群信息
+   *
+   * @param id
+   * @return
+   */
+  private[repository] def _findGroupById(id:Int): StreamReadySQL[GroupList] =
+    withSQL{
+      select(g.id,g.groupname,g.avatar,g.createId)
+        .from(GroupList as g)
+        .where.eq(g.id,id)
+    }.map(re => GroupList(re)).list().iterator()
+
+
 }
