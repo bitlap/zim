@@ -7,6 +7,9 @@ import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings }
 import zio._
 import org.bitlap.zim.repository.TangibleUserRepository
 
+import org.bitlap.zim.domain.model.GroupList
+import org.bitlap.zim.repository.{ GroupRepository, TangibleGroupRepository }
+
 /**
  * 基础设施配置
  *
@@ -36,6 +39,10 @@ final class InfrastructureConfiguration {
 
   lazy val userRepository: UserRepository[User] = TangibleUserRepository(mysqlConfigurationProperties.databaseName)
 
+  lazy val groupRepository: GroupRepository[GroupList] = TangibleGroupRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+
 }
 
 /**
@@ -53,6 +60,9 @@ object InfrastructureConfiguration {
 
   val userRepository: URIO[ZInfrastructureConfiguration, UserRepository[User]] =
     ZIO.access(_.get.userRepository)
+
+  val groupRepository: URIO[ZInfrastructureConfiguration, GroupRepository[GroupList]] =
+    ZIO.access(_.get.groupRepository)
 
   val live: ULayer[ZInfrastructureConfiguration] =
     ZLayer.succeed[InfrastructureConfiguration](InfrastructureConfiguration())
