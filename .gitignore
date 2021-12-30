@@ -8,3 +8,6 @@ project/metals.sbt
 Makefile
 .bsp
 .idea
+
+# config
+src/main/resources/application.conf
