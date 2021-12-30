@@ -1,9 +1,16 @@
 package org.bitlap.zim
 
-import org.bitlap.zim.domain.model.{GroupList, User}
+import org.bitlap.zim.domain.model.User
+import scalikejdbc.{ NoExtractor, SQL, _ }
 import scalikejdbc.streams._
-import scalikejdbc.{NoExtractor, SQL, _}
 import sqls.count
+import zio.stream.ZStream
+import zio.interop.reactivestreams._
+import zio.{ stream, Task }
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.implicitConversions
+import org.bitlap.zim.domain.model.GroupList
 
 /**
  * 用户操作SQL
@@ -14,9 +21,59 @@ import sqls.count
  */
 package object repository {
 
-  private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
-  private[repository] lazy val g: scalikejdbc.QuerySQLSyntaxProvider[scalikejdbc.SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
+  //==============================隐式转换========================================
 
+  /**
+   * scalikejdbc更新并返回主键的转换
+   *
+   * @param sqlUpdateWithGeneratedKey
+   */
+  implicit class sqlUpdateWithGeneratedKey(sqlUpdateWithGeneratedKey: SQLUpdateWithGeneratedKey) {
+    def toUpdateReturnKey(implicit databaseName: String): stream.Stream[Throwable, Long] =
+      ZStream.fromEffect(
+        Task.effect(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sqlUpdateWithGeneratedKey.apply()))
+      )
+  }
+
+  /**
+   * scalikejdbc更新操作转换
+   *
+   * @param sqlUpdate
+   */
+  implicit class executeUpdateOperation(sqlUpdate: SQLUpdate) {
+    def toUpdateOperation(implicit databaseName: String): stream.Stream[Throwable, Int] =
+      ZStream.fromEffect(
+        Task.effect(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sqlUpdate.apply()))
+      )
+  }
+
+  /**
+   * scalikejdbc单对象转换
+   *
+   * @param sql
+   * @tparam T
+   */
+  implicit class executeSQLOperation[T](sql: SQL[T, HasExtractor]) {
+    def toSQLOperation(implicit databaseName: String): stream.Stream[Throwable, T] =
+      ZStream.fromIterable(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sql.list().apply()))
+  }
+
+  /**
+   * scalikejdbc流转换
+   *
+   * @param streamReadySQL
+   * @tparam T
+   */
+  implicit class executeStreamOperation[T](streamReadySQL: StreamReadySQL[T]) {
+    def toStreamOperation(implicit databaseName: String): stream.Stream[Throwable, T] =
+      (NamedDB(Symbol(databaseName)) readOnlyStream streamReadySQL).toStream()
+  }
+
+  //==============================表别名定义========================================
+  private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
+  private[repository] lazy val g: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
+
+  //==============================用户 SQL实现========================================
   private[repository] def queryFindById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => User(rs))
 
@@ -179,43 +236,91 @@ package object repository {
       .list()
       .iterator()
 
+  //==============================群组 SQL实现========================================
 
   /**
-   * 创建群
+   * 创建群组
    *
    * @param table
    * @param groupList
    * @return
    */
-  private[repository] def _createGroup(table: TableDefSQLSyntax, groupList: GroupList): SQLUpdateWithGeneratedKey =
-    sql"insert into ${table}(group_name,avatar,create_id) values(${groupList.groupname},${groupList.avatar},${groupList.createId})"
+  private[repository] def _createGroupList(table: TableDefSQLSyntax, groupList: GroupList): SQLUpdateWithGeneratedKey =
+    sql"insert into $table(group_name,avatar,create_id) values(${groupList.groupname},${groupList.avatar},${groupList.createId});"
       .updateAndReturnGeneratedKey("id")
 
-
   /**
-   * 删除群
+   * 删除群组
    *
    * @param table
-   * @param id
+   * @param groupList
    * @return
    */
   private[repository] def _deleteGroup(table: TableDefSQLSyntax, id: Int): SQLUpdate =
-    sql"delete from $table where id = ${id}"
-      .update()
+    sql"delete from $table where id = ${id};".executeUpdate()
 
+  /**
+   * 根据群名模糊统计
+   *
+   * @param groupName
+   * @return
+   */
+  private[repository] def _countGroup(groupName: Option[String]): StreamReadySQL[Int] =
+    withSQL {
+      select(count(u.id))
+        .from(GroupList as g)
+        .where(
+          sqls.toAndConditionOpt(
+            groupName.map(gn => sqls.like(g.groupname, gn))
+          )
+        )
+    }.toList().map(rs => rs.get[Int]("id")).iterator()
+
+  /**
+   * 根据群名模糊查询群
+   *
+   * @param groupName
+   * @return
+   */
+  private[repository] def _findGroup(groupName: Option[String]): StreamReadySQL[GroupList] =
+    withSQL {
+      select
+        .from(GroupList as g)
+        .where(
+          sqls.toAndConditionOpt(
+            groupName.map(gn => sqls.like(g.groupname, gn))
+          )
+        )
+    }.toList().map(rs => GroupList(rs)).iterator()
 
   /**
    * 根据群id查询群信息
    *
-   * @param id
+   * @param table
+   * @param gid
    * @return
    */
-  private[repository] def _findGroupById(id:Int): StreamReadySQL[GroupList] =
-    withSQL{
-      select(g.id,g.groupname,g.avatar,g.createId)
-        .from(GroupList as g)
-        .where.eq(g.id,id)
-    }.map(re => GroupList(re)).list().iterator()
+  private[repository] def _findGroupById(table: TableDefSQLSyntax, gid: Int): StreamReadySQL[GroupList] =
+    sql"select id,group_name,avatar,create_id from $table where id = ${gid};"
+      .map(rs => GroupList(rs))
+      .list()
+      .iterator()
 
-
+  /**
+   * 根据用户id查询用户所在的群组列表，不管是自己创建的还是别人创建的
+   *
+   * @param groupTable
+   * @param groupMemberTable
+   * @param uid
+   * @return
+   */
+  private[repository] def _findGroupsById(
+    groupTable: TableDefSQLSyntax,
+    groupMemberTable: TableDefSQLSyntax,
+    uid: Int
+  ): StreamReadySQL[GroupList] =
+    sql"select id,group_name,avatar,create_id from $groupTable where id in(select distinct gid from $groupMemberTable where uid = ${uid});"
+      .map(rs => GroupList(rs))
+      .list()
+      .iterator()
 }

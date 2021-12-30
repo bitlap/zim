@@ -13,7 +13,10 @@ import zio._
  */
 final class ApplicationConfiguration(infrastructureConfiguration: InfrastructureConfiguration) {
   // 应用程序管理多个application，这里只有一个（模块化）
-  val userApplication: UserApplication = UserService(infrastructureConfiguration.userRepository)
+  val userApplication: UserApplication = UserService(
+    infrastructureConfiguration.userRepository,
+    infrastructureConfiguration.groupRepository
+  )
 }
 
 /**

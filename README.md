@@ -1,9 +1,11 @@
+<img align="right" width="20%" height="10%" src="./qq_group.JPG" alt="https://dreamylost.cn">
+
 # zim
 [![Build](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml/badge.svg?branch=master)](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml)
 
 基于scala、zio、tapir、akka-http、circe、scalikejdbc、redis实现的纯异步、函数式、流式API的LayIM。
 
-> 感兴趣的关注一下，也可以一起开发。本项目旨在学习。
+> 感兴趣的关注一下，也可以一起开发。本项目旨在学习。  交流群 =====>
 
 ## 默认API 
 
