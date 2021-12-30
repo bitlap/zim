@@ -76,6 +76,10 @@ zim-master
 - config
   - typesafe config 
 
+## 开发环境准备
+
+* 执行 `./prepare.sh` 脚本, 然后修改 `src/main/resources/application.conf` 中相关数据库的信息
+
 ## TODO
 
 搬砖中。。。
