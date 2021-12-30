@@ -1,12 +1,12 @@
 package org.bitlap.zim
 
-import org.bitlap.zim.domain.model.{GroupList, Receive, User}
-import scalikejdbc.{NoExtractor, SQL, _}
+import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
+import scalikejdbc.{ NoExtractor, SQL, _ }
 import scalikejdbc.streams._
 import sqls.count
 import zio.stream.ZStream
 import zio.interop.reactivestreams._
-import zio.{Task, stream}
+import zio.{ stream, Task }
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
@@ -72,7 +72,6 @@ package object repository {
   private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
   private[repository] lazy val g: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
   private[repository] lazy val r: QuerySQLSyntaxProvider[SQLSyntaxSupport[Receive], Receive] = Receive.syntax("r")
-
 
   //==============================用户 SQL实现========================================
   private[repository] def queryFindById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
@@ -325,9 +324,7 @@ package object repository {
       .list()
       .iterator()
 
-
   //==============================聊天消息 SQL实现========================================
-
 
   /**
    * 保存用户聊天记录
@@ -337,9 +334,8 @@ package object repository {
    * @return
    */
   private[repository] def _saveMessage(table: TableDefSQLSyntax, receive: Receive): SQLUpdateWithGeneratedKey =
-    sql"insert into $table(toid,mid,fromid,content,type,timestamp,status) values(${receive.toid},${receive.id},${receive.fromid},${receive.content},${type},${receive.timestamp},${receive.status});"
+    sql"insert into $table(toid,mid,fromid,content,type,timestamp,status) values(${receive.toid},${receive.id},${receive.fromid},${receive.content},${receive.`type`},${receive.timestamp},${receive.status});"
       .updateAndReturnGeneratedKey("id")
-
 
   /**
    * 查询消息
@@ -349,7 +345,11 @@ package object repository {
    * @param status  历史消息还是离线消息 0代表离线 1表示已读
    * @return
    */
-  private[repository] def _findOffLineMessage(table: TableDefSQLSyntax, uid: Int, status: Int): StreamReadySQL[Receive] =
+  private[repository] def _findOffLineMessage(
+    table: TableDefSQLSyntax,
+    uid: Int,
+    status: Int
+  ): StreamReadySQL[Receive] =
     sql"select toid,mid as id,fromid,content,type,timestamp,status from $table where uid = ${uid} and status = ${status};"
       .map(rs => Receive(rs))
       .list()
@@ -364,25 +364,31 @@ package object repository {
    * @param `type` 消息类型，可能来自friend或者group
    * @return
    */
-  private[repository] def _findHistoryMessage(table: TableDefSQLSyntax,uid: Option[Int],mid:Option[Int],typ:Option[String]): StreamReadySQL[Receive] =
-    withSQL{
+  private[repository] def _findHistoryMessage(
+    table: TableDefSQLSyntax,
+    uid: Option[Int],
+    mid: Option[Int],
+    typ: Option[String]
+  ): StreamReadySQL[Receive] =
+    withSQL {
       select
-      .from(Receive as r)
-        .where(sqls.toAndConditionOpt(
-          typ.map(ty =>sqls.eq( r.`type`,ty)),
-           sqls.toOrConditionOpt(
-             sqls.toAndConditionOpt(
-               uid.map(uid => sqls.eq(r.toid,uid)),
-               mid.map(mid => sqls.eq(r.mid,mid))
-             ),
-             sqls.toAndConditionOpt(
-               uid.map(uid => sqls.eq(r.mid,uid)),
-               mid.map(mid => sqls.eq(r.toid,mid))
-             )
-           )
+        .from(Receive as r)
+        .where(
+          sqls.toAndConditionOpt(
+            typ.map(ty => sqls.eq(r.`type`, ty)),
+            sqls.toOrConditionOpt(
+              sqls.toAndConditionOpt(
+                uid.map(uid => sqls.eq(r.toid, uid)),
+                mid.map(mid => sqls.eq(r.id, mid))
+              ),
+              sqls.toAndConditionOpt(
+                uid.map(uid => sqls.eq(r.id, uid)),
+                mid.map(mid => sqls.eq(r.toid, mid))
+              )
+            )
+          )
         )
-        )
-    }
+    }.toList().map(rs => Receive(rs)).iterator()
 
   /**
    * 统计查询消息
@@ -393,25 +399,31 @@ package object repository {
    * @param `type` 消息类型，可能来自friend或者group
    * @return
    */
-  private[repository] def _countHistoryMessage(table: TableDefSQLSyntax,uid: Option[Int],mid:Option[Int],typ:Option[String]): StreamReadySQL[Int] =
+  private[repository] def _countHistoryMessage(
+    table: TableDefSQLSyntax,
+    uid: Option[Int],
+    mid: Option[Int],
+    typ: Option[String]
+  ): StreamReadySQL[Int] =
     withSQL {
       select(count(r.id))
         .from(Receive as r)
-        .where(sqls.toAndConditionOpt(
-          typ.map(ty => sqls.eq(r.`type`, ty)),
-          sqls.toOrConditionOpt(
-            sqls.toAndConditionOpt(
-              uid.map(uid => sqls.eq(r.toid, uid)),
-              mid.map(mid => sqls.eq(r.mid, mid))
-            ),
-            sqls.toAndConditionOpt(
-              uid.map(uid => sqls.eq(r.mid, uid)),
-              mid.map(mid => sqls.eq(r.toid, mid))
+        .where(
+          sqls.toAndConditionOpt(
+            typ.map(ty => sqls.eq(r.`type`, ty)),
+            sqls.toOrConditionOpt(
+              sqls.toAndConditionOpt(
+                uid.map(uid => sqls.eq(r.toid, uid)),
+                mid.map(mid => sqls.eq(r.id, mid))
+              ),
+              sqls.toAndConditionOpt(
+                uid.map(uid => sqls.eq(r.id, uid)),
+                mid.map(mid => sqls.eq(r.toid, mid))
+              )
             )
           )
         )
-        )
-    }
+    }.toList().map(rs => rs.get[Int]("id")).iterator()
 
   /**
    * 置为已读
@@ -422,8 +434,7 @@ package object repository {
    * @param typ
    * @return
    */
-  private[repository] def _readMessage(table: TableDefSQLSyntax,mine: Int,to: Int,typ:String): SQLUpdate =
+  private[repository] def _readMessage(table: TableDefSQLSyntax, mine: Int, to: Int, typ: String): SQLUpdate =
     sql"update $table set status = 1 where status = 0 and mid = ${mine} and toid = ${to} and type = ${typ};".update()
-
 
 }
