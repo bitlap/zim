@@ -12,6 +12,16 @@ infrastructure {
       driver = "com.mysql.jdbc.Driver"
     }
   }
+  
+  javamail {
+      host = "x",
+      username = "",
+      password = "",
+      port = 0,
+      threadPoolSize = 20,
+      connectionPoolCoreSize = 10,
+      debug = true
+  }
 }
 
 application {
