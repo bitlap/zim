@@ -11,7 +11,7 @@ import zio.stream
  */
 trait ReceiveRepository[T] extends BaseRepository[T] {
 
-  def saveMessage(receive: T): stream.Stream[Throwable, Long]
+  def saveMessage(receive: T): stream.Stream[Throwable, Int]
 
   def findOffLineMessage(uid: Int, status: Int): stream.Stream[Throwable, T]
 

@@ -5,13 +5,29 @@
 
 基于scala、zio、tapir、akka-http、circe、scalikejdbc、redis实现的纯异步、函数式、流式API的LayIM。
 
-> 感兴趣的关注一下，也可以一起开发。本项目旨在学习。  交流群 =====>
+> 感兴趣的可关注一下，也可以一起开发。本项目旨在学习。  交流群 =====>
 
-## 默认API 
+## 开发环境准备
 
-- JSON文档： `http://localhost:9000/api/v1.0/docs`
+* 执行 `./prepare.sh` 脚本, 然后修改 `src/main/resources/application.conf` 中相关数据库的信息
+* 在本地MySQL中创建数据库`zim`，注意驱动的版本
+* 使用`resources/sql/schema.sql`初始化表结构
+* 使用`resources/sql/data.sql`初始化数据（可选）
+* 启动Main方法`ZimServer.scala#run`
+
+## 上手接口
+
+- API文档： `http://localhost:9000/api/v1.0/docs`
 - 心跳：`http://localhost:9000/api/v1.0/health`
-- Main方法入口：`ZimServer.scala#run`
+
+## 技术栈
+
+- zio
+- tapir
+- akka
+- scalikejdbc
+- circe
+- config
 
 ## 项目结构
 
@@ -20,8 +36,11 @@ zim-master
 ├─ .github
 │    └─ workflows   
 │           └─ ScalaCI.yml              -- GitHub action 配置
+│           └─ auto-approve.yml
+│           └─ autoupdate.yml             
 ├─ .gitignore
 ├─ .jvmopts
+├─ prepare.sh                           -- 辅助脚本
 ├─ .scalafmt.conf                       -- scalafmt格式化插件配置
 ├─ LICENSE
 ├─ README.md
@@ -34,8 +53,8 @@ zim-master
 └─ src
        └─ main
               ├─ resources
-              │    ├─ application.conf  -- 数据库和服务配置
-              │    └─ logback.xml       -- 日志配置
+              │    ├─ application.conf.example                      -- 数据库和服务配置模板
+              │    └─ logback.xml                                   -- 日志配置
               └─ scala
                      └─ org
                             └─ bitlap
@@ -47,39 +66,3 @@ zim-master
                                           ├─ domain                 -- 领域对象或其他简单的样例类
                                           └─ repository             -- scalikejdbc的dao层实现（scalikejdbc stream和zio stream实现）
 ```
-
-## 技术栈
-
-- zio
-  - zio-streams
-  - zio-logging
-  - zio-interop-reactivestreams
-  - zio-test
-- tapir
-  - tapir-core
-  - tapir-akka-http-server
-  - tapir-json-circe
-  - tapir-openapi-docs
-  - tapir-openapi-circe-yaml
-- akka
-  - akka-http
-  - akka-steam
-  - akka-actor
-  - akka-slf4j
-- jdbc
-  - scalikejdbc 
-  - scalikejdbc-streams
-- json 
-  - circe-generic
-  - circe-generic-extras
-  - circe-parser
-- config
-  - typesafe config 
-
-## 开发环境准备
-
-* 执行 `./prepare.sh` 脚本, 然后修改 `src/main/resources/application.conf` 中相关数据库的信息
-
-## TODO
-
-搬砖中。。。

@@ -7,7 +7,7 @@ lazy val root = (project in file("."))
     name := "zim",
     version := "0.0.1",
     scalaVersion := "2.13.7",
-    libraryDependencies ++= zioDeps ++ tapirDeps ++ commonDeps,
+    libraryDependencies ++= zioDeps ++ tapirDeps ++ commonDeps ++ akkaDeps ++ circeDeps,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
   )
   .enablePlugins(GitVersioning, BuildInfoPlugin)

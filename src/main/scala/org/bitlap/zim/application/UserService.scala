@@ -4,9 +4,6 @@ import org.bitlap.zim.domain.model.{ GroupList, User }
 import org.bitlap.zim.repository.{ GroupRepository, UserRepository }
 import zio.{ stream, Has }
 
-import org.bitlap.zim.domain.model.GroupList
-import org.bitlap.zim.repository.GroupRepository
-
 /**
  * 用户服务
  *
@@ -16,7 +13,8 @@ import org.bitlap.zim.repository.GroupRepository
  */
 private final class UserService(
   userRepository: UserRepository[User],
-  groupRepository: GroupRepository[GroupList]
+  groupRepository: GroupRepository[GroupList],
+  mailService: MailService
 ) extends UserApplication {
 
   override def findById(id: Long): stream.Stream[Throwable, User] =
@@ -30,6 +28,10 @@ object UserService {
 
   type ZUserApplication = Has[UserApplication]
 
-  def apply(userRepository: UserRepository[User], groupRepository: GroupRepository[GroupList]): UserApplication =
-    new UserService(userRepository, groupRepository)
+  def apply(
+    userRepository: UserRepository[User],
+    groupRepository: GroupRepository[GroupList],
+    mailService: MailService
+  ): UserApplication =
+    new UserService(userRepository, groupRepository, mailService)
 }
