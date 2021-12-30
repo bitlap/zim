@@ -333,9 +333,9 @@ package object repository {
    * @param receive
    * @return
    */
-  private[repository] def _saveMessage(table: TableDefSQLSyntax, receive: Receive): SQLUpdateWithGeneratedKey =
+  private[repository] def _saveMessage(table: TableDefSQLSyntax, receive: Receive): SQLUpdate =
     sql"insert into $table(toid,mid,fromid,content,type,timestamp,status) values(${receive.toid},${receive.id},${receive.fromid},${receive.content},${receive.`type`},${receive.timestamp},${receive.status});"
-      .updateAndReturnGeneratedKey("id")
+      .update()
 
   /**
    * 查询消息

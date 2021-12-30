@@ -14,8 +14,8 @@ private final class TangibleReceiveRepository(databaseName: String) extends Rece
 
   private implicit lazy val dbName: String = databaseName
 
-  override def saveMessage(receive: Receive): stream.Stream[Throwable, Long] =
-    _saveMessage(Receive.table, receive).toUpdateReturnKey
+  override def saveMessage(receive: Receive): stream.Stream[Throwable, Int] =
+    _saveMessage(Receive.table, receive).toUpdateOperation
 
   override def findOffLineMessage(uid: Int, status: Int): stream.Stream[Throwable, Receive] =
     _findOffLineMessage(Receive.table, uid, status).toStreamOperation
