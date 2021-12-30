@@ -3,7 +3,6 @@ package org.bitlap.zim.repository
 import org.bitlap.zim.domain.model.Receive
 import zio._
 
-
 /**
  * 消息的操作实现
  *
@@ -21,10 +20,18 @@ private final class TangibleReceiveRepository(databaseName: String) extends Rece
   override def findOffLineMessage(uid: Int, status: Int): stream.Stream[Throwable, Receive] =
     _findOffLineMessage(Receive.table, uid, status).toStreamOperation
 
-  override def findHistoryMessage(uid: Option[Int], mid: Option[Int], typ: Option[String]): stream.Stream[Throwable, Receive] =
+  override def findHistoryMessage(
+    uid: Option[Int],
+    mid: Option[Int],
+    typ: Option[String]
+  ): stream.Stream[Throwable, Receive] =
     _findHistoryMessage(Receive.table, uid, mid, typ).toStreamOperation
 
-  override def countHistoryMessage(uid: Option[Int], mid: Option[Int], typ: Option[String]): stream.Stream[Throwable, Int] =
+  override def countHistoryMessage(
+    uid: Option[Int],
+    mid: Option[Int],
+    typ: Option[String]
+  ): stream.Stream[Throwable, Int] =
     _countHistoryMessage(Receive.table, uid, mid, typ).toStreamOperation
 
   override def readMessage(mine: Int, to: Int, typ: String): stream.Stream[Throwable, Int] =
@@ -48,8 +55,4 @@ object TangibleReceiveRepository {
   def make(databaseName: String): ULayer[ZReceiveRepository] =
     ZLayer.succeed(databaseName) >>> live
 
-
 }
-
-
-
