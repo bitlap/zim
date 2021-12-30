@@ -10,6 +10,7 @@ import org.bitlap.zim.repository.TangibleUserRepository
 import org.bitlap.zim.domain.model.GroupList
 import org.bitlap.zim.repository.{ GroupRepository, TangibleGroupRepository }
 import org.bitlap.zim.configuration.properties.MailConfigurationProperties
+import org.bitlap.zim.application.MailService
 
 /**
  * 基础设施配置
@@ -19,8 +20,6 @@ import org.bitlap.zim.configuration.properties.MailConfigurationProperties
  * @version 1.0
  */
 final class InfrastructureConfiguration {
-
-  import org.bitlap.zim.application.MailService
 
   ConnectionPool.add(
     Symbol(mysqlConfigurationProperties.databaseName),

@@ -20,7 +20,7 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
   ConfigLoader.loadProperties(mailConfigurationProperties.toProperties, true)
 
   private lazy val mailer = MailerBuilder
-    .withDebugLogging(true)
+    .withDebugLogging(mailConfigurationProperties.debug)
     .withThreadPoolSize(mailConfigurationProperties.threadPoolSize)
     .withConnectionPoolCoreSize(mailConfigurationProperties.connectionPoolCoreSize)
     .buildMailer()

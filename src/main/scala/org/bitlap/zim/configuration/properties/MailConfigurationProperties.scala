@@ -4,6 +4,7 @@ import com.typesafe.config.{ Config, ConfigFactory }
 import org.simplejavamail.config.ConfigLoader
 
 import java.util.Properties
+import scala.util.Try
 
 /**
  * simple java mail配置
@@ -12,13 +13,14 @@ import java.util.Properties
  * @since 2021/12/30
  * @version 1.0
  */
-case class MailConfigurationProperties(
+final case class MailConfigurationProperties(
   host: String,
   username: String,
   password: String,
   port: Int,
   threadPoolSize: Int,
-  connectionPoolCoreSize: Int
+  connectionPoolCoreSize: Int,
+  debug: Boolean
 ) {
   lazy val toProperties: Properties = {
     val properties = new Properties()
@@ -39,6 +41,7 @@ object MailConfigurationProperties {
       password = config.getString("password"),
       port = config.getInt("port"),
       threadPoolSize = config.getInt("threadPoolSize"),
-      connectionPoolCoreSize = config.getInt("connectionPoolCoreSize")
+      connectionPoolCoreSize = config.getInt("connectionPoolCoreSize"),
+      debug = Try(config.getBoolean("debug")).getOrElse(true)
     )
 }
