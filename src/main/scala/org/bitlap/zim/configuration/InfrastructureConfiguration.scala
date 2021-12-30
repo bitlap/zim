@@ -9,6 +9,7 @@ import org.bitlap.zim.repository.TangibleUserRepository
 
 import org.bitlap.zim.domain.model.GroupList
 import org.bitlap.zim.repository.{ GroupRepository, TangibleGroupRepository }
+import org.bitlap.zim.configuration.properties.MailConfigurationProperties
 
 /**
  * 基础设施配置
@@ -18,6 +19,8 @@ import org.bitlap.zim.repository.{ GroupRepository, TangibleGroupRepository }
  * @version 1.0
  */
 final class InfrastructureConfiguration {
+
+  import org.bitlap.zim.application.MailService
 
   ConnectionPool.add(
     Symbol(mysqlConfigurationProperties.databaseName),
@@ -37,11 +40,15 @@ final class InfrastructureConfiguration {
 
   lazy val zimConfigurationProperties: ZimConfigurationProperties = ZimConfigurationProperties()
 
+  lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties()
+
   lazy val userRepository: UserRepository[User] = TangibleUserRepository(mysqlConfigurationProperties.databaseName)
 
   lazy val groupRepository: GroupRepository[GroupList] = TangibleGroupRepository(
     mysqlConfigurationProperties.databaseName
   )
+
+  lazy val mailService: MailService = MailService(mailConfigurationProperties)
 
 }
 
@@ -57,6 +64,9 @@ object InfrastructureConfiguration {
 
   val mysqlConfigurationProperties: URIO[ZInfrastructureConfiguration, MysqlConfigurationProperties] =
     ZIO.access(_.get.mysqlConfigurationProperties)
+
+  val mailConfigurationProperties: URIO[ZInfrastructureConfiguration, MailConfigurationProperties] =
+    ZIO.access(_.get.mailConfigurationProperties)
 
   val userRepository: URIO[ZInfrastructureConfiguration, UserRepository[User]] =
     ZIO.access(_.get.userRepository)
