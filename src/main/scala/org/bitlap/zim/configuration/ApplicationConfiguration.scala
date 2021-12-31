@@ -16,6 +16,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
   val userApplication: UserApplication = UserService(
     infrastructureConfiguration.userRepository,
     infrastructureConfiguration.groupRepository,
+    infrastructureConfiguration.receiveRepository,
     infrastructureConfiguration.mailService
   )
 }
