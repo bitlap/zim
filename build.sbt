@@ -1,5 +1,12 @@
 import Dependencies._
 
+resolvers ++= Seq(
+  Resolver.mavenLocal,
+  Resolver.sonatypeRepo("public"),
+  Resolver.sonatypeRepo("snapshots"),
+  Resolver.typesafeIvyRepo("releases")
+)
+
 lazy val root = (project in file("."))
   .settings(BuildInfoSettings.value)
   .settings(
