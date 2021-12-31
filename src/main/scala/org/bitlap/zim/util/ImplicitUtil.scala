@@ -1,16 +1,17 @@
-package org.bitlap.zim
-
-import scala.concurrent.Future
+package org.bitlap.zim.util
 import java.util.concurrent.{ Future => JFuture }
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
+ * 将Java Future转化为Scala Future
+ *
  * @author 梦境迷离
  * @version 1.0,2021/12/30
  */
-object ImplicitUtils {
+object ImplicitUtil {
 
   implicit class JFutureWrapper[T](f: JFuture[T]) {
+
     def asScala()(implicit ex: ExecutionContext): Future[T] = Future {
       Thread.sleep(500)
       f

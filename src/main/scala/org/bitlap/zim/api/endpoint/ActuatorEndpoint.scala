@@ -23,7 +23,7 @@ trait ActuatorEndpoint {
   private[api] lazy val healthDescriptionResource: String = "Zim Service Health Check Endpoint"
 
   private[api] lazy val healthEndpoint: Endpoint[Unit, StatusCode, HealthInfo, Any] =
-    ApiEndpoint.baseEndpoint
+    ApiEndpoint.baseEndpoint.get
       .in(healthResource)
       .name(healthNameResource)
       .description(healthDescriptionResource)

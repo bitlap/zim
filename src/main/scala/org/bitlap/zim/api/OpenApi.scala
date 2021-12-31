@@ -21,7 +21,8 @@ final class OpenApi {
     .toOpenAPI(
       Seq(
         ActuatorEndpoint.healthEndpoint,
-        UserEndpoint.userGetOneEndpoint
+        UserEndpoint.userGetOneEndpoint,
+        UserEndpoint.userGetAllEndpoint
       ),
       Info(
         title = "zim",
@@ -46,7 +47,9 @@ final class OpenApi {
   lazy val openapi = s"${ApiEndpoint.apiResource}/${ApiEndpoint.apiVersion}/$contextPath"
 
   lazy val route: Route = pathPrefix(ApiEndpoint.apiResource / ApiEndpoint.apiVersion / contextPath) {
-    complete(openApi)
+    get {
+      complete(openApi)
+    }
   }
 
 }

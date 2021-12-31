@@ -29,7 +29,8 @@ object Dependencies {
     "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`,
     "dev.zio" %% "zio-logging" % Version.`zio-logging`,
     "dev.zio" %% "zio-test" % Version.zio % Test,
-    "dev.zio" %% "zio-test-sbt" % Version.zio % Test
+    "dev.zio" %% "zio-test-sbt" % Version.zio % Test,
+    "dev.zio" %% "zio-crypto" % "0.0.0+92-5672c642-SNAPSHOT" // 实验性质的
   )
 
   lazy val tapirDeps = Seq(

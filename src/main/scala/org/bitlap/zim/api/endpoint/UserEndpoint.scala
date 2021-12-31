@@ -16,29 +16,25 @@ import sttp.tapir._
  */
 trait UserEndpoint extends ApiErrorMapping {
 
+  // API 最前缀path
   private[api] lazy val queryResource: EndpointInput[Unit] = "user"
-  private[api] lazy val queryParameter: EndpointInput.Query[Long] = query[Long]("id")
-    .example(10086L)
-    .description("query parameter")
+  // API  资源描述
+  private[api] lazy val userDescriptionGetResource: String = "User Endpoint"
 
-  private[api] lazy val queryUserResource: EndpointInput[Long] = queryResource / "getOne" / queryParameter
-  private[api] lazy val queriesDescriptionGetResource: String = "Queries Get Endpoint"
-  private[api] lazy val queriesNameGetResource: String = "queries-get-resource"
-
+  //================================================用户API定义===============================================================
   private[api] lazy val userGetOneEndpoint: Endpoint[Long, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
-    endpoint
-      .in(queryUserResource)
-      .name(queriesNameGetResource)
-      .description(queriesDescriptionGetResource)
+    endpoint.get
+      .in(queryResource / "getOne" / query[Long]("id").example(10086L).description("query parameter"))
+      .name("查询一个用户")
+      .description(userDescriptionGetResource)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
       .errorOut(oneOf(statusInternalServerError, statusDefault))
 
-  private[api] lazy val queriesResource: EndpointInput[Unit] = queryResource / "getAll"
   private[api] lazy val userGetAllEndpoint: Endpoint[Unit, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
-    endpoint
-      .in(queriesResource)
-      .name(queriesNameGetResource)
-      .description(queriesDescriptionGetResource)
+    endpoint.get
+      .in(queryResource / "getAll")
+      .name("查询所有用户")
+      .description(userDescriptionGetResource)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
       .errorOut(oneOf(statusInternalServerError, statusDefault))
 }

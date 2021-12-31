@@ -5,7 +5,7 @@ import zio.Has
 import org.simplejavamail.config.ConfigLoader
 import org.simplejavamail.email.EmailBuilder
 import org.simplejavamail.mailer.MailerBuilder
-import org.bitlap.zim.ImplicitUtils._
+import org.bitlap.zim.util.ImplicitUtil._
 import zio.Task
 import zio.ZIO
 
