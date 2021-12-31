@@ -1,14 +1,17 @@
 package org.bitlap.zim.configuration
 
 import org.bitlap.zim.configuration.properties.{ MysqlConfigurationProperties, ZimConfigurationProperties }
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.repository.UserRepository
+import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
+import org.bitlap.zim.repository.{
+  GroupRepository,
+  ReceiveRepository,
+  TangibleGroupRepository,
+  TangibleReceiveRepository,
+  TangibleUserRepository,
+  UserRepository
+}
 import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings }
 import zio._
-import org.bitlap.zim.repository.TangibleUserRepository
-
-import org.bitlap.zim.domain.model.GroupList
-import org.bitlap.zim.repository.{ GroupRepository, TangibleGroupRepository }
 import org.bitlap.zim.configuration.properties.MailConfigurationProperties
 import org.bitlap.zim.application.MailService
 
@@ -46,6 +49,9 @@ final class InfrastructureConfiguration {
   lazy val groupRepository: GroupRepository[GroupList] = TangibleGroupRepository(
     mysqlConfigurationProperties.databaseName
   )
+  lazy val receiveRepository: ReceiveRepository[Receive] = TangibleReceiveRepository(
+    mysqlConfigurationProperties.databaseName
+  )
 
   lazy val mailService: MailService = MailService(mailConfigurationProperties)
 
@@ -72,6 +78,9 @@ object InfrastructureConfiguration {
 
   val groupRepository: URIO[ZInfrastructureConfiguration, GroupRepository[GroupList]] =
     ZIO.access(_.get.groupRepository)
+
+  val receiveRepository: URIO[ZInfrastructureConfiguration, ReceiveRepository[Receive]] =
+    ZIO.access(_.get.receiveRepository)
 
   val live: ULayer[ZInfrastructureConfiguration] =
     ZLayer.succeed[InfrastructureConfiguration](InfrastructureConfiguration())
