@@ -437,4 +437,7 @@ package object repository {
   private[repository] def _readMessage(table: TableDefSQLSyntax, mine: Int, to: Int, typ: String): SQLUpdate =
     sql"update $table set status = 1 where status = 0 and mid = ${mine} and toid = ${to} and type = ${typ};".update()
 
+
+  //==============================好友分组 SQL实现========================================
+
 }
