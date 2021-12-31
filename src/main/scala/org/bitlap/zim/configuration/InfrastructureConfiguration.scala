@@ -1,10 +1,12 @@
 package org.bitlap.zim.configuration
 
 import org.bitlap.zim.configuration.properties.{ MysqlConfigurationProperties, ZimConfigurationProperties }
-import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
+import org.bitlap.zim.domain.model.{ FriendGroup, GroupList, Receive, User }
 import org.bitlap.zim.repository.{
+  FriendGroupRepository,
   GroupRepository,
   ReceiveRepository,
+  TangibleFriendGroupRepository,
   TangibleGroupRepository,
   TangibleReceiveRepository,
   TangibleUserRepository,
@@ -52,6 +54,9 @@ final class InfrastructureConfiguration {
   lazy val receiveRepository: ReceiveRepository[Receive] = TangibleReceiveRepository(
     mysqlConfigurationProperties.databaseName
   )
+  lazy val friendGroupRepository: FriendGroupRepository[FriendGroup] = TangibleFriendGroupRepository(
+    mysqlConfigurationProperties.databaseName
+  )
 
   lazy val mailService: MailService = MailService(mailConfigurationProperties)
 
@@ -81,6 +86,9 @@ object InfrastructureConfiguration {
 
   val receiveRepository: URIO[ZInfrastructureConfiguration, ReceiveRepository[Receive]] =
     ZIO.access(_.get.receiveRepository)
+
+  val friendGroupRepository: URIO[ZInfrastructureConfiguration, FriendGroupRepository[FriendGroup]] =
+    ZIO.access(_.get.friendGroupRepository)
 
   val live: ULayer[ZInfrastructureConfiguration] =
     ZLayer.succeed[InfrastructureConfiguration](InfrastructureConfiguration())

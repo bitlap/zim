@@ -17,6 +17,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
     infrastructureConfiguration.userRepository,
     infrastructureConfiguration.groupRepository,
     infrastructureConfiguration.receiveRepository,
+    infrastructureConfiguration.friendGroupRepository,
     infrastructureConfiguration.mailService
   )
 }
