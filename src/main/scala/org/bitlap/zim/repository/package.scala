@@ -1,6 +1,6 @@
 package org.bitlap.zim
 
-import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
+import org.bitlap.zim.domain.model.{ AddFriends, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
 import scalikejdbc.{ NoExtractor, SQL, _ }
 import scalikejdbc.streams._
 import sqls.count
@@ -72,6 +72,14 @@ package object repository {
   private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
   private[repository] lazy val g: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
   private[repository] lazy val r: QuerySQLSyntaxProvider[SQLSyntaxSupport[Receive], Receive] = Receive.syntax("r")
+  private[repository] lazy val fg: QuerySQLSyntaxProvider[SQLSyntaxSupport[FriendGroup], FriendGroup] =
+    FriendGroup.syntax("fg")
+  private[repository] lazy val af: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddFriends], AddFriends] =
+    AddFriends.syntax("af")
+  private[repository] lazy val gm: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupMember], GroupMember] =
+    GroupMember.syntax("gm")
+  private[repository] lazy val am: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddMessage], AddMessage] =
+    AddMessage.syntax("am")
 
   //==============================用户 SQL实现========================================
   private[repository] def queryFindById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
@@ -437,7 +445,29 @@ package object repository {
   private[repository] def _readMessage(table: TableDefSQLSyntax, mine: Int, to: Int, typ: String): SQLUpdate =
     sql"update $table set status = 1 where status = 0 and mid = ${mine} and toid = ${to} and type = ${typ};".update()
 
-
   //==============================好友分组 SQL实现========================================
 
+  /**
+   * 创建好友分组记录
+   *
+   * @param table
+   * @param friendGroup 好友分组
+   * @return
+   */
+  private[repository] def _createFriendGroup(table: TableDefSQLSyntax, friendGroup: FriendGroup): SQLUpdate =
+    sql"insert into $table(group_name,uid) values(${friendGroup.groupname},${friendGroup.uid});"
+      .update()
+
+  /**
+   * 根据ID查询该用户的好友分组的列表
+   *
+   * @param table
+   * @param uid 用户ID
+   * @return
+   */
+  private[repository] def _findFriendGroupsById(table: TableDefSQLSyntax, uid: Int): StreamReadySQL[FriendGroup] =
+    sql"select id, uid, group_name  from ${table} where uid = ${uid};"
+      .map(rs => FriendGroup(rs))
+      .list()
+      .iterator()
 }

@@ -3,7 +3,7 @@ package org.bitlap.zim.domain.model
 import io.circe._
 import io.circe.generic.semiauto._
 import org.bitlap.zim.domain.Group
-import scalikejdbc._
+import scalikejdbc.{ WrappedResultSet, _ }
 
 /**
  * 群组信息

@@ -1,7 +1,7 @@
 package org.bitlap.zim.application
 
-import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
-import org.bitlap.zim.repository.{ GroupRepository, ReceiveRepository, UserRepository }
+import org.bitlap.zim.domain.model.{ FriendGroup, GroupList, Receive, User }
+import org.bitlap.zim.repository.{ FriendGroupRepository, GroupRepository, ReceiveRepository, UserRepository }
 import zio.{ stream, Has }
 
 /**
@@ -15,6 +15,7 @@ private final class UserService(
   userRepository: UserRepository[User],
   groupRepository: GroupRepository[GroupList],
   receiveRepository: ReceiveRepository[Receive],
+  friendGroupRepository: FriendGroupRepository[FriendGroup],
   mailService: MailService
 ) extends UserApplication {
 
@@ -33,7 +34,8 @@ object UserService {
     userRepository: UserRepository[User],
     groupRepository: GroupRepository[GroupList],
     receiveRepository: ReceiveRepository[Receive],
+    friendGroupRepository: FriendGroupRepository[FriendGroup],
     mailService: MailService
   ): UserApplication =
-    new UserService(userRepository, groupRepository, receiveRepository, mailService)
+    new UserService(userRepository, groupRepository, receiveRepository, friendGroupRepository, mailService)
 }
