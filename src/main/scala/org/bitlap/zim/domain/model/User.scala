@@ -4,7 +4,7 @@ import io.circe._
 import io.circe.generic.semiauto._
 import scalikejdbc.{ WrappedResultSet, _ }
 
-import java.time.{ LocalDateTime, ZonedDateTime }
+import java.time.ZonedDateTime
 
 /**
  * 用户
