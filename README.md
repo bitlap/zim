@@ -65,4 +65,12 @@ zim-master
                                           ├─ configuration          -- zio集成各框架的项目配置
                                           ├─ domain                 -- 领域对象或其他简单的样例类
                                           └─ repository             -- scalikejdbc的dao层实现（scalikejdbc stream和zio stream实现）
+                                          └─ util                   -- 工具类，经过zio包装
+                                          
 ```
+
+## 项目组织结构
+
+> 粗略图
+
+![](./zim.jpeg)
