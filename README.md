@@ -22,12 +22,19 @@
 
 ## 技术栈
 
-- zio
-- tapir
-- akka
-- scalikejdbc
-- circe
-- config
+- 开发语言：Scala 2.13.7
+- 平台：Jvm (Jdk8、Jdk11)
+- 前端：LayIm 3.0
+- 主体框架：zio 1.x
+- API：akka-http (classic)
+- API文档化工具：tapir
+- 数据库：redis、mysql
+- 数据操作：scalikejdbc-stream
+- 序列化：circe
+- WebSocket：akka-http (classic)
+- 邮件：simple-java-mail
+- 配置：config
+- 构建工具：sbt
 
 ## 项目结构
 

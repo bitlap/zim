@@ -18,6 +18,7 @@ import zio.stream.ZStream
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
+import org.bitlap.zim.domain.ResultPageSet
 
 /**
  * API的circe解码器
@@ -40,6 +41,15 @@ trait ApiJsonCodec extends BootstrapRuntime {
       }
     }
   }
+
+  implicit def encodeGenericResultPageSet[T <: Product]: Encoder[ResultPageSet[T]] =
+    (a: ResultPageSet[T]) =>
+      Json.obj(
+        ("data", a.data.asJson),
+        ("msg", Json.fromString(a.msg)),
+        ("code", Json.fromInt(a.code)),
+        ("pages", Json.fromInt(a.pages))
+      )
 
   implicit def encodeGenericResultSet[T <: Product]: Encoder[ResultSet[T]] =
     (a: ResultSet[T]) =>
