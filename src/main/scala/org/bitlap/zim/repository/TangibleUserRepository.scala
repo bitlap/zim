@@ -65,8 +65,7 @@ object TangibleUserRepository {
   type ZUserRepository = Has[UserRepository[User]]
 
   /**
-   * todo 这里只留公开方法，没用的需要删掉
-   *
+   * 下面的测试很有用，对外提供
    * @return
    */
   def findAll(): stream.ZStream[ZUserRepository, Throwable, User] =
@@ -74,6 +73,39 @@ object TangibleUserRepository {
 
   def findById(id: Int): stream.ZStream[ZUserRepository, Throwable, User] =
     stream.ZStream.accessStream(_.get.findById(id))
+
+  def saveUser(user: User): stream.ZStream[ZUserRepository, Throwable, Long] =
+    stream.ZStream.accessStream(_.get.saveUser(user))
+
+  def matchUser(email: String): stream.ZStream[ZUserRepository, Throwable, User] =
+    stream.ZStream.accessStream(_.get.matchUser(email))
+
+  def activeUser(activeCode: String): stream.ZStream[ZUserRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.activeUser(activeCode))
+
+  def activeUser(username: Option[String], sex: Option[Int]): stream.ZStream[ZUserRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.countUser(username, sex))
+
+  def findUser(username: Option[String], sex: Option[Int]): stream.ZStream[ZUserRepository, Throwable, User] =
+    stream.ZStream.accessStream(_.get.findUser(username, sex))
+
+  def findUserByGroupId(gid: Int): stream.ZStream[ZUserRepository, Throwable, User] =
+    stream.ZStream.accessStream(_.get.findUserByGroupId(gid))
+
+  def findUsersByFriendGroupIds(fgid: Int): stream.ZStream[ZUserRepository, Throwable, User] =
+    stream.ZStream.accessStream(_.get.findUsersByFriendGroupIds(fgid))
+
+  def updateAvatar(avatar: String, uid: Int): stream.ZStream[ZUserRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.updateAvatar(avatar, uid))
+
+  def updateSign(sign: String, uid: Int): stream.ZStream[ZUserRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.updateSign(sign, uid))
+
+  def updateUserInfo(id: Int, user: User): stream.ZStream[ZUserRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.updateUserInfo(id, user))
+
+  def updateUserStatus(status: String, uid: Int): stream.ZStream[ZUserRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.updateUserStatus(status, uid))
 
   val live: ZLayer[Has[String], Nothing, ZUserRepository] =
     ZLayer.fromService[String, UserRepository[User]](TangibleUserRepository(_))

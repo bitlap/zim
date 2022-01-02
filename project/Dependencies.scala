@@ -21,6 +21,8 @@ object Dependencies {
     val mysql = "8.0.27"
     val `zio-interop-reactiveStreams` = "1.3.8"
     val `simple-java-mail` = "6.7.5"
+    val h2 = "1.4.200"
+    val scalaTest = "3.2.10"
   }
 
   lazy val zioDeps = Seq(
@@ -37,7 +39,7 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-core" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir exclude("com.typesafe.akka", "akka-stream_2.13"),
+    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir exclude ("com.typesafe.akka", "akka-stream_2.13"),
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % Version.tapir
   )
 
@@ -45,13 +47,13 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-http" % Version.`akka-http`,
     "com.typesafe.akka" %% "akka-actor" % Version.akka,
     "com.typesafe.akka" %% "akka-stream" % Version.akka,
-    "com.typesafe.akka" %% "akka-slf4j" % Version.akka,
+    "com.typesafe.akka" %% "akka-slf4j" % Version.akka
   )
 
   lazy val circeDeps = Seq(
     "io.circe" %% "circe-generic" % Version.circe,
     "io.circe" %% "circe-generic-extras" % Version.circe,
-    "io.circe" %% "circe-parser" % Version.circe,
+    "io.circe" %% "circe-parser" % Version.circe
   )
 
   lazy val commonDeps = Seq(
@@ -60,6 +62,8 @@ object Dependencies {
     "com.typesafe" % "config" % Version.config,
     "ch.qos.logback" % "logback-classic" % Version.logback,
     "mysql" % "mysql-connector-java" % Version.mysql,
-    "org.simplejavamail" % "simple-java-mail" % Version.`simple-java-mail`
+    "org.simplejavamail" % "simple-java-mail" % Version.`simple-java-mail`,
+    "com.h2database" % "h2" % Version.h2 % Test,
+    "org.scalatest" %% "scalatest" % Version.scalaTest % Test
   )
 }
