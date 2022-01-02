@@ -2,7 +2,7 @@ package org.bitlap.zim
 import org.bitlap.zim.configuration.properties.MysqlConfigurationProperties
 import org.bitlap.zim.domain.model.User
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc._
 import zio.BootstrapRuntime
@@ -14,7 +14,7 @@ import java.time.ZonedDateTime
  * @since 2022/1/2
  * @version 1.0
  */
-trait BaseData extends BootstrapRuntime with AnyFlatSpecLike with Matchers with BeforeAndAfterEach {
+trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfterEach with BootstrapRuntime {
 
   val table: SQL[_, NoExtractor]
   val h2ConfigurationProperties: MysqlConfigurationProperties = MysqlConfigurationProperties()
