@@ -1,11 +1,11 @@
 package org.bitlap.zim
 
 import org.bitlap.zim.domain.model.{ AddFriends, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
-import scalikejdbc.{ NoExtractor, SQL, _ }
 import scalikejdbc.streams._
+import scalikejdbc.{ NoExtractor, SQL, _ }
 import sqls.count
-import zio.stream.ZStream
 import zio.interop.reactivestreams._
+import zio.stream.ZStream
 import zio.{ stream, Task }
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -81,7 +81,7 @@ package object repository {
   private[repository] lazy val am: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddMessage], AddMessage] =
     AddMessage.syntax("am")
 
-  //==============================用户 SQL实现========================================
+  //==============================测试SQL========================================
   private[repository] def queryFindById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => User(rs))
 
@@ -91,6 +91,7 @@ package object repository {
   private[repository] def queryDeleteById(table: TableDefSQLSyntax, id: Long): SQL[Nothing, NoExtractor] =
     sql"DELETE FROM ${table} WHERE id = ${id};"
 
+  //==============================用户 SQL实现========================================
   /**
    * 根据用户名和性别统计用户
    *
@@ -470,4 +471,65 @@ package object repository {
       .map(rs => FriendGroup(rs))
       .list()
       .iterator()
+
+  //==============================好友分组中人的操作 SQL实现========================================
+
+  /**
+   * 删除好友
+   *
+   * @param friendGroupFriendTable
+   * @param friendGroupTable
+   * @param friendId
+   * @param uId
+   * @return
+   */
+  private[repository] def _removeFriend(
+    friendGroupFriendTable: TableDefSQLSyntax,
+    friendGroupTable: TableDefSQLSyntax,
+    friendId: Int,
+    uId: Int
+  ) =
+    sql"delete from $friendGroupFriendTable where fgid in (select id from $friendGroupTable where uid in (${friendId}, ${uId})) and uid in(${friendId}, ${uId});"
+      .executeUpdate()
+
+  /**
+   * 移动好友分组
+   *
+   * @param friendGroupFriendTable
+   * @param groupId
+   * @param originRecordId
+   * @return
+   */
+  private[repository] def _changeGroup(friendGroupFriendTable: TableDefSQLSyntax, groupId: Int, originRecordId: Int) =
+    sql"update $friendGroupFriendTable set fgid = ${groupId} where id = ${originRecordId};"
+      .executeUpdate()
+
+  /**
+   * 查询我的好友的分组
+   *
+   * @param friendGroupFriendTable
+   * @param uId
+   * @param mId
+   */
+  private[repository] def _findUserGroup(
+    friendGroupFriendTable: TableDefSQLSyntax,
+    friendGroupTable: TableDefSQLSyntax,
+    uId: Int,
+    mId: Int
+  ): StreamReadySQL[Int] =
+    sql"select id from $friendGroupFriendTable where fgid in (select id from $friendGroupTable where uid = ${mId}) and uid = ${uId}"
+      .list()
+      .map(rs => rs.get[Int]("id"))
+      .iterator()
+
+  /**
+   * 添加好友操作
+   *
+   * @param table
+   * @param addFriend
+   * @return
+   */
+  private[repository] def _addFriend(table: TableDefSQLSyntax, addFriend: AddFriends): SQLUpdate =
+    sql"insert into $table(fgid,uid) values(${addFriend.mgid},${addFriend.tid}),(${addFriend.tgid},${addFriend.mid});"
+      .update()
 }

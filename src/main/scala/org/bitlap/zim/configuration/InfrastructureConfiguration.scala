@@ -1,11 +1,18 @@
 package org.bitlap.zim.configuration
 
-import org.bitlap.zim.configuration.properties.{ MysqlConfigurationProperties, ZimConfigurationProperties }
-import org.bitlap.zim.domain.model.{ FriendGroup, GroupList, Receive, User }
+import org.bitlap.zim.application.MailService
+import org.bitlap.zim.configuration.properties.{
+  MailConfigurationProperties,
+  MysqlConfigurationProperties,
+  ZimConfigurationProperties
+}
+import org.bitlap.zim.domain.model.{ AddFriends, FriendGroup, GroupList, Receive, User }
 import org.bitlap.zim.repository.{
+  FriendGroupFriendRepository,
   FriendGroupRepository,
   GroupRepository,
   ReceiveRepository,
+  TangibleFriendGroupFriendRepository,
   TangibleFriendGroupRepository,
   TangibleGroupRepository,
   TangibleReceiveRepository,
@@ -14,8 +21,6 @@ import org.bitlap.zim.repository.{
 }
 import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings }
 import zio._
-import org.bitlap.zim.configuration.properties.MailConfigurationProperties
-import org.bitlap.zim.application.MailService
 
 /**
  * 基础设施配置
@@ -54,7 +59,12 @@ final class InfrastructureConfiguration {
   lazy val receiveRepository: ReceiveRepository[Receive] = TangibleReceiveRepository(
     mysqlConfigurationProperties.databaseName
   )
+
   lazy val friendGroupRepository: FriendGroupRepository[FriendGroup] = TangibleFriendGroupRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+
+  lazy val friendGroupFriendRepository: FriendGroupFriendRepository[AddFriends] = TangibleFriendGroupFriendRepository(
     mysqlConfigurationProperties.databaseName
   )
 
@@ -87,8 +97,8 @@ object InfrastructureConfiguration {
   val receiveRepository: URIO[ZInfrastructureConfiguration, ReceiveRepository[Receive]] =
     ZIO.access(_.get.receiveRepository)
 
-  val friendGroupRepository: URIO[ZInfrastructureConfiguration, FriendGroupRepository[FriendGroup]] =
-    ZIO.access(_.get.friendGroupRepository)
+  val friendGroupFriendRepository: URIO[ZInfrastructureConfiguration, FriendGroupFriendRepository[AddFriends]] =
+    ZIO.access(_.get.friendGroupFriendRepository)
 
   val live: ULayer[ZInfrastructureConfiguration] =
     ZLayer.succeed[InfrastructureConfiguration](InfrastructureConfiguration())
