@@ -105,7 +105,7 @@ package object repository {
         .from(User as u)
         .where(
           sqls.toAndConditionOpt(
-            username.map(un => sqls.like(u.username, un)),
+            username.map(un => sqls.like(u.username, s"%$un%")),
             sex.map(sex => sqls.eq(u.sex, sex))
           )
         )
@@ -124,7 +124,7 @@ package object repository {
         .from(User as u)
         .where(
           sqls.toAndConditionOpt(
-            username.map(un => sqls.like(u.username, un)),
+            username.map(un => sqls.like(u.username, s"%$un%")),
             sex.map(sex => sqls.eq(u.sex, sex))
           )
         )
@@ -280,7 +280,7 @@ package object repository {
         .from(GroupList as g)
         .where(
           sqls.toAndConditionOpt(
-            groupName.map(gn => sqls.like(g.column("group_name"), gn))
+            groupName.map(gn => sqls.like(g.column("group_name"), s"%$gn%"))
           )
         )
     }.toList().map(rs => rs.int(1)).iterator()
@@ -297,7 +297,8 @@ package object repository {
         .from(GroupList as g)
         .where(
           sqls.toAndConditionOpt(
-            groupName.map(gn => sqls.like(g.column("group_name"), gn))
+            // value 需要 % % ？
+            groupName.map(gn => sqls.like(g.column("group_name"), s"%$gn%"))
           )
         )
     }.toList().map(rs => GroupList(rs)).iterator()

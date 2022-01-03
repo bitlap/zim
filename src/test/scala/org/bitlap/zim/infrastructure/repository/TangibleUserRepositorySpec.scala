@@ -141,7 +141,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
     actual.map(u => u._2.id -> u._2.username).headOption shouldBe Some(mockUser.id -> mockUser.username)
   }
 
-  // 需要表t_group和t_group_members的repository
+  // 需要表t_friend_group_friends和t_group_members的repository
   // TODO findUserByGroupId  findUsersByFriendGroupIds
 
 }
@@ -152,7 +152,7 @@ object TangibleUserRepositorySpec {
 
     override val table: SQL[_, NoExtractor] =
       sql"""
-           DROP TABLE IF EXISTS `t_user`;
+            DROP TABLE IF EXISTS `t_user`;
             CREATE TABLE `t_user` (
               `id` int(10) NOT NULL AUTO_INCREMENT,
               `username` varchar(64) NOT NULL COMMENT '用户名',
@@ -164,24 +164,6 @@ object TangibleUserRepositorySpec {
               `active` varchar(64) NOT NULL COMMENT '激活码',
               `status` varchar(16) NOT NULL DEFAULT 'nonactivated' COMMENT '是否激活',
               `create_date` date NOT NULL COMMENT '创建时间',
-              PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-            DROP TABLE IF EXISTS `t_group`;
-            CREATE TABLE `t_group` (
-              `id` int(20) NOT NULL AUTO_INCREMENT,
-              `group_name` varchar(64) NOT NULL COMMENT '群组名称',
-              `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '群组图标',
-              `create_id` int(20) NOT NULL COMMENT '创建者id',
-              `create_time` timestamp NOT NULL DEFAULT '1971-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
-              PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-            DROP TABLE IF EXISTS `t_group`;
-            CREATE TABLE `t_group` (
-              `id` int(20) NOT NULL AUTO_INCREMENT,
-              `group_name` varchar(64) NOT NULL COMMENT '群组名称',
-              `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '群组图标',
-              `create_id` int(20) NOT NULL COMMENT '创建者id',
-              `create_time` timestamp NOT NULL DEFAULT '1971-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
          """

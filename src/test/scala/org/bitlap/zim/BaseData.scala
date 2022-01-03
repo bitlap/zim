@@ -1,6 +1,6 @@
 package org.bitlap.zim
 import org.bitlap.zim.configuration.properties.MysqlConfigurationProperties
-import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.model.{ GroupList, User }
 import org.scalatest.BeforeAndAfter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -15,8 +15,6 @@ import java.time.ZonedDateTime
  * @version 1.0
  */
 trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with BootstrapRuntime {
-
-  import org.bitlap.zim.domain.model.GroupList
 
   val h2ConfigurationProperties: MysqlConfigurationProperties = MysqlConfigurationProperties()
 
@@ -58,7 +56,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
   )
 
   before {
-    NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
+    NamedDB(Symbol(h2ConfigurationProperties.databaseName)).localTx { implicit session =>
       table.execute().apply()
     }
   }
