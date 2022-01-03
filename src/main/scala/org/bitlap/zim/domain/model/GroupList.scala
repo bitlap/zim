@@ -23,6 +23,9 @@ case class GroupList(
 
 object GroupList extends SQLSyntaxSupport[GroupList] {
 
+  // 数据库列名和字段名不同，使用DSL时需要指定列表，如：`g.column("group_name")` 而不是 `g.groupname`
+  override lazy val columns: collection.Seq[String] = Seq("id", "group_name", "avatar", "create_id")
+
   override def tableName: String = "t_group"
 
   implicit val decoder: Decoder[GroupList] = deriveDecoder[GroupList]

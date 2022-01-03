@@ -32,6 +32,8 @@ case class AddMessage(
 
 object AddMessage extends SQLSyntaxSupport[AddMessage] {
 
+  override lazy val columns: collection.Seq[String] = autoColumns[AddMessage]()
+
   override val tableName = "t_add_message"
 
   implicit val decoder: Decoder[AddMessage] = deriveDecoder[AddMessage]

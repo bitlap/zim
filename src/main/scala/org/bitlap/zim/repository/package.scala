@@ -30,7 +30,7 @@ package object repository {
   implicit class sqlUpdateWithGeneratedKey(sqlUpdateWithGeneratedKey: SQLUpdateWithGeneratedKey) {
     def toUpdateReturnKey(implicit databaseName: String): stream.Stream[Throwable, Long] =
       ZStream.fromEffect(
-        Task.effect(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sqlUpdateWithGeneratedKey.apply()))
+        Task.effect(NamedDB(Symbol(databaseName)).localTx(implicit session => sqlUpdateWithGeneratedKey.apply()))
       )
   }
 
@@ -42,7 +42,7 @@ package object repository {
   implicit class executeUpdateOperation(sqlUpdate: SQLUpdate) {
     def toUpdateOperation(implicit databaseName: String): stream.Stream[Throwable, Int] =
       ZStream.fromEffect(
-        Task.effect(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sqlUpdate.apply()))
+        Task.effect(NamedDB(Symbol(databaseName)).localTx(implicit session => sqlUpdate.apply()))
       )
   }
 
@@ -54,7 +54,7 @@ package object repository {
    */
   implicit class executeSQLOperation[T](sql: SQL[T, HasExtractor]) {
     def toSQLOperation(implicit databaseName: String): stream.Stream[Throwable, T] =
-      ZStream.fromIterable(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sql.list().apply()))
+      ZStream.fromIterable(NamedDB(Symbol(databaseName)).localTx(implicit session => sql.list().apply()))
   }
 
   /**
@@ -109,7 +109,7 @@ package object repository {
             sex.map(sex => sqls.eq(u.sex, sex))
           )
         )
-    }.toList().map(rs => rs.get[Int]("id")).iterator()
+    }.toList().map(rs => rs.int(1)).iterator()
 
   /**
    * 根据用户名和性别查询用户
@@ -276,14 +276,14 @@ package object repository {
    */
   private[repository] def _countGroup(groupName: Option[String]): StreamReadySQL[Int] =
     withSQL {
-      select(count(u.id))
+      select(count(g.id))
         .from(GroupList as g)
         .where(
           sqls.toAndConditionOpt(
-            groupName.map(gn => sqls.like(g.groupname, gn))
+            groupName.map(gn => sqls.like(g.column("group_name"), gn))
           )
         )
-    }.toList().map(rs => rs.get[Int]("id")).iterator()
+    }.toList().map(rs => rs.int(1)).iterator()
 
   /**
    * 根据群名模糊查询群
@@ -297,7 +297,7 @@ package object repository {
         .from(GroupList as g)
         .where(
           sqls.toAndConditionOpt(
-            groupName.map(gn => sqls.like(g.groupname, gn))
+            groupName.map(gn => sqls.like(g.column("group_name"), gn))
           )
         )
     }.toList().map(rs => GroupList(rs)).iterator()

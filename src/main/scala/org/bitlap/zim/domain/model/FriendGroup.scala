@@ -15,6 +15,8 @@ case class FriendGroup(id: Int, uid: Int, groupname: String)
 
 object FriendGroup extends SQLSyntaxSupport[FriendGroup] {
 
+  override lazy val columns: collection.Seq[String] = autoColumns[FriendGroup]()
+
   override def tableName: String = "t_friend_group"
 
   implicit val decoder: Decoder[FriendGroup] = deriveDecoder[FriendGroup]

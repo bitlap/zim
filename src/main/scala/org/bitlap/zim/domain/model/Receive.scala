@@ -35,6 +35,8 @@ case class Receive(
 
 object Receive extends SQLSyntaxSupport[Receive] {
 
+  override lazy val columns: collection.Seq[String] = autoColumns[Receive]()
+
   override val tableName = "t_message"
 
   implicit val decoder: Decoder[Receive] = deriveDecoder[Receive]

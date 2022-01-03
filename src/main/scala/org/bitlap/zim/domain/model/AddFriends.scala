@@ -16,6 +16,8 @@ case class AddFriends(mid: Int, mgid: Int, tid: Int, tgid: Int)
 
 object AddFriends extends SQLSyntaxSupport[AddFriends] {
 
+  override lazy val columns: collection.Seq[String] = autoColumns[AddFriends]()
+
   override def tableName: String = "t_friend_group_friends"
 
   implicit val decoder: Decoder[AddFriends] = deriveDecoder[AddFriends]

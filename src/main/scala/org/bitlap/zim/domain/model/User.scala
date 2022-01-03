@@ -36,6 +36,10 @@ case class User(
 
 object User extends SQLSyntaxSupport[User] {
 
+  // for dsl query
+  // see https://groups.google.com/g/scalikejdbc-users-group/c/h2bUE7xgS5o
+  override lazy val columns: collection.Seq[String] = autoColumns[User]()
+
   override val tableName = "t_user"
 
   // 由于经过了中间处理，需要显示调用解码器

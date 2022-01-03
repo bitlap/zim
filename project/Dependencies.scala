@@ -59,6 +59,7 @@ object Dependencies {
   lazy val commonDeps = Seq(
     "org.scalikejdbc" %% "scalikejdbc" % Version.scalikejdbc,
     "org.scalikejdbc" %% "scalikejdbc-streams" % Version.scalikejdbc,
+    "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc,
     "com.typesafe" % "config" % Version.config,
     "ch.qos.logback" % "logback-classic" % Version.logback,
     "mysql" % "mysql-connector-java" % Version.mysql,
