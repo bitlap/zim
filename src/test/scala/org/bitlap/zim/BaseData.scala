@@ -1,6 +1,6 @@
 package org.bitlap.zim
 import org.bitlap.zim.configuration.properties.MysqlConfigurationProperties
-import org.bitlap.zim.domain.model.{ GroupList, User }
+import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
 import org.scalatest.BeforeAndAfter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -53,6 +53,20 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
     groupname = "我的好友",
     avatar = "",
     createId = 1
+  )
+
+  val mockReceive = Receive(
+    toid = 1,
+    id = 2,
+    username = null,
+    avatar = null,
+    `type` = "friend",
+    content = "receive",
+    cid = 0,
+    mine = false,
+    fromid = 2,
+    timestamp = 0L,
+    status = 0
   )
 
   before {

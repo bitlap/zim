@@ -14,7 +14,7 @@ import scalikejdbc.{ WrappedResultSet, _ }
  * @param avatar    头像
  * @param createId  创建人ID
  */
-case class GroupList(
+final case class GroupList(
   override val id: Int,
   override val groupname: String,
   avatar: String,

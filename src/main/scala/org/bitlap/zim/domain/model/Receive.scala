@@ -19,7 +19,7 @@ import scalikejdbc.{ WrappedResultSet, _ }
  * @param timestamp 服务端动态时间戳
  * @param status    消息的状态
  */
-case class Receive(
+final case class Receive(
   toid: Int,
   id: Int,
   username: String,
@@ -35,7 +35,9 @@ case class Receive(
 
 object Receive extends SQLSyntaxSupport[Receive] {
 
-  override lazy val columns: collection.Seq[String] = autoColumns[Receive]()
+  // 对字段和名字重写定义
+  override lazy val columns: collection.Seq[String] =
+    Seq("toid", "mid", "id", "type", "content", "fromid", "timestamp", "status")
 
   override val tableName = "t_message"
 
@@ -44,15 +46,15 @@ object Receive extends SQLSyntaxSupport[Receive] {
 
   def apply(rs: WrappedResultSet): Receive = Receive(
     rs.int("toid"),
-    rs.int("id"),
-    rs.string("username"),
-    rs.string("avatar"),
-    rs.string("type"),
-    rs.string("content"),
-    rs.int("cid"),
-    rs.boolean("mine"),
-    rs.int("fromid"),
-    rs.long("timestamp"),
-    rs.int("status")
+    rs.int("mid"),
+    username = null,
+    avatar = null,
+    `type` = rs.string("type"),
+    content = rs.string("content"),
+    cid = 0,
+    mine = false,
+    fromid = rs.int("fromid"),
+    timestamp = rs.long("timestamp"),
+    status = rs.int("status")
   )
 }

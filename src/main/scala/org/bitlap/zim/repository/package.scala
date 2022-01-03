@@ -360,7 +360,7 @@ package object repository {
     uid: Int,
     status: Int
   ): StreamReadySQL[Receive] =
-    sql"select toid,mid as id,fromid,content,type,timestamp,status from $table where uid = ${uid} and status = ${status};"
+    sql"select toid,mid as id,fromid,content,type,timestamp,status from $table where toid = ${uid} and status = ${status};"
       .map(rs => Receive(rs))
       .list()
       .iterator()
@@ -388,12 +388,12 @@ package object repository {
             typ.map(ty => sqls.eq(r.`type`, ty)),
             sqls.toOrConditionOpt(
               sqls.toAndConditionOpt(
-                uid.map(uid => sqls.eq(r.toid, uid)),
-                mid.map(mid => sqls.eq(r.id, mid))
+                uid.map(uid => sqls.eq(r.column("mid"), uid)),
+                mid.map(mid => sqls.eq(r.toid, mid))
               ),
               sqls.toAndConditionOpt(
-                uid.map(uid => sqls.eq(r.id, uid)),
-                mid.map(mid => sqls.eq(r.toid, mid))
+                mid.map(mid => sqls.eq(r.column("mid"), mid)),
+                uid.map(uid => sqls.eq(r.toid, uid))
               )
             )
           )
@@ -424,16 +424,16 @@ package object repository {
             sqls.toOrConditionOpt(
               sqls.toAndConditionOpt(
                 uid.map(uid => sqls.eq(r.toid, uid)),
-                mid.map(mid => sqls.eq(r.id, mid))
+                mid.map(mid => sqls.eq(r.column("mid"), mid))
               ),
               sqls.toAndConditionOpt(
-                uid.map(uid => sqls.eq(r.id, uid)),
-                mid.map(mid => sqls.eq(r.toid, mid))
+                mid.map(mid => sqls.eq(r.toid, mid)),
+                uid.map(uid => sqls.eq(r.column("mid"), uid))
               )
             )
           )
         )
-    }.toList().map(rs => rs.get[Int]("id")).iterator()
+    }.toList().map(rs => rs.int(1)).iterator()
 
   /**
    * 置为已读

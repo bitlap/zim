@@ -21,7 +21,7 @@ import java.time.ZonedDateTime
  * @param status     状态
  * @param active     激活码
  */
-case class User(
+final case class User(
   id: Int,
   username: String,
   password: String,

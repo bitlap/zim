@@ -10,7 +10,7 @@ import scalikejdbc.{ WrappedResultSet, _ }
  * @param gid 群组编号
  * @param uid 用户编号
  */
-case class GroupMember(gid: Int, uid: Int)
+final case class GroupMember(gid: Int, uid: Int)
 
 object GroupMember extends SQLSyntaxSupport[GroupMember] {
 

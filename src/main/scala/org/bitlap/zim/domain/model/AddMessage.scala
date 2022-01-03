@@ -19,7 +19,7 @@ import java.time.LocalDateTime
  * @param `type`  类型，可能是添加好友或群组
  * @param time    申请时间
  */
-case class AddMessage(
+final case class AddMessage(
   id: Int,
   fromUid: Int,
   toUid: Int,
