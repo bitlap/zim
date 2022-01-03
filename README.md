@@ -43,37 +43,50 @@
 zim-master
 ├─ .github
 │    └─ workflows   
-│           └─ ScalaCI.yml              -- GitHub action 配置
+│           └─ ScalaCI.yml                      -- GitHub action 配置
 │           └─ auto-approve.yml
 │           └─ autoupdate.yml             
 ├─ .gitignore
 ├─ .jvmopts
-├─ prepare.sh                           -- 辅助脚本
-├─ .scalafmt.conf                       -- scalafmt格式化插件配置
+├─ .mergify.yml                                 -- 自动PR合并工具mergify的配置
+├─ prepare.sh                                   -- 辅助脚本
+├─ .scalafmt.conf                               -- scalafmt格式化插件配置
 ├─ LICENSE
 ├─ README.md
-├─ build.sbt                            -- sbt项目基础构建配置
+├─ build.sbt                                    -- sbt项目基础构建配置
 ├─ project
-│    ├─ BuildInfoSettings.scala         -- 用于编译期间生成项目全局信息的配置
-│    ├─ Dependencies.scala              -- 项目依赖和版本号配置
-│    ├─ build.properties                -- sbt版本
-│    └─ plugins.sbt                     -- 项目所依赖的插件配置
+│    ├─ BuildInfoSettings.scala                 -- 用于编译期间生成项目全局信息的配置
+│    ├─ Dependencies.scala                      -- 项目依赖和版本号配置
+│    ├─ build.properties                        -- sbt版本
+│    └─ plugins.sbt                             -- 项目所依赖的插件配置
 └─ src
        └─ main
-              ├─ resources
-              │    ├─ application.conf.example                      -- 数据库和服务配置模板
-              │    └─ logback.xml                                   -- 日志配置
-              └─ scala
-                     └─ org
-                            └─ bitlap
-                                   └─ zim
-                                          ├─ ZimServer.scala        -- 程序入口，项目启动的main方法
-                                          ├─ api                    -- 基于tapir的API（akka http实现）和Endpoint定义
-                                          ├─ application            -- zio项目模块管理，聚合了service
-                                          ├─ configuration          -- zio集成各框架的项目配置
-                                          ├─ domain                 -- 领域对象或其他简单的样例类
-                                          └─ repository             -- scalikejdbc的dao层实现（scalikejdbc stream和zio stream实现）
-                                          └─ util                   -- 工具类，经过zio包装
+          ├─ resources
+          │    ├─ application.conf.example      -- 数据库和服务配置模板
+          │    └─ logback.xml                   -- 日志配置
+          └─ scala
+             └─ org
+                └─ bitlap
+                   └─ zim
+                      ├─ ZimServer.scala        -- 程序入口，项目启动的main方法
+                      ├─ api                    -- 基于tapir的API（akka http实现）和Endpoint定义
+                      ├─ application            -- zio项目模块管理，聚合了service
+                      ├─ configuration          -- zio集成各框架的项目配置
+                      ├─ domain                 -- 领域对象或其他简单的样例类
+                         └─ model               -- 数据表对象
+                      └─ repository             -- scalikejdbc的dao层实现（scalikejdbc stream和zio stream实现）
+                      └─ util                   -- 工具类，经过zio包装
+       └─ test
+          ├─ resources
+          │    ├─ application.conf                       -- 单测用的数据库和服务配置
+          │    └─ logback-test.xml                       -- 单测用的日志配置
+          └─ scala
+             └─ org
+                └─ bitlap
+                   └─ zim
+                      ├─ RandomData.scala                -- 造用户表数据的代码
+                      ├─ BaseData.scala                  -- 用于单测的通用封装父类
+                      ├─ infrastructure.repository       -- repository单元测试
                                           
 ```
 
