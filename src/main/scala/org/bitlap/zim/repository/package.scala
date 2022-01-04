@@ -533,4 +533,101 @@ package object repository {
   private[repository] def _addFriend(table: TableDefSQLSyntax, addFriend: AddFriends): SQLUpdate =
     sql"insert into $table(fgid,uid) values(${addFriend.mgid},${addFriend.tid}),(${addFriend.tgid},${addFriend.mid});"
       .update()
+
+  //==============================群组成员 SQL实现==============================================
+
+  /**
+   * 退出群
+   *
+   * @param table
+   * @param groupMember 群成员对象
+   * @return
+   */
+  private[repository] def _leaveOutGroup(table: TableDefSQLSyntax, groupMember: GroupMember): SQLUpdate =
+    sql"delete from $table where gid = ${groupMember.gid} and uid = ${groupMember.uid};".update()
+
+  /**
+   * 查询用户编号
+   *
+   * @param table
+   * @param gid
+   * @return
+   */
+  private[repository] def _findGroupMembers(table: TableDefSQLSyntax, gid: Int): StreamReadySQL[Int] =
+    sql" select uid from $table where gid = ${gid};"
+      .list()
+      .map(rs => rs.get[Int]("uid"))
+      .iterator()
+
+  /**
+   * 添加群成员
+   *
+   * @param table
+   * @param groupMember 群成员对象
+   * @return
+   */
+  private[repository] def _addGroupMember(table: TableDefSQLSyntax, groupMember: GroupMember): SQLUpdate =
+    sql"insert into $table(gid,uid) values(${groupMember.gid},${groupMember.uid});"
+      .update()
+
+  //==============================申请消息 SQL实现==============================================
+
+  /**
+   * 统计未处理的消息
+   *
+   * @param table
+   * @param uid
+   * @param agree
+   * @return
+   */
+  private[repository] def _countUnHandMessage(uid: Option[Int], agree: Option[Int]): StreamReadySQL[Int] =
+    withSQL {
+      select(count(am.id))
+        .from(AddMessage as am)
+        .where(
+          sqls.toAndConditionOpt(
+            uid.map(uid => sqls.eq(am.toUid, uid)),
+            agree.map(agree => sqls.eq(am.agree, agree))
+          )
+        )
+    }.toList().map(rs => rs.int(1)).iterator()
+
+  /**
+   * 查询添加好友、群组信息
+   *
+   * @param table
+   * @param uid
+   * @return
+   */
+  private[repository] def _findAddInfo(uid: Int): StreamReadySQL[AddMessage] =
+    withSQL {
+      select
+        .from(AddMessage as am)
+        .where
+        .eq(am.toUid, uid)
+        .orderBy(am.time)
+        .desc
+    }.map(rs => AddMessage(rs)).list().iterator()
+
+  /**
+   * 更新好友、群组信息请求
+   *
+   * @param table
+   * @param addMessage 添加好友、群组信息对象
+   * @return
+   */
+  private[repository] def _updateAddMessage(table: TableDefSQLSyntax, addMessage: AddMessage): SQLUpdate =
+    sql"update ${table} set agree = ${addMessage.agree} where id = ${addMessage.id}".update()
+
+  /**
+   * 添加好友、群组信息请求
+   * ON DUPLICATE KEY UPDATE 首先这个语法的目的是为了解决重复性，当数据库中存在某个记录时，执行这条语句会更新它，而不存在这条记录时，会插入它。
+   *
+   * @param table
+   * @param addMessage 添加好友、群组信息对象
+   * @return
+   */
+  private[repository] def _saveAddMessage(table: TableDefSQLSyntax, addMessage: AddMessage): SQLUpdate =
+    sql"insert into ${table}(from_uid,to_uid,group_id,remark,agree,type,time) values(${addMessage.fromUid},${addMessage.toUid},${addMessage.groupId},${addMessage.remark},${addMessage.agree},${addMessage.`type`},${addMessage.time}) ON DUPLICATE KEY UPDATE remark=${addMessage.remark},time=${addMessage.time},agree=${addMessage.agree};"
+      .update()
 }

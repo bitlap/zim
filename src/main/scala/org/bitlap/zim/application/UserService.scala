@@ -1,10 +1,12 @@
 package org.bitlap.zim.application
 
-import org.bitlap.zim.domain.model.{ AddFriends, AddMessage, FriendGroup, GroupList, Receive, User }
+import org.bitlap.zim.domain.model.{ AddFriends, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
 import org.bitlap.zim.domain.{ AddInfo, ChatHistory, FriendList }
 import org.bitlap.zim.repository.{
+  AddMessageRepository,
   FriendGroupFriendRepository,
   FriendGroupRepository,
+  GroupMemberRepository,
   GroupRepository,
   ReceiveRepository,
   UserRepository
@@ -24,6 +26,8 @@ private final class UserService(
   receiveRepository: ReceiveRepository[Receive],
   friendGroupRepository: FriendGroupRepository[FriendGroup],
   friendGroupFriendRepository: FriendGroupFriendRepository[AddFriends],
+  groupMemberRepository: GroupMemberRepository[GroupMember],
+  addMessageRepository: AddMessageRepository[AddMessage],
   mailService: MailService
 ) extends UserApplication {
 
@@ -123,6 +127,8 @@ object UserService {
     receiveRepository: ReceiveRepository[Receive],
     friendGroupRepository: FriendGroupRepository[FriendGroup],
     friendGroupFriendRepository: FriendGroupFriendRepository[AddFriends],
+    groupMemberRepository: GroupMemberRepository[GroupMember],
+    addMessageRepository: AddMessageRepository[AddMessage],
     mailService: MailService
   ): UserApplication =
     new UserService(
@@ -131,6 +137,8 @@ object UserService {
       receiveRepository,
       friendGroupRepository,
       friendGroupFriendRepository,
+      groupMemberRepository,
+      addMessageRepository,
       mailService
     )
 }
