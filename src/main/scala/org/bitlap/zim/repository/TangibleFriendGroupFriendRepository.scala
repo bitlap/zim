@@ -1,6 +1,7 @@
 package org.bitlap.zim.repository
 
 import org.bitlap.zim.domain.model.{ AddFriends, FriendGroup }
+import zio.stream.ZStream
 import zio.{ stream, Has, ULayer, ZLayer }
 
 /**
@@ -39,6 +40,18 @@ object TangibleFriendGroupFriendRepository {
     new TangibleFriendGroupFriendRepository(databaseName)
 
   type ZFriendGroupFriendRepository = Has[FriendGroupFriendRepository[AddFriends]]
+
+  def removeFriend(friendId: Int, uId: Int): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
+    ZStream.accessStream(_.get.removeFriend(friendId, uId))
+
+  def changeGroup(groupId: Int, originRecordId: Int): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
+    ZStream.accessStream(_.get.changeGroup(groupId, originRecordId))
+
+  def findUserGroup(uId: Int, mId: Int): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
+    ZStream.accessStream(_.get.findUserGroup(uId, mId))
+
+  def addFriend(addFriends: AddFriends): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
+    ZStream.accessStream(_.get.addFriend(addFriends))
 
   val live: ZLayer[Has[String], Nothing, ZFriendGroupFriendRepository] =
     ZLayer.fromService[String, FriendGroupFriendRepository[AddFriends]](TangibleFriendGroupFriendRepository(_))

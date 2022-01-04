@@ -1,10 +1,18 @@
 package org.bitlap.zim.infrastructure.repository
 
 import org.bitlap.zim.BaseData
-import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.model.{ AddFriends, GroupMember, User }
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepositorySpec.TangibleUserRepositoryConfigurationSpec
-import org.bitlap.zim.repository.TangibleUserRepository
+import org.bitlap.zim.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
+import org.bitlap.zim.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
+import org.bitlap.zim.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.repository.TangibleUserRepository.ZUserRepository
+import org.bitlap.zim.repository.{
+  TangibleFriendGroupFriendRepository,
+  TangibleGroupMemberRepository,
+  TangibleGroupRepository,
+  TangibleUserRepository
+}
 import scalikejdbc._
 import zio.{ Chunk, ULayer, ZLayer }
 
@@ -141,16 +149,49 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
     actual.map(u => u._2.id -> u._2.username).headOption shouldBe Some(mockUser.id -> mockUser.username)
   }
 
-  // 需要表t_friend_group_friends和t_group_members的repository
-  // TODO findUserByGroupId  findUsersByFriendGroupIds
+  it should "findUserByGroupId by gid" in {
+    val actual: Chunk[User] = unsafeRun(
+      (for {
+        id <- TangibleUserRepository.saveUser(mockUser)
+        gid <- TangibleGroupRepository.createGroupList(mockGroupList)
+        _ <- TangibleGroupMemberRepository.addGroupMember(GroupMember(gid.toInt, id.toInt))
+        dbUser2 <- TangibleUserRepository.findUserByGroupId(gid.toInt)
+      } yield dbUser2).runCollect
+        .provideLayer(env)
+    )
 
+    actual.map(u => u.id -> u.username).headOption shouldBe Some(mockUser.id -> mockUser.username)
+  }
+
+  it should "findUsersByFriendGroupIds by gid" in {
+    val actual: Chunk[User] = unsafeRun(
+      (for {
+        id1 <- TangibleUserRepository.saveUser(mockUser)
+        id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
+        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriends(id1.toInt, 11, id2.toInt, 22))
+        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriends(id2.toInt, 11, id1.toInt, 22))
+        dbUser2 <- TangibleUserRepository.findUsersByFriendGroupIds(22)
+      } yield dbUser2).runCollect
+        .provideLayer(env)
+    )
+
+    actual.map(u => u.id -> u.username).headOption shouldBe Some(mockUser.id -> mockUser.username)
+  }
 }
 
 object TangibleUserRepositorySpec {
 
   trait TangibleUserRepositoryConfigurationSpec extends BaseData {
 
-    override val table: SQL[_, NoExtractor] =
+    override val sqlAfter: SQL[_, NoExtractor] =
+      sql"""
+        drop table if exists t_user;
+        drop table if exists t_group;
+        drop table if exists t_group_members;
+        drop table if exists t_friend_group_friends;
+         """
+
+    override val sqlBefore: SQL[_, NoExtractor] =
       sql"""
             DROP TABLE IF EXISTS `t_user`;
             CREATE TABLE `t_user` (
@@ -166,10 +207,56 @@ object TangibleUserRepositorySpec {
               `create_date` date NOT NULL COMMENT '创建时间',
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+            DROP TABLE IF EXISTS `t_group`;
+            CREATE TABLE `t_group` (
+              `id` int(20) NOT NULL AUTO_INCREMENT,
+              `group_name` varchar(64) NOT NULL COMMENT '群组名称',
+              `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '群组图标',
+              `create_id` int(20) NOT NULL COMMENT '创建者id',
+              `create_time` timestamp NOT NULL DEFAULT '1971-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+            DROP TABLE IF EXISTS `t_group_members`;
+            CREATE TABLE `t_group_members` (
+              `id` int(20) NOT NULL AUTO_INCREMENT,
+              `gid` int(20) NOT NULL COMMENT '群组ID',
+              `uid` int(20) NOT NULL,
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+            DROP TABLE IF EXISTS `t_friend_group_friends`;
+            CREATE TABLE `t_friend_group_friends` (
+              `id` int(10) NOT NULL AUTO_INCREMENT,
+              `fgid` int(10) NOT NULL COMMENT '分组id',
+              `uid` int(10) NOT NULL COMMENT '用户id',
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `g_uid_unique` (`fgid`,`uid`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
          """
 
-    val env: ULayer[ZUserRepository] = ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
-      TangibleUserRepository.live
+    val groupLayer: ULayer[ZGroupRepository] = ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
+      TangibleGroupRepository.live
+
+    val groupMemberLayer: ULayer[ZGroupMemberRepository] = ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
+      TangibleGroupMemberRepository.live
+
+    val friendGroupMemberLayer: ULayer[ZFriendGroupFriendRepository] =
+      ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
+        TangibleFriendGroupFriendRepository.live
+
+    // show a layer specified as Throwable
+    val userLayer: ZLayer[Any, Throwable, ZUserRepository] =
+      ZLayer.succeed(h2ConfigurationProperties.databaseName) >>> TangibleUserRepository.live
+
+    val env: ZLayer[
+      Any,
+      Throwable,
+      ZFriendGroupFriendRepository with ZUserRepository with ZGroupMemberRepository with ZGroupRepository
+    ] =
+      friendGroupMemberLayer ++ userLayer ++ groupMemberLayer ++ groupLayer
 
   }
 

@@ -1,10 +1,11 @@
 package org.bitlap.zim.infrastructure.repository
 
 import org.bitlap.zim.BaseData
-import org.bitlap.zim.domain.model.GroupList
+import org.bitlap.zim.domain.model.{ GroupList, GroupMember }
 import org.bitlap.zim.infrastructure.repository.TangibleGroupRepositorySpec.TangibleGroupRepositoryConfigurationSpec
-import org.bitlap.zim.repository.TangibleGroupRepository
+import org.bitlap.zim.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
 import org.bitlap.zim.repository.TangibleGroupRepository.ZGroupRepository
+import org.bitlap.zim.repository.{ TangibleGroupMemberRepository, TangibleGroupRepository }
 import scalikejdbc._
 import zio.{ ULayer, ZLayer }
 
@@ -41,17 +42,18 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
     actual.map(u => u.id -> u.groupname) shouldBe Some(mockGroupList.id -> mockGroupList.groupname)
   }
 
-  // TODO 需要表t_group_members的repository
-//  it should "findGroupsById by uid" in {
-//    val actual: Option[GroupList] = unsafeRun(
-//      (for {
-//        id <- TangibleGroupRepository.createGroupList(mockGroupList)
-//        dbGroup <- TangibleGroupRepository.findGroupsById(mockGroupList.createId)
-//      } yield dbGroup).runHead
-//        .provideLayer(env)
-//    )
-//    actual.map(u => u.id -> u.groupname) shouldBe Some(mockGroupList.id -> mockGroupList.groupname)
-//  }
+  // 需要表t_group_members的repository测试
+  it should "findGroupsById by uid" in {
+    val actual: Option[GroupList] = unsafeRun(
+      (for {
+        id <- TangibleGroupRepository.createGroupList(mockGroupList)
+        _ <- TangibleGroupMemberRepository.addGroupMember(GroupMember(id.toInt, mockGroupList.createId))
+        dbGroup <- TangibleGroupRepository.findGroupsById(mockGroupList.createId)
+      } yield dbGroup).runHead
+        .provideLayer(env)
+    )
+    actual.map(u => u.id -> u.groupname) shouldBe Some(mockGroupList.id -> mockGroupList.groupname)
+  }
 
   it should "countGroup by groupname" in {
     val actual: Option[Int] = unsafeRun(
@@ -81,7 +83,13 @@ object TangibleGroupRepositorySpec {
 
   trait TangibleGroupRepositoryConfigurationSpec extends BaseData {
 
-    override val table: SQL[_, NoExtractor] =
+    override val sqlAfter: SQL[_, NoExtractor] =
+      sql"""
+        drop table if exists t_group;
+        drop table if exists t_group_members;
+         """
+
+    override val sqlBefore: SQL[_, NoExtractor] =
       sql"""
             DROP TABLE IF EXISTS `t_group`;
             CREATE TABLE `t_group` (
@@ -92,11 +100,22 @@ object TangibleGroupRepositorySpec {
               `create_time` timestamp NOT NULL DEFAULT '1971-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+            DROP TABLE IF EXISTS `t_group_members`;
+            CREATE TABLE `t_group_members` (
+              `id` int(20) NOT NULL AUTO_INCREMENT,
+              `gid` int(20) NOT NULL COMMENT '群组ID',
+              `uid` int(20) NOT NULL,
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
          """
 
-    val env: ULayer[ZGroupRepository] = ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
-      TangibleGroupRepository.live
+    val groupMemberLayer: ULayer[ZGroupMemberRepository] = ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
+      TangibleGroupMemberRepository.live
 
+    val env: ZLayer[Any, Throwable, ZGroupRepository with ZGroupMemberRepository] =
+      groupMemberLayer ++ (ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
+        TangibleGroupRepository.live)
   }
 
 }

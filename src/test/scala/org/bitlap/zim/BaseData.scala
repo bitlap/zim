@@ -16,6 +16,11 @@ import java.time.ZonedDateTime
  */
 trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with BootstrapRuntime {
 
+  // test SQL for unittest suit
+  val sqlBefore: SQL[_, NoExtractor]
+
+  val sqlAfter: SQL[_, NoExtractor]
+
   val h2ConfigurationProperties: MysqlConfigurationProperties = MysqlConfigurationProperties()
 
   ConnectionPool.add(
@@ -31,8 +36,6 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
       driverName = h2ConfigurationProperties.driverName
     )
   )
-
-  val table: SQL[_, NoExtractor]
 
   val mockUser =
     User(
@@ -70,8 +73,14 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
   )
 
   before {
-    NamedDB(Symbol(h2ConfigurationProperties.databaseName)).localTx { implicit session =>
-      table.execute().apply()
+    NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
+      sqlBefore.execute().apply()
+    }
+  }
+
+  after {
+    NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
+      sqlAfter.execute().apply()
     }
   }
 }

@@ -198,7 +198,7 @@ package object repository {
     memberTable: TableDefSQLSyntax,
     gid: Int
   ): StreamReadySQL[User] =
-    sql"select id,username,status,sign,avatar,email from $table where id in(select uid from $memberTable where gid = ${gid});"
+    sql"select * from $table where id in(select uid from $memberTable where gid = ${gid});"
       .map(rs => User(rs))
       .list()
       .iterator()
@@ -216,7 +216,7 @@ package object repository {
     friendGroupMemberTable: TableDefSQLSyntax,
     fgid: Int
   ): StreamReadySQL[User] =
-    sql"select id,username,avatar,sign,status,email,sex from $table where id in(select uid from $friendGroupMemberTable where fgid = ${fgid});"
+    sql"select * from $table where id in(select uid from $friendGroupMemberTable where fgid = ${fgid});"
       .map(rs => User(rs))
       .list()
       .iterator()
@@ -240,7 +240,7 @@ package object repository {
    * @return 这种stream只有一个元素
    */
   private[repository] def _matchUser(table: TableDefSQLSyntax, email: String): StreamReadySQL[User] =
-    sql"select id,username,email,avatar,sex,sign,password,status,active,create_date from $table where email = ${email};"
+    sql"select * from $table where email = ${email};"
       .map(rs => User(rs))
       .list()
       .iterator()

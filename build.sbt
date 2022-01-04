@@ -37,7 +37,8 @@ lazy val root = (project in file("."))
     version := "0.0.1",
     scalaVersion := "2.13.7",
     libraryDependencies ++= zioDeps ++ tapirDeps ++ commonDeps ++ akkaDeps ++ circeDeps,
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"), TestFrameworks.ScalaTest)
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"), TestFrameworks.ScalaTest),
+    Test / parallelExecution  := false //see https://www.scalatest.org/user_guide/async_testing
   )
   .enablePlugins(GitVersioning, BuildInfoPlugin)
 
