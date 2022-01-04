@@ -15,7 +15,7 @@ CREATE TABLE `t_add_message` (
   `time` datetime NOT NULL COMMENT '申请时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `add_friend_unique` (`from_uid`,`to_uid`,`group_id`,`type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for `t_friend_group`
@@ -26,7 +26,7 @@ CREATE TABLE `t_friend_group` (
   `uid` int(10) NOT NULL COMMENT '该分组所属的用户ID',
   `group_name` varchar(64) NOT NULL COMMENT '分组名称',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for `t_friend_group_friends`
@@ -38,7 +38,7 @@ CREATE TABLE `t_friend_group_friends` (
   `uid` int(10) NOT NULL COMMENT '用户id',
   PRIMARY KEY (`id`),
   UNIQUE KEY `g_uid_unique` (`fgid`,`uid`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for `t_group`
@@ -52,7 +52,7 @@ CREATE TABLE `t_group` (
   `create_id` int(20) NOT NULL COMMENT '创建者id',
   `create_time` timestamp NOT NULL DEFAULT '1971-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for `t_group_members`
@@ -63,7 +63,7 @@ CREATE TABLE `t_group_members` (
   `gid` int(20) NOT NULL COMMENT '群组ID',
   `uid` int(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 
 -- ----------------------------

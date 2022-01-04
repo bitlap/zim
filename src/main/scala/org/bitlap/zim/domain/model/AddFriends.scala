@@ -12,9 +12,11 @@ import scalikejdbc.{ WrappedResultSet, _ }
  * @param tid  对方用户id
  * @param tgid 对方分组id
  */
-case class AddFriends(mid: Int, mgid: Int, tid: Int, tgid: Int)
+final case class AddFriends(mid: Int, mgid: Int, tid: Int, tgid: Int)
 
 object AddFriends extends SQLSyntaxSupport[AddFriends] {
+
+  override lazy val columns: collection.Seq[String] = autoColumns[AddFriends]()
 
   override def tableName: String = "t_friend_group_friends"
 

@@ -19,8 +19,8 @@ object Dependencies {
     val logback = "1.2.10"
     val config = "1.4.1"
     val mysql = "8.0.27"
-    val `zio-interop-reactiveStreams` = "1.3.8"
-    val `simple-java-mail` = "7.0.0"
+    val `zio-interop-reactiveStreams` = "1.3.9"
+    val `simple-java-mail` = "6.7.5"
     val h2 = "2.0.204"
     val scalaTest = "3.2.10"
   }
@@ -59,6 +59,7 @@ object Dependencies {
   lazy val commonDeps = Seq(
     "org.scalikejdbc" %% "scalikejdbc" % Version.scalikejdbc,
     "org.scalikejdbc" %% "scalikejdbc-streams" % Version.scalikejdbc,
+    "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc,
     "com.typesafe" % "config" % Version.config,
     "ch.qos.logback" % "logback-classic" % Version.logback,
     "mysql" % "mysql-connector-java" % Version.mysql,

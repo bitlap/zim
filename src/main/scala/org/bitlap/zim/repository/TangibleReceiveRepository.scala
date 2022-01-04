@@ -2,6 +2,7 @@ package org.bitlap.zim.repository
 
 import org.bitlap.zim.domain.model.Receive
 import zio._
+import zio.stream.ZStream
 
 /**
  * 消息的操作实现
@@ -48,6 +49,29 @@ object TangibleReceiveRepository {
     new TangibleReceiveRepository(databaseName)
 
   type ZReceiveRepository = Has[ReceiveRepository[Receive]]
+
+  def saveMessage(receive: Receive): ZStream[ZReceiveRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.saveMessage(receive))
+
+  def findOffLineMessage(uid: Int, status: Int): ZStream[ZReceiveRepository, Throwable, Receive] =
+    stream.ZStream.accessStream(_.get.findOffLineMessage(uid, status))
+
+  def findHistoryMessage(
+    uid: Option[Int],
+    mid: Option[Int],
+    typ: Option[String]
+  ): ZStream[ZReceiveRepository, Throwable, Receive] =
+    stream.ZStream.accessStream(_.get.findHistoryMessage(uid, mid, typ))
+
+  def countHistoryMessage(
+    uid: Option[Int],
+    mid: Option[Int],
+    typ: Option[String]
+  ): ZStream[ZReceiveRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.countHistoryMessage(uid, mid, typ))
+
+  def readMessage(mine: Int, to: Int, typ: String): ZStream[ZReceiveRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.readMessage(mine, to, typ))
 
   val live: ZLayer[Has[String], Nothing, ZReceiveRepository] =
     ZLayer.fromService[String, ReceiveRepository[Receive]](TangibleReceiveRepository(_))

@@ -6,14 +6,18 @@ import org.bitlap.zim.configuration.properties.{
   MysqlConfigurationProperties,
   ZimConfigurationProperties
 }
-import org.bitlap.zim.domain.model.{ AddFriends, FriendGroup, GroupList, Receive, User }
+import org.bitlap.zim.domain.model.{ AddFriends, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
 import org.bitlap.zim.repository.{
+  AddMessageRepository,
   FriendGroupFriendRepository,
   FriendGroupRepository,
+  GroupMemberRepository,
   GroupRepository,
   ReceiveRepository,
+  TangibleAddMessageRepository,
   TangibleFriendGroupFriendRepository,
   TangibleFriendGroupRepository,
+  TangibleGroupMemberRepository,
   TangibleGroupRepository,
   TangibleReceiveRepository,
   TangibleUserRepository,
@@ -68,6 +72,13 @@ final class InfrastructureConfiguration {
     mysqlConfigurationProperties.databaseName
   )
 
+  lazy val groupMemberRepository: GroupMemberRepository[GroupMember] = TangibleGroupMemberRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+  lazy val addMessageRepository: AddMessageRepository[AddMessage] = TangibleAddMessageRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+
   lazy val mailService: MailService = MailService(mailConfigurationProperties)
 
 }
@@ -99,6 +110,12 @@ object InfrastructureConfiguration {
 
   val friendGroupFriendRepository: URIO[ZInfrastructureConfiguration, FriendGroupFriendRepository[AddFriends]] =
     ZIO.access(_.get.friendGroupFriendRepository)
+
+  val groupMemberRepository: URIO[ZInfrastructureConfiguration, GroupMemberRepository[GroupMember]] =
+    ZIO.access(_.get.groupMemberRepository)
+
+  val addMessageRepository: URIO[ZInfrastructureConfiguration, AddMessageRepository[AddMessage]] =
+    ZIO.access(_.get.addMessageRepository)
 
   val live: ULayer[ZInfrastructureConfiguration] =
     ZLayer.succeed[InfrastructureConfiguration](InfrastructureConfiguration())

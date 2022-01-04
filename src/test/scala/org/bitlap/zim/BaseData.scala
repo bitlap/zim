@@ -1,7 +1,7 @@
 package org.bitlap.zim
 import org.bitlap.zim.configuration.properties.MysqlConfigurationProperties
-import org.bitlap.zim.domain.model.User
-import org.scalatest.BeforeAndAfterEach
+import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
+import org.scalatest.BeforeAndAfter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc._
@@ -14,13 +14,9 @@ import java.time.ZonedDateTime
  * @since 2022/1/2
  * @version 1.0
  */
-trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfterEach with BootstrapRuntime {
+trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with BootstrapRuntime {
 
-  val table: SQL[_, NoExtractor]
   val h2ConfigurationProperties: MysqlConfigurationProperties = MysqlConfigurationProperties()
-
-  val mockUser =
-    User.apply(1, "zhangsan", "", null, "/static/image/avatar/avatar(3).jpg", "", ZonedDateTime.now(), 0, "online", "")
 
   ConnectionPool.add(
     Symbol(h2ConfigurationProperties.databaseName),
@@ -36,9 +32,46 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfterEach with Bo
     )
   )
 
-  override protected def beforeEach(): Unit =
-    NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
+  val table: SQL[_, NoExtractor]
+
+  val mockUser =
+    User(
+      1,
+      "zhangsan",
+      "",
+      null,
+      "/static/image/avatar/avatar(3).jpg",
+      "dreamylost@outlook.com",
+      ZonedDateTime.now(),
+      1,
+      "online",
+      "1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d"
+    )
+
+  val mockGroupList = GroupList(
+    id = 1,
+    groupname = "我的好友",
+    avatar = "",
+    createId = 1
+  )
+
+  val mockReceive = Receive(
+    toid = 1,
+    id = 2,
+    username = null,
+    avatar = null,
+    `type` = "friend",
+    content = "receive",
+    cid = 0,
+    mine = false,
+    fromid = 2,
+    timestamp = 0L,
+    status = 0
+  )
+
+  before {
+    NamedDB(Symbol(h2ConfigurationProperties.databaseName)).localTx { implicit session =>
       table.execute().apply()
     }
-
+  }
 }

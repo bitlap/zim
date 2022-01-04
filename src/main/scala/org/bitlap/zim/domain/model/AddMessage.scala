@@ -19,7 +19,7 @@ import java.time.LocalDateTime
  * @param `type`  类型，可能是添加好友或群组
  * @param time    申请时间
  */
-case class AddMessage(
+final case class AddMessage(
   id: Int,
   fromUid: Int,
   toUid: Int,
@@ -31,6 +31,8 @@ case class AddMessage(
 )
 
 object AddMessage extends SQLSyntaxSupport[AddMessage] {
+
+  override lazy val columns: collection.Seq[String] = autoColumns[AddMessage]()
 
   override val tableName = "t_add_message"
 

@@ -83,7 +83,7 @@ object TangibleUserRepository {
   def activeUser(activeCode: String): stream.ZStream[ZUserRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.activeUser(activeCode))
 
-  def activeUser(username: Option[String], sex: Option[Int]): stream.ZStream[ZUserRepository, Throwable, Int] =
+  def countUser(username: Option[String], sex: Option[Int]): stream.ZStream[ZUserRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.countUser(username, sex))
 
   def findUser(username: Option[String], sex: Option[Int]): stream.ZStream[ZUserRepository, Throwable, User] =

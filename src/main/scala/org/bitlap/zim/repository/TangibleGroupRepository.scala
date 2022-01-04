@@ -1,10 +1,9 @@
 package org.bitlap.zim.repository
 
-import org.bitlap.zim.domain.model.GroupList
+import org.bitlap.zim.domain.model.{ GroupList, GroupMember }
 import zio._
 
 import scala.language.implicitConversions
-import org.bitlap.zim.domain.model.GroupMember
 
 /**
  * 群组的操作实现
@@ -46,6 +45,24 @@ object TangibleGroupRepository {
     new TangibleGroupRepository(databaseName)
 
   type ZGroupRepository = Has[GroupRepository[GroupList]]
+
+  def deleteGroup(id: Int): stream.ZStream[ZGroupRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.deleteGroup(id))
+
+  def countGroup(groupName: Option[String]): stream.ZStream[ZGroupRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.countGroup(groupName))
+
+  def createGroupList(group: GroupList): stream.ZStream[ZGroupRepository, Throwable, Long] =
+    stream.ZStream.accessStream(_.get.createGroupList(group))
+
+  def findGroup(groupName: Option[String]): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
+    stream.ZStream.accessStream(_.get.findGroup(groupName))
+
+  def findGroupById(gid: Int): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
+    stream.ZStream.accessStream(_.get.findGroupById(gid))
+
+  def findGroupsById(uid: Int): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
+    stream.ZStream.accessStream(_.get.findGroupsById(uid))
 
   val live: ZLayer[Has[String], Nothing, ZGroupRepository] =
     ZLayer.fromService[String, GroupRepository[GroupList]](TangibleGroupRepository(_))

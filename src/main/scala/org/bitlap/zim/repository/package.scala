@@ -30,7 +30,7 @@ package object repository {
   implicit class sqlUpdateWithGeneratedKey(sqlUpdateWithGeneratedKey: SQLUpdateWithGeneratedKey) {
     def toUpdateReturnKey(implicit databaseName: String): stream.Stream[Throwable, Long] =
       ZStream.fromEffect(
-        Task.effect(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sqlUpdateWithGeneratedKey.apply()))
+        Task.effect(NamedDB(Symbol(databaseName)).localTx(implicit session => sqlUpdateWithGeneratedKey.apply()))
       )
   }
 
@@ -42,7 +42,7 @@ package object repository {
   implicit class executeUpdateOperation(sqlUpdate: SQLUpdate) {
     def toUpdateOperation(implicit databaseName: String): stream.Stream[Throwable, Int] =
       ZStream.fromEffect(
-        Task.effect(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sqlUpdate.apply()))
+        Task.effect(NamedDB(Symbol(databaseName)).localTx(implicit session => sqlUpdate.apply()))
       )
   }
 
@@ -54,7 +54,7 @@ package object repository {
    */
   implicit class executeSQLOperation[T](sql: SQL[T, HasExtractor]) {
     def toSQLOperation(implicit databaseName: String): stream.Stream[Throwable, T] =
-      ZStream.fromIterable(NamedDB(Symbol(databaseName)).autoCommit(implicit session => sql.list().apply()))
+      ZStream.fromIterable(NamedDB(Symbol(databaseName)).localTx(implicit session => sql.list().apply()))
   }
 
   /**
@@ -105,11 +105,11 @@ package object repository {
         .from(User as u)
         .where(
           sqls.toAndConditionOpt(
-            username.map(un => sqls.like(u.username, un)),
+            username.map(un => sqls.like(u.username, s"%$un%")),
             sex.map(sex => sqls.eq(u.sex, sex))
           )
         )
-    }.toList().map(rs => rs.get[Int]("id")).iterator()
+    }.toList().map(rs => rs.int(1)).iterator()
 
   /**
    * 根据用户名和性别查询用户
@@ -124,7 +124,7 @@ package object repository {
         .from(User as u)
         .where(
           sqls.toAndConditionOpt(
-            username.map(un => sqls.like(u.username, un)),
+            username.map(un => sqls.like(u.username, s"%$un%")),
             sex.map(sex => sqls.eq(u.sex, sex))
           )
         )
@@ -276,14 +276,14 @@ package object repository {
    */
   private[repository] def _countGroup(groupName: Option[String]): StreamReadySQL[Int] =
     withSQL {
-      select(count(u.id))
+      select(count(g.id))
         .from(GroupList as g)
         .where(
           sqls.toAndConditionOpt(
-            groupName.map(gn => sqls.like(g.groupname, gn))
+            groupName.map(gn => sqls.like(g.column("group_name"), s"%$gn%"))
           )
         )
-    }.toList().map(rs => rs.get[Int]("id")).iterator()
+    }.toList().map(rs => rs.int(1)).iterator()
 
   /**
    * 根据群名模糊查询群
@@ -297,7 +297,8 @@ package object repository {
         .from(GroupList as g)
         .where(
           sqls.toAndConditionOpt(
-            groupName.map(gn => sqls.like(g.groupname, gn))
+            // value 需要 % % ？
+            groupName.map(gn => sqls.like(g.column("group_name"), s"%$gn%"))
           )
         )
     }.toList().map(rs => GroupList(rs)).iterator()
@@ -359,7 +360,7 @@ package object repository {
     uid: Int,
     status: Int
   ): StreamReadySQL[Receive] =
-    sql"select toid,mid as id,fromid,content,type,timestamp,status from $table where uid = ${uid} and status = ${status};"
+    sql"select toid,mid as id,fromid,content,type,timestamp,status from $table where toid = ${uid} and status = ${status};"
       .map(rs => Receive(rs))
       .list()
       .iterator()
@@ -387,12 +388,12 @@ package object repository {
             typ.map(ty => sqls.eq(r.`type`, ty)),
             sqls.toOrConditionOpt(
               sqls.toAndConditionOpt(
-                uid.map(uid => sqls.eq(r.toid, uid)),
-                mid.map(mid => sqls.eq(r.id, mid))
+                uid.map(uid => sqls.eq(r.column("mid"), uid)),
+                mid.map(mid => sqls.eq(r.toid, mid))
               ),
               sqls.toAndConditionOpt(
-                uid.map(uid => sqls.eq(r.id, uid)),
-                mid.map(mid => sqls.eq(r.toid, mid))
+                mid.map(mid => sqls.eq(r.column("mid"), mid)),
+                uid.map(uid => sqls.eq(r.toid, uid))
               )
             )
           )
@@ -423,16 +424,16 @@ package object repository {
             sqls.toOrConditionOpt(
               sqls.toAndConditionOpt(
                 uid.map(uid => sqls.eq(r.toid, uid)),
-                mid.map(mid => sqls.eq(r.id, mid))
+                mid.map(mid => sqls.eq(r.column("mid"), mid))
               ),
               sqls.toAndConditionOpt(
-                uid.map(uid => sqls.eq(r.id, uid)),
-                mid.map(mid => sqls.eq(r.toid, mid))
+                mid.map(mid => sqls.eq(r.toid, mid)),
+                uid.map(uid => sqls.eq(r.column("mid"), uid))
               )
             )
           )
         )
-    }.toList().map(rs => rs.get[Int]("id")).iterator()
+    }.toList().map(rs => rs.int(1)).iterator()
 
   /**
    * 置为已读
@@ -531,5 +532,102 @@ package object repository {
    */
   private[repository] def _addFriend(table: TableDefSQLSyntax, addFriend: AddFriends): SQLUpdate =
     sql"insert into $table(fgid,uid) values(${addFriend.mgid},${addFriend.tid}),(${addFriend.tgid},${addFriend.mid});"
+      .update()
+
+  //==============================群组成员 SQL实现==============================================
+
+  /**
+   * 退出群
+   *
+   * @param table
+   * @param groupMember 群成员对象
+   * @return
+   */
+  private[repository] def _leaveOutGroup(table: TableDefSQLSyntax, groupMember: GroupMember): SQLUpdate =
+    sql"delete from $table where gid = ${groupMember.gid} and uid = ${groupMember.uid};".update()
+
+  /**
+   * 查询用户编号
+   *
+   * @param table
+   * @param gid
+   * @return
+   */
+  private[repository] def _findGroupMembers(table: TableDefSQLSyntax, gid: Int): StreamReadySQL[Int] =
+    sql" select uid from $table where gid = ${gid};"
+      .list()
+      .map(rs => rs.get[Int]("uid"))
+      .iterator()
+
+  /**
+   * 添加群成员
+   *
+   * @param table
+   * @param groupMember 群成员对象
+   * @return
+   */
+  private[repository] def _addGroupMember(table: TableDefSQLSyntax, groupMember: GroupMember): SQLUpdate =
+    sql"insert into $table(gid,uid) values(${groupMember.gid},${groupMember.uid});"
+      .update()
+
+  //==============================申请消息 SQL实现==============================================
+
+  /**
+   * 统计未处理的消息
+   *
+   * @param table
+   * @param uid
+   * @param agree
+   * @return
+   */
+  private[repository] def _countUnHandMessage(uid: Option[Int], agree: Option[Int]): StreamReadySQL[Int] =
+    withSQL {
+      select(count(am.id))
+        .from(AddMessage as am)
+        .where(
+          sqls.toAndConditionOpt(
+            uid.map(uid => sqls.eq(am.toUid, uid)),
+            agree.map(agree => sqls.eq(am.agree, agree))
+          )
+        )
+    }.toList().map(rs => rs.int(1)).iterator()
+
+  /**
+   * 查询添加好友、群组信息
+   *
+   * @param table
+   * @param uid
+   * @return
+   */
+  private[repository] def _findAddInfo(uid: Int): StreamReadySQL[AddMessage] =
+    withSQL {
+      select
+        .from(AddMessage as am)
+        .where
+        .eq(am.toUid, uid)
+        .orderBy(am.time)
+        .desc
+    }.map(rs => AddMessage(rs)).list().iterator()
+
+  /**
+   * 更新好友、群组信息请求
+   *
+   * @param table
+   * @param addMessage 添加好友、群组信息对象
+   * @return
+   */
+  private[repository] def _updateAddMessage(table: TableDefSQLSyntax, addMessage: AddMessage): SQLUpdate =
+    sql"update ${table} set agree = ${addMessage.agree} where id = ${addMessage.id}".update()
+
+  /**
+   * 添加好友、群组信息请求
+   * ON DUPLICATE KEY UPDATE 首先这个语法的目的是为了解决重复性，当数据库中存在某个记录时，执行这条语句会更新它，而不存在这条记录时，会插入它。
+   *
+   * @param table
+   * @param addMessage 添加好友、群组信息对象
+   * @return
+   */
+  private[repository] def _saveAddMessage(table: TableDefSQLSyntax, addMessage: AddMessage): SQLUpdate =
+    sql"insert into ${table}(from_uid,to_uid,group_id,remark,agree,type,time) values(${addMessage.fromUid},${addMessage.toUid},${addMessage.groupId},${addMessage.remark},${addMessage.agree},${addMessage.`type`},${addMessage.time}) ON DUPLICATE KEY UPDATE remark=${addMessage.remark},time=${addMessage.time},agree=${addMessage.agree};"
       .update()
 }
