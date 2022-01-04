@@ -72,7 +72,12 @@ object TangibleReceiveRepositorySpec {
 
   trait TangibleReceiveRepositoryConfigurationSpec extends BaseData {
 
-    override val table: SQL[_, NoExtractor] =
+    override val sqlAfter: SQL[_, NoExtractor] =
+      sql"""
+        drop table if exists t_message;
+         """
+
+    override val sqlBefore: SQL[_, NoExtractor] =
       sql"""
             DROP TABLE IF EXISTS `t_message`;
             CREATE TABLE `t_message` (
