@@ -93,8 +93,7 @@ object TangibleReceiveRepositorySpec {
             ) ENGINE=InnoDB AUTO_INCREMENT=444 DEFAULT CHARSET=utf8mb4;
          """
 
-    val env: ULayer[ZReceiveRepository] = ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
-      TangibleReceiveRepository.live
+    val env: ULayer[ZReceiveRepository] = TangibleReceiveRepository.make(h2ConfigurationProperties.databaseName)
 
   }
 

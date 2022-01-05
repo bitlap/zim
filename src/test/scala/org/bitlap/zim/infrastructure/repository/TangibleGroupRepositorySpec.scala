@@ -110,12 +110,11 @@ object TangibleGroupRepositorySpec {
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
          """
 
-    val groupMemberLayer: ULayer[ZGroupMemberRepository] = ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
-      TangibleGroupMemberRepository.live
+    val groupMemberLayer: ULayer[ZGroupMemberRepository] =
+      TangibleGroupMemberRepository.make(h2ConfigurationProperties.databaseName)
 
     val env: ZLayer[Any, Throwable, ZGroupRepository with ZGroupMemberRepository] =
-      groupMemberLayer ++ (ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
-        TangibleGroupRepository.live)
+      groupMemberLayer ++ TangibleGroupRepository.make(h2ConfigurationProperties.databaseName)
   }
 
 }

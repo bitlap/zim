@@ -237,19 +237,18 @@ object TangibleUserRepositorySpec {
 
          """
 
-    val groupLayer: ULayer[ZGroupRepository] = ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
-      TangibleGroupRepository.live
+    val groupLayer: ULayer[ZGroupRepository] =
+      TangibleGroupRepository.make(h2ConfigurationProperties.databaseName)
 
-    val groupMemberLayer: ULayer[ZGroupMemberRepository] = ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
-      TangibleGroupMemberRepository.live
+    val groupMemberLayer: ULayer[ZGroupMemberRepository] =
+      TangibleGroupMemberRepository.make(h2ConfigurationProperties.databaseName)
 
     val friendGroupMemberLayer: ULayer[ZFriendGroupFriendRepository] =
-      ZLayer.succeed(h2ConfigurationProperties.databaseName) >>>
-        TangibleFriendGroupFriendRepository.live
+      TangibleFriendGroupFriendRepository.make(h2ConfigurationProperties.databaseName)
 
     // show a layer specified as Throwable
     val userLayer: ZLayer[Any, Throwable, ZUserRepository] =
-      ZLayer.succeed(h2ConfigurationProperties.databaseName) >>> TangibleUserRepository.live
+      TangibleUserRepository.make(h2ConfigurationProperties.databaseName)
 
     val env: ZLayer[
       Any,
