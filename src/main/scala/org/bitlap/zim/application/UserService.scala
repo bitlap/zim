@@ -11,6 +11,7 @@ import org.bitlap.zim.repository.{
   ReceiveRepository,
   UserRepository
 }
+import zio.stream.ZStream
 import zio.{ stream, Has }
 
 /**
@@ -37,7 +38,25 @@ private final class UserService(
   override def findAll(): stream.Stream[Throwable, User] =
     userRepository.findAll()
 
-  override def leaveOutGroup(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] = ???
+  override def leaveOutGroup(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
+    for {
+      group <- groupRepository.findGroupById(gid)
+      master <- findUserById(group.createId)
+      ret <-
+        if (group == null) ZStream.succeed(false)
+        else {
+          if (group.createId.equals(uid)) groupRepository.deleteGroup(gid).map(_ == 1)
+          else groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)).map(_ == 1)
+        }
+      _ <-
+        if (ret && group.createId.equals(uid)) {
+          groupMemberRepository.findGroupMembers(gid).flatMap { uid =>
+            // group owner leave
+            // TODO wsService.deleteGroup(master, group.groupname, gid, uid)
+            groupMemberRepository.leaveOutGroup(GroupMember(gid, uid))
+          }
+        } else ZStream.succeed(1)
+    } yield ret
 
   override def findGroupById(gid: Int): stream.Stream[Throwable, GroupList] = ???
 
