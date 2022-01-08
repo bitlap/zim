@@ -2,6 +2,7 @@ package org.bitlap.zim.configuration.properties
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import org.simplejavamail.config.ConfigLoader
+import zio.Has
 
 import java.util.Properties
 import scala.util.Try
@@ -17,6 +18,7 @@ final case class MailConfigurationProperties(
   host: String,
   username: String,
   password: String,
+  sender: String,
   port: Int,
   threadPoolSize: Int,
   connectionPoolCoreSize: Int,
@@ -34,11 +36,14 @@ final case class MailConfigurationProperties(
 
 object MailConfigurationProperties {
 
+  type ZMailConfigurationProperties = Has[MailConfigurationProperties]
+
   def apply(config: Config = ConfigFactory.load().getConfig("infrastructure.javamail")): MailConfigurationProperties =
     MailConfigurationProperties(
       host = config.getString("host"),
       username = config.getString("username"),
       password = config.getString("password"),
+      sender = config.getString("sender"),
       port = config.getInt("port"),
       threadPoolSize = config.getInt("threadPoolSize"),
       connectionPoolCoreSize = config.getInt("connectionPoolCoreSize"),

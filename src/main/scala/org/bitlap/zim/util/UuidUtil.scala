@@ -10,18 +10,18 @@ import java.util.UUID
  * @since 2021年12月31日
  * @author 梦境迷离
  */
-object UUIDUtil {
+object UuidUtil {
 
   /**
    * 64位随机UUID
    */
-  def getUUID64String(): UIO[String] =
+  def getUuid64: UIO[String] =
     ZIO.succeed((UUID.randomUUID.toString + UUID.randomUUID.toString).replace("-", ""))
 
   /**
    * 32位随机UUID
    */
-  def getUUID32String(): UIO[String] =
+  def getUuid32: UIO[String] =
     ZIO.succeed(UUID.randomUUID.toString.replace("-", ""))
 
 }

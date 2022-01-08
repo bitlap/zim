@@ -1,14 +1,13 @@
 package org.bitlap.zim.application
 
 import org.bitlap.zim.configuration.properties.MailConfigurationProperties
-import zio.Has
+import org.bitlap.zim.configuration.properties.MailConfigurationProperties.ZMailConfigurationProperties
+import org.bitlap.zim.util.ImplicitUtil._
+import org.simplejavamail.api.mailer.Mailer
 import org.simplejavamail.config.ConfigLoader
 import org.simplejavamail.email.EmailBuilder
 import org.simplejavamail.mailer.MailerBuilder
-import org.bitlap.zim.util.ImplicitUtil._
-import zio.Task
-import zio.ZIO
-import org.simplejavamail.api.mailer.Mailer
+import zio.{ Has, UIO, ZIO, ZLayer }
 
 /**
  * 邮件发送服务
@@ -26,15 +25,19 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
     .withConnectionPoolCoreSize(mailConfigurationProperties.connectionPoolCoreSize)
     .buildMailer()
 
-  def sendHtmlMail(to: String, subject: String, content: String): Task[Any] = {
+  def sendHtmlMail(to: String, subject: String, content: String): ZIO[Any, Throwable, Any] = {
     val email = EmailBuilder
       .startingBlank()
+      .from(mailConfigurationProperties.sender)
       .to(to)
       .withSubject(subject)
       .appendTextHTML(content)
       .buildEmail()
-    val ret = mailer.sendMail(email)
-    ZIO.fromFuture(make => ret.getFuture.asScala()(make))
+    ZIO
+      .fromFuture(make => mailer.sendMail(email).getFuture.asScala()(make))
+      .onError { e =>
+        UIO.none
+      }
   }
 }
 
@@ -45,5 +48,11 @@ object MailService {
   def apply(mailConfigurationProperties: MailConfigurationProperties): MailService = new MailService(
     mailConfigurationProperties
   )
+
+  def sendHtmlMail(to: String, subject: String, content: String): ZIO[ZMailService, Throwable, Any] =
+    ZIO.access(_.get.sendHtmlMail(to, subject, content))
+
+  val live: ZLayer[ZMailConfigurationProperties, Nothing, ZMailService] =
+    ZLayer.fromService[MailConfigurationProperties, MailService](MailService(_))
 
 }

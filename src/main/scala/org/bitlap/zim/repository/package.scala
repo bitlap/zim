@@ -14,6 +14,8 @@ import scala.language.implicitConversions
 /**
  * 用户操作SQL
  *
+ *  TODO 返回单个元素的被弄成了stream，这里有待考虑
+ *
  * @author 梦境迷离
  * @since 2021/12/25
  * @version 1.0

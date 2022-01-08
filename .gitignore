@@ -11,3 +11,6 @@ Makefile
 null/
 # config
 src/main/resources/application.conf
+src/test/resources/application-dev.conf
+src/test/resources/application-test.conf
+
