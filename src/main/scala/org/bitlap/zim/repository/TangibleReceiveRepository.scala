@@ -38,9 +38,8 @@ private final class TangibleReceiveRepository(databaseName: String) extends Rece
   override def readMessage(mine: Int, to: Int, typ: String): stream.Stream[Throwable, Int] =
     _readMessage(Receive.table, mine, to, typ).toUpdateOperation
 
-  override def findById(id: Long): stream.Stream[Throwable, Receive] = ???
-
-  override def findAll(): stream.Stream[Throwable, Receive] = ???
+  override def findById(id: Long): stream.Stream[Throwable, Receive] =
+    queryFindReceiveById(Receive.table, id).toSQLOperation
 }
 
 object TangibleReceiveRepository {
@@ -72,6 +71,9 @@ object TangibleReceiveRepository {
 
   def readMessage(mine: Int, to: Int, typ: String): ZStream[ZReceiveRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.readMessage(mine, to, typ))
+
+  def findById(id: Int): stream.ZStream[ZReceiveRepository, Throwable, Receive] =
+    stream.ZStream.accessStream(_.get.findById(id))
 
   val live: ZLayer[Has[String], Nothing, ZReceiveRepository] =
     ZLayer.fromService[String, ReceiveRepository[Receive]](TangibleReceiveRepository(_))

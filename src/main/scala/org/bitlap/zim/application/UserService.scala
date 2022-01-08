@@ -36,9 +36,6 @@ private final class UserService(
   override def findById(id: Long): stream.Stream[Throwable, User] =
     userRepository.findById(id)
 
-  override def findAll(): stream.Stream[Throwable, User] =
-    userRepository.findAll()
-
   override def leaveOutGroup(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
     for {
       group <- groupRepository.findGroupById(gid)

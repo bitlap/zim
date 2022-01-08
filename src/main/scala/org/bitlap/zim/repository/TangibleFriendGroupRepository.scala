@@ -21,9 +21,8 @@ private final class TangibleFriendGroupRepository(databaseName: String) extends 
   override def findFriendGroupsById(uid: Int): stream.Stream[Throwable, FriendGroup] =
     _findFriendGroupsById(FriendGroup.table, uid).toStreamOperation
 
-  override def findById(id: Long): stream.Stream[Throwable, FriendGroup] = ???
-
-  override def findAll(): stream.Stream[Throwable, FriendGroup] = ???
+  override def findById(id: Long): stream.Stream[Throwable, FriendGroup] =
+    queryFindFriendGroupById(FriendGroup.table, id).toSQLOperation
 }
 
 object TangibleFriendGroupRepository {
@@ -32,6 +31,9 @@ object TangibleFriendGroupRepository {
     new TangibleFriendGroupRepository(databaseName)
 
   type ZFriendGroupRepository = Has[FriendGroupRepository[FriendGroup]]
+
+  def findById(id: Int): stream.ZStream[ZFriendGroupRepository, Throwable, FriendGroup] =
+    stream.ZStream.accessStream(_.get.findById(id))
 
   val live: ZLayer[Has[String], Nothing, ZFriendGroupRepository] =
     ZLayer.fromService[String, FriendGroupRepository[FriendGroup]](TangibleFriendGroupRepository(_))

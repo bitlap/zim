@@ -23,19 +23,11 @@ trait UserEndpoint extends ApiErrorMapping {
   // API  资源描述
   private[api] lazy val userDescriptionGetResource: String = "User Endpoint"
 
-  //================================================用户API定义（这是用于测试的2个接口）===============================================================
+  //================================================用户API定义（这是用于测试的接口）===============================================================
   private[api] lazy val userGetOneEndpoint: Endpoint[Long, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
     endpoint.get
       .in(userResource / "getOne" / query[Long]("id").example(10086L).description("query parameter"))
       .name("查询一个用户")
-      .description(userDescriptionGetResource)
-      .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
-      .errorOut(oneOf(statusInternalServerError, statusDefault))
-
-  private[api] lazy val userGetAllEndpoint: Endpoint[Unit, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
-    endpoint.get
-      .in(userResource / "getAll")
-      .name("查询所有用户")
       .description(userDescriptionGetResource)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
       .errorOut(oneOf(statusInternalServerError, statusDefault))

@@ -1,7 +1,6 @@
 package org.bitlap.zim.repository
 
 import zio.stream
-import org.bitlap.zim.domain.model.GroupList
 
 /**
  * 群组的操作定义

@@ -13,6 +13,4 @@ trait BaseApplication[T] {
 
   def findById(id: Long): stream.Stream[Throwable, T]
 
-  def findAll(): stream.Stream[Throwable, T]
-
 }

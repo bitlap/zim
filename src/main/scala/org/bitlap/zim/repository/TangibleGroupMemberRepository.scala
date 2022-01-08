@@ -17,9 +17,8 @@ private final class TangibleGroupMemberRepository(databaseName: String) extends 
   override def addGroupMember(groupMember: GroupMember): stream.Stream[Throwable, Int] =
     _addGroupMember(GroupMember.table, groupMember).toUpdateOperation
 
-  override def findById(id: Long): stream.Stream[Throwable, GroupMember] = ???
-
-  override def findAll(): stream.Stream[Throwable, GroupMember] = ???
+  override def findById(id: Long): stream.Stream[Throwable, GroupMember] =
+    queryFindGroupMemberById(GroupMember.table, id).toSQLOperation
 }
 
 object TangibleGroupMemberRepository {
@@ -28,6 +27,9 @@ object TangibleGroupMemberRepository {
     new TangibleGroupMemberRepository(databaseName)
 
   type ZGroupMemberRepository = Has[GroupMemberRepository[GroupMember]]
+
+  def findById(id: Int): stream.ZStream[ZGroupMemberRepository, Throwable, GroupMember] =
+    stream.ZStream.accessStream(_.get.findById(id))
 
   def leaveOutGroup(groupMember: GroupMember): ZStream[ZGroupMemberRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.leaveOutGroup(groupMember))

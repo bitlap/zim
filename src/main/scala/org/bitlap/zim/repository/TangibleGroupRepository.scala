@@ -5,6 +5,9 @@ import zio._
 
 import scala.language.implicitConversions
 
+import org.bitlap.zim.domain.model.Receive
+import org.bitlap.zim.repository.TangibleReceiveRepository.ZReceiveRepository
+
 /**
  * 群组的操作实现
  *
@@ -34,9 +37,8 @@ private final class TangibleGroupRepository(databaseName: String) extends GroupR
   override def findGroupsById(uid: Int): stream.Stream[Throwable, GroupList] =
     _findGroupsById(GroupList.table, GroupMember.table, uid).toStreamOperation
 
-  override def findById(id: Long): stream.Stream[Throwable, GroupList] = ???
-
-  override def findAll(): stream.Stream[Throwable, GroupList] = ???
+  override def findById(id: Long): stream.Stream[Throwable, GroupList] =
+    queryFindGroupById(GroupList.table, id).toSQLOperation
 }
 
 object TangibleGroupRepository {
@@ -45,6 +47,9 @@ object TangibleGroupRepository {
     new TangibleGroupRepository(databaseName)
 
   type ZGroupRepository = Has[GroupRepository[GroupList]]
+
+  def findById(id: Int): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
+    stream.ZStream.accessStream(_.get.findById(id))
 
   def deleteGroup(id: Int): stream.ZStream[ZGroupRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.deleteGroup(id))

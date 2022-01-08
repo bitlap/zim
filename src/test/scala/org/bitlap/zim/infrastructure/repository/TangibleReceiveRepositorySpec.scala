@@ -57,10 +57,9 @@ final class TangibleReceiveRepositorySpec extends TangibleReceiveRepositoryConfi
   it should "readMessage by fromid toid" in {
     val actual: Option[Receive] = unsafeRun(
       (for {
-        id <- TangibleReceiveRepository.saveMessage(mockReceive)
+        _ <- TangibleReceiveRepository.saveMessage(mockReceive)
         _ <- TangibleReceiveRepository.readMessage(mockReceive.fromid, mockReceive.toid, mockReceive.`type`)
-        dbReceive <- TangibleReceiveRepository
-          .findHistoryMessage(Some(mockReceive.fromid), Some(mockReceive.toid), Some(mockReceive.`type`))
+        dbReceive <- TangibleReceiveRepository.findById(1)
       } yield dbReceive).runHead
         .provideLayer(env)
     )
@@ -90,7 +89,7 @@ object TangibleReceiveRepositorySpec {
               `timestamp` bigint(25) NOT NULL COMMENT '服务器动态时间',
               `status` tinyint(2) NOT NULL DEFAULT '0' COMMENT '是否已读',
               PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=444 DEFAULT CHARSET=utf8mb4;
+            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
          """
 
     val env: ULayer[ZReceiveRepository] = TangibleReceiveRepository.make(h2ConfigurationProperties.databaseName)

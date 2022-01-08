@@ -17,11 +17,8 @@ private final class TangibleUserRepository(databaseName: String) extends UserRep
   private implicit lazy val dbName: String = databaseName
 
   // 有些没用的可能需要删掉，抽象出真正几个repository通用的到base repository
-  override def findAll(): stream.Stream[Throwable, User] =
-    queryFindAll(User.table).toStreamOperation
-
   override def findById(id: Long): stream.Stream[Throwable, User] =
-    queryFindById(User.table, id).toSQLOperation
+    queryFindUserById(User.table, id).toSQLOperation
 
   override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
     _countUser(username, sex).toStreamOperation
@@ -68,9 +65,6 @@ object TangibleUserRepository {
    * 下面的测试很有用，对外提供
    * @return
    */
-  def findAll(): stream.ZStream[ZUserRepository, Throwable, User] =
-    stream.ZStream.accessStream(_.get.findAll())
-
   def findById(id: Int): stream.ZStream[ZUserRepository, Throwable, User] =
     stream.ZStream.accessStream(_.get.findById(id))
 

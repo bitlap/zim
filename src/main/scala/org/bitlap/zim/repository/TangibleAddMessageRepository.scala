@@ -20,9 +20,8 @@ private final class TangibleAddMessageRepository(databaseName: String) extends A
   override def saveAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int] =
     _saveAddMessage(AddMessage.table, addMessage).toUpdateOperation
 
-  override def findById(id: Long): stream.Stream[Throwable, AddMessage] = ???
-
-  override def findAll(): stream.Stream[Throwable, AddMessage] = ???
+  override def findById(id: Long): stream.Stream[Throwable, AddMessage] =
+    queryFindAddMessageById(AddMessage.table, id).toSQLOperation
 }
 
 object TangibleAddMessageRepository {
@@ -31,6 +30,9 @@ object TangibleAddMessageRepository {
     new TangibleAddMessageRepository(databaseName)
 
   type ZAddMessageRepository = Has[AddMessageRepository[AddMessage]]
+
+  def findById(id: Int): stream.ZStream[ZAddMessageRepository, Throwable, AddMessage] =
+    stream.ZStream.accessStream(_.get.findById(id))
 
   def countUnHandMessage(uid: Int, agree: Int): ZStream[ZAddMessageRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.countUnHandMessage(uid, agree))

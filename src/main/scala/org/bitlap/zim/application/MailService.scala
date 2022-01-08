@@ -8,6 +8,7 @@ import org.simplejavamail.mailer.MailerBuilder
 import org.bitlap.zim.util.ImplicitUtil._
 import zio.Task
 import zio.ZIO
+import org.simplejavamail.api.mailer.Mailer
 
 /**
  * 邮件发送服务
@@ -19,7 +20,7 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
 
   ConfigLoader.loadProperties(mailConfigurationProperties.toProperties, true)
 
-  private lazy val mailer = MailerBuilder
+  private lazy val mailer: Mailer = MailerBuilder
     .withDebugLogging(mailConfigurationProperties.debug)
     .withThreadPoolSize(mailConfigurationProperties.threadPoolSize)
     .withConnectionPoolCoreSize(mailConfigurationProperties.connectionPoolCoreSize)

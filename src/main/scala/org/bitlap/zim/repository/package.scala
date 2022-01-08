@@ -82,15 +82,23 @@ package object repository {
     AddMessage.syntax("am")
 
   //==============================测试SQL========================================
-  private[repository] def queryFindById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
+  private[repository] def queryFindUserById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => User(rs))
-
-  private[repository] def queryFindAll(table: TableDefSQLSyntax): StreamReadySQL[User] =
-    sql"SELECT * FROM ${table}".list().map(r => User(r)).iterator()
-
-  private[repository] def queryDeleteById(table: TableDefSQLSyntax, id: Long): SQL[Nothing, NoExtractor] =
-    sql"DELETE FROM ${table} WHERE id = ${id};"
-
+  private[repository] def queryFindGroupById(table: TableDefSQLSyntax, id: Long): SQL[GroupList, HasExtractor] =
+    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => GroupList(rs))
+  private[repository] def queryFindReceiveById(table: TableDefSQLSyntax, id: Long): SQL[Receive, HasExtractor] =
+    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => Receive(rs))
+  private[repository] def queryFindFriendGroupById(table: TableDefSQLSyntax, id: Long): SQL[FriendGroup, HasExtractor] =
+    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => FriendGroup(rs))
+  private[repository] def queryFindGroupMemberById(table: TableDefSQLSyntax, id: Long): SQL[GroupMember, HasExtractor] =
+    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => GroupMember(rs))
+  private[repository] def queryFindFriendGroupFriendById(
+    table: TableDefSQLSyntax,
+    id: Long
+  ): SQL[AddFriends, HasExtractor] =
+    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => AddFriends(rs))
+  private[repository] def queryFindAddMessageById(table: TableDefSQLSyntax, id: Long): SQL[AddMessage, HasExtractor] =
+    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => AddMessage(rs))
   //==============================用户 SQL实现========================================
   /**
    * 根据用户名和性别统计用户
@@ -556,7 +564,7 @@ package object repository {
   private[repository] def _findGroupMembers(table: TableDefSQLSyntax, gid: Int): StreamReadySQL[Int] =
     sql" select uid from $table where gid = ${gid};"
       .list()
-      .map(rs => rs.get[Int]("uid"))
+      .map(rs => rs.int(1))
       .iterator()
 
   /**

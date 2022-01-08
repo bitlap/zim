@@ -7,7 +7,7 @@ import org.bitlap.zim.repository.TangibleGroupMemberRepository.ZGroupMemberRepos
 import org.bitlap.zim.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.repository.{ TangibleGroupMemberRepository, TangibleGroupRepository }
 import scalikejdbc._
-import zio.{ ULayer, ZLayer }
+import zio.{ Chunk, ULayer, ZLayer }
 
 /**
  * t_group表操作的单测
@@ -42,7 +42,6 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
     actual.map(u => u.id -> u.groupname) shouldBe Some(mockGroupList.id -> mockGroupList.groupname)
   }
 
-  // 需要表t_group_members的repository测试
   it should "findGroupsById by uid" in {
     val actual: Option[GroupList] = unsafeRun(
       (for {
@@ -71,11 +70,48 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
       (for {
         id <- TangibleGroupRepository.createGroupList(mockGroupList)
         _ <- TangibleGroupRepository.deleteGroup(id.toInt)
-        dbGroup <- TangibleGroupRepository.findGroupById(id.toInt)
+        dbGroup <- TangibleGroupRepository.findById(id.toInt)
       } yield dbGroup).runHead
         .provideLayer(env)
     )
     actual shouldBe None
+  }
+
+  it should "findGroupMembers by id" in {
+    val actual: Chunk[Int] = unsafeRun(
+      (for {
+        id <- TangibleGroupRepository.createGroupList(mockGroupList)
+        _ <- TangibleGroupMemberRepository.addGroupMember(GroupMember(id.toInt, mockGroupList.createId))
+        u <- TangibleGroupMemberRepository.findGroupMembers(id.toInt)
+      } yield u).runCollect
+        .provideLayer(env)
+    )
+    actual.headOption shouldBe Some(mockGroupList.createId)
+  }
+
+  it should "findById by id" in {
+    val actual: Option[GroupMember] = unsafeRun(
+      (for {
+        id <- TangibleGroupRepository.createGroupList(mockGroupList)
+        _ <- TangibleGroupMemberRepository.addGroupMember(GroupMember(id.toInt, mockGroupList.createId))
+        group <- TangibleGroupMemberRepository.findById(id.toInt)
+      } yield group).runHead
+        .provideLayer(env)
+    )
+    actual.map(_.uid) shouldBe Some(mockGroupList.createId)
+  }
+
+  it should "leaveOutGroup by uid and gid" in {
+    val actual: Option[GroupMember] = unsafeRun(
+      (for {
+        id <- TangibleGroupRepository.createGroupList(mockGroupList)
+        _ <- TangibleGroupMemberRepository.addGroupMember(GroupMember(id.toInt, mockGroupList.createId))
+        _ <- TangibleGroupMemberRepository.leaveOutGroup(GroupMember(id.toInt, mockGroupList.createId))
+        group <- TangibleGroupMemberRepository.findById(id.toInt)
+      } yield group).runHead
+        .provideLayer(env)
+    )
+    actual.map(_.uid) shouldBe None
   }
 }
 

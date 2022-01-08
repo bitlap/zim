@@ -22,7 +22,6 @@ final class OpenApi {
       Seq(
         ActuatorEndpoint.healthEndpoint,
         UserEndpoint.userGetOneEndpoint,
-        UserEndpoint.userGetAllEndpoint,
         UserEndpoint.findUserEndpoint,
         UserEndpoint.indexEndpoint,
         UserEndpoint.existEmailEndpoint,
