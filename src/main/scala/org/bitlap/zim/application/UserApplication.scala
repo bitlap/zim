@@ -130,7 +130,7 @@ trait UserApplication extends BaseApplication[User] {
    * @param agree 0未处理，1同意，2拒绝
    * @return
    */
-  def countUnHandMessage(uid: Int, agree: Integer): stream.Stream[Throwable, Int]
+  def countUnHandMessage(uid: Int, agree: Int): stream.Stream[Throwable, Int]
 
   /**
    * 查询添加好友、群组信息

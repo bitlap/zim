@@ -3,7 +3,7 @@ package org.bitlap.zim.repository
 import zio.stream
 
 trait AddMessageRepository[T] extends BaseRepository[T] {
-  def countUnHandMessage(uid: Option[Int], agree: Option[Int]): stream.Stream[Throwable, Int]
+  def countUnHandMessage(uid: Int, agree: Int): stream.Stream[Throwable, Int]
 
   def findAddInfo(uid: Int): stream.Stream[Throwable, T]
 

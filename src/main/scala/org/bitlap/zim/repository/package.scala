@@ -580,15 +580,13 @@ package object repository {
    * @param agree
    * @return
    */
-  private[repository] def _countUnHandMessage(uid: Option[Int], agree: Option[Int]): StreamReadySQL[Int] =
+  private[repository] def _countUnHandMessage(uid: Int, agree: Int): StreamReadySQL[Int] =
     withSQL {
       select(count(am.id))
         .from(AddMessage as am)
         .where(
-          sqls.toAndConditionOpt(
-            uid.map(uid => sqls.eq(am.toUid, uid)),
-            agree.map(agree => sqls.eq(am.agree, agree))
-          )
+          sqls.eq(am.toUid, uid) and
+            sqls.eq(am.agree, agree)
         )
     }.toList().map(rs => rs.int(1)).iterator()
 

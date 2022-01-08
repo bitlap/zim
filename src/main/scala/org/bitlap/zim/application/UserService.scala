@@ -11,8 +11,9 @@ import org.bitlap.zim.repository.{
   ReceiveRepository,
   UserRepository
 }
+import zio.logging.log
 import zio.stream.ZStream
-import zio.{ stream, Has }
+import zio.{ stream, Has, ZIO }
 
 /**
  * 用户服务
@@ -58,21 +59,41 @@ private final class UserService(
         } else ZStream.succeed(1)
     } yield ret
 
-  override def findGroupById(gid: Int): stream.Stream[Throwable, GroupList] = ???
+  override def findGroupById(gid: Int): stream.Stream[Throwable, GroupList] = groupRepository.findGroupById(gid)
 
-  override def addGroupMember(gid: Int, uid: Int, messageBoxId: Int): stream.Stream[Throwable, Boolean] = ???
+  override def addGroupMember(gid: Int, uid: Int, messageBoxId: Int): stream.Stream[Throwable, Boolean] =
+    for {
+      group <- groupRepository.findGroupById(gid)
+      //自己加自己的群，默认同意
+      upRet <-
+        if (group != null) {
+          updateAddMessage(messageBoxId, 1)
+        } else ZStream.succeed(false)
+      ret <-
+        if (upRet && group.createId != uid) {
+          groupMemberRepository.addGroupMember(GroupMember(gid, uid)).map(_ == 1)
+        } else ZStream.succeed(true)
+    } yield ret
 
-  override def addGroupMember(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] = ???
+  override def addGroupMember(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
+    groupMemberRepository.addGroupMember(new GroupMember(gid, uid)).map(_ == 1)
 
-  override def removeFriend(friendId: Int, uId: Int): stream.Stream[Throwable, Boolean] = ???
+  override def removeFriend(friendId: Int, uId: Int): stream.Stream[Throwable, Boolean] =
+    friendGroupFriendRepository.removeFriend(friendId, uId).map(_ == 1)
 
-  override def updateAvatar(userId: Int, avatar: String): stream.Stream[Throwable, Boolean] = ???
+  override def updateAvatar(userId: Int, avatar: String): stream.Stream[Throwable, Boolean] =
+    userRepository.updateAvatar(avatar, userId).map(_ == 1)
 
-  override def updateUserInfo(user: User): stream.Stream[Throwable, Boolean] = ???
+  override def updateUserInfo(user: User): stream.Stream[Throwable, Boolean] =
+    userRepository.updateUserInfo(user.id, user).map(_ == 1)
 
-  override def updateUserStatus(user: User): stream.Stream[Throwable, Boolean] = ???
+  override def updateUserStatus(user: User): stream.Stream[Throwable, Boolean] =
+    userRepository.updateUserStatus(user.status, user.id).map(_ == 1)
 
-  override def changeGroup(groupId: Int, uId: Int, mId: Int): stream.Stream[Throwable, Boolean] = ???
+  override def changeGroup(groupId: Int, uId: Int, mId: Int): stream.Stream[Throwable, Boolean] =
+    friendGroupFriendRepository.findUserGroup(uId, mId).flatMap { originRecordId =>
+      friendGroupFriendRepository.changeGroup(groupId, originRecordId).map(_ == 1)
+    }
 
   override def addFriend(
     mid: Int,
@@ -80,13 +101,26 @@ private final class UserService(
     tid: Int,
     tgid: Int,
     messageBoxId: Int
-  ): stream.Stream[Throwable, Boolean] = ???
+  ): stream.Stream[Throwable, Boolean] = {
+    val add = AddFriends(mid, mgid, tid, tgid)
+    friendGroupFriendRepository
+      .addFriend(add)
+      .flatMap(c => if (c == 1) updateAddMessage(messageBoxId, 1) else ZStream.succeed(false))
+      .onError { cleanup =>
+        // TODO
+        log.error(cleanup.map(_.getMessage).prettyPrint)
+        ZIO.succeed(false)
+      }
+  }
 
-  override def createFriendGroup(groupname: String, uid: Int): stream.Stream[Throwable, Int] = ???
+  override def createFriendGroup(groupname: String, uid: Int): stream.Stream[Throwable, Int] =
+    friendGroupRepository.createFriendGroup(FriendGroup(0, uid, groupname))
 
-  override def createGroup(groupList: GroupList): stream.Stream[Throwable, Int] = ???
+  override def createGroup(groupList: GroupList): stream.Stream[Throwable, Int] =
+    groupRepository.createGroupList(groupList).map(_.toInt)
 
-  override def countUnHandMessage(uid: Int, agree: Integer): stream.Stream[Throwable, Int] = ???
+  override def countUnHandMessage(uid: Int, agree: Int): stream.Stream[Throwable, Int] =
+    addMessageRepository.countUnHandMessage(uid, agree)
 
   override def findAddInfo(uid: Int): stream.Stream[Throwable, AddInfo] = ???
 

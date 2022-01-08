@@ -8,7 +8,7 @@ private final class TangibleAddMessageRepository(databaseName: String) extends A
 
   private implicit lazy val dbName: String = databaseName
 
-  override def countUnHandMessage(uid: Option[Int], agree: Option[Int]): stream.Stream[Throwable, Int] =
+  override def countUnHandMessage(uid: Int, agree: Int): stream.Stream[Throwable, Int] =
     _countUnHandMessage(uid, agree).toStreamOperation
 
   override def findAddInfo(uid: Int): stream.Stream[Throwable, AddMessage] =
@@ -32,7 +32,7 @@ object TangibleAddMessageRepository {
 
   type ZAddMessageRepository = Has[AddMessageRepository[AddMessage]]
 
-  def countUnHandMessage(uid: Option[Int], agree: Option[Int]): ZStream[ZAddMessageRepository, Throwable, Int] =
+  def countUnHandMessage(uid: Int, agree: Int): ZStream[ZAddMessageRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.countUnHandMessage(uid, agree))
 
   def findAddInfo(uid: Int): ZStream[ZAddMessageRepository, Throwable, AddMessage] =
