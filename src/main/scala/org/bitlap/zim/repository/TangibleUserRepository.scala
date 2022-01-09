@@ -42,16 +42,16 @@ private final class TangibleUserRepository(databaseName: String) extends UserRep
     _activeUser(User.table, activeCode).toUpdateOperation
 
   override def findUserByGroupId(gid: Int): stream.Stream[Throwable, User] =
-    _findUserByGroupId(User.table, GroupMember.table, gid).toStreamOperation
+    _findUserByGroupId(gid).toStreamOperation
 
   override def findUsersByFriendGroupIds(fgid: Int): stream.Stream[Throwable, User] =
-    _findUsersByFriendGroupIds(User.table, AddFriend.table, fgid).toStreamOperation
+    _findUsersByFriendGroupIds(fgid).toStreamOperation
 
   override def saveUser(user: User): stream.Stream[Throwable, Long] =
     _saveUser(User.table, user).toUpdateReturnKey
 
   override def matchUser(email: String): stream.Stream[Throwable, User] =
-    _matchUser(User.table, email).toStreamOperation
+    _matchUser(email).toStreamOperation
 }
 
 object TangibleUserRepository {

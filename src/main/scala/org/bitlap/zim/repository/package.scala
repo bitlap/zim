@@ -200,36 +200,24 @@ package object repository {
   /**
    * 根据群组ID查询群里用户的信息
    *
-   * @param table
-   * @param memberTable
-   * @param gid
+   * @param gid group id
    * @return
    */
-  private[repository] def _findUserByGroupId(
-    table: TableDefSQLSyntax,
-    memberTable: TableDefSQLSyntax,
-    gid: Int
-  ): StreamReadySQL[User] =
-    sql"select * from $table where id in(select uid from $memberTable where gid = ${gid});"
-      .map(rs => User(rs))
+  private[repository] def _findUserByGroupId(gid: Int): StreamReadySQL[User] =
+    sql"select ${u.result.*} from ${User as u} where id in(select ${gm.uid} from ${GroupMember as gm} where gid = ${gid});"
+      .map(User(_))
       .list()
       .iterator()
 
   /**
    * 根据好友列表ID查询用户信息列表
    *
-   * @param table
-   * @param friendGroupMemberTable
    * @param fgid
    * @return
    */
-  private[repository] def _findUsersByFriendGroupIds(
-    table: TableDefSQLSyntax,
-    friendGroupMemberTable: TableDefSQLSyntax,
-    fgid: Int
-  ): StreamReadySQL[User] =
-    sql"select * from $table where id in(select uid from $friendGroupMemberTable where fgid = ${fgid});"
-      .map(rs => User(rs))
+  private[repository] def _findUsersByFriendGroupIds(fgid: Int): StreamReadySQL[User] =
+    sql"select ${u.result.*} from ${User as u} where id in (select ${af.uid} from ${AddFriend as af} where fgid = ${fgid});"
+      .map(User(_))
       .list()
       .iterator()
 
@@ -247,13 +235,12 @@ package object repository {
   /**
    * 根据邮箱匹配用户
    *
-   * @param table
-   * @param email
+   * @param email 邮件
    * @return 这种stream只有一个元素
    */
-  private[repository] def _matchUser(table: TableDefSQLSyntax, email: String): StreamReadySQL[User] =
-    sql"select * from $table where email = ${email};"
-      .map(rs => User(rs))
+  private[repository] def _matchUser(email: String): StreamReadySQL[User] =
+    sql"select ${u.result.*} from ${User as u} where email = ${email};"
+      .map(User(_))
       .list()
       .iterator()
 
