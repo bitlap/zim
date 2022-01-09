@@ -17,5 +17,5 @@ trait FriendGroupFriendRepository[T] extends BaseRepository[T] {
 
   def findUserGroup(uId: Int, mId: Int): stream.Stream[Throwable, Int]
 
-  def addFriend(addFriends: T): stream.Stream[Throwable, Int]
+  def addFriend(from: T, to: T): stream.Stream[Throwable, Int]
 }

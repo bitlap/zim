@@ -1,6 +1,6 @@
 package org.bitlap.zim.repository
 
-import org.bitlap.zim.domain.model.{ AddFriends, GroupMember, User }
+import org.bitlap.zim.domain.model.{ AddFriend, GroupMember, User }
 import zio._
 
 import scala.language.implicitConversions
@@ -45,7 +45,7 @@ private final class TangibleUserRepository(databaseName: String) extends UserRep
     _findUserByGroupId(User.table, GroupMember.table, gid).toStreamOperation
 
   override def findUsersByFriendGroupIds(fgid: Int): stream.Stream[Throwable, User] =
-    _findUsersByFriendGroupIds(User.table, AddFriends.table, fgid).toStreamOperation
+    _findUsersByFriendGroupIds(User.table, AddFriend.table, fgid).toStreamOperation
 
   override def saveUser(user: User): stream.Stream[Throwable, Long] =
     _saveUser(User.table, user).toUpdateReturnKey

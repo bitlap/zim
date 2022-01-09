@@ -6,7 +6,7 @@ import org.bitlap.zim.configuration.properties.{
   MysqlConfigurationProperties,
   ZimConfigurationProperties
 }
-import org.bitlap.zim.domain.model.{ AddFriends, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
+import org.bitlap.zim.domain.model.{ AddFriend, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
 import org.bitlap.zim.repository.{
   AddMessageRepository,
   FriendGroupFriendRepository,
@@ -68,7 +68,7 @@ final class InfrastructureConfiguration {
     mysqlConfigurationProperties.databaseName
   )
 
-  lazy val friendGroupFriendRepository: FriendGroupFriendRepository[AddFriends] = TangibleFriendGroupFriendRepository(
+  lazy val friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend] = TangibleFriendGroupFriendRepository(
     mysqlConfigurationProperties.databaseName
   )
 
@@ -108,7 +108,7 @@ object InfrastructureConfiguration {
   val receiveRepository: URIO[ZInfrastructureConfiguration, ReceiveRepository[Receive]] =
     ZIO.access(_.get.receiveRepository)
 
-  val friendGroupFriendRepository: URIO[ZInfrastructureConfiguration, FriendGroupFriendRepository[AddFriends]] =
+  val friendGroupFriendRepository: URIO[ZInfrastructureConfiguration, FriendGroupFriendRepository[AddFriend]] =
     ZIO.access(_.get.friendGroupFriendRepository)
 
   val groupMemberRepository: URIO[ZInfrastructureConfiguration, GroupMemberRepository[GroupMember]] =

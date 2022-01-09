@@ -1,6 +1,6 @@
 package org.bitlap.zim.application
 
-import org.bitlap.zim.domain.model.{ AddFriends, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
+import org.bitlap.zim.domain.model.{ AddFriend, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
 import org.bitlap.zim.domain.{ AddInfo, ChatHistory, FriendList }
 import org.bitlap.zim.repository.{
   AddMessageRepository,
@@ -27,7 +27,7 @@ private final class UserService(
   groupRepository: GroupRepository[GroupList],
   receiveRepository: ReceiveRepository[Receive],
   friendGroupRepository: FriendGroupRepository[FriendGroup],
-  friendGroupFriendRepository: FriendGroupFriendRepository[AddFriends],
+  friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend],
   groupMemberRepository: GroupMemberRepository[GroupMember],
   addMessageRepository: AddMessageRepository[AddMessage],
   mailService: MailService
@@ -99,9 +99,10 @@ private final class UserService(
     tgid: Int,
     messageBoxId: Int
   ): stream.Stream[Throwable, Boolean] = {
-    val add = AddFriends(mid, mgid, tid, tgid)
+    val from = AddFriend(mid, mgid)
+    val to = AddFriend(tid, tgid)
     friendGroupFriendRepository
-      .addFriend(add)
+      .addFriend(from, to)
       .flatMap(c => if (c == 1) updateAddMessage(messageBoxId, 1) else ZStream.succeed(false))
       .onError { cleanup =>
         // TODO
@@ -176,7 +177,7 @@ object UserService {
     groupRepository: GroupRepository[GroupList],
     receiveRepository: ReceiveRepository[Receive],
     friendGroupRepository: FriendGroupRepository[FriendGroup],
-    friendGroupFriendRepository: FriendGroupFriendRepository[AddFriends],
+    friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend],
     groupMemberRepository: GroupMemberRepository[GroupMember],
     addMessageRepository: AddMessageRepository[AddMessage],
     mailService: MailService

@@ -10,7 +10,7 @@ import zio.stream
  * @version 1.0
  */
 trait FriendGroupRepository[T] extends BaseRepository[T] {
-  def createFriendGroup(receive: T): stream.Stream[Throwable, Int]
+  def createFriendGroup(friend: T): stream.Stream[Throwable, Int]
 
   def findFriendGroupsById(uid: Int): stream.Stream[Throwable, T]
 }

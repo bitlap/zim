@@ -15,8 +15,8 @@ private final class TangibleFriendGroupRepository(databaseName: String) extends 
 
   private implicit lazy val dbName: String = databaseName
 
-  override def createFriendGroup(receive: FriendGroup): stream.Stream[Throwable, Int] =
-    _createFriendGroup(FriendGroup.table, receive).toUpdateOperation
+  override def createFriendGroup(friend: FriendGroup): stream.Stream[Throwable, Int] =
+    _createFriendGroup(FriendGroup.table, friend).toUpdateOperation
 
   override def findFriendGroupsById(uid: Int): stream.Stream[Throwable, FriendGroup] =
     _findFriendGroupsById(FriendGroup.table, uid).toStreamOperation
@@ -34,6 +34,12 @@ object TangibleFriendGroupRepository {
 
   def findById(id: Int): stream.ZStream[ZFriendGroupRepository, Throwable, FriendGroup] =
     stream.ZStream.accessStream(_.get.findById(id))
+
+  def createFriendGroup(friend: FriendGroup): stream.ZStream[ZFriendGroupRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.createFriendGroup(friend))
+
+  def findFriendGroupsById(uid: Int): stream.ZStream[ZFriendGroupRepository, Throwable, FriendGroup] =
+    stream.ZStream.accessStream(_.get.findFriendGroupsById(uid))
 
   val live: ZLayer[Has[String], Nothing, ZFriendGroupRepository] =
     ZLayer.fromService[String, FriendGroupRepository[FriendGroup]](TangibleFriendGroupRepository(_))

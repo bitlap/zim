@@ -1,6 +1,6 @@
 package org.bitlap.zim.repository
 
-import org.bitlap.zim.domain.model.{ AddFriends, FriendGroup }
+import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup }
 import zio.stream.ZStream
 import zio.{ stream, Has, ULayer, ZLayer }
 
@@ -13,34 +13,34 @@ import zio.{ stream, Has, ULayer, ZLayer }
  */
 
 private final class TangibleFriendGroupFriendRepository(databaseName: String)
-    extends FriendGroupFriendRepository[AddFriends] {
+    extends FriendGroupFriendRepository[AddFriend] {
 
   private implicit lazy val dbName: String = databaseName
 
   override def removeFriend(friendId: Int, uId: Int): stream.Stream[Throwable, Int] =
-    _removeFriend(AddFriends.table, FriendGroup.table, friendId, uId).toUpdateOperation
+    _removeFriend(AddFriend.table, FriendGroup.table, friendId, uId).toUpdateOperation
 
   override def changeGroup(groupId: Int, originRecordId: Int): stream.Stream[Throwable, Int] =
-    _changeGroup(AddFriends.table, groupId, originRecordId).toUpdateOperation
+    _changeGroup(AddFriend.table, groupId, originRecordId).toUpdateOperation
 
   override def findUserGroup(uId: Int, mId: Int): stream.Stream[Throwable, Int] =
-    _findUserGroup(AddFriends.table, FriendGroup.table, uId, mId).toStreamOperation
+    _findUserGroup(AddFriend.table, FriendGroup.table, uId, mId).toStreamOperation
 
-  override def addFriend(addFriends: AddFriends): stream.Stream[Throwable, Int] =
-    _addFriend(AddFriends.table, addFriends).toUpdateOperation
+  override def addFriend(from: AddFriend, to: AddFriend): stream.Stream[Throwable, Int] =
+    _addFriend(AddFriend.table, from, to).toUpdateOperation
 
-  override def findById(id: Long): stream.Stream[Throwable, AddFriends] =
-    queryFindFriendGroupFriendById(AddFriends.table, id).toSQLOperation
+  override def findById(id: Long): stream.Stream[Throwable, AddFriend] =
+    queryFindFriendGroupFriendById(AddFriend.table, id).toSQLOperation
 }
 
 object TangibleFriendGroupFriendRepository {
 
-  def apply(databaseName: String): FriendGroupFriendRepository[AddFriends] =
+  def apply(databaseName: String): FriendGroupFriendRepository[AddFriend] =
     new TangibleFriendGroupFriendRepository(databaseName)
 
-  type ZFriendGroupFriendRepository = Has[FriendGroupFriendRepository[AddFriends]]
+  type ZFriendGroupFriendRepository = Has[FriendGroupFriendRepository[AddFriend]]
 
-  def findById(id: Int): stream.ZStream[ZFriendGroupFriendRepository, Throwable, AddFriends] =
+  def findById(id: Int): stream.ZStream[ZFriendGroupFriendRepository, Throwable, AddFriend] =
     stream.ZStream.accessStream(_.get.findById(id))
 
   def removeFriend(friendId: Int, uId: Int): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
@@ -52,11 +52,11 @@ object TangibleFriendGroupFriendRepository {
   def findUserGroup(uId: Int, mId: Int): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
     ZStream.accessStream(_.get.findUserGroup(uId, mId))
 
-  def addFriend(addFriends: AddFriends): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
-    ZStream.accessStream(_.get.addFriend(addFriends))
+  def addFriend(from: AddFriend, to: AddFriend): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
+    ZStream.accessStream(_.get.addFriend(from, to))
 
   val live: ZLayer[Has[String], Nothing, ZFriendGroupFriendRepository] =
-    ZLayer.fromService[String, FriendGroupFriendRepository[AddFriends]](TangibleFriendGroupFriendRepository(_))
+    ZLayer.fromService[String, FriendGroupFriendRepository[AddFriend]](TangibleFriendGroupFriendRepository(_))
 
   def make(databaseName: String): ULayer[ZFriendGroupFriendRepository] =
     ZLayer.succeed(databaseName) >>> live

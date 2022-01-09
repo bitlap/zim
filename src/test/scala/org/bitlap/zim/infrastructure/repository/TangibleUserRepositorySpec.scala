@@ -1,14 +1,16 @@
 package org.bitlap.zim.infrastructure.repository
 
 import org.bitlap.zim.BaseData
-import org.bitlap.zim.domain.model.{ AddFriends, GroupMember, User }
+import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup, GroupMember, User }
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepositorySpec.TangibleUserRepositoryConfigurationSpec
 import org.bitlap.zim.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
+import org.bitlap.zim.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
 import org.bitlap.zim.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
 import org.bitlap.zim.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.repository.{
   TangibleFriendGroupFriendRepository,
+  TangibleFriendGroupRepository,
   TangibleGroupMemberRepository,
   TangibleGroupRepository,
   TangibleUserRepository
@@ -17,7 +19,7 @@ import scalikejdbc._
 import zio.{ Chunk, ULayer, ZLayer }
 
 /**
- * t_user表操作的单测
+ * t_user、t_group_members、t_friend_group_friends、t_friend_group 表操作的单测
  *
  * @author 梦境迷离
  * @since 2022/1/2
@@ -168,14 +170,78 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
       (for {
         id1 <- TangibleUserRepository.saveUser(mockUser)
         id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
-        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriends(id1.toInt, 11, id2.toInt, 22))
-        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriends(id2.toInt, 11, id1.toInt, 22))
+        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 11), AddFriend(id2.toInt, 22))
+        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id2.toInt, 11), AddFriend(id1.toInt, 22))
         dbUser2 <- TangibleUserRepository.findUsersByFriendGroupIds(22)
       } yield dbUser2).runCollect
         .provideLayer(env)
     )
 
     actual.map(u => u.id -> u.username).headOption shouldBe Some(mockUser.id -> mockUser.username)
+  }
+
+  it should "find AddFriend by id" in {
+    val actual: Option[AddFriend] = unsafeRun(
+      (for {
+        id1 <- TangibleUserRepository.saveUser(mockUser)
+        id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
+        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 11), AddFriend(id2.toInt, 22))
+        ret <- TangibleFriendGroupFriendRepository.findById(1)
+      } yield ret).runHead
+        .provideLayer(env)
+    )
+
+    actual.isDefined
+  }
+
+  it should "findUserGroup by id" in {
+    val actual: Option[Int] = unsafeRun(
+      (for {
+        id1 <- TangibleUserRepository.saveUser(mockUser)
+        id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
+        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(1, id1.toInt, "groupname"))
+        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(2, id2.toInt, "groupname"))
+        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 1), AddFriend(id2.toInt, 2))
+        ret <- TangibleFriendGroupFriendRepository.findUserGroup(id1.toInt, id2.toInt)
+      } yield ret).runHead
+        .provideLayer(env)
+    )
+
+    actual shouldBe Some(2)
+  }
+
+  it should "removeFriend by id" in {
+    val actual: Option[Int] = unsafeRun(
+      (for {
+        id1 <- TangibleUserRepository.saveUser(mockUser)
+        id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
+        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(1, id1.toInt, "groupname"))
+        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(2, id2.toInt, "groupname"))
+        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 1), AddFriend(id2.toInt, 2))
+        ret <- TangibleFriendGroupFriendRepository.removeFriend(id1.toInt, id2.toInt)
+      } yield ret).runHead
+        .provideLayer(env)
+    )
+
+    actual shouldBe Some(2)
+  }
+
+  it should "changeGroup by id" in {
+    val actual: Option[Int] = unsafeRun(
+      (for {
+        id1 <- TangibleUserRepository.saveUser(mockUser)
+        id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
+        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, id1.toInt, "1-groupname"))
+        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, id1.toInt, "1-groupname"))
+        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, id2.toInt, "2-groupname"))
+        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(1, 1), AddFriend(2, 3))
+        id <- TangibleFriendGroupFriendRepository.findUserGroup(1, 2)
+        ret <- TangibleFriendGroupFriendRepository.changeGroup(2, id)
+      } yield ret).runHead
+        .provideLayer(env)
+    )
+
+    actual shouldBe Some(1)
   }
 }
 
@@ -189,6 +255,7 @@ object TangibleUserRepositorySpec {
         drop table if exists t_group;
         drop table if exists t_group_members;
         drop table if exists t_friend_group_friends;
+        drop table if exists t_friend_group;
          """
 
     override val sqlBefore: SQL[_, NoExtractor] =
@@ -235,7 +302,18 @@ object TangibleUserRepositorySpec {
               UNIQUE KEY `g_uid_unique` (`fgid`,`uid`)
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
+            DROP TABLE IF EXISTS `t_friend_group`;
+            CREATE TABLE `t_friend_group` (
+              `id` int(10) NOT NULL AUTO_INCREMENT,
+              `uid` int(10) NOT NULL COMMENT '该分组所属的用户ID',
+              `group_name` varchar(64) NOT NULL COMMENT '分组名称',
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
          """
+
+    val friendGroupLayer: ULayer[ZFriendGroupRepository] =
+      TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
 
     val groupLayer: ULayer[ZGroupRepository] =
       TangibleGroupRepository.make(h2ConfigurationProperties.databaseName)
@@ -253,9 +331,9 @@ object TangibleUserRepositorySpec {
     val env: ZLayer[
       Any,
       Throwable,
-      ZFriendGroupFriendRepository with ZUserRepository with ZGroupMemberRepository with ZGroupRepository
+      ZFriendGroupRepository with ZFriendGroupFriendRepository with ZUserRepository with ZGroupMemberRepository with ZGroupRepository
     ] =
-      friendGroupMemberLayer ++ userLayer ++ groupMemberLayer ++ groupLayer
+      friendGroupLayer ++ friendGroupMemberLayer ++ userLayer ++ groupMemberLayer ++ groupLayer
 
   }
 

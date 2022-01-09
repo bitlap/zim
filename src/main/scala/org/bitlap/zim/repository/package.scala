@@ -1,8 +1,8 @@
 package org.bitlap.zim
 
-import org.bitlap.zim.domain.model.{ AddFriends, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
+import org.bitlap.zim.domain.model.{ AddFriend, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
 import scalikejdbc.streams._
-import scalikejdbc.{ NoExtractor, SQL, _ }
+import scalikejdbc.{ SQL, _ }
 import sqls.count
 import zio.interop.reactivestreams._
 import zio.stream.ZStream
@@ -76,8 +76,8 @@ package object repository {
   private[repository] lazy val r: QuerySQLSyntaxProvider[SQLSyntaxSupport[Receive], Receive] = Receive.syntax("r")
   private[repository] lazy val fg: QuerySQLSyntaxProvider[SQLSyntaxSupport[FriendGroup], FriendGroup] =
     FriendGroup.syntax("fg")
-  private[repository] lazy val af: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddFriends], AddFriends] =
-    AddFriends.syntax("af")
+  private[repository] lazy val af: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddFriend], AddFriend] =
+    AddFriend.syntax("af")
   private[repository] lazy val gm: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupMember], GroupMember] =
     GroupMember.syntax("gm")
   private[repository] lazy val am: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddMessage], AddMessage] =
@@ -97,8 +97,8 @@ package object repository {
   private[repository] def queryFindFriendGroupFriendById(
     table: TableDefSQLSyntax,
     id: Long
-  ): SQL[AddFriends, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => AddFriends(rs))
+  ): SQL[AddFriend, HasExtractor] =
+    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => AddFriend(rs))
   private[repository] def queryFindAddMessageById(table: TableDefSQLSyntax, id: Long): SQL[AddMessage, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => AddMessage(rs))
   //==============================用户 SQL实现========================================
@@ -519,8 +519,8 @@ package object repository {
    * 查询我的好友的分组
    *
    * @param friendGroupFriendTable
-   * @param uId
-   * @param mId
+   * @param uId 被移动的好友id
+   * @param mId 我的id
    */
   private[repository] def _findUserGroup(
     friendGroupFriendTable: TableDefSQLSyntax,
@@ -530,18 +530,19 @@ package object repository {
   ): StreamReadySQL[Int] =
     sql"select id from $friendGroupFriendTable where fgid in (select id from $friendGroupTable where uid = ${mId}) and uid = ${uId}"
       .list()
-      .map(rs => rs.get[Int]("id"))
+      .map(rs => rs.int(1))
       .iterator()
 
   /**
    * 添加好友操作
    *
    * @param table
-   * @param addFriend
+   * @param from
+   * @param to
    * @return
    */
-  private[repository] def _addFriend(table: TableDefSQLSyntax, addFriend: AddFriends): SQLUpdate =
-    sql"insert into $table(fgid,uid) values(${addFriend.mgid},${addFriend.tid}),(${addFriend.tgid},${addFriend.mid});"
+  private[repository] def _addFriend(table: TableDefSQLSyntax, from: AddFriend, to: AddFriend): SQLUpdate =
+    sql"insert into $table(fgid,uid) values(${from.fgid},${to.uid}),(${to.fgid}, ${from.uid});"
       .update()
 
   //==============================群组成员 SQL实现==============================================
