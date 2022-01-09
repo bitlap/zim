@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/bitlap/zim/branch/master/graph/badge.svg?token=V95ZMWUUCE)](https://codecov.io/gh/bitlap/zim)
 
 
-`zim` is a functional-style, asynchronous and streaming API based on scala, zio, tapir, akka-http, circle, scalikejdbc and redis.
+`zim` is a functional-style, asynchronous and streaming IM based on scala, zio, tapir, akka-http, circle, scalikejdbc and redis.
 
 > If you are interested, you can pay attention to it and develop it together.
 
