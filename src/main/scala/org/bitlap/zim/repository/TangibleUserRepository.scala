@@ -18,7 +18,7 @@ private final class TangibleUserRepository(databaseName: String) extends UserRep
 
   // 有些没用的可能需要删掉，抽象出真正几个repository通用的到base repository
   override def findById(id: Long): stream.Stream[Throwable, User] =
-    queryFindUserById(User.table, id).toSQLOperation
+    queryFindUserById(id).toSQLOperation
 
   override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
     _countUser(username, sex).toStreamOperation

@@ -71,7 +71,7 @@ package object repository {
   }
 
   //==============================表别名定义========================================
-  private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
+  implicit private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
   private[repository] lazy val g: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
   private[repository] lazy val r: QuerySQLSyntaxProvider[SQLSyntaxSupport[Receive], Receive] = Receive.syntax("r")
   private[repository] lazy val fg: QuerySQLSyntaxProvider[SQLSyntaxSupport[FriendGroup], FriendGroup] =
@@ -84,8 +84,10 @@ package object repository {
     AddMessage.syntax("am")
 
   //==============================测试SQL========================================
-  private[repository] def queryFindUserById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => User(rs))
+  private[repository] def queryFindUserById(id: Long): SQL[User, HasExtractor] = {
+    sql"SELECT ${u.result.*} FROM ${User as u} WHERE id = ${id}".list().map(User(_))
+  }
+
   private[repository] def queryFindGroupById(table: TableDefSQLSyntax, id: Long): SQL[GroupList, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => GroupList(rs))
   private[repository] def queryFindReceiveById(table: TableDefSQLSyntax, id: Long): SQL[Receive, HasExtractor] =

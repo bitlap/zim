@@ -46,18 +46,7 @@ object User extends SQLSyntaxSupport[User] {
   implicit val decoder: Decoder[User] = deriveDecoder[User]
   implicit val encoder: Encoder[User] = deriveEncoder[User]
 
-  def apply(rs: WrappedResultSet): User = User(
-    rs.int("id"),
-    rs.string("username"),
-    rs.string("password"),
-    rs.string("sign"),
-    rs.string("avatar"),
-    rs.string("email"),
-    rs.dateTime("create_date"),
-    rs.int("sex"),
-    rs.string("status"),
-    rs.string("active")
-  )
+  def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[User]) = autoConstruct(rs, sp)
 
   def apply(id: Int, status: String): User =
     User(

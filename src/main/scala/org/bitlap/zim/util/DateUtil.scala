@@ -11,7 +11,7 @@ import java.util.Date
  */
 object DateUtil {
 
-  private final val partternAll: String = "yyyy-MM-dd: HH:mm:ss"
+  private final val partternAll: String = "yyyy-MM-dd HH:mm:ss"
 
   private final val partternPart: String = "yyyy-MM-dd"
 
