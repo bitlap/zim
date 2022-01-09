@@ -11,7 +11,6 @@ import org.bitlap.zim.repository.{
   ReceiveRepository,
   UserRepository
 }
-import zio.logging.log
 import zio.stream.ZStream
 import zio.{ stream, Has, ZIO }
 
@@ -104,11 +103,7 @@ private final class UserService(
     friendGroupFriendRepository
       .addFriend(from, to)
       .flatMap(c => if (c == 1) updateAddMessage(messageBoxId, 1) else ZStream.succeed(false))
-      .onError { cleanup =>
-        // TODO
-        log.error(cleanup.map(_.getMessage).prettyPrint)
-        ZIO.succeed(false)
-      }
+      .onError(_ => ZIO.succeed(false))
   }
 
   override def createFriendGroup(groupname: String, uid: Int): stream.Stream[Throwable, Int] =
