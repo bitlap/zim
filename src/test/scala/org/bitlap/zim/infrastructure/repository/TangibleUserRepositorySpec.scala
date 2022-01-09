@@ -165,7 +165,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
     actual.map(u => u.id -> u.username).headOption shouldBe Some(mockUser.id -> mockUser.username)
   }
 
-  it should "findUsersByFriendGroupIds by gid" in {
+  it should "findUsersByFriendGroupIds by fgid" in {
     val actual: Chunk[User] = unsafeRun(
       (for {
         id1 <- TangibleUserRepository.saveUser(mockUser)
@@ -194,7 +194,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
     actual.isDefined
   }
 
-  it should "findUserGroup by id" in {
+  it should "findUserGroup by uid and mid" in {
     val actual: Option[Int] = unsafeRun(
       (for {
         id1 <- TangibleUserRepository.saveUser(mockUser)
@@ -210,7 +210,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
     actual shouldBe Some(2)
   }
 
-  it should "removeFriend by id" in {
+  it should "removeFriend by friendId and uId" in {
     val actual: Option[Int] = unsafeRun(
       (for {
         id1 <- TangibleUserRepository.saveUser(mockUser)
@@ -226,7 +226,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
     actual shouldBe Some(2)
   }
 
-  it should "changeGroup by id" in {
+  it should "changeGroup by groupId and table id" in {
     val actual: Option[Int] = unsafeRun(
       (for {
         id1 <- TangibleUserRepository.saveUser(mockUser)
@@ -242,6 +242,31 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
     )
 
     actual shouldBe Some(1)
+  }
+
+  it should "find FriendGroup by id" in {
+    val actual: Option[FriendGroup] = unsafeRun(
+      (for {
+        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, 1, "1-groupname"))
+        group <- TangibleFriendGroupRepository.findById(1)
+      } yield group).runHead
+        .provideLayer(env)
+    )
+
+    actual.map(_.groupname) shouldBe Some("1-groupname")
+  }
+
+  it should "findFriendGroupsById by uid" in {
+    val actual: Chunk[FriendGroup] = unsafeRun(
+      (for {
+        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, 1, "1-groupname"))
+        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, 1, "2-groupname"))
+        group <- TangibleFriendGroupRepository.findFriendGroupsById(1)
+      } yield group).runCollect
+        .provideLayer(env)
+    )
+
+    actual.map(_.groupname) shouldBe Chunk("1-groupname", "2-groupname")
   }
 }
 
