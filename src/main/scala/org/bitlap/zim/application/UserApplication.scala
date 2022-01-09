@@ -190,7 +190,7 @@ trait UserApplication extends BaseApplication[User] {
    * @param groupName 群组名称
    * @return
    */
-  def countGroup(groupName: String): stream.Stream[Throwable, Int]
+  def countGroup(groupName: Option[String]): stream.Stream[Throwable, Int]
 
   /**
    * 根据群名模糊查询群
@@ -198,7 +198,7 @@ trait UserApplication extends BaseApplication[User] {
    * @param groupName 群组名称
    * @return
    */
-  def findGroup(groupName: String): stream.Stream[Throwable, GroupList]
+  def findGroup(groupName: Option[String]): stream.Stream[Throwable, GroupList]
 
   /**
    * 根据用户名和性别统计用户
@@ -207,7 +207,7 @@ trait UserApplication extends BaseApplication[User] {
    * @param sex      性别
    * @return
    */
-  def countUsers(username: String, sex: Integer): stream.Stream[Throwable, Int]
+  def countUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int]
 
   /**
    * 根据用户名和性别查询用户
@@ -216,7 +216,7 @@ trait UserApplication extends BaseApplication[User] {
    * @param sex      性别
    * @return
    */
-  def findUsers(username: String, sex: Integer): stream.Stream[Throwable, User]
+  def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, User]
 
   /**
    * 统计查询消息

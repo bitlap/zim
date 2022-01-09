@@ -4,7 +4,7 @@ import io.circe._
 import io.circe.generic.semiauto._
 import scalikejdbc.{ WrappedResultSet, _ }
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
  * 添加消息
@@ -27,7 +27,7 @@ final case class AddMessage(
   remark: String,
   agree: Int,
   `type`: Int,
-  time: LocalDateTime
+  time: ZonedDateTime
 )
 
 object AddMessage extends SQLSyntaxSupport[AddMessage] {
@@ -47,7 +47,7 @@ object AddMessage extends SQLSyntaxSupport[AddMessage] {
     rs.string("remark"),
     rs.int("agree"),
     rs.int("type"),
-    rs.localDateTime("create_date")
+    rs.zonedDateTime("create_date")
   )
 
   def apply(id: Int, agree: Int): AddMessage =
@@ -68,7 +68,7 @@ object AddMessage extends SQLSyntaxSupport[AddMessage] {
     groupId: Int,
     remark: String,
     `type`: Int,
-    time: LocalDateTime
+    time: ZonedDateTime
   ): AddMessage =
     AddMessage(0, fromUid, toUid, groupId, remark, 0, `type`, time)
 }

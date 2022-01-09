@@ -23,8 +23,8 @@ private final class TangibleUserRepository(databaseName: String) extends UserRep
   override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
     _countUser(username, sex).toStreamOperation
 
-  override def findUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, User] =
-    _findUser(username, sex).toStreamOperation
+  override def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, User] =
+    _findUsers(username, sex).toStreamOperation
 
   override def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int] =
     _updateAvatar(User.table, avatar, uid).toUpdateOperation
@@ -80,8 +80,8 @@ object TangibleUserRepository {
   def countUser(username: Option[String], sex: Option[Int]): stream.ZStream[ZUserRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.countUser(username, sex))
 
-  def findUser(username: Option[String], sex: Option[Int]): stream.ZStream[ZUserRepository, Throwable, User] =
-    stream.ZStream.accessStream(_.get.findUser(username, sex))
+  def findUsers(username: Option[String], sex: Option[Int]): stream.ZStream[ZUserRepository, Throwable, User] =
+    stream.ZStream.accessStream(_.get.findUsers(username, sex))
 
   def findUserByGroupId(gid: Int): stream.ZStream[ZUserRepository, Throwable, User] =
     stream.ZStream.accessStream(_.get.findUserByGroupId(gid))

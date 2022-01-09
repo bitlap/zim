@@ -74,7 +74,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
     val actual: Option[User] = unsafeRun(
       (for {
         id <- TangibleUserRepository.saveUser(mockUser)
-        dbUser1 <- TangibleUserRepository.findUser(Some("zhangsan"), None)
+        dbUser1 <- TangibleUserRepository.findUsers(Some("zhangsan"), None)
       } yield dbUser1).runHead
         .provideLayer(env)
     )
@@ -142,8 +142,8 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
     val actual: Chunk[(User, User)] = unsafeRun(
       (for {
         id <- TangibleUserRepository.saveUser(mockUser)
-        dbUser1 <- TangibleUserRepository.findUser(Some("zhangsan"), None)
-        dbUser2 <- TangibleUserRepository.findUser(Some("zhangsan"), Some(1))
+        dbUser1 <- TangibleUserRepository.findUsers(Some("zhangsan"), None)
+        dbUser2 <- TangibleUserRepository.findUsers(Some("zhangsan"), Some(1))
       } yield dbUser1 -> dbUser2).runCollect
         .provideLayer(env)
     )

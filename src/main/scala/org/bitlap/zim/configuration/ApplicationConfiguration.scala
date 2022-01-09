@@ -22,7 +22,8 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
     infrastructureConfiguration.friendGroupFriendRepository,
     infrastructureConfiguration.groupMemberRepository,
     infrastructureConfiguration.addMessageRepository,
-    infrastructureConfiguration.mailService
+    infrastructureConfiguration.mailService,
+    infrastructureConfiguration.zimConfigurationProperties
   )
 
   val apiApplication: ApiApplication = ApiService(userApplication)

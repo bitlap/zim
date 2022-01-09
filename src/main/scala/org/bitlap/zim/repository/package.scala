@@ -128,7 +128,7 @@ package object repository {
    * @param sex
    * @return
    */
-  private[repository] def _findUser(username: Option[String], sex: Option[Int]): StreamReadySQL[User] =
+  private[repository] def _findUsers(username: Option[String], sex: Option[Int]): StreamReadySQL[User] =
     withSQL {
       select
         .from(User as u)

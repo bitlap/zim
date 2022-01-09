@@ -13,7 +13,7 @@ trait UserRepository[T] extends BaseRepository[T] {
 
   def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int]
 
-  def findUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, T]
+  def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, T]
 
   def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int]
 
