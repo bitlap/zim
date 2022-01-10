@@ -4,7 +4,10 @@ import org.bitlap.zim.configuration.ActorSystemConfiguration.ZActorSystemConfigu
 import org.bitlap.zim.configuration.AkkaHttpConfiguration.{ ZAkkaHttpConfiguration, ZMaterializer }
 import org.bitlap.zim.configuration.ApiConfiguration.ZApiConfiguration
 import org.bitlap.zim.configuration.ApplicationConfiguration.ZApplicationConfiguration
+import org.bitlap.zim.cache.RedisCache
+
 import zio.{ TaskLayer, ULayer, ZLayer }
+
 
 /**
  * 全局的服务依赖管理
@@ -14,8 +17,6 @@ import zio.{ TaskLayer, ULayer, ZLayer }
  * @version 1.0
  */
 trait ZimServiceConfiguration {
-
-  import org.bitlap.zim.cache.RedisCache
 
   private val akkaSystemLayer: TaskLayer[ZActorSystemConfiguration] =
     InfrastructureConfiguration.live >>>
