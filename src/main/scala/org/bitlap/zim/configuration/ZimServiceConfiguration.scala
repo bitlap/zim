@@ -8,7 +8,6 @@ import org.bitlap.zim.cache.RedisCache
 
 import zio.{ TaskLayer, ULayer, ZLayer }
 
-
 /**
  * 全局的服务依赖管理
  *
@@ -41,8 +40,11 @@ trait ZimServiceConfiguration {
       materializerLayer) >>>
       ApiConfiguration.live
 
-  val ZimEnv: ZLayer[Any, Throwable, ZApiConfiguration with ZActorSystemConfiguration with ZAkkaHttpConfiguration with RedisCache] =
-    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer ++ (
-      RedisCacheConfiguration.live >>> RedisCache.live)
+  val ZimEnv: ZLayer[
+    Any,
+    Throwable,
+    ZApiConfiguration with ZActorSystemConfiguration with ZAkkaHttpConfiguration with RedisCache
+  ] =
+    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer ++ (RedisCacheConfiguration.live >>> RedisCache.live)
 
 }

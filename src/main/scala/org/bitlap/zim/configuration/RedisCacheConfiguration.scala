@@ -7,6 +7,7 @@ import zio.redis.{ RedisConfig, RedisExecutor }
 import zio.redis.codec.StringUtf8Codec
 import zio.schema.codec.Codec
 import zio.redis.RedisError
+import com.typesafe.config.Config
 
 /**
  * redis配置
@@ -17,13 +18,15 @@ import zio.redis.RedisError
  */
 object RedisCacheConfiguration {
 
-  private lazy val codec = ZLayer.succeed[Codec](StringUtf8Codec)
-
   type ZRedisCacheConfiguration = Has[RedisConfig]
 
-  private lazy val conf = ConfigFactory.load().getConfig("application");
-  lazy val redisConf: RedisConfig = if (conf.isEmpty) RedisConfig.Default
-  else RedisConfig(conf.getString("redis.host"), conf.getInt("redis.port"))
+  private lazy val conf: Config = ConfigFactory.load().getConfig("application");
+
+  private lazy val redisConf: RedisConfig =
+    if (conf.isEmpty) RedisConfig.Default
+    else RedisConfig(conf.getString("redis.host"), conf.getInt("redis.port"))
+
+  private lazy val codec = ZLayer.succeed[Codec](StringUtf8Codec)
 
   val live: ZLayer[Any, RedisError.IOError, RedisExecutor] = (Logging.ignore ++ ZLayer.succeed(redisConf)
     ++ codec) >>> RedisExecutor.live

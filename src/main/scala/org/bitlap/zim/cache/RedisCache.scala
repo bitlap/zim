@@ -1,12 +1,8 @@
 package org.bitlap.zim.cache
 
-import zio.{ redis, URIO }
 import zio.duration.durationInt
 import zio.redis.RedisExecutor
-import zio.schema.DeriveSchema._
-
-import zio.ZLayer
-import zio.IO
+import zio.{ redis, IO, ZLayer }
 
 /**
  * Redis缓存服务
@@ -17,21 +13,27 @@ import zio.IO
 object RedisCache {
 
   trait Service {
-    def getByString(key: String): IO[Nothing, Option[String]]
+
+    def get(key: String): IO[Nothing, Option[String]]
+
+    def set(key: String, value: String): IO[Nothing, Boolean]
+
   }
 
   // ZIO service 管理，这将不需要构造函数传参
   lazy val live: ZLayer[RedisExecutor, Nothing, RedisCache] =
     ZLayer.fromFunction { env =>
-      (key: String) => get[String](key).provide(env)
+      new Service {
+        override def get(key: String): IO[Nothing, Option[String]] =
+          redis.get[String](key).returning[String].orDie.provide(env)
+
+        override def set(key: String, value: String): IO[Nothing, Boolean] =
+          redis.set[String, String](key, value, Some(1.minute)).orDie.provide(env)
+      }
     }
 
-  // redis方法
-  def set(str: String, value: String): URIO[RedisExecutor, Any] = redis.set[String, String](str, value, Some(1.minute)).orDie
-
-
-  def get[K](str: K): URIO[RedisExecutor, Option[String]] = redis.get[K](str).returning[String].orDie
-
   //使用
-  //val s = ZIO.serviceWith[RedisCache.Service](_.getByString("").map(_.getOrElse("")))
+  //val s = ZIO.serviceWith[RedisCache.Service](_.getByKey("").map(_.getOrElse("")))
+
+  // 咋测试？
 }
