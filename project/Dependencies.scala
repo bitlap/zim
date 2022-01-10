@@ -32,7 +32,8 @@ object Dependencies {
     "dev.zio" %% "zio-logging" % Version.`zio-logging`,
     "dev.zio" %% "zio-test" % Version.zio % Test,
     "dev.zio" %% "zio-test-sbt" % Version.zio % Test,
-    "dev.zio" %% "zio-crypto" % "0.0.0+92-5672c642-SNAPSHOT" // 实验性质的
+    "dev.zio" %% "zio-crypto" % "0.0.0+92-5672c642-SNAPSHOT", // 实验性质的
+    "dev.zio" %% "zio-redis" % "0.0.0+345-9677b2b4-SNAPSHOT" // 实验性质的
   )
 
   lazy val tapirDeps = Seq(

@@ -37,7 +37,7 @@ private final class UserService(
   groupMemberRepository: GroupMemberRepository[GroupMember],
   addMessageRepository: AddMessageRepository[AddMessage],
   mailService: MailService,
-  zimConfigurationProperties: ZimConfigurationProperties
+  zimConfigurationProperties: ZimConfigurationProperties,
 ) extends UserApplication {
 
   override def findById(id: Long): stream.Stream[Throwable, User] =
@@ -178,7 +178,7 @@ private final class UserService(
   override def countHistoryMessage(uid: Int, mid: Int, `type`: String): stream.Stream[Throwable, Int] =
     `type` match {
       case SystemConstant.FRIEND_TYPE => receiveRepository.countHistoryMessage(Some(uid), Some(mid), Some(`type`))
-      case SystemConstant.GROUP_TYPE  => receiveRepository.countHistoryMessage(None, Some(mid), Some(`type`))
+      case SystemConstant.GROUP_TYPE => receiveRepository.countHistoryMessage(None, Some(mid), Some(`type`))
     }
 
   override def findHistoryMessage(user: User, mid: Int, `type`: String): stream.Stream[Throwable, ChatHistory] = ???

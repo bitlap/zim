@@ -15,6 +15,8 @@ import zio.{ TaskLayer, ULayer, ZLayer }
  */
 trait ZimServiceConfiguration {
 
+  import org.bitlap.zim.cache.RedisCache
+
   private val akkaSystemLayer: TaskLayer[ZActorSystemConfiguration] =
     InfrastructureConfiguration.live >>>
       ActorSystemConfiguration.live
@@ -38,7 +40,8 @@ trait ZimServiceConfiguration {
       materializerLayer) >>>
       ApiConfiguration.live
 
-  val ZimEnv: ZLayer[Any, Throwable, ZApiConfiguration with ZActorSystemConfiguration with ZAkkaHttpConfiguration] =
-    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer
+  val ZimEnv: ZLayer[Any, Throwable, ZApiConfiguration with ZActorSystemConfiguration with ZAkkaHttpConfiguration with RedisCache] =
+    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer ++ (
+      RedisCacheConfiguration.live >>> RedisCache.live)
 
 }
