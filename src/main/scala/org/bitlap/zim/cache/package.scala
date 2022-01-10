@@ -4,7 +4,7 @@ import zio.Has
 
 /**
  *
- * @author li.guobin@immomo.com
+ * @author 梦境迷离
  * @version 1.0,2022/1/10
  */
 package object cache {
