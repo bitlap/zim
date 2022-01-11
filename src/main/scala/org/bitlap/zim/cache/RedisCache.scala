@@ -1,8 +1,7 @@
 package org.bitlap.zim.cache
 
-import zio.duration.durationInt
 import zio.redis.RedisExecutor
-import zio.{ redis, IO, ZLayer }
+import zio.{ redis, Chunk, IO, ZLayer }
 
 /**
  * Redis缓存服务
@@ -14,26 +13,45 @@ object RedisCache {
 
   trait Service {
 
-    def get(key: String): IO[Nothing, Option[String]]
+    /** 获取Set集合数据
+     *
+     * @param k
+     * @return Chunk[String]
+     */
+    def getSets(k: String): IO[Nothing, Chunk[String]]
 
-    def set(key: String, value: String): IO[Nothing, Boolean]
+    /** 移除Set集合中的value
+     *
+     * @param k
+     * @param v
+     * @return Long
+     */
+    def removeSetValue(k: String, v: String): IO[Nothing, Long]
 
+    /** 保存到Set集合中
+     *
+     * @param k
+     * @param v
+     * @return Long
+     */
+    def setSet(k: String, v: String): IO[Nothing, Long]
   }
 
-  // ZIO service 管理，这将不需要构造函数传参
+  // ZIO service managed，instead of construction
   lazy val live: ZLayer[RedisExecutor, Nothing, RedisCache] =
     ZLayer.fromFunction { env =>
       new Service {
-        override def get(key: String): IO[Nothing, Option[String]] =
-          redis.get[String](key).returning[String].orDie.provide(env)
+        override def getSets(k: String): IO[Nothing, Chunk[String]] =
+          redis.sMembers(k).returning[String].orDie.provide(env)
 
-        override def set(key: String, value: String): IO[Nothing, Boolean] =
-          redis.set[String, String](key, value, Some(1.minute)).orDie.provide(env)
+        override def removeSetValue(k: String, v: String): IO[Nothing, Long] =
+          redis.sRem(k, v).orDie.provide(env)
+
+        override def setSet(k: String, v: String): IO[Nothing, Long] =
+          redis.sAdd(k, v).orDie.provide(env)
       }
     }
 
-  //使用
-  //val s = ZIO.serviceWith[RedisCache.Service](_.getByKey("").map(_.getOrElse("")))
-
-  // 咋测试？
+  //How to use it?
+  //val s = ZIO.serviceWith[RedisCache.Service](_.getSets("1")))
 }
