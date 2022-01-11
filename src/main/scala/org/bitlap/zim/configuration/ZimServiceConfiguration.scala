@@ -1,13 +1,13 @@
 package org.bitlap.zim.configuration
 
+import org.bitlap.zim.application.ws.{ WsService, WsServiceLive }
+import org.bitlap.zim.cache.RedisCache
 import org.bitlap.zim.configuration.ActorSystemConfiguration.ZActorSystemConfiguration
 import org.bitlap.zim.configuration.AkkaHttpConfiguration.{ ZAkkaHttpConfiguration, ZMaterializer }
 import org.bitlap.zim.configuration.ApiConfiguration.ZApiConfiguration
 import org.bitlap.zim.configuration.ApplicationConfiguration.ZApplicationConfiguration
-import org.bitlap.zim.cache.RedisCache
-import zio.redis.RedisError
-
 import zio.{ TaskLayer, ULayer, ZLayer }
+import zio.redis.RedisError
 
 /**
  * 全局的服务依赖管理
@@ -41,13 +41,17 @@ trait ZimServiceConfiguration {
       materializerLayer) >>>
       ApiConfiguration.live
 
-  private val redisLayer: ZLayer[Any, RedisError.IOError, RedisCache] = RedisCacheConfiguration.live >>> RedisCache.live
+  private val redisLayer: ZLayer[Any, RedisError.IOError, RedisCache] =
+    RedisCacheConfiguration.live >>> RedisCache.live
+
+  private val wsLayer: ZLayer[Any, Nothing, WsService] =
+    applicationConfigurationLayer >>> WsServiceLive.live
 
   val ZimEnv: ZLayer[
     Any,
     Throwable,
-    ZApiConfiguration with ZActorSystemConfiguration with ZAkkaHttpConfiguration with RedisCache
+    ZApiConfiguration with ZActorSystemConfiguration with ZAkkaHttpConfiguration with RedisCache with WsService
   ] =
-    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer ++ redisLayer
+    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer ++ redisLayer ++ wsLayer
 
 }

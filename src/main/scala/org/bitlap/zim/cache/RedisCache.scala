@@ -13,14 +13,16 @@ object RedisCache {
 
   trait Service {
 
-    /** 获取Set集合数据
+    /**
+     * 获取Set集合数据
      *
      * @param k
      * @return Chunk[String]
      */
     def getSets(k: String): IO[Nothing, Chunk[String]]
 
-    /** 移除Set集合中的value
+    /**
+     * 移除Set集合中的value
      *
      * @param k
      * @param v
@@ -28,7 +30,8 @@ object RedisCache {
      */
     def removeSetValue(k: String, v: String): IO[Nothing, Long]
 
-    /** 保存到Set集合中
+    /**
+     * 保存到Set集合中
      *
      * @param k
      * @param v

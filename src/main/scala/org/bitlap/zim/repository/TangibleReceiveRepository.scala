@@ -26,14 +26,14 @@ private final class TangibleReceiveRepository(databaseName: String) extends Rece
     mid: Option[Int],
     typ: Option[String]
   ): stream.Stream[Throwable, Receive] =
-    _findHistoryMessage(Receive.table, uid, mid, typ).toStreamOperation
+    _findHistoryMessage(uid, mid, typ).toStreamOperation
 
   override def countHistoryMessage(
     uid: Option[Int],
     mid: Option[Int],
     typ: Option[String]
   ): stream.Stream[Throwable, Int] =
-    _countHistoryMessage(Receive.table, uid, mid, typ).toStreamOperation
+    _countHistoryMessage(uid, mid, typ).toStreamOperation
 
   override def readMessage(mine: Int, to: Int, typ: String): stream.Stream[Throwable, Int] =
     _readMessage(Receive.table, mine, to, typ).toUpdateOperation

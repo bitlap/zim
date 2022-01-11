@@ -5,9 +5,6 @@ import zio._
 
 import scala.language.implicitConversions
 
-import org.bitlap.zim.domain.model.Receive
-import org.bitlap.zim.repository.TangibleReceiveRepository.ZReceiveRepository
-
 /**
  * 群组的操作实现
  *

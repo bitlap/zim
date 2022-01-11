@@ -12,8 +12,7 @@ object ProjectSetting {
 
   def extraOptions(scalaVersion: String, optimize: Boolean): List[String] =
     CrossVersion.partialVersion(scalaVersion) match {
-      case Some((2, 13)) =>
-        List("-Ywarn-unused:params,-implicits") ++ std2xOptions ++ optimizerOptions(optimize)
+      case Some((2, 13)) => /**List("-Wunused:imports") ++ **/ optimizerOptions(optimize)
       case Some((2, 12)) =>
         List(
           "-opt-warnings",
@@ -26,7 +25,6 @@ object ProjectSetting {
           "-Ywarn-infer-any",
           "-Ywarn-nullary-override",
           "-Ywarn-nullary-unit",
-          "-Ywarn-unused:params,-implicits",
           "-Xfuture",
           "-Xsource:2.13",
           "-Xmax-classfile-name",
