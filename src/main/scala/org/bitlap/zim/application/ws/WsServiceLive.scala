@@ -6,6 +6,10 @@ import org.bitlap.zim.configuration.ApplicationConfiguration.ZApplicationConfigu
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.domain.Message
 import zio.{ IO, ZLayer }
+import zio.stream.ZStream
+import java.util.concurrent.ConcurrentHashMap
+import org.bitlap.zim.configuration.SystemConstant
+import zio.ZIO
 
 /**
  * @author 梦境迷离
@@ -13,36 +17,57 @@ import zio.{ IO, ZLayer }
  */
 object WsServiceLive {
 
+  final lazy val actorRefSessions: ConcurrentHashMap[Integer, ActorRef] = new ConcurrentHashMap[Integer, ActorRef]
+
   lazy val live: ZLayer[ZApplicationConfiguration, Nothing, WsService] =
-    ZLayer.fromFunction { env =>
+    ZLayer.fromService { env =>
+      val userService = env.userApplication
       new Service {
-        override def sendMessage(message: Message): IO[Nothing, Unit] = ???
 
-        override def agreeAddGroup(msg: Message): IO[Nothing, Unit] = ???
+        override def sendMessage(message: Message): ZIO[Nothing, Throwable, Unit] = {
+          env.apiApplication.findById(1).flatMap(_ => ZStream.succeed(()))
+          IO.unit
+        }
 
-        override def refuseAddGroup(msg: Message): IO[Nothing, Unit] = ???
+        override def agreeAddGroup(msg: Message): ZIO[Nothing, Throwable, Unit] = ???
 
-        override def refuseAddFriend(messageBoxId: Int, user: User, to: Int): IO[Nothing, Boolean] = ???
+        override def refuseAddGroup(msg: Message): ZIO[Nothing, Throwable, Unit] = ???
 
-        override def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): IO[Nothing, Unit] = ???
+        override def refuseAddFriend(messageBoxId: Int, user: User, to: Int): ZIO[Nothing, Throwable, Boolean] = ???
 
-        override def removeFriend(uId: Int, friendId: Int): IO[Nothing, Unit] = ???
+        override def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): ZIO[Nothing, Throwable, Unit] =
+          ???
 
-        override def addGroup(uId: Int, message: Message): IO[Nothing, Unit] = ???
+        override def removeFriend(uId: Int, friendId: Int): ZIO[Nothing, Throwable, Unit] = ???
 
-        override def addFriend(uId: Int, message: Message): IO[Nothing, Unit] = ???
+        override def addGroup(uId: Int, message: Message): ZIO[Nothing, Throwable, Unit] = ???
 
-        override def countUnHandMessage(uId: Int): IO[Nothing, Map[String, String]] = ???
+        override def addFriend(uId: Int, message: Message): ZIO[Nothing, Throwable, Unit] = ???
 
-        override def checkOnline(message: Message): IO[Nothing, Map[String, String]] = ???
+        override def countUnHandMessage(uId: Int): ZIO[Nothing, Throwable, Map[String, String]] = ???
 
-        override def sendMessage(message: String, actorRef: ActorRef): IO[Nothing, Unit] = ???
+        override def checkOnline(message: Message): ZIO[Nothing, Throwable, Map[String, String]] = ???
 
-        override def changeOnline(uId: Int, status: String): IO[Nothing, Boolean] = ???
+        override def sendMessage(message: String, actorRef: ActorRef): ZIO[Nothing, Throwable, Unit] = ???
 
-        override def readOfflineMessage(message: Message): IO[Nothing, Unit] = ???
+        override def changeOnline(uId: Int, status: String): ZIO[Nothing, Throwable, Boolean] = ???
 
-        override def getConnections: IO[Nothing, Int] = ???
+        override def readOfflineMessage(message: Message): ZIO[Nothing, Throwable, Unit] =
+          message.mine.id.synchronized {
+            userService
+              .findOffLineMessage(message.mine.id, 0)
+              .flatMap { _ =>
+                if (message.to.`type` == SystemConstant.GROUP_TYPE) {
+                  // 我所有的群中有未读的消息吗
+                  userService.readGroupMessage(message.mine.id, message.mine.id)
+                } else {
+                  userService.readFriendMessage(message.mine.id, message.to.id)
+                }
+              }
+              .foldM(())((_, _) => IO.unit)
+          }
+
+        override def getConnections: IO[Nothing, Int] = IO.succeed(actorRefSessions.size())
       }
     }
 }
