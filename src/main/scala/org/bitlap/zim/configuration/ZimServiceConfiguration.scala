@@ -5,6 +5,7 @@ import org.bitlap.zim.configuration.AkkaHttpConfiguration.{ ZAkkaHttpConfigurati
 import org.bitlap.zim.configuration.ApiConfiguration.ZApiConfiguration
 import org.bitlap.zim.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.cache.RedisCache
+import zio.redis.RedisError
 
 import zio.{ TaskLayer, ULayer, ZLayer }
 
@@ -40,11 +41,13 @@ trait ZimServiceConfiguration {
       materializerLayer) >>>
       ApiConfiguration.live
 
+  private val redisLayer: ZLayer[Any, RedisError.IOError, RedisCache] = RedisCacheConfiguration.live >>> RedisCache.live
+
   val ZimEnv: ZLayer[
     Any,
     Throwable,
     ZApiConfiguration with ZActorSystemConfiguration with ZAkkaHttpConfiguration with RedisCache
   ] =
-    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer ++ (RedisCacheConfiguration.live >>> RedisCache.live)
+    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer ++ redisLayer
 
 }
