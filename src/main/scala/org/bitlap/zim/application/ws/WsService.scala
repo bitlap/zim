@@ -3,8 +3,7 @@ package org.bitlap.zim.application.ws;
 import akka.actor.ActorRef
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
-import zio.IO
-import zio.ZIO
+import zio.Task
 
 /**
  * @author 梦境迷离
@@ -14,33 +13,33 @@ object WsService {
 
   trait Service {
 
-    def sendMessage(message: Message): ZIO[Nothing, Throwable, Unit]
+    def sendMessage(message: Message): Task[Unit]
 
-    def agreeAddGroup(msg: Message): ZIO[Nothing, Throwable, Unit]
+    def agreeAddGroup(msg: Message): Task[Unit]
 
-    def refuseAddGroup(msg: Message): ZIO[Nothing, Throwable, Unit]
+    def refuseAddGroup(msg: Message): Task[Unit]
 
-    def refuseAddFriend(messageBoxId: Int, user: User, to: Int): ZIO[Nothing, Throwable, Boolean]
+    def refuseAddFriend(messageBoxId: Int, user: User, to: Int): Task[Boolean]
 
-    def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): ZIO[Nothing, Throwable, Unit]
+    def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): Task[Unit]
 
-    def removeFriend(uId: Int, friendId: Int): ZIO[Nothing, Throwable, Unit]
+    def removeFriend(uId: Int, friendId: Int): Task[Unit]
 
-    def addGroup(uId: Int, message: Message): ZIO[Nothing, Throwable, Unit]
+    def addGroup(uId: Int, message: Message): Task[Unit]
 
-    def addFriend(uId: Int, message: Message): ZIO[Nothing, Throwable, Unit]
+    def addFriend(uId: Int, message: Message): Task[Unit]
 
-    def countUnHandMessage(uId: Int): ZIO[Nothing, Throwable, Map[String, String]]
+    def countUnHandMessage(uId: Int): Task[Map[String, String]]
 
-    def checkOnline(message: Message): ZIO[Nothing, Throwable, Map[String, String]]
+    def checkOnline(message: Message): Task[Map[String, String]]
 
-    def sendMessage(message: String, actorRef: ActorRef): ZIO[Nothing, Throwable, Unit]
+    def sendMessage(message: String, actorRef: ActorRef): Task[Unit]
 
-    def changeOnline(uId: Int, status: String): ZIO[Nothing, Throwable, Boolean]
+    def changeOnline(uId: Int, status: String): Task[Boolean]
 
-    def readOfflineMessage(message: Message): ZIO[Nothing, Throwable, Unit]
+    def readOfflineMessage(message: Message): Task[Unit]
 
-    def getConnections: ZIO[Nothing, Throwable, Int]
+    def getConnections: Task[Int]
   }
 
 }
