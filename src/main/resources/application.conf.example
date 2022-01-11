@@ -12,8 +12,21 @@ infrastructure {
       driver = "com.mysql.jdbc.Driver"
     }
   }
-  
-  javamail {
+}
+
+application {
+    name = "Zim-Application"
+    server {
+      port = 9000
+      interface = "localhost"
+    }
+
+    redis = {
+     host = "0.0.0.0"
+     port = 6379
+    }
+
+    javamail {
       host = "x",
       username = "",
       password = "",
@@ -21,15 +34,8 @@ infrastructure {
       threadPoolSize = 20,
       connectionPoolCoreSize = 10,
       debug = true
-  }
-}
-
-application {
-  name = "Zim-Application"
-  server {
-    port = 9000
-    interface = "localhost"
-  }
+      sender = "111.@qq.com"
+    }
 }
 
 akka {

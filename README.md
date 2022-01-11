@@ -71,12 +71,14 @@ zim-master
                 └─ bitlap
                    └─ zim
                       ├─ ZimServer.scala        -- 程序入口，项目启动的main方法
-                      ├─ api                    -- 基于tapir的API（akka http实现）和Endpoint定义
+                      ├─ actor                  -- actor和im ws的协议
+                      ├─ api                    -- 基于tapir的API（基于akka http）和Endpoint定义
                       ├─ application            -- zio项目模块管理，聚合了service
+                      ├─ cache                  -- 缓存 基于zio-redis
                       ├─ configuration          -- zio集成各框架的项目配置
                       ├─ domain                 -- 领域对象或其他简单的样例类
                          └─ model               -- 数据表对象
-                      └─ repository             -- scalikejdbc的dao层实现（scalikejdbc stream和zio stream实现）
+                      └─ repository             -- scalikejdbc的dao层实现（基于scalikejdbc stream和zio stream）
                       └─ util                   -- 工具类，经过zio包装
        └─ test
           ├─ resources
@@ -89,6 +91,7 @@ zim-master
                       ├─ RandomData.scala                -- 造用户表数据的代码
                       ├─ BaseData.scala                  -- 用于单测的通用封装父类
                       ├─ infrastructure.repository       -- repository单元测试
+                      ├─ application                     -- application单元测试
                                           
 ```
 

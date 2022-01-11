@@ -69,7 +69,9 @@ zim-master
                    └─ zim
                       ├─ ZimServer.scala        -- The entry point to the program
                       ├─ api                    -- API base on tapir
+                      ├─ actor                  -- actor and ws protocol
                       ├─ application            -- Service
+                      ├─ cache                  -- Cache, use zio-redis
                       ├─ configuration        
                       ├─ domain                 
                          └─ model               -- Table model
