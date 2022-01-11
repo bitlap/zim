@@ -67,7 +67,7 @@ object WsServiceLive {
               .foldM(())((_, _) => IO.unit)
           }
 
-        override def getConnections: IO[Nothing, Int] = IO.succeed(actorRefSessions.size())
+        override def getConnections: ZIO[Nothing, Throwable, Int] = ZIO.succeed(actorRefSessions.size())
       }
     }
 }

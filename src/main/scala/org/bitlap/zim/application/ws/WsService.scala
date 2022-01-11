@@ -40,7 +40,7 @@ object WsService {
 
     def readOfflineMessage(message: Message): ZIO[Nothing, Throwable, Unit]
 
-    def getConnections: IO[Nothing, Int]
+    def getConnections: ZIO[Nothing, Throwable, Int]
   }
 
 }
