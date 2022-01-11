@@ -20,8 +20,8 @@ zim是一个基于scala、zio、tapir、akka-http、circe、scalikejdbc、redis�
 
 ## 上手接口
 
-- API文档： `http://localhost:9000/api/v1.0/docs`
-- 心跳：`http://localhost:9000/api/v1.0/health`
+- swagger-ui 接口文档： `http://localhost:9000/api/v1.0/docs`
+- 心跳接口：`http://localhost:9000/api/v1.0/health`
 
 ## 技术栈
 
