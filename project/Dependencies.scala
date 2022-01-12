@@ -35,7 +35,7 @@ object Dependencies {
     "dev.zio" %% "zio-test-sbt" % Version.zio % Test,
     "dev.zio" %% "zio-crypto" % "0.0.0+92-5672c642-SNAPSHOT", // 实验性质的
     "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT", // 实验性质的
-    "dev.zio" %% "zio-schema" % "0.1.5", //TODO for Redis
+    "dev.zio" %% "zio-schema" % "0.1.7", //TODO for Redis
     "dev.zio" %% "zio-actors" % Version.`zio-actors`
   )
 
@@ -43,7 +43,7 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-core" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir exclude("com.typesafe.akka", "akka-stream_2.13"),
+    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir exclude ("com.typesafe.akka", "akka-stream_2.13"),
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-akka-http" % Version.tapir
   )
