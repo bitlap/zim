@@ -10,7 +10,7 @@ object Dependencies {
   object Version {
     val zio = "1.0.13"
     val `zio-logging` = "0.5.14"
-    val tapir = "0.17.20" //TODO upgrade
+    val tapir = "0.19.3" //TODO upgrade
     val `tapir-swagger` = "0.18.3"
     val `akka-http` = "10.2.7"
     val akka = "2.6.18"
@@ -43,7 +43,7 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-core" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir exclude("com.typesafe.akka", "akka-stream_2.13"),
+    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir exclude ("com.typesafe.akka", "akka-stream_2.13"),
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-akka-http" % Version.tapir
   )
