@@ -57,9 +57,8 @@ private final class UserService(
         if (ret && group.createId.equals(uid)) {
           groupMemberRepository.findGroupMembers(gid).flatMap { uid =>
             // group owner leave
-            groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)).flatMap { _ =>
+            groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)) *>
               ZStream.fromEffect(wsService.deleteGroup(master, group.groupname, gid, uid))
-            }
           }
         } else ZStream.succeed(1)
     } yield ret
@@ -153,7 +152,8 @@ private final class UserService(
   override def updateAddMessage(messageBoxId: Int, agree: Int): stream.Stream[Throwable, Boolean] =
     addMessageRepository.updateAddMessage(AddMessage(agree = agree, id = messageBoxId)).map(_ == 1)
 
-  override def refuseAddFriend(messageBoxId: Int, user: User, to: Int): stream.Stream[Throwable, Boolean] = ???
+  override def refuseAddFriend(messageBoxId: Int, user: User, to: Int): stream.Stream[Throwable, Boolean] =
+    ZStream.fromEffect(wsService.refuseAddFriend(messageBoxId, user, to))
 
   override def readFriendMessage(mine: Int, to: Int): stream.Stream[Throwable, Boolean] =
     receiveRepository.readMessage(mine, to, SystemConstant.FRIEND_TYPE).map(_ == 1)

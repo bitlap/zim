@@ -35,7 +35,7 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
       .buildEmail()
     ZIO
       .fromFuture(make => mailer.sendMail(email).getFuture.asScala()(make))
-      .onError { e =>
+      .onError { _ =>
         UIO.none
       }
   }

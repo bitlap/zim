@@ -3,6 +3,7 @@ package org.bitlap.zim.cache
 import org.bitlap.zim.configuration.ZimServiceConfiguration
 import zio.redis.RedisExecutor
 import zio.{ redis, Chunk, Has, IO, ZIO, ZLayer }
+import zio.redis.RedisError
 
 /**
  * Redis缓存服务
@@ -12,8 +13,6 @@ import zio.{ redis, Chunk, Has, IO, ZIO, ZLayer }
  */
 
 object redisCacheService extends ZimServiceConfiguration {
-
-  import zio.redis.RedisError
 
   type ZRedisCacheService = Has[RedisCacheService.Service]
 
