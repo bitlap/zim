@@ -1,18 +1,19 @@
 import sbt.CrossVersion
 
 /**
- * 
  * @author 梦境迷离
  * @version 1.0,2022/1/11
  */
 object ProjectSetting {
 
-  lazy val scala212 = "2.12.14"
+  lazy val scala212 = "2.12.15"
   lazy val scala213 = "2.13.7"
 
   def extraOptions(scalaVersion: String, optimize: Boolean): List[String] =
     CrossVersion.partialVersion(scalaVersion) match {
-      case Some((2, 13)) => /**List("-Wunused:imports") ++ **/ optimizerOptions(optimize)
+      case Some((2, 13)) =>
+        /** List("-Wunused:imports") ++ * */
+        optimizerOptions(optimize)
       case Some((2, 12)) =>
         List(
           "-opt-warnings",
