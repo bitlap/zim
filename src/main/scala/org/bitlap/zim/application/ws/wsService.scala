@@ -67,7 +67,7 @@ object wsService extends ZimServiceConfiguration {
               if (SystemConstant.FRIEND_TYPE == message.to.`type`) {
                 userService.findUserById(gid).runHead.flatMap { us =>
                   if (us.isEmpty) {
-                    ZIO.succeed(DEFAULT_VALUE)
+                    ZIO.effect(DEFAULT_VALUE)
                   } else {
                     val msg = if (actorRefSessions.containsKey(gid)) {
                       val actorRef = actorRefSessions.get(gid)
@@ -89,7 +89,7 @@ object wsService extends ZimServiceConfiguration {
             agree.messageBoxId.synchronized {
               userService.addGroupMember(agree.groupId, agree.toUid, agree.messageBoxId).runHead.map { f =>
                 if (!f.fold(false)(t => t)) {
-                  ZIO.succeed(DEFAULT_VALUE)
+                  ZIO.effect(DEFAULT_VALUE)
                 } else {
                   userService.findGroupById(agree.groupId).runHead.flatMap { groupList =>
                     // 通知加群成功
@@ -102,7 +102,7 @@ object wsService extends ZimServiceConfiguration {
                         msg = groupList.fold("")(g => g.asJson.noSpaces)
                       )
                       sendMessage(message.asJson.noSpaces, actor)
-                    } else ZIO.succeed(DEFAULT_VALUE)
+                    } else ZIO.effect(DEFAULT_VALUE)
                   }
                 }
               }
