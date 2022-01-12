@@ -17,9 +17,9 @@ import org.bitlap.zim.util.{ SecurityUtil, UuidUtil }
 import zio.crypto.hash.{ Hash, MessageDigest }
 import zio.stream.ZStream
 import zio.{ stream, Has, ZIO }
-
 import java.time.ZonedDateTime
 import scala.collection.mutable.ListBuffer
+import org.bitlap.zim.application.ws.wsService
 
 /**
  * 用户服务
@@ -57,8 +57,9 @@ private final class UserService(
         if (ret && group.createId.equals(uid)) {
           groupMemberRepository.findGroupMembers(gid).flatMap { uid =>
             // group owner leave
-            // TODO wsService.deleteGroup(master, group.groupname, gid, uid)
-            groupMemberRepository.leaveOutGroup(GroupMember(gid, uid))
+            groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)).flatMap { _ =>
+              ZStream.fromEffect(wsService.deleteGroup(master, group.groupname, gid, uid))
+            }
           }
         } else ZStream.succeed(1)
     } yield ret
