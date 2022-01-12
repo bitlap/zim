@@ -1,10 +1,15 @@
 package org.bitlap.zim.application
 import io.circe.syntax.EncoderOps
+import org.bitlap.zim.actor.protocol.{ protocol, AddRefuseMessage }
 import org.bitlap.zim.application.ws.wsService.WsService.actorRefSessions
 import org.bitlap.zim.domain.Message
 import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.util.DateUtil
 import zio.ZIO
+import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.configuration.SystemConstant
+import zio.actors.{ ActorRef => _ }
+import akka.actor.ActorRef
 
 /**
  * @author 梦境迷离
@@ -35,9 +40,27 @@ package object ws {
       toid = to.id
     )
   }
-  private[ws] def buildGroupMessage(
-    userService: UserApplication
-  )(message: Message, receive: Receive, gid: Int): ZIO[Any, Throwable, Unit] = {
+
+  private[ws] def friendMessageHandler(userService: UserApplication)(message: Message): ZIO[Any, Throwable, Unit] = {
+    val gid = message.to.id
+    val receive = getReceive(message)
+    userService.findUserById(gid).runHead.flatMap { us =>
+      {
+        val msg = if (actorRefSessions.containsKey(gid)) {
+          val actorRef = actorRefSessions.get(gid)
+          val tmpReceiveArchive = receive.copy(status = 1)
+          wsService.sendMessage(tmpReceiveArchive.asJson.noSpaces, actorRef)
+          tmpReceiveArchive
+        } else receive
+        // 由于都返回了stream，使用时都转成非stream
+        userService.saveMessage(msg).runHead.as(DEFAULT_VALUE)
+      }.unless(us.isEmpty)
+    }
+  }
+
+  private[ws] def groupMessageHandler(userService: UserApplication)(message: Message): ZIO[Any, Throwable, Unit] = {
+    val gid = message.to.id
+    val receive = getReceive(message)
     var receiveArchive: Receive = receive.copy(id = gid)
     val sending = userService.findGroupById(gid).runHead.flatMap { group =>
       userService
@@ -56,4 +79,57 @@ package object ws {
 
     sending *> userService.saveMessage(receiveArchive).runHead.as(DEFAULT_VALUE)
   }
+
+  private[ws] def agreeAddGroupHandler(
+    userService: UserApplication
+  )(agree: AddRefuseMessage): ZIO[Any, Throwable, Unit] =
+    userService.addGroupMember(agree.groupId, agree.toUid, agree.messageBoxId).runHead.map { f =>
+      if (!f.fold(false)(t => t)) {
+        ZIO.effect(DEFAULT_VALUE)
+      } else {
+        userService.findGroupById(agree.groupId).runHead.flatMap { groupList =>
+          // 通知加群成功
+          val actor: ActorRef = actorRefSessions.get(agree.toUid);
+          {
+            val message = Message(
+              `type` = protocol.agreeAddGroup.stringify,
+              mine = agree.mine,
+              to = null,
+              msg = groupList.fold("")(g => g.asJson.noSpaces)
+            )
+            wsService.sendMessage(message.asJson.noSpaces, actor)
+          }
+            .when(groupList.isDefined && actor != null)
+        }
+      }
+    }
+
+  private[ws] def refuseAddFriendHandler(
+    userService: UserApplication
+  )(messageBoxId: Int, user: User, to: Int): ZIO[Any, Throwable, Boolean] =
+    userService.updateAddMessage(messageBoxId, 2).runHead.flatMap { r =>
+      r.fold(ZIO.effect(false)) { ret =>
+        val actor = actorRefSessions.get(to)
+        if (actor != null) {
+          val result = Map("type" -> "refuseAddFriend", "username" -> user.username)
+          wsService.sendMessage(result.asJson.noSpaces, actor).as(ret)
+        } else ZIO.effect(ret)
+      }
+    }
+
+  private[ws] def readOfflineMessageHandler(
+    userService: UserApplication
+  )(message: Message): ZIO[Any, Throwable, Unit] =
+    userService
+      .findOffLineMessage(message.mine.id, 0)
+      .as {
+        if (message.to.`type` == SystemConstant.GROUP_TYPE) {
+          // 我所有的群中有未读的消息吗
+          userService.readGroupMessage(message.mine.id, message.mine.id)
+        } else {
+          userService.readFriendMessage(message.mine.id, message.to.id)
+        }
+      }
+      .runHead
+      .as(ZIO.effect(DEFAULT_VALUE))
 }

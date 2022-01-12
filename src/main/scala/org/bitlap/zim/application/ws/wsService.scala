@@ -1,8 +1,7 @@
 package org.bitlap.zim.application.ws;
 
 import akka.actor.ActorRef
-import io.circe.syntax.EncoderOps
-import org.bitlap.zim.actor.protocol.{ protocol, AddRefuseMessage }
+import org.bitlap.zim.actor.protocol.AddRefuseMessage
 import org.bitlap.zim.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.configuration.{ SystemConstant, ZimServiceConfiguration }
 import org.bitlap.zim.domain._
@@ -58,54 +57,21 @@ object wsService extends ZimServiceConfiguration {
         val userService = env.userApplication
 
         new Service {
+
           override def sendMessage(message: Message): Task[Unit] =
             message.synchronized { //看起来有点怪 是否有必要存在？
-              //封装返回消息格式
-              val gid = message.to.id
-              val receive = getReceive(message)
               //聊天类型，可能来自朋友或群组
               if (SystemConstant.FRIEND_TYPE == message.to.`type`) {
-                userService.findUserById(gid).runHead.flatMap { us =>
-                  if (us.isEmpty) {
-                    ZIO.effect(DEFAULT_VALUE)
-                  } else {
-                    val msg = if (actorRefSessions.containsKey(gid)) {
-                      val actorRef = actorRefSessions.get(gid)
-                      val tmpReceiveArchive = receive.copy(status = 1)
-                      sendMessage(tmpReceiveArchive.asJson.noSpaces, actorRef)
-                      tmpReceiveArchive
-                    } else receive
-                    // 由于都返回了stream，使用时都转成非stream
-                    userService.saveMessage(msg).runHead.as(DEFAULT_VALUE)
-                  }
-                }
+                friendMessageHandler(userService)(message)
               } else {
-                buildGroupMessage(userService)(message, receive, gid)
+                groupMessageHandler(userService)(message)
               }
             }
 
           override def agreeAddGroup(msg: Message): Task[Unit] = {
             val agree = msg.msg.asInstanceOf[AddRefuseMessage]
             agree.messageBoxId.synchronized {
-              userService.addGroupMember(agree.groupId, agree.toUid, agree.messageBoxId).runHead.map { f =>
-                if (!f.fold(false)(t => t)) {
-                  ZIO.effect(DEFAULT_VALUE)
-                } else {
-                  userService.findGroupById(agree.groupId).runHead.flatMap { groupList =>
-                    // 通知加群成功
-                    val actor = actorRefSessions.get(agree.toUid)
-                    if (groupList.isDefined && actor != null) {
-                      val message = Message(
-                        `type` = protocol.agreeAddGroup.stringify,
-                        mine = agree.mine,
-                        to = null,
-                        msg = groupList.fold("")(g => g.asJson.noSpaces)
-                      )
-                      sendMessage(message.asJson.noSpaces, actor)
-                    } else ZIO.effect(DEFAULT_VALUE)
-                  }
-                }
-              }
+              agreeAddGroupHandler(userService)(agree)
             }
           }
 
@@ -113,15 +79,7 @@ object wsService extends ZimServiceConfiguration {
 
           override def refuseAddFriend(messageBoxId: Int, user: User, to: Int): Task[Boolean] =
             messageBoxId.synchronized {
-              userService.updateAddMessage(messageBoxId, 2).runHead.flatMap { r =>
-                r.fold(ZIO.effect(false)) { ret =>
-                  val actor = actorRefSessions.get(to)
-                  if (actor != null) {
-                    val result = Map("type" -> "refuseAddFriend", "username" -> user.username)
-                    sendMessage(result.asJson.noSpaces, actor).as(ret)
-                  } else ZIO.effect(ret)
-                }
-              }
+              refuseAddFriendHandler(userService)(messageBoxId, user, to)
             }
 
           override def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): Task[Unit] =
@@ -143,14 +101,7 @@ object wsService extends ZimServiceConfiguration {
 
           override def readOfflineMessage(message: Message): Task[Unit] =
             message.mine.id.synchronized {
-              (userService.findOffLineMessage(message.mine.id, 0) *> {
-                if (message.to.`type` == SystemConstant.GROUP_TYPE) {
-                  // 我所有的群中有未读的消息吗
-                  userService.readGroupMessage(message.mine.id, message.mine.id)
-                } else {
-                  userService.readFriendMessage(message.mine.id, message.to.id)
-                }
-              }).foldM(())((_, _) => ZIO.unit)
+              readOfflineMessageHandler(userService)(message)
             }
 
           override def getConnections: Task[Int] = ZIO.succeed(actorRefSessions.size())
