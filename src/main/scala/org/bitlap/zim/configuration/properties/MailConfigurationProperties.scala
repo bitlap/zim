@@ -29,7 +29,7 @@ final case class MailConfigurationProperties(
     properties.setProperty(ConfigLoader.Property.SMTP_HOST.key(), this.host)
     properties.setProperty(ConfigLoader.Property.SMTP_USERNAME.key(), this.username)
     properties.setProperty(ConfigLoader.Property.SMTP_PASSWORD.key(), this.password)
-    properties.setProperty(ConfigLoader.Property.SMTP_PORT.key(), this.port + "")
+    properties.setProperty(ConfigLoader.Property.SMTP_PORT.key(), s"${this.port}")
     properties
   }
 }
@@ -38,7 +38,7 @@ object MailConfigurationProperties {
 
   type ZMailConfigurationProperties = Has[MailConfigurationProperties]
 
-  def apply(config: Config = ConfigFactory.load().getConfig("infrastructure.javamail")): MailConfigurationProperties =
+  def apply(config: Config = ConfigFactory.load().getConfig("application.javamail")): MailConfigurationProperties =
     MailConfigurationProperties(
       host = config.getString("host"),
       username = config.getString("username"),

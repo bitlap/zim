@@ -17,7 +17,7 @@
 
 ## Where to start
 
-- doc API: `http://localhost:9000/api/v1.0/docs`
+- swagger-ui doc API: `http://localhost:9000/api/v1.0/docs`
 - heartbeat API: `http://localhost:9000/api/v1.0/health`
 
 ## Technology stack
@@ -69,7 +69,9 @@ zim-master
                    └─ zim
                       ├─ ZimServer.scala        -- The entry point to the program
                       ├─ api                    -- API base on tapir
+                      ├─ actor                  -- actor and ws protocol
                       ├─ application            -- Service
+                      ├─ cache                  -- Cache, use zio-redis
                       ├─ configuration        
                       ├─ domain                 
                          └─ model               -- Table model

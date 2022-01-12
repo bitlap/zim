@@ -26,6 +26,9 @@ jobs:
       - name: Build
         run: sbt compile
 
+      - name: Code Style 
+        run: sbt scalafmtCheckAll
+        
       - name: Run Test
         run: sbt coverage test coverageReport # test in scala2.13.x java 8
 

@@ -9,6 +9,7 @@ import zio.stream.ZStream
 import zio.{ stream, Task }
 
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import scala.language.implicitConversions
 
 /**
@@ -239,7 +240,7 @@ package object repository {
    * @return
    */
   private[repository] def _saveUser(table: TableDefSQLSyntax, user: User): SQLUpdateWithGeneratedKey =
-    sql"insert into t_user(username,password,email,create_date,active) values(${user.username},${user.password},${user.email},${user.createDate},${user.active});"
+    sql"insert into $table(username,password,email,create_date,active) values(${user.username},${user.password},${user.email},${user.createDate},${user.active});"
       .updateAndReturnGeneratedKey("id")
 
   /**
@@ -378,14 +379,12 @@ package object repository {
   /**
    * 查询消息
    *
-   * @param table
    * @param uid 消息所属用户
    * @param mid 来自哪个用户
-   * @param `type` 消息类型，可能来自friend或者group
+   * @param typ 消息类型，可能来自friend或者group
    * @return
    */
   private[repository] def _findHistoryMessage(
-    table: TableDefSQLSyntax,
     uid: Option[Int],
     mid: Option[Int],
     typ: Option[String]
@@ -413,14 +412,12 @@ package object repository {
   /**
    * 统计查询消息
    *
-   * @param table
    * @param uid 消息所属用户
    * @param mid 来自哪个用户
-   * @param `type` 消息类型，可能来自friend或者group
+   * @param typ 消息类型，可能来自friend或者group
    * @return
    */
   private[repository] def _countHistoryMessage(
-    table: TableDefSQLSyntax,
     uid: Option[Int],
     mid: Option[Int],
     typ: Option[String]

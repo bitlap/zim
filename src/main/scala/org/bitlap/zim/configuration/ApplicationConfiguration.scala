@@ -22,7 +22,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
     infrastructureConfiguration.friendGroupFriendRepository,
     infrastructureConfiguration.groupMemberRepository,
     infrastructureConfiguration.addMessageRepository,
-    infrastructureConfiguration.mailService,
+    infrastructureConfiguration.mailService, //TODO use zio managed?
     infrastructureConfiguration.zimConfigurationProperties
   )
 

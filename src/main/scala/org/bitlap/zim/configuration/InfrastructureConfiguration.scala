@@ -96,6 +96,9 @@ object InfrastructureConfiguration {
   val mysqlConfigurationProperties: URIO[ZInfrastructureConfiguration, MysqlConfigurationProperties] =
     ZIO.access(_.get.mysqlConfigurationProperties)
 
+  val zimConfigurationProperties: URIO[ZInfrastructureConfiguration, ZimConfigurationProperties] =
+    ZIO.access(_.get.zimConfigurationProperties)
+
   val mailConfigurationProperties: URIO[ZInfrastructureConfiguration, MailConfigurationProperties] =
     ZIO.access(_.get.mailConfigurationProperties)
 

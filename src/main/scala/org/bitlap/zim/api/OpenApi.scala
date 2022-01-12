@@ -1,12 +1,11 @@
 package org.bitlap.zim.api
 
-import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import io.circe.syntax._
 import org.bitlap.zim.api.endpoint.{ ActuatorEndpoint, ApiEndpoint, UserEndpoint }
 import sttp.tapir.docs.openapi._
-import sttp.tapir.openapi.circe._
+import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.openapi.{ Contact, Info, License }
+import sttp.tapir.swagger.akkahttp.SwaggerAkka
 
 /**
  * Open API
@@ -17,7 +16,7 @@ import sttp.tapir.openapi.{ Contact, Info, License }
  */
 final class OpenApi {
 
-  private lazy val openApi: String = OpenAPIDocsInterpreter
+  private lazy val openApiYaml: String = OpenAPIDocsInterpreter
     .toOpenAPI(
       Seq(
         ActuatorEndpoint.healthEndpoint,
@@ -66,18 +65,13 @@ final class OpenApi {
         license = Some(License(name = "Apache License 2.0", Some("https://github.com/bitlap/zim/blob/master/LICENSE")))
       )
     )
-    .asJson
-    .toString()
+    .toYaml
 
   private lazy val contextPath = "docs"
 
-  lazy val openapi = s"${ApiEndpoint.apiResource}/${ApiEndpoint.apiVersion}/$contextPath"
+  lazy val openapi: String = s"${ApiEndpoint.apiResource}/${ApiEndpoint.apiVersion}/$contextPath"
 
-  lazy val route: Route = pathPrefix(ApiEndpoint.apiResource / ApiEndpoint.apiVersion / contextPath) {
-    get {
-      complete(openApi)
-    }
-  }
+  lazy val route: Route = new SwaggerAkka(openApiYaml, contextPath = openapi).routes
 
 }
 
