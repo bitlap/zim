@@ -10,34 +10,7 @@ zim是一个基于scala、zio、tapir、akka-http、circe、scalikejdbc、redis�
 
 > 感兴趣的可关注一下，也可以一起开发。本项目旨在学习。  交流群 =====>
 
-## 开发环境准备
-
-* 执行 `./prepare.sh` 脚本, 然后修改 `src/main/resources/application.conf` 中相关数据库的信息
-* 在本地MySQL中创建数据库`zim`，注意驱动的版本
-* 使用`resources/sql/schema.sql`初始化表结构
-* 使用`resources/sql/data.sql`初始化数据（可选）
-* 启动Main方法`ZimServer.scala#run`
-
-## 上手接口
-
-- swagger-ui 接口文档： `http://localhost:9000/api/v1.0/docs`
-- 心跳接口：`http://localhost:9000/api/v1.0/health`
-
-## 技术栈
-
-- 开发语言：Scala 2.13.7
-- 平台：Jvm (Jdk8、Jdk11)
-- 前端：LayIm 3.0
-- 主体框架：zio 1.x
-- API：akka-http (classic)
-- API文档化工具：tapir
-- 数据库：redis、mysql
-- 数据操作：scalikejdbc-stream
-- 序列化：circe
-- WebSocket：akka-http (classic)
-- 邮件：simple-java-mail
-- 配置：config
-- 构建工具：sbt
+[更多详情，前往文档](https://bitlap.org/zh-CN/lab/zim#%E5%A6%82%E4%BD%95%E5%8F%82%E4%B8%8E%E8%B4%A1%E7%8C%AE)
 
 ## 项目结构
 
