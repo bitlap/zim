@@ -119,7 +119,7 @@ package object ws {
 
   private[ws] def readOfflineMessageHandler(
     userService: UserApplication
-  )(message: Message): ZIO[Any, Throwable, Unit] =
+  )(message: Message): ZIO[Any, Throwable, Unit] = {
     userService
       .findOffLineMessage(message.mine.id, 0)
       .as {
@@ -129,7 +129,6 @@ package object ws {
         } else {
           userService.readFriendMessage(message.mine.id, message.to.id)
         }
-      }
-      .runHead
-      .as(ZIO.effect(DEFAULT_VALUE))
+      }.foreach(_ => ZIO.effect(DEFAULT_VALUE)) //消息是多个，消费完直接返回Unit，不需要处理每个Receive的结果
+  }
 }
