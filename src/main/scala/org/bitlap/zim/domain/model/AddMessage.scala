@@ -4,9 +4,10 @@ import io.circe._
 import io.circe.generic.semiauto._
 import scalikejdbc.{ WrappedResultSet, _ }
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
-/** 添加消息
+/**
+ * 添加消息
  *
  * @see table:t_add_message
  * @param id 暂时都使用`Int`
@@ -18,7 +19,7 @@ import java.time.LocalDateTime
  * @param `type`  类型，可能是添加好友或群组
  * @param time    申请时间
  */
-case class AddMessage(
+final case class AddMessage(
   id: Int,
   fromUid: Int,
   toUid: Int,
@@ -26,10 +27,12 @@ case class AddMessage(
   remark: String,
   agree: Int,
   `type`: Int,
-  time: LocalDateTime
+  time: ZonedDateTime
 )
 
 object AddMessage extends SQLSyntaxSupport[AddMessage] {
+
+  override lazy val columns: collection.Seq[String] = autoColumns[AddMessage]()
 
   override val tableName = "t_add_message"
 
@@ -38,13 +41,13 @@ object AddMessage extends SQLSyntaxSupport[AddMessage] {
 
   def apply(rs: WrappedResultSet): AddMessage = AddMessage(
     rs.int("id"),
-    rs.int("fromUid"),
-    rs.int("toUid"),
-    rs.int("groupId"),
+    rs.int("from_uid"),
+    rs.int("to_uid"),
+    rs.int("group_id"),
     rs.string("remark"),
     rs.int("agree"),
     rs.int("type"),
-    rs.localDateTime("create_date")
+    rs.zonedDateTime("create_date")
   )
 
   def apply(id: Int, agree: Int): AddMessage =
@@ -65,7 +68,7 @@ object AddMessage extends SQLSyntaxSupport[AddMessage] {
     groupId: Int,
     remark: String,
     `type`: Int,
-    time: LocalDateTime
+    time: ZonedDateTime
   ): AddMessage =
     AddMessage(0, fromUid, toUid, groupId, remark, 0, `type`, time)
 }

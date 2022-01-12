@@ -1,6 +1,7 @@
 package org.bitlap.zim.configuration
 
-/** 系统常量
+/**
+ * 系统常量
  *
  * @since 2021年12月25日
  * @author 梦境迷离

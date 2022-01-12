@@ -1,12 +1,11 @@
 package org.bitlap.zim.api
 
-import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import io.circe.syntax._
 import org.bitlap.zim.api.endpoint.{ ActuatorEndpoint, ApiEndpoint, UserEndpoint }
 import sttp.tapir.docs.openapi._
-import sttp.tapir.openapi.circe._
+import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.openapi.{ Contact, Info, License }
+import sttp.tapir.swagger.akkahttp.SwaggerAkka
 
 /**
  * Open API
@@ -17,11 +16,39 @@ import sttp.tapir.openapi.{ Contact, Info, License }
  */
 final class OpenApi {
 
-  private lazy val openApi: String = OpenAPIDocsInterpreter
+  private lazy val openApiYaml: String = OpenAPIDocsInterpreter
     .toOpenAPI(
       Seq(
         ActuatorEndpoint.healthEndpoint,
-        UserEndpoint.userGetOneEndpoint
+        UserEndpoint.userGetOneEndpoint,
+        UserEndpoint.findUserEndpoint,
+        UserEndpoint.indexEndpoint,
+        UserEndpoint.existEmailEndpoint,
+        UserEndpoint.activeUserEndpoint,
+        UserEndpoint.agreeFriendEndpoint,
+        UserEndpoint.refuseFriendEndpoint,
+        UserEndpoint.changeGroupEndpoint,
+        UserEndpoint.chatLogEndpoint,
+        UserEndpoint.chatLogIndexEndpoint,
+        UserEndpoint.createGroupEndpoint,
+        UserEndpoint.createUserGroupEndpoint,
+        UserEndpoint.findAddInfoEndpoint,
+        UserEndpoint.findGroupsEndpoint,
+        UserEndpoint.findMyGroupsEndpoint,
+        UserEndpoint.findUsersEndpoint,
+        UserEndpoint.getMembersEndpoint,
+        UserEndpoint.getOffLineMessageEndpoint,
+        UserEndpoint.uploadImageEndpoint,
+        UserEndpoint.updateInfoEndpoint,
+        UserEndpoint.updateSignEndpoint,
+        UserEndpoint.uploadFileEndpoint,
+        UserEndpoint.updateAvatarEndpoint,
+        UserEndpoint.uploadGroupAvatarEndpoint,
+        UserEndpoint.removeFriendEndpoint,
+        UserEndpoint.leaveOutGroupEndpoint,
+        UserEndpoint.loginEndpoint,
+        UserEndpoint.registerEndpoint,
+        UserEndpoint.initEndpoint
       ),
       Info(
         title = "zim",
@@ -38,16 +65,13 @@ final class OpenApi {
         license = Some(License(name = "Apache License 2.0", Some("https://github.com/bitlap/zim/blob/master/LICENSE")))
       )
     )
-    .asJson
-    .toString()
+    .toYaml
 
   private lazy val contextPath = "docs"
 
-  lazy val openapi = s"${ApiEndpoint.apiResource}/${ApiEndpoint.apiVersion}/$contextPath"
+  lazy val openapi: String = s"${ApiEndpoint.apiResource}/${ApiEndpoint.apiVersion}/$contextPath"
 
-  lazy val route: Route = pathPrefix(ApiEndpoint.apiResource / ApiEndpoint.apiVersion / contextPath) {
-    complete(openApi)
-  }
+  lazy val route: Route = new SwaggerAkka(openApiYaml, contextPath = openapi).routes
 
 }
 

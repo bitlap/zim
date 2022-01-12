@@ -1,6 +1,6 @@
 package org.bitlap.zim.configuration
 
-import org.bitlap.zim.application.{ UserApplication, UserService }
+import org.bitlap.zim.application.{ ApiApplication, ApiService, UserApplication, UserService }
 import org.bitlap.zim.configuration.InfrastructureConfiguration.ZInfrastructureConfiguration
 import zio._
 
@@ -12,8 +12,22 @@ import zio._
  * @version 1.0
  */
 final class ApplicationConfiguration(infrastructureConfiguration: InfrastructureConfiguration) {
-  // 应用程序管理多个application，这里只有一个（模块化）
-  val userApplication: UserApplication = UserService(infrastructureConfiguration.userRepository)
+
+  // 应用程序管理多个application
+  val userApplication: UserApplication = UserService(
+    infrastructureConfiguration.userRepository,
+    infrastructureConfiguration.groupRepository,
+    infrastructureConfiguration.receiveRepository,
+    infrastructureConfiguration.friendGroupRepository,
+    infrastructureConfiguration.friendGroupFriendRepository,
+    infrastructureConfiguration.groupMemberRepository,
+    infrastructureConfiguration.addMessageRepository,
+    infrastructureConfiguration.mailService, //TODO use zio managed?
+    infrastructureConfiguration.zimConfigurationProperties
+  )
+
+  val apiApplication: ApiApplication = ApiService(userApplication)
+
 }
 
 /**
@@ -28,6 +42,9 @@ object ApplicationConfiguration {
 
   val userApplication: URIO[ZApplicationConfiguration, UserApplication] =
     ZIO.access(_.get.userApplication)
+
+  val apiApplication: URIO[ZApplicationConfiguration, ApiApplication] =
+    ZIO.access(_.get.apiApplication)
 
   val live: ZLayer[ZInfrastructureConfiguration, Nothing, ZApplicationConfiguration] =
     ZLayer.fromService[InfrastructureConfiguration, ApplicationConfiguration](ApplicationConfiguration(_))

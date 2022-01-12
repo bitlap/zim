@@ -1,11 +1,30 @@
 package org.bitlap.zim.configuration
 
-import org.bitlap.zim.configuration.properties.{ MysqlConfigurationProperties, ZimConfigurationProperties }
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.repository.UserRepository
+import org.bitlap.zim.application.MailService
+import org.bitlap.zim.configuration.properties.{
+  MailConfigurationProperties,
+  MysqlConfigurationProperties,
+  ZimConfigurationProperties
+}
+import org.bitlap.zim.domain.model.{ AddFriend, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
+import org.bitlap.zim.repository.{
+  AddMessageRepository,
+  FriendGroupFriendRepository,
+  FriendGroupRepository,
+  GroupMemberRepository,
+  GroupRepository,
+  ReceiveRepository,
+  TangibleAddMessageRepository,
+  TangibleFriendGroupFriendRepository,
+  TangibleFriendGroupRepository,
+  TangibleGroupMemberRepository,
+  TangibleGroupRepository,
+  TangibleReceiveRepository,
+  TangibleUserRepository,
+  UserRepository
+}
 import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings }
 import zio._
-import org.bitlap.zim.repository.UserRepositoryImpl
 
 /**
  * 基础设施配置
@@ -34,7 +53,33 @@ final class InfrastructureConfiguration {
 
   lazy val zimConfigurationProperties: ZimConfigurationProperties = ZimConfigurationProperties()
 
-  lazy val userRepository: UserRepository[User] = UserRepositoryImpl(mysqlConfigurationProperties.databaseName)
+  lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties()
+
+  lazy val userRepository: UserRepository[User] = TangibleUserRepository(mysqlConfigurationProperties.databaseName)
+
+  lazy val groupRepository: GroupRepository[GroupList] = TangibleGroupRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+  lazy val receiveRepository: ReceiveRepository[Receive] = TangibleReceiveRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+
+  lazy val friendGroupRepository: FriendGroupRepository[FriendGroup] = TangibleFriendGroupRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+
+  lazy val friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend] = TangibleFriendGroupFriendRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+
+  lazy val groupMemberRepository: GroupMemberRepository[GroupMember] = TangibleGroupMemberRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+  lazy val addMessageRepository: AddMessageRepository[AddMessage] = TangibleAddMessageRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+
+  lazy val mailService: MailService = MailService(mailConfigurationProperties)
 
 }
 
@@ -51,8 +96,29 @@ object InfrastructureConfiguration {
   val mysqlConfigurationProperties: URIO[ZInfrastructureConfiguration, MysqlConfigurationProperties] =
     ZIO.access(_.get.mysqlConfigurationProperties)
 
+  val zimConfigurationProperties: URIO[ZInfrastructureConfiguration, ZimConfigurationProperties] =
+    ZIO.access(_.get.zimConfigurationProperties)
+
+  val mailConfigurationProperties: URIO[ZInfrastructureConfiguration, MailConfigurationProperties] =
+    ZIO.access(_.get.mailConfigurationProperties)
+
   val userRepository: URIO[ZInfrastructureConfiguration, UserRepository[User]] =
     ZIO.access(_.get.userRepository)
+
+  val groupRepository: URIO[ZInfrastructureConfiguration, GroupRepository[GroupList]] =
+    ZIO.access(_.get.groupRepository)
+
+  val receiveRepository: URIO[ZInfrastructureConfiguration, ReceiveRepository[Receive]] =
+    ZIO.access(_.get.receiveRepository)
+
+  val friendGroupFriendRepository: URIO[ZInfrastructureConfiguration, FriendGroupFriendRepository[AddFriend]] =
+    ZIO.access(_.get.friendGroupFriendRepository)
+
+  val groupMemberRepository: URIO[ZInfrastructureConfiguration, GroupMemberRepository[GroupMember]] =
+    ZIO.access(_.get.groupMemberRepository)
+
+  val addMessageRepository: URIO[ZInfrastructureConfiguration, AddMessageRepository[AddMessage]] =
+    ZIO.access(_.get.addMessageRepository)
 
   val live: ULayer[ZInfrastructureConfiguration] =
     ZLayer.succeed[InfrastructureConfiguration](InfrastructureConfiguration())

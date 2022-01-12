@@ -3,7 +3,8 @@ package org.bitlap.zim.domain
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 
-/** 返回个人信息更新
+/**
+ * 返回个人信息更新
  *
  * @param id
  * @param username 用户名

@@ -11,12 +11,5 @@ import zio.stream
  */
 trait BaseRepository[T] {
 
-  def insert(dbo: T): stream.Stream[Throwable, Long]
-
-  def deleteById(id: Long): stream.Stream[Throwable, Int]
-
   def findById(id: Long): stream.Stream[Throwable, T]
-
-  def findAll(): stream.Stream[Throwable, T]
-
 }

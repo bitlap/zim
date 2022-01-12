@@ -17,7 +17,7 @@ import zio._
  */
 final class ApiConfiguration(applicationConfiguration: ApplicationConfiguration)(implicit materializer: Materializer) {
 
-  val zimUserApi: UserApi = UserApi(applicationConfiguration.userApplication)
+  val zimUserApi: ZimUserApi = ZimUserApi(applicationConfiguration.apiApplication)
 
   val zimActuatorApi: ActuatorApi = ActuatorApi()
 

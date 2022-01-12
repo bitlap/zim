@@ -3,7 +3,7 @@ package org.bitlap.zim.api.endpoint
 import sttp.tapir.{ EndpointInput, _ }
 
 /**
- * Swagger的端点
+ * Open API的端点
  *
  * @author 梦境迷离
  * @since 2021/12/25

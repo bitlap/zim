@@ -3,15 +3,18 @@ import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 import scalikejdbc.{ WrappedResultSet, _ }
 
-/** 群组成员
+/**
+ * 群组成员
  *
  * @see table:t_group_members
  * @param gid 群组编号
  * @param uid 用户编号
  */
-case class GroupMember(gid: Int, uid: Int)
+final case class GroupMember(gid: Int, uid: Int)
 
 object GroupMember extends SQLSyntaxSupport[GroupMember] {
+
+  override lazy val columns: collection.Seq[String] = autoColumns[GroupMember]()
 
   override def tableName: String = "t_group_members"
 

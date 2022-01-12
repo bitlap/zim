@@ -25,15 +25,18 @@ jobs:
 
       - name: Build
         run: sbt compile
-#
-#      - name: Run Test
-#        run: sbt coverage test coverageReport # test in scala2.13.x java 8
-#
-#      - name: Aggregate coverage report
-#        run: sbt coverageAggregate
-#
-#      - name: Upload test coverage report
-#        run: bash <(curl -s https://codecov.io/bash)
+
+      - name: Code Style 
+        run: sbt scalafmtCheckAll
+        
+      - name: Run Test
+        run: sbt coverage test coverageReport # test in scala2.13.x java 8
+
+      - name: Aggregate coverage report
+        run: sbt coverageAggregate
+
+      - name: Upload test coverage report
+        run: bash <(curl -s https://codecov.io/bash)
 
   Java11:
 
@@ -49,5 +52,5 @@ jobs:
       - name: Build
         run: sbt compile
 
-#      - name: Run Test
-#        run: sbt coverage test coverageReport # test in scala2.13.x java 11
+      - name: Run Test
+        run: sbt coverage test coverageReport # test in scala2.13.x java 11

@@ -4,7 +4,7 @@ import io.circe._
 import io.circe.generic.semiauto._
 import scalikejdbc.{ WrappedResultSet, _ }
 
-import java.time.{ LocalDateTime, ZonedDateTime }
+import java.time.ZonedDateTime
 
 /**
  * 用户
@@ -21,7 +21,7 @@ import java.time.{ LocalDateTime, ZonedDateTime }
  * @param status     状态
  * @param active     激活码
  */
-case class User(
+final case class User(
   id: Int,
   username: String,
   password: String,
@@ -35,6 +35,10 @@ case class User(
 )
 
 object User extends SQLSyntaxSupport[User] {
+
+  // for dsl query
+  // see https://groups.google.com/g/scalikejdbc-users-group/c/h2bUE7xgS5o
+  override lazy val columns: collection.Seq[String] = autoColumns[User]()
 
   override val tableName = "t_user"
 

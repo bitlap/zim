@@ -9,7 +9,7 @@ import com.typesafe.config.{ Config, ConfigFactory }
  * @since 2021/12/25
  * @version 1.0
  */
-case class MysqlConfigurationProperties(
+final case class MysqlConfigurationProperties(
   url: String,
   user: String,
   password: String,
