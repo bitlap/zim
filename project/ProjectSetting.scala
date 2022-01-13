@@ -7,7 +7,7 @@ import sbt.CrossVersion
 object ProjectSetting {
 
   lazy val scala212 = "2.12.15"
-  lazy val scala213 = "2.13.7"
+  lazy val scala213 = "2.13.8"
 
   def extraOptions(scalaVersion: String, optimize: Boolean): List[String] =
     CrossVersion.partialVersion(scalaVersion) match {
