@@ -310,7 +310,6 @@ private final class UserService(
           SystemConstant.SUBJECT,
           s"${userCopy.username} 请确定这是你本人注册的账号, http://${zimConfigurationProperties.interface}:${zimConfigurationProperties.port}/user/active/" + activeCode
         )
-        .onError(_ => ZIO.none)
     } yield true
     ZStream.fromEffect(zioRet)
   }
