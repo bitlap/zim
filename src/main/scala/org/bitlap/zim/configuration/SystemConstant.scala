@@ -57,7 +57,7 @@ object SystemConstant {
   final val ERROR_ADD_REPETITION = "已是好友，请勿重复添加"
 
   //电子邮件相关
-  final val SUBJECT = "Sim即时通讯系统邮箱激活邮件"
+  final val SUBJECT = "zim 即时通讯系统邮箱激活邮件"
 
   //Redis Key相关
   final val ONLINE_USER = "ONLINE_USER"

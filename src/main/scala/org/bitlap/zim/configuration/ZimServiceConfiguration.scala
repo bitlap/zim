@@ -48,6 +48,9 @@ trait ZimServiceConfiguration {
   protected lazy val redisLayer: ZLayer[Any, RedisError.IOError, ZRedisCacheService] =
     RedisCacheConfiguration.live >>> RedisCacheService.live
 
+  protected lazy val redisTestLayer: ZLayer[Any, RedisError.IOError, ZRedisCacheService] =
+    RedisCacheConfiguration.live >>> RedisCacheService.live
+
   protected lazy val wsLayer: ZLayer[Any, Nothing, ZWsService] =
     applicationConfigurationLayer >>> WsService.live
 

@@ -9,6 +9,9 @@ import zio.schema.codec.Codec
 import zio.redis.RedisError
 import com.typesafe.config.Config
 
+import zio.clock.Clock
+import zio.random.Random
+
 /**
  * redis配置
  *
@@ -26,8 +29,12 @@ object RedisCacheConfiguration {
     if (conf.isEmpty) RedisConfig.Default
     else RedisConfig(conf.getString("redis.host"), conf.getInt("redis.port"))
 
-  private lazy val codec = ZLayer.succeed[Codec](StringUtf8Codec)
+  private lazy val codec: ULayer[Has[Codec]] = ZLayer.succeed[Codec](StringUtf8Codec)
 
+  // local redis layer
   val live: ZLayer[Any, RedisError.IOError, RedisExecutor] = (Logging.ignore ++ ZLayer.succeed(redisConf)
-    ++ codec) >>> RedisExecutor.live
+    ++ codec) >>> RedisExecutor.local
+
+  // test redis layer
+  val testLive: ZLayer[Any, Nothing, RedisExecutor] = (Clock.live ++ Random.live) >>> RedisExecutor.test
 }

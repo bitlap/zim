@@ -25,7 +25,7 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
     .withConnectionPoolCoreSize(mailConfigurationProperties.connectionPoolCoreSize)
     .buildMailer()
 
-  def sendHtmlMail(to: String, subject: String, content: String): ZIO[Any, Throwable, Any] = {
+  def sendHtmlMail(to: String, subject: String, content: String): UIO[Any] = {
     val email = EmailBuilder
       .startingBlank()
       .from(mailConfigurationProperties.sender)
@@ -35,9 +35,7 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
       .buildEmail()
     ZIO
       .fromFuture(make => mailer.sendMail(email).getFuture.asScala()(make))
-      .onError { _ =>
-        UIO.none
-      }
+      .catchAllCause(_ => ZIO.unit) // 捕获所有异常
   }
 }
 

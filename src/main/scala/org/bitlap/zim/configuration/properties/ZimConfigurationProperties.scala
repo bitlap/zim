@@ -1,6 +1,7 @@
 package org.bitlap.zim.configuration.properties
 
 import com.typesafe.config.{ Config, ConfigFactory }
+import zio.Has
 
 /**
  * 应用总体配置（不含数据库）
@@ -27,6 +28,8 @@ final case class ZimConfigurationProperties(
 }
 
 object ZimConfigurationProperties {
+
+  type ZZimConfigurationProperties = Has[ZimConfigurationProperties]
 
   def apply(config: Config = ConfigFactory.load().getConfig("application")): ZimConfigurationProperties =
     new ZimConfigurationProperties(
