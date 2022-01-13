@@ -1,7 +1,7 @@
 package org.bitlap.zim.configuration
 
-import org.bitlap.zim.application.ws.{ WsService, WsServiceLive }
-import org.bitlap.zim.cache.RedisCache
+import org.bitlap.zim.application.ws.wsService.{ WsService, ZWsService }
+import org.bitlap.zim.cache.redisCacheService.{ RedisCacheService, ZRedisCacheService }
 import org.bitlap.zim.configuration.ActorSystemConfiguration.ZActorSystemConfiguration
 import org.bitlap.zim.configuration.AkkaHttpConfiguration.{ ZAkkaHttpConfiguration, ZMaterializer }
 import org.bitlap.zim.configuration.ApiConfiguration.ZApiConfiguration
@@ -18,40 +18,37 @@ import zio.redis.RedisError
  */
 trait ZimServiceConfiguration {
 
-  private val akkaSystemLayer: TaskLayer[ZActorSystemConfiguration] =
+  private lazy val akkaSystemLayer: TaskLayer[ZActorSystemConfiguration] =
     InfrastructureConfiguration.live >>>
       ActorSystemConfiguration.live
 
-  private val akkaHttpConfigurationLayer: TaskLayer[ZAkkaHttpConfiguration] =
+  private lazy val akkaHttpConfigurationLayer: TaskLayer[ZAkkaHttpConfiguration] =
     (InfrastructureConfiguration.live ++
       akkaSystemLayer) >>>
       AkkaHttpConfiguration.live
 
-  private val materializerLayer: TaskLayer[ZMaterializer] =
+  private lazy val materializerLayer: TaskLayer[ZMaterializer] =
     akkaSystemLayer >>>
       AkkaHttpConfiguration.materializerLive
 
-  private val applicationConfigurationLayer: ULayer[ZApplicationConfiguration] =
+  protected lazy val applicationConfigurationLayer: ULayer[ZApplicationConfiguration] =
     InfrastructureConfiguration.live >>>
       ApplicationConfiguration.live
 
-  private val apiConfigurationLayer: TaskLayer[ZApiConfiguration] =
+  private lazy val apiConfigurationLayer: TaskLayer[ZApiConfiguration] =
     (applicationConfigurationLayer ++
       akkaHttpConfigurationLayer ++
       materializerLayer) >>>
       ApiConfiguration.live
 
-  private val redisLayer: ZLayer[Any, RedisError.IOError, RedisCache] =
-    RedisCacheConfiguration.live >>> RedisCache.live
+  val ZimEnv: ZLayer[Any, Throwable, ZApiConfiguration with ZActorSystemConfiguration with ZAkkaHttpConfiguration] =
+    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer
 
-  private val wsLayer: ZLayer[Any, Nothing, WsService] =
-    applicationConfigurationLayer >>> WsServiceLive.live
+  // 非最佳实践
+  protected lazy val redisLayer: ZLayer[Any, RedisError.IOError, ZRedisCacheService] =
+    RedisCacheConfiguration.live >>> RedisCacheService.live
 
-  val ZimEnv: ZLayer[
-    Any,
-    Throwable,
-    ZApiConfiguration with ZActorSystemConfiguration with ZAkkaHttpConfiguration with RedisCache with WsService
-  ] =
-    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer ++ redisLayer ++ wsLayer
+  protected lazy val wsLayer: ZLayer[Any, Nothing, ZWsService] =
+    applicationConfigurationLayer >>> WsService.live
 
 }

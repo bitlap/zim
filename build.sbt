@@ -4,23 +4,22 @@ import ProjectSetting._
 Global / onLoad := {
   val GREEN = "\u001b[32m"
   val RESET = "\u001b[0m"
-  println(
-    s"""$GREEN
-       |$GREEN                                 ____
-       |$GREEN                ,--,           ,'  , `.
-       |$GREEN        ,----,,--.'|        ,-+-,.' _ |
-       |$GREEN      .'   .`||  |,      ,-+-. ;   , ||
-       |$GREEN   .'   .'  .'`--'_     ,--.'|'   |  ||
-       |$GREEN ,---, '   ./ ,' ,'|   |   |  ,', |  |,
-       |$GREEN ;   | .'  /  '  | |   |   | /  | |--'
-       |$GREEN `---' /  ;--,|  | :   |   : |  | ,
-       |$GREEN   /  /  / .`|'  : |__ |   : |  |/
-       |$GREEN ./__;     .' |  | '.'||   | |`-'
-       |$GREEN ;   |  .'    ;  :    ;|   ;/
-       |$GREEN `---'        |  ,   / '---'
-       |$GREEN               ---`-'
-       |$RESET        v.${version.value}
-       |""".stripMargin)
+  println(s"""$GREEN
+             |$GREEN                                 ____
+             |$GREEN                ,--,           ,'  , `.
+             |$GREEN        ,----,,--.'|        ,-+-,.' _ |
+             |$GREEN      .'   .`||  |,      ,-+-. ;   , ||
+             |$GREEN   .'   .'  .'`--'_     ,--.'|'   |  ||
+             |$GREEN ,---, '   ./ ,' ,'|   |   |  ,', |  |,
+             |$GREEN ;   | .'  /  '  | |   |   | /  | |--'
+             |$GREEN `---' /  ;--,|  | :   |   : |  | ,
+             |$GREEN   /  /  / .`|'  : |__ |   : |  |/
+             |$GREEN ./__;     .' |  | '.'||   | |`-'
+             |$GREEN ;   |  .'    ;  :    ;|   ;/
+             |$GREEN `---'        |  ,   / '---'
+             |$GREEN               ---`-'
+             |$RESET        v.${version.value}
+             |""".stripMargin)
   (Global / onLoad).value
 }
 

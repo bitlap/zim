@@ -17,9 +17,9 @@ import org.bitlap.zim.util.{ SecurityUtil, UuidUtil }
 import zio.crypto.hash.{ Hash, MessageDigest }
 import zio.stream.ZStream
 import zio.{ stream, Has, ZIO }
-
 import java.time.ZonedDateTime
 import scala.collection.mutable.ListBuffer
+import org.bitlap.zim.application.ws.wsService
 
 /**
  * 用户服务
@@ -57,8 +57,8 @@ private final class UserService(
         if (ret && group.createId.equals(uid)) {
           groupMemberRepository.findGroupMembers(gid).flatMap { uid =>
             // group owner leave
-            // TODO wsService.deleteGroup(master, group.groupname, gid, uid)
-            groupMemberRepository.leaveOutGroup(GroupMember(gid, uid))
+            groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)) *>
+              ZStream.fromEffect(wsService.deleteGroup(master, group.groupname, gid, uid))
           }
         } else ZStream.succeed(1)
     } yield ret
@@ -152,7 +152,8 @@ private final class UserService(
   override def updateAddMessage(messageBoxId: Int, agree: Int): stream.Stream[Throwable, Boolean] =
     addMessageRepository.updateAddMessage(AddMessage(agree = agree, id = messageBoxId)).map(_ == 1)
 
-  override def refuseAddFriend(messageBoxId: Int, user: User, to: Int): stream.Stream[Throwable, Boolean] = ???
+  override def refuseAddFriend(messageBoxId: Int, user: User, to: Int): stream.Stream[Throwable, Boolean] =
+    ZStream.fromEffect(wsService.refuseAddFriend(messageBoxId, user, to))
 
   override def readFriendMessage(mine: Int, to: Int): stream.Stream[Throwable, Boolean] =
     receiveRepository.readMessage(mine, to, SystemConstant.FRIEND_TYPE).map(_ == 1)
@@ -181,7 +182,44 @@ private final class UserService(
       case SystemConstant.GROUP_TYPE  => receiveRepository.countHistoryMessage(None, Some(mid), Some(`type`))
     }
 
-  override def findHistoryMessage(user: User, mid: Int, `type`: String): stream.Stream[Throwable, ChatHistory] = ???
+  override def findHistoryMessage(user: User, mid: Int, `type`: String): stream.Stream[Throwable, ChatHistory] = {
+    def userHistory() =
+      //单人聊天记录
+      for {
+        toUser <- findUserById(mid)
+        history <- receiveRepository.findHistoryMessage(Some(user.id), Some(mid), Some(`type`))
+        newHistory =
+          if (history.id == mid) {
+            ChatHistory(
+              history.id,
+              toUser.username,
+              toUser.avatar,
+              history.content,
+              history.timestamp
+            )
+          } else {
+            ChatHistory(history.id, user.username, user.avatar, history.content, history.timestamp)
+          }
+      } yield newHistory
+
+    def groupHistory() =
+      //群聊天记录
+      for {
+        u <- findUserById(mid)
+        history <- receiveRepository.findHistoryMessage(None, Some(mid), Some(`type`))
+        newHistory =
+          if (history.fromid.equals(user.id)) {
+            ChatHistory(user.id, user.username, user.avatar, history.content, history.timestamp)
+          } else {
+            ChatHistory(history.id, u.username, u.avatar, history.content, history.timestamp)
+          }
+      } yield newHistory
+    `type` match {
+      case SystemConstant.FRIEND_TYPE => userHistory()
+      case SystemConstant.GROUP_TYPE  => groupHistory()
+      case _                          => ZStream.empty
+    }
+  }
 
   override def findOffLineMessage(uid: Int, status: Int): stream.Stream[Throwable, Receive] =
     receiveRepository.findOffLineMessage(uid, status)
