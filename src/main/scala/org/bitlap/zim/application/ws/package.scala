@@ -119,16 +119,18 @@ package object ws {
 
   private[ws] def readOfflineMessageHandler(
     userService: UserApplication
-  )(message: Message): ZIO[Any, Throwable, Unit] = {
+  )(message: Message): ZIO[Any, Throwable, Unit] =
     userService
       .findOffLineMessage(message.mine.id, 0)
-      .as {
-        if (message.to.`type` == SystemConstant.GROUP_TYPE) {
-          // 我所有的群中有未读的消息吗
-          userService.readGroupMessage(message.mine.id, message.mine.id)
-        } else {
-          userService.readFriendMessage(message.mine.id, message.to.id)
-        }
-      }.foreach(_ => ZIO.effect(DEFAULT_VALUE)) //消息是多个，消费完直接返回Unit，不需要处理每个Receive的结果
-  }
+      .runCount
+      .map { c =>
+        {
+          if (message.to.`type` == SystemConstant.GROUP_TYPE) {
+            // 我所有的群中有未读的消息吗
+            userService.readGroupMessage(message.mine.id, message.mine.id).runHead
+          } else {
+            userService.readFriendMessage(message.mine.id, message.to.id).runHead
+          }
+        } when (c > 0)
+      } map (_ => DEFAULT_VALUE)
 }

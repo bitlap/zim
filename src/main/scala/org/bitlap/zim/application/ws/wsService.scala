@@ -7,6 +7,7 @@ import org.bitlap.zim.configuration.{ SystemConstant, ZimServiceConfiguration }
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
 import zio.{ Has, Task, ZIO, ZLayer }
+import io.circe.parser.decode
 
 import java.util.concurrent.ConcurrentHashMap
 
@@ -69,10 +70,12 @@ object wsService extends ZimServiceConfiguration {
             }
 
           override def agreeAddGroup(msg: Message): Task[Unit] = {
-            val agree = msg.msg.asInstanceOf[AddRefuseMessage]
-            agree.messageBoxId.synchronized {
-              agreeAddGroupHandler(userService)(agree)
-            }
+            val agree = decode[AddRefuseMessage](msg.msg).getOrElse(null)
+            if (agree == null) ZIO.effect(DEFAULT_VALUE)
+            else
+              agree.messageBoxId.synchronized {
+                agreeAddGroupHandler(userService)(agree)
+              }
           }
 
           override def refuseAddGroup(msg: Message): Task[Unit] = ???

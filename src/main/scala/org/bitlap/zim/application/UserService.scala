@@ -182,7 +182,44 @@ private final class UserService(
       case SystemConstant.GROUP_TYPE  => receiveRepository.countHistoryMessage(None, Some(mid), Some(`type`))
     }
 
-  override def findHistoryMessage(user: User, mid: Int, `type`: String): stream.Stream[Throwable, ChatHistory] = ???
+  override def findHistoryMessage(user: User, mid: Int, `type`: String): stream.Stream[Throwable, ChatHistory] = {
+    def userHistory() =
+      //单人聊天记录
+      for {
+        toUser <- findUserById(mid)
+        history <- receiveRepository.findHistoryMessage(Some(user.id), Some(mid), Some(`type`))
+        newHistory =
+          if (history.id == mid) {
+            ChatHistory(
+              history.id,
+              toUser.username,
+              toUser.avatar,
+              history.content,
+              history.timestamp
+            )
+          } else {
+            ChatHistory(history.id, user.username, user.avatar, history.content, history.timestamp)
+          }
+      } yield newHistory
+
+    def groupHistory() =
+      //群聊天记录
+      for {
+        u <- findUserById(mid)
+        history <- receiveRepository.findHistoryMessage(None, Some(mid), Some(`type`))
+        newHistory =
+          if (history.fromid.equals(user.id)) {
+            ChatHistory(user.id, user.username, user.avatar, history.content, history.timestamp)
+          } else {
+            ChatHistory(history.id, u.username, u.avatar, history.content, history.timestamp)
+          }
+      } yield newHistory
+    `type` match {
+      case SystemConstant.FRIEND_TYPE => userHistory()
+      case SystemConstant.GROUP_TYPE  => groupHistory()
+      case _                          => ZStream.empty
+    }
+  }
 
   override def findOffLineMessage(uid: Int, status: Int): stream.Stream[Throwable, Receive] =
     receiveRepository.findOffLineMessage(uid, status)
