@@ -1,19 +1,9 @@
 package org.bitlap.zim.application
 
-import org.bitlap.zim.application.MailService.ZMailService
 import org.bitlap.zim.application.ws.wsService
-import org.bitlap.zim.configuration.SystemConstant
-import org.bitlap.zim.configuration.properties.ZimConfigurationProperties
-import org.bitlap.zim.configuration.properties.ZimConfigurationProperties.ZZimConfigurationProperties
-import org.bitlap.zim.domain.model.{ AddFriend, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
+import org.bitlap.zim.configuration.{ InfrastructureConfiguration, SystemConstant }
 import org.bitlap.zim.domain.{ AddInfo, ChatHistory, FriendList }
-import org.bitlap.zim.repository.TangibleAddMessageRepository.ZAddMessageRepository
-import org.bitlap.zim.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
-import org.bitlap.zim.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
-import org.bitlap.zim.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
-import org.bitlap.zim.repository.TangibleGroupRepository.ZGroupRepository
-import org.bitlap.zim.repository.TangibleReceiveRepository.ZReceiveRepository
-import org.bitlap.zim.repository.TangibleUserRepository.ZUserRepository
+import org.bitlap.zim.domain.model.{ AddFriend, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
 import org.bitlap.zim.repository.{
   AddMessageRepository,
   FriendGroupFriendRepository,
@@ -23,10 +13,17 @@ import org.bitlap.zim.repository.{
   ReceiveRepository,
   UserRepository
 }
+import org.bitlap.zim.repository.TangibleAddMessageRepository.ZAddMessageRepository
+import org.bitlap.zim.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
+import org.bitlap.zim.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
+import org.bitlap.zim.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
+import org.bitlap.zim.repository.TangibleGroupRepository.ZGroupRepository
+import org.bitlap.zim.repository.TangibleReceiveRepository.ZReceiveRepository
+import org.bitlap.zim.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.util.{ SecurityUtil, UuidUtil }
+import zio.{ stream, Has, ZIO, ZLayer }
 import zio.crypto.hash.{ Hash, MessageDigest }
 import zio.stream.ZStream
-import zio.{ stream, Has, ZIO, ZLayer }
 
 import java.time.ZonedDateTime
 import scala.collection.mutable.ListBuffer
@@ -45,9 +42,7 @@ private final class UserService(
   friendGroupRepository: FriendGroupRepository[FriendGroup],
   friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend],
   groupMemberRepository: GroupMemberRepository[GroupMember],
-  addMessageRepository: AddMessageRepository[AddMessage],
-  mailService: MailService,
-  zimConfigurationProperties: ZimConfigurationProperties
+  addMessageRepository: AddMessageRepository[AddMessage]
 ) extends UserApplication {
 
   override def findById(id: Long): stream.Stream[Throwable, User] =
@@ -304,12 +299,16 @@ private final class UserService(
       )
       _ <- userRepository.saveUser(userCopy).runHead
       _ <- createFriendGroup(SystemConstant.DEFAULT_GROUP_NAME, userCopy.id).runHead
-      _ <- mailService
+      // 通过infra层访问配置
+      zimConf <- InfrastructureConfiguration.zimConfigurationProperties
+      mailConf <- InfrastructureConfiguration.mailConfigurationProperties
+      _ <- MailService
         .sendHtmlMail(
           userCopy.email,
           SystemConstant.SUBJECT,
-          s"${userCopy.username} 请确定这是你本人注册的账号, http://${zimConfigurationProperties.interface}:${zimConfigurationProperties.port}/user/active/" + activeCode
+          s"${userCopy.username} 请确定这是你本人注册的账号, http://${zimConf.interface}:${zimConf.port}/user/active/" + activeCode
         )
+        .provideLayer(MailService.make(mailConf))
     } yield true
     ZStream.fromEffect(zioRet)
   }
@@ -327,9 +326,7 @@ object UserService {
     friendGroupRepository: FriendGroupRepository[FriendGroup],
     friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend],
     groupMemberRepository: GroupMemberRepository[GroupMember],
-    addMessageRepository: AddMessageRepository[AddMessage],
-    mailService: MailService,
-    zimConfigurationProperties: ZimConfigurationProperties
+    addMessageRepository: AddMessageRepository[AddMessage]
   ): UserApplication =
     new UserService(
       userRepository,
@@ -338,15 +335,13 @@ object UserService {
       friendGroupRepository,
       friendGroupFriendRepository,
       groupMemberRepository,
-      addMessageRepository,
-      mailService,
-      zimConfigurationProperties
+      addMessageRepository
     )
 
   // 测试用
   // TODO 构造注入的代价，以后少用
   val live: ZLayer[
-    ZUserRepository with ZGroupRepository with ZReceiveRepository with ZFriendGroupRepository with ZFriendGroupFriendRepository with ZFriendGroupFriendRepository with ZGroupMemberRepository with ZAddMessageRepository with ZMailService with ZZimConfigurationProperties,
+    ZUserRepository with ZGroupRepository with ZReceiveRepository with ZFriendGroupRepository with ZFriendGroupFriendRepository with ZFriendGroupFriendRepository with ZGroupMemberRepository with ZAddMessageRepository,
     Nothing,
     ZUserApplication
   ] =
@@ -354,9 +349,8 @@ object UserService {
       Receive
     ], FriendGroupRepository[FriendGroup], FriendGroupFriendRepository[AddFriend], GroupMemberRepository[
       GroupMember
-    ], AddMessageRepository[AddMessage], MailService, ZimConfigurationProperties, UserApplication] {
-      (a, b, c, d, e, f, g, h, i) =>
-        UserService(a, b, c, d, e, f, g, h, i)
+    ], AddMessageRepository[AddMessage], UserApplication] { (a, b, c, d, e, f, g) =>
+      UserService(a, b, c, d, e, f, g)
     }
 
 }

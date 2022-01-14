@@ -34,6 +34,6 @@ object MailServiceSpec {
 
   lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties()
 
-  val env: ULayer[ZMailService] = ZLayer.succeed(mailConfigurationProperties) >>> MailService.live
+  val env: ULayer[ZMailService] = MailService.make(mailConfigurationProperties)
 
 }

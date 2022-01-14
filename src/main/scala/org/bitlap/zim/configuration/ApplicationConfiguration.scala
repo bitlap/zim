@@ -21,9 +21,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
     infrastructureConfiguration.friendGroupRepository,
     infrastructureConfiguration.friendGroupFriendRepository,
     infrastructureConfiguration.groupMemberRepository,
-    infrastructureConfiguration.addMessageRepository,
-    infrastructureConfiguration.mailService, //TODO use zio managed?
-    infrastructureConfiguration.zimConfigurationProperties
+    infrastructureConfiguration.addMessageRepository
   )
 
   val apiApplication: ApiApplication = ApiService(userApplication)

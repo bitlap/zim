@@ -2,7 +2,7 @@ package org.bitlap.zim.configuration.properties
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import org.simplejavamail.config.ConfigLoader
-import zio.Has
+import zio.{ Has, ULayer, ZIO, ZLayer }
 
 import java.util.Properties
 import scala.util.Try
@@ -38,7 +38,15 @@ object MailConfigurationProperties {
 
   type ZMailConfigurationProperties = Has[MailConfigurationProperties]
 
-  def apply(config: Config = ConfigFactory.load().getConfig("application.javamail")): MailConfigurationProperties =
+  lazy val config: Config = ConfigFactory.load().getConfig("application.javamail")
+
+  val layer: ULayer[ZMailConfigurationProperties] =
+    ZLayer.succeed(config) >>> ZLayer.fromService[Config, MailConfigurationProperties](MailConfigurationProperties(_))
+
+  def make: ZIO[Any, Nothing, MailConfigurationProperties] =
+    ZIO.serviceWith[MailConfigurationProperties](c => ZIO.succeed(c)).provideLayer(layer)
+
+  def apply(config: Config = config): MailConfigurationProperties =
     MailConfigurationProperties(
       host = config.getString("host"),
       username = config.getString("username"),

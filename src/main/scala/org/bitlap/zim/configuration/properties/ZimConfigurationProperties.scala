@@ -1,7 +1,8 @@
 package org.bitlap.zim.configuration.properties
 
 import com.typesafe.config.{ Config, ConfigFactory }
-import zio.Has
+import zio.{ Has, ULayer, ZIO, ZLayer }
+import zio.UIO
 
 /**
  * 应用总体配置（不含数据库）
@@ -29,9 +30,16 @@ final case class ZimConfigurationProperties(
 
 object ZimConfigurationProperties {
 
+  lazy val config: Config = ConfigFactory.load().getConfig("application")
+
   type ZZimConfigurationProperties = Has[ZimConfigurationProperties]
 
-  def apply(config: Config = ConfigFactory.load().getConfig("application")): ZimConfigurationProperties =
+  val layer: ULayer[ZZimConfigurationProperties] =
+    ZLayer.succeed(config) >>> ZLayer.fromService[Config, ZimConfigurationProperties](ZimConfigurationProperties(_))
+
+  def make: UIO[ZimConfigurationProperties] = ZIO.succeed(ZimConfigurationProperties(config))
+
+  def apply(config: Config = config): ZimConfigurationProperties =
     new ZimConfigurationProperties(
       name = config.getString("name"),
       interface = config.getString("server.interface"),

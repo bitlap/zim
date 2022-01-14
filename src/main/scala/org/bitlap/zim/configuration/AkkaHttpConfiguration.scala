@@ -17,15 +17,16 @@ import zio._
  * @since 2021/12/25
  * @version 1.0
  */
-final class AkkaHttpConfiguration(infrastructureConfiguration: InfrastructureConfiguration, actorSystem: ActorSystem) {
+final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
   def httpServer(route: Route): Task[Unit] =
     for {
+      infoConf <- InfrastructureConfiguration.zimConfigurationProperties
       eventualBinding <- Task {
         implicit lazy val untypedSystem: actor.ActorSystem = actorSystem
         Http()
           .newServerAt(
-            infrastructureConfiguration.zimConfigurationProperties.interface,
-            infrastructureConfiguration.zimConfigurationProperties.port
+            infoConf.interface,
+            infoConf.port
           )
           .bind(route)
       }
@@ -34,7 +35,7 @@ final class AkkaHttpConfiguration(infrastructureConfiguration: InfrastructureCon
         .tapError(exception =>
           UIO(
             actorSystem.log.error(
-              s"Server could not start with parameters [host:port]=[${infrastructureConfiguration.zimConfigurationProperties.interface},${infrastructureConfiguration.zimConfigurationProperties.port}]",
+              s"Server could not start with parameters [host:port]=[${infoConf.interface},${infoConf.port}]",
               exception
             )
           )
@@ -43,7 +44,7 @@ final class AkkaHttpConfiguration(infrastructureConfiguration: InfrastructureCon
         .fork
       _ <- UIO(
         actorSystem.log.info(
-          s"Server online at http://${infrastructureConfiguration.zimConfigurationProperties.interface}:${infrastructureConfiguration.zimConfigurationProperties.port}/${OpenApi().openapi}"
+          s"Server online at http://${infoConf.interface}:${infoConf.port}/${OpenApi().openapi}"
         )
       )
       _ <- server.join
@@ -53,8 +54,8 @@ final class AkkaHttpConfiguration(infrastructureConfiguration: InfrastructureCon
 
 object AkkaHttpConfiguration {
 
-  def apply(infrastructureConfiguration: InfrastructureConfiguration, actorSystem: ActorSystem): AkkaHttpConfiguration =
-    new AkkaHttpConfiguration(infrastructureConfiguration, actorSystem)
+  def apply(actorSystem: ActorSystem): AkkaHttpConfiguration =
+    new AkkaHttpConfiguration(actorSystem)
 
   type ZAkkaHttpConfiguration = Has[AkkaHttpConfiguration]
   type ZMaterializer = Has[Materializer]
@@ -65,7 +66,7 @@ object AkkaHttpConfiguration {
   val materializerLive: ZLayer[ZActorSystemConfiguration, Nothing, ZMaterializer] =
     ZLayer.fromService[ActorSystem, Materializer](Materializer.matFromSystem(_))
 
-  val live: ZLayer[ZInfrastructureConfiguration with ZActorSystemConfiguration, Nothing, ZAkkaHttpConfiguration] =
-    ZLayer.fromServices[InfrastructureConfiguration, ActorSystem, AkkaHttpConfiguration](AkkaHttpConfiguration(_, _))
+  val live: ZLayer[ZActorSystemConfiguration, Nothing, ZAkkaHttpConfiguration] =
+    ZLayer.fromService[ActorSystem, AkkaHttpConfiguration](AkkaHttpConfiguration(_))
 
 }

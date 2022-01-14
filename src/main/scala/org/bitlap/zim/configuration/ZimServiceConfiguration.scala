@@ -23,9 +23,7 @@ trait ZimServiceConfiguration {
       ActorSystemConfiguration.live
 
   private lazy val akkaHttpConfigurationLayer: TaskLayer[ZAkkaHttpConfiguration] =
-    (InfrastructureConfiguration.live ++
-      akkaSystemLayer) >>>
-      AkkaHttpConfiguration.live
+    akkaSystemLayer >>> AkkaHttpConfiguration.live
 
   private lazy val materializerLayer: TaskLayer[ZMaterializer] =
     akkaSystemLayer >>>

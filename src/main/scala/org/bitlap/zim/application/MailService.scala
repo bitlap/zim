@@ -9,6 +9,7 @@ import org.simplejavamail.email.EmailBuilder
 import org.simplejavamail.mailer.MailerBuilder
 import zio.{ Has, UIO, ZIO, ZLayer }
 import zio.URIO
+import zio.ULayer
 
 /**
  * 邮件发送服务
@@ -54,4 +55,6 @@ object MailService {
   val live: ZLayer[ZMailConfigurationProperties, Nothing, ZMailService] =
     ZLayer.fromService[MailConfigurationProperties, MailService](MailService(_))
 
+  def make(mailConfigurationProperties: MailConfigurationProperties): ULayer[ZMailService] =
+    ZLayer.succeed(mailConfigurationProperties) >>> MailService.live
 }

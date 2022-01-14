@@ -20,6 +20,7 @@ import org.bitlap.zim.repository.{
 }
 import scalikejdbc._
 import zio.{ ULayer, ZLayer }
+import org.bitlap.zim.application.UserService.ZUserApplication
 
 /**
  * 测试service的所有layer
@@ -29,8 +30,6 @@ import zio.{ ULayer, ZLayer }
  * @version 1.0
  */
 trait TestApplication extends BaseData {
-
-  val env: ULayer[ZReceiveRepository] = TangibleReceiveRepository.make(h2ConfigurationProperties.databaseName)
 
   val friendGroupLayer: ULayer[ZFriendGroupRepository] =
     TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
@@ -53,16 +52,14 @@ trait TestApplication extends BaseData {
   val userLayer: ZLayer[Any, Throwable, ZUserRepository] =
     TangibleUserRepository.make(h2ConfigurationProperties.databaseName)
 
-  lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties()
+  val repositoryLayer: ZLayer[
+    Any,
+    Throwable,
+    ZUserRepository with ZGroupRepository with ZReceiveRepository with ZFriendGroupRepository with ZFriendGroupFriendRepository with ZGroupMemberRepository with ZAddMessageRepository
+  ] = userLayer ++ groupLayer ++ receiveLayer ++ friendGroupLayer ++
+    friendGroupMemberLayer ++ groupMemberLayer ++ addMessageLayer
 
-  val mailLayer: ULayer[ZMailService] = ZLayer.succeed(mailConfigurationProperties) >>> MailService.live
-
-  val repositoryLayer = userLayer ++ groupLayer ++ receiveLayer ++ friendGroupLayer ++
-    friendGroupMemberLayer ++ groupMemberLayer ++ addMessageLayer ++ mailLayer ++ ZLayer.succeed(
-      ZimConfigurationProperties()
-    )
-
-  val userApplicationLayer = repositoryLayer >>> UserService.live
+  val userApplicationLayer: ZLayer[Any, Throwable, ZUserApplication] = repositoryLayer >>> UserService.live
 
   override val sqlBefore: SQL[Nothing, NoExtractor] =
     sql"""

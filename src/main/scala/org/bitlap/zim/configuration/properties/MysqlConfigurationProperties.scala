@@ -52,7 +52,9 @@ final case class MysqlConfigurationProperties(
 
 object MysqlConfigurationProperties {
 
-  def apply(config: Config = ConfigFactory.load().getConfig("infrastructure.mysql")): MysqlConfigurationProperties =
+  lazy val conf = ConfigFactory.load().getConfig("infrastructure.mysql")
+
+  def apply(config: Config = conf): MysqlConfigurationProperties =
     MysqlConfigurationProperties(
       url = config.getString("url"),
       user = config.getString("user"),
