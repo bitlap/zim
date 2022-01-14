@@ -77,7 +77,6 @@ final class InfrastructureConfiguration {
 
 /**
  * 基础设施依赖管理
- * 目前只有MySQL
  */
 object InfrastructureConfiguration {
 

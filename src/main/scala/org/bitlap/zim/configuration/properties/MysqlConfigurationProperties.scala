@@ -19,40 +19,11 @@ final case class MysqlConfigurationProperties(
   connectionTimeoutMillis: Long,
   validationQuery: String,
   driverName: String
-) {
-
-  def withUrl(url: String): MysqlConfigurationProperties =
-    copy(url = url)
-
-  def withUser(user: String): MysqlConfigurationProperties =
-    copy(user = user)
-
-  def withPassword(password: String): MysqlConfigurationProperties =
-    copy(password = password)
-
-  def withDatabaseName(databaseName: String): MysqlConfigurationProperties =
-    copy(databaseName = databaseName)
-
-  def withInitialSize(initialSize: Integer): MysqlConfigurationProperties =
-    copy(initialSize = initialSize)
-
-  def withMaxSize(maxSize: Integer): MysqlConfigurationProperties =
-    copy(maxSize = maxSize)
-
-  def withConnectionTimeoutMillis(connectionTimeoutMillis: Long): MysqlConfigurationProperties =
-    copy(connectionTimeoutMillis = connectionTimeoutMillis)
-
-  def withValidationQuery(validationQuery: String): MysqlConfigurationProperties =
-    copy(validationQuery = validationQuery)
-
-  def withDriverName(driverName: String): MysqlConfigurationProperties =
-    copy(driverName = driverName)
-
-}
+)
 
 object MysqlConfigurationProperties {
 
-  lazy val conf = ConfigFactory.load().getConfig("infrastructure.mysql")
+  lazy val conf: Config = ConfigFactory.load().getConfig("infrastructure.mysql")
 
   def apply(config: Config = conf): MysqlConfigurationProperties =
     MysqlConfigurationProperties(

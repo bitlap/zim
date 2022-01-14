@@ -27,6 +27,7 @@ import zio.stream.ZStream
 
 import java.time.ZonedDateTime
 import scala.collection.mutable.ListBuffer
+import zio.URLayer
 
 /**
  * 用户服务
@@ -185,6 +186,7 @@ private final class UserService(
     `type` match {
       case SystemConstant.FRIEND_TYPE => receiveRepository.countHistoryMessage(Some(uid), Some(mid), Some(`type`))
       case SystemConstant.GROUP_TYPE  => receiveRepository.countHistoryMessage(None, Some(mid), Some(`type`))
+      case _                          => ZStream.empty
     }
 
   override def findHistoryMessage(user: User, mid: Int, `type`: String): stream.Stream[Throwable, ChatHistory] = {
@@ -340,9 +342,8 @@ object UserService {
 
   // 测试用
   // TODO 构造注入的代价，以后少用
-  val live: ZLayer[
+  val live: URLayer[
     ZUserRepository with ZGroupRepository with ZReceiveRepository with ZFriendGroupRepository with ZFriendGroupFriendRepository with ZFriendGroupFriendRepository with ZGroupMemberRepository with ZAddMessageRepository,
-    Nothing,
     ZUserApplication
   ] =
     ZLayer.fromServices[UserRepository[User], GroupRepository[GroupList], ReceiveRepository[

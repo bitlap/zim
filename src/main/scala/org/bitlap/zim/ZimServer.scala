@@ -20,7 +20,7 @@ object ZimServer extends ZimServiceConfiguration with zio.App {
       format = LogFormat.ColoredLogFormat()
     ) >>> Logging.withRootLoggerName("ZimApplication")
 
-  private val program: ZIO[Logging, Nothing, ExitCode] =
+  private val program: URIO[Logging, ExitCode] =
     (for {
       routes <- ApiConfiguration.routes
       _ <- AkkaHttpConfiguration.httpServer(routes)
@@ -31,7 +31,7 @@ object ZimServer extends ZimServiceConfiguration with zio.App {
         _ => UIO.effectTotal(ExitCode.success)
       )
 
-  override def run(args: List[String]): ZIO[zio.ZEnv, Nothing, ExitCode] =
+  override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     program.provideLayer(loggingLayer)
 
 }

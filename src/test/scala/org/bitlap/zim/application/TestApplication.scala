@@ -21,6 +21,8 @@ import org.bitlap.zim.repository.{
 import scalikejdbc._
 import zio.{ ULayer, ZLayer }
 import org.bitlap.zim.application.UserService.ZUserApplication
+import org.bitlap.zim.configuration.InfrastructureConfiguration
+import zio.{ Layer, TaskLayer }
 
 /**
  * 测试service的所有layer
@@ -31,35 +33,30 @@ import org.bitlap.zim.application.UserService.ZUserApplication
  */
 trait TestApplication extends BaseData {
 
-  val friendGroupLayer: ULayer[ZFriendGroupRepository] =
-    TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
+  lazy val infra = InfrastructureConfiguration()
 
-  val groupLayer: ULayer[ZGroupRepository] =
-    TangibleGroupRepository.make(h2ConfigurationProperties.databaseName)
+  val friendGroupLayer: ULayer[ZFriendGroupRepository] = ZLayer.succeed(infra.friendGroupRepository)
 
-  val receiveLayer: ULayer[ZReceiveRepository] =
-    TangibleReceiveRepository.make(h2ConfigurationProperties.databaseName)
+  val groupLayer: ULayer[ZGroupRepository] = ZLayer.succeed(infra.groupRepository)
 
-  val groupMemberLayer: ULayer[ZGroupMemberRepository] =
-    TangibleGroupMemberRepository.make(h2ConfigurationProperties.databaseName)
+  val receiveLayer: ULayer[ZReceiveRepository] = ZLayer.succeed(infra.receiveRepository)
 
-  val friendGroupMemberLayer: ULayer[ZFriendGroupFriendRepository] =
-    TangibleFriendGroupFriendRepository.make(h2ConfigurationProperties.databaseName)
+  val groupMemberLayer: ULayer[ZGroupMemberRepository] = ZLayer.succeed(infra.groupMemberRepository)
 
-  val addMessageLayer: ULayer[ZAddMessageRepository] =
-    TangibleAddMessageRepository.make(h2ConfigurationProperties.databaseName)
+  val friendGroupMemberLayer: ULayer[ZFriendGroupFriendRepository] = ZLayer.succeed(infra.friendGroupFriendRepository)
+
+  val addMessageLayer: ULayer[ZAddMessageRepository] = ZLayer.succeed(infra.addMessageRepository)
 
   val userLayer: ZLayer[Any, Throwable, ZUserRepository] =
-    TangibleUserRepository.make(h2ConfigurationProperties.databaseName)
+    ZLayer.succeed(infra.userRepository)
 
-  val repositoryLayer: ZLayer[
-    Any,
+  val repositoryLayer: Layer[
     Throwable,
     ZUserRepository with ZGroupRepository with ZReceiveRepository with ZFriendGroupRepository with ZFriendGroupFriendRepository with ZGroupMemberRepository with ZAddMessageRepository
   ] = userLayer ++ groupLayer ++ receiveLayer ++ friendGroupLayer ++
     friendGroupMemberLayer ++ groupMemberLayer ++ addMessageLayer
 
-  val userApplicationLayer: ZLayer[Any, Throwable, ZUserApplication] = repositoryLayer >>> UserService.live
+  lazy val userApplicationLayer: TaskLayer[ZUserApplication] = repositoryLayer >>> UserService.live
 
   override val sqlBefore: SQL[Nothing, NoExtractor] =
     sql"""

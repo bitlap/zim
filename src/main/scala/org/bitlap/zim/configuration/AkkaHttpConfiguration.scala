@@ -7,7 +7,6 @@ import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import org.bitlap.zim.api.OpenApi
 import org.bitlap.zim.configuration.ActorSystemConfiguration.ZActorSystemConfiguration
-import org.bitlap.zim.configuration.InfrastructureConfiguration.ZInfrastructureConfiguration
 import zio._
 
 /**
@@ -63,10 +62,10 @@ object AkkaHttpConfiguration {
   def httpServer(route: Route): RIO[ZAkkaHttpConfiguration with ZActorSystemConfiguration, Unit] =
     ZIO.accessM(_.get.httpServer(route))
 
-  val materializerLive: ZLayer[ZActorSystemConfiguration, Nothing, ZMaterializer] =
+  val materializerLive: URLayer[ZActorSystemConfiguration, ZMaterializer] =
     ZLayer.fromService[ActorSystem, Materializer](Materializer.matFromSystem(_))
 
-  val live: ZLayer[ZActorSystemConfiguration, Nothing, ZAkkaHttpConfiguration] =
+  val live: URLayer[ZActorSystemConfiguration, ZAkkaHttpConfiguration] =
     ZLayer.fromService[ActorSystem, AkkaHttpConfiguration](AkkaHttpConfiguration(_))
 
 }

@@ -10,6 +10,7 @@ import org.simplejavamail.mailer.MailerBuilder
 import zio.{ Has, UIO, ZIO, ZLayer }
 import zio.URIO
 import zio.ULayer
+import zio.URLayer
 
 /**
  * 邮件发送服务
@@ -52,7 +53,7 @@ object MailService {
   def sendHtmlMail(to: String, subject: String, content: String): URIO[ZMailService, Any] =
     ZIO.access(_.get.sendHtmlMail(to, subject, content))
 
-  val live: ZLayer[ZMailConfigurationProperties, Nothing, ZMailService] =
+  val live: URLayer[ZMailConfigurationProperties, ZMailService] =
     ZLayer.fromService[MailConfigurationProperties, MailService](MailService(_))
 
   def make(mailConfigurationProperties: MailConfigurationProperties): ULayer[ZMailService] =
