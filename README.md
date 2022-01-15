@@ -1,16 +1,10 @@
-<img align="right" width="20%" height="10%" src="./qq_group.JPG" alt="https://dreamylost.cn">
-
 # zim
 [![Build](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml/badge.svg?branch=master)](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml)
 [![codecov](https://codecov.io/gh/bitlap/zim/branch/master/graph/badge.svg?token=V95ZMWUUCE)](https://codecov.io/gh/bitlap/zim)
 
 [English](./README_EN.md)
 
-zim是一个基于scala、zio、tapir、akka-http、circe、scalikejdbc、redis实现的纯异步、函数式、流式API的IM。
-
-> 感兴趣的可关注一下，也可以一起开发。本项目旨在学习。  交流群 =====>
-
-[更多详情，前往文档](https://bitlap.org/zh-CN/lab/zim#%E5%A6%82%E4%BD%95%E5%8F%82%E4%B8%8E%E8%B4%A1%E7%8C%AE)
+[更多详情，前往文档](https://bitlap.org/zh-CN/lab/zim)
 
 ## 项目结构
 
@@ -61,6 +55,7 @@ zim-master
              └─ org
                 └─ bitlap
                    └─ zim
+                      ├─ application                     -- 服务层的单测
                       ├─ RandomData.scala                -- 造用户表数据的代码
                       ├─ BaseData.scala                  -- 用于单测的通用封装父类
                       ├─ infrastructure.repository       -- repository单元测试
