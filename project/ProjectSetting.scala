@@ -1,6 +1,7 @@
-import sbt.CrossVersion
-import sbt.Keys.{ exportJars, version, _ }
-import sbt.{ Def, Tests, _ }
+import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
+import sbt.Keys._
+import sbt.{ CrossVersion, Def, _ }
+
 /**
  * @author 梦境迷离
  * @version 1.0,2022/1/11
@@ -62,7 +63,8 @@ object ProjectSetting {
     Test / parallelExecution := false, //see https://www.scalatest.org/user_guide/async_testing
     Global / cancelable := true,
     // OneJar
-    exportJars := true
+    exportJars := true,
+    scalafmtOnCompile := true
   )
 
   val noPublish: Seq[Def.Setting[_]] = Seq(

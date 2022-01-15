@@ -36,6 +36,7 @@ lazy val configurationNoPublish: Project => Project =
   _.settings(Information.value)
     .settings(ProjectSetting.value)
     .settings(ProjectSetting.noPublish)
+    .settings(commands ++= Commands.value)
 
 lazy val zim = (project in file("."))
   .aggregate(`zim-server`, `zim-domain`)
@@ -45,16 +46,10 @@ lazy val `zim-server` = (project in file("modules/zim-server"))
   .settings(BuildInfoSettings.value)
   .settings(libraryDependencies ++= Dependencies.serverDeps)
   .configure(configurationNoPublish)
-  .enablePlugins(GitVersioning, BuildInfoPlugin)
+  .enablePlugins(GitVersioning, BuildInfoPlugin, ScalafmtPlugin)
   .dependsOn(`zim-domain`)
 
 lazy val `zim-domain` = (project in file("modules/zim-domain"))
   .settings(libraryDependencies ++= Dependencies.domainDeps)
   .configure(configurationPublish)
-
-// Aliases
-addCommandAlias("rel", "reload")
-addCommandAlias("com", "all compile test:compile it:compile")
-addCommandAlias("fmt", "all scalafmtSbt scalafmtAll")
-
-(Compile / compile) := ((Compile / compile) dependsOn scalafmtAll).value
+  .enablePlugins(ScalafmtPlugin)
