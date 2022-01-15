@@ -1,13 +1,13 @@
 package org.bitlap.zim.configuration
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{ Config, ConfigFactory }
 import zio._
+import zio.clock.Clock
 import zio.logging.Logging
-import zio.redis.{ RedisConfig, RedisExecutor }
+import zio.random.Random
 import zio.redis.codec.StringUtf8Codec
+import zio.redis.{ RedisConfig, RedisError, RedisExecutor }
 import zio.schema.codec.Codec
-import zio.redis.RedisError
-import com.typesafe.config.Config
 
 /**
  * redis配置
@@ -26,8 +26,12 @@ object RedisCacheConfiguration {
     if (conf.isEmpty) RedisConfig.Default
     else RedisConfig(conf.getString("redis.host"), conf.getInt("redis.port"))
 
-  private lazy val codec = ZLayer.succeed[Codec](StringUtf8Codec)
+  private lazy val codec: ULayer[Has[Codec]] = ZLayer.succeed[Codec](StringUtf8Codec)
 
-  val live: ZLayer[Any, RedisError.IOError, RedisExecutor] = (Logging.ignore ++ ZLayer.succeed(redisConf)
-    ++ codec) >>> RedisExecutor.live
+  // local redis layer
+  val live: Layer[RedisError.IOError, RedisExecutor] = (Logging.ignore ++ ZLayer.succeed(redisConf)
+    ++ codec) >>> RedisExecutor.local
+
+  // test redis layer
+  val testLive: ULayer[RedisExecutor] = (Clock.live ++ Random.live) >>> RedisExecutor.test
 }

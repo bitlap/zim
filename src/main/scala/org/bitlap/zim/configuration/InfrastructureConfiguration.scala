@@ -1,6 +1,5 @@
 package org.bitlap.zim.configuration
 
-import org.bitlap.zim.application.MailService
 import org.bitlap.zim.configuration.properties.{
   MailConfigurationProperties,
   MysqlConfigurationProperties,
@@ -51,10 +50,6 @@ final class InfrastructureConfiguration {
 
   lazy val mysqlConfigurationProperties: MysqlConfigurationProperties = MysqlConfigurationProperties()
 
-  lazy val zimConfigurationProperties: ZimConfigurationProperties = ZimConfigurationProperties()
-
-  lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties()
-
   lazy val userRepository: UserRepository[User] = TangibleUserRepository(mysqlConfigurationProperties.databaseName)
 
   lazy val groupRepository: GroupRepository[GroupList] = TangibleGroupRepository(
@@ -78,14 +73,10 @@ final class InfrastructureConfiguration {
   lazy val addMessageRepository: AddMessageRepository[AddMessage] = TangibleAddMessageRepository(
     mysqlConfigurationProperties.databaseName
   )
-
-  lazy val mailService: MailService = MailService(mailConfigurationProperties)
-
 }
 
 /**
  * 基础设施依赖管理
- * 目前只有MySQL
  */
 object InfrastructureConfiguration {
 
@@ -93,15 +84,17 @@ object InfrastructureConfiguration {
 
   type ZInfrastructureConfiguration = Has[InfrastructureConfiguration]
 
+  // ==================================系统配置============================================
   val mysqlConfigurationProperties: URIO[ZInfrastructureConfiguration, MysqlConfigurationProperties] =
     ZIO.access(_.get.mysqlConfigurationProperties)
 
-  val zimConfigurationProperties: URIO[ZInfrastructureConfiguration, ZimConfigurationProperties] =
-    ZIO.access(_.get.zimConfigurationProperties)
+  val zimConfigurationProperties: UIO[ZimConfigurationProperties] =
+    ZimConfigurationProperties.make
 
-  val mailConfigurationProperties: URIO[ZInfrastructureConfiguration, MailConfigurationProperties] =
-    ZIO.access(_.get.mailConfigurationProperties)
+  val mailConfigurationProperties: UIO[MailConfigurationProperties] =
+    MailConfigurationProperties.make
 
+  // ==================================数据库============================================
   val userRepository: URIO[ZInfrastructureConfiguration, UserRepository[User]] =
     ZIO.access(_.get.userRepository)
 

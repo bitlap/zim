@@ -47,7 +47,7 @@ object AddMessage extends SQLSyntaxSupport[AddMessage] {
     rs.string("remark"),
     rs.int("agree"),
     rs.int("type"),
-    rs.zonedDateTime("create_date")
+    rs.zonedDateTime("time")
   )
 
   def apply(id: Int, agree: Int): AddMessage =
@@ -68,7 +68,7 @@ object AddMessage extends SQLSyntaxSupport[AddMessage] {
     groupId: Int,
     remark: String,
     `type`: Int,
-    time: ZonedDateTime
+    time: ZonedDateTime = ZonedDateTime.now()
   ): AddMessage =
     AddMessage(0, fromUid, toUid, groupId, remark, 0, `type`, time)
 }

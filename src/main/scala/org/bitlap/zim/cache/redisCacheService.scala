@@ -1,9 +1,8 @@
 package org.bitlap.zim.cache
 
 import org.bitlap.zim.configuration.ZimServiceConfiguration
-import zio.redis.RedisExecutor
-import zio.{ redis, Chunk, Has, IO, ZIO, ZLayer }
-import zio.redis.RedisError
+import zio.redis.{ RedisError, RedisExecutor }
+import zio.{ redis, Chunk, Has, IO, URLayer, ZIO, ZLayer }
 
 /**
  * Redis缓存服务
@@ -26,7 +25,7 @@ object redisCacheService extends ZimServiceConfiguration {
        * @param k
        * @return Chunk[String]
        */
-      def getSets(k: String): IO[Nothing, Chunk[String]]
+      def getSets(k: String): IO[RedisError, Chunk[String]]
 
       /**
        * 移除Set集合中的value
@@ -35,7 +34,7 @@ object redisCacheService extends ZimServiceConfiguration {
        * @param v
        * @return Long
        */
-      def removeSetValue(k: String, v: String): IO[Nothing, Long]
+      def removeSetValue(k: String, v: String): IO[RedisError, Long]
 
       /**
        * 保存到Set集合中
@@ -44,31 +43,31 @@ object redisCacheService extends ZimServiceConfiguration {
        * @param v
        * @return Long
        */
-      def setSet(k: String, v: String): IO[Nothing, Long]
+      def setSet(k: String, v: String): IO[RedisError, Long]
     }
 
-    lazy val live: ZLayer[RedisExecutor, Nothing, ZRedisCacheService] =
+    lazy val live: URLayer[RedisExecutor, ZRedisCacheService] =
       ZLayer.fromFunction { env =>
         new Service {
-          override def getSets(k: String): IO[Nothing, Chunk[String]] =
+          override def getSets(k: String): IO[RedisError, Chunk[String]] =
             redis.sMembers(k).returning[String].orDie.provide(env)
 
-          override def removeSetValue(k: String, v: String): IO[Nothing, Long] =
+          override def removeSetValue(k: String, v: String): IO[RedisError, Long] =
             redis.sRem(k, v).orDie.provide(env)
 
-          override def setSet(k: String, v: String): IO[Nothing, Long] =
+          override def setSet(k: String, v: String): IO[RedisError, Long] =
             redis.sAdd(k, v).orDie.provide(env)
         }
       }
   }
 
   // 非最佳实践，为了使用unsafeRun，不能把environment传递到最外层，这里直接provideLayer
-  def getSets(k: String): ZIO[Any, RedisError, Chunk[String]] =
+  def getSets(k: String): IO[RedisError, Chunk[String]] =
     ZIO.serviceWith[RedisCacheService.Service](_.getSets(k)).provideLayer(redisLayer)
 
-  def removeSetValue(k: String, v: String): ZIO[Any, RedisError, Long] =
+  def removeSetValue(k: String, v: String): IO[RedisError, Long] =
     ZIO.serviceWith[RedisCacheService.Service](_.removeSetValue(k, v)).provideLayer(redisLayer)
 
-  def setSet(k: String, v: String): ZIO[Any, RedisError, Long] =
+  def setSet(k: String, v: String): IO[RedisError, Long] =
     ZIO.serviceWith[RedisCacheService.Service](_.setSet(k, v)).provideLayer(redisLayer)
 }

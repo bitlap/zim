@@ -41,7 +41,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
     User(
       1,
       "zhangsan",
-      "",
+      "123456",
       null,
       "/static/image/avatar/avatar(3).jpg",
       "dreamylost@outlook.com",
@@ -68,7 +68,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
     cid = 0,
     mine = false,
     fromid = 2,
-    timestamp = 0L,
+    timestamp = 10086L,
     status = 0
   )
 

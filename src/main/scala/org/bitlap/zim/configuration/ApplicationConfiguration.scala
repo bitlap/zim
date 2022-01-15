@@ -3,6 +3,7 @@ package org.bitlap.zim.configuration
 import org.bitlap.zim.application.{ ApiApplication, ApiService, UserApplication, UserService }
 import org.bitlap.zim.configuration.InfrastructureConfiguration.ZInfrastructureConfiguration
 import zio._
+import zio.URIO
 
 /**
  * 应用程序配置
@@ -21,9 +22,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
     infrastructureConfiguration.friendGroupRepository,
     infrastructureConfiguration.friendGroupFriendRepository,
     infrastructureConfiguration.groupMemberRepository,
-    infrastructureConfiguration.addMessageRepository,
-    infrastructureConfiguration.mailService, //TODO use zio managed?
-    infrastructureConfiguration.zimConfigurationProperties
+    infrastructureConfiguration.addMessageRepository
   )
 
   val apiApplication: ApiApplication = ApiService(userApplication)
@@ -46,7 +45,7 @@ object ApplicationConfiguration {
   val apiApplication: URIO[ZApplicationConfiguration, ApiApplication] =
     ZIO.access(_.get.apiApplication)
 
-  val live: ZLayer[ZInfrastructureConfiguration, Nothing, ZApplicationConfiguration] =
+  val live: URLayer[ZInfrastructureConfiguration, ZApplicationConfiguration] =
     ZLayer.fromService[InfrastructureConfiguration, ApplicationConfiguration](ApplicationConfiguration(_))
 
   def make(infrastructureConfiguration: InfrastructureConfiguration): ULayer[ZApplicationConfiguration] =

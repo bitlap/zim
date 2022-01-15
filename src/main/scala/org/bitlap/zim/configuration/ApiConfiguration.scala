@@ -35,14 +35,14 @@ object ApiConfiguration {
 
   type ZApiConfiguration = Has[ApiConfiguration]
 
-  val routes: ZIO[ZApiConfiguration, Nothing, Route] =
+  val routes: URIO[ZApiConfiguration, Route] =
     for {
       userRoute <- ZIO.access[ZApiConfiguration](_.get.zimUserApi.route)
       actuatorRoute <- ZIO.access[ZApiConfiguration](_.get.zimActuatorApi.route)
       openRoute <- ZIO.access[ZApiConfiguration](_.get.zimOpenApi.route)
     } yield openRoute ~ actuatorRoute ~ userRoute
 
-  val live: ZLayer[ZApplicationConfiguration with ZMaterializer, Throwable, ZApiConfiguration] =
+  val live: RLayer[ZApplicationConfiguration with ZMaterializer, ZApiConfiguration] =
     ZLayer.fromServices[ApplicationConfiguration, Materializer, ApiConfiguration](ApiConfiguration(_, _))
 
   def make(

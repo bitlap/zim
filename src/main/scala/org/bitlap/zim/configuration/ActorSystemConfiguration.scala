@@ -18,13 +18,13 @@ object ActorSystemConfiguration {
   /**
    * 构造actorSystem对象，先使用classic actor
    */
-  private lazy val actorSystem: ZIO[ZInfrastructureConfiguration, Throwable, ActorSystem] = {
+  private lazy val actorSystem: RIO[ZInfrastructureConfiguration, ActorSystem] = {
     for {
       actorSystem <- Task(ActorSystem("ActorSystem"))
     } yield actorSystem
   }
 
-  val live: ZLayer[ZInfrastructureConfiguration, Throwable, ZActorSystemConfiguration] = ZLayer
+  val live: RLayer[ZInfrastructureConfiguration, ZActorSystemConfiguration] = ZLayer
     .fromAcquireRelease(actorSystem)(actorSystem => UIO.succeed(actorSystem.terminate()).ignore)
 
 }

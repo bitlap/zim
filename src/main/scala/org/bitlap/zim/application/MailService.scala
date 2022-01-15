@@ -8,6 +8,9 @@ import org.simplejavamail.config.ConfigLoader
 import org.simplejavamail.email.EmailBuilder
 import org.simplejavamail.mailer.MailerBuilder
 import zio.{ Has, UIO, ZIO, ZLayer }
+import zio.URIO
+import zio.ULayer
+import zio.URLayer
 
 /**
  * 邮件发送服务
@@ -25,7 +28,7 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
     .withConnectionPoolCoreSize(mailConfigurationProperties.connectionPoolCoreSize)
     .buildMailer()
 
-  def sendHtmlMail(to: String, subject: String, content: String): ZIO[Any, Throwable, Any] = {
+  def sendHtmlMail(to: String, subject: String, content: String): UIO[Any] = {
     val email = EmailBuilder
       .startingBlank()
       .from(mailConfigurationProperties.sender)
@@ -35,9 +38,7 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
       .buildEmail()
     ZIO
       .fromFuture(make => mailer.sendMail(email).getFuture.asScala()(make))
-      .onError { _ =>
-        UIO.none
-      }
+      .catchAllCause(_ => ZIO.unit) // 捕获所有异常
   }
 }
 
@@ -49,10 +50,12 @@ object MailService {
     mailConfigurationProperties
   )
 
-  def sendHtmlMail(to: String, subject: String, content: String): ZIO[ZMailService, Throwable, Any] =
+  def sendHtmlMail(to: String, subject: String, content: String): URIO[ZMailService, Any] =
     ZIO.access(_.get.sendHtmlMail(to, subject, content))
 
-  val live: ZLayer[ZMailConfigurationProperties, Nothing, ZMailService] =
+  val live: URLayer[ZMailConfigurationProperties, ZMailService] =
     ZLayer.fromService[MailConfigurationProperties, MailService](MailService(_))
 
+  def make(mailConfigurationProperties: MailConfigurationProperties): ULayer[ZMailService] =
+    ZLayer.succeed(mailConfigurationProperties) >>> MailService.live
 }

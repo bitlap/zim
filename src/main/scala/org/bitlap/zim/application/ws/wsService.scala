@@ -86,7 +86,7 @@ object wsService extends ZimServiceConfiguration {
             }
 
           override def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): Task[Unit] =
-            ???
+            Task.succeed(())
 
           override def removeFriend(uId: Int, friendId: Int): Task[Unit] = ???
 

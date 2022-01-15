@@ -80,7 +80,7 @@ CREATE TABLE `t_message` (
   `timestamp` bigint(25) NOT NULL COMMENT '服务器动态时间',
   `status` tinyint(2) NOT NULL DEFAULT '0' COMMENT '是否已读',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=444 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 
 -- ----------------------------
@@ -99,4 +99,4 @@ CREATE TABLE `t_user` (
   `status` varchar(16) NOT NULL DEFAULT 'nonactivated' COMMENT '是否激活',
   `create_date` date NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
