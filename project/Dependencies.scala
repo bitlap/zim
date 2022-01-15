@@ -28,7 +28,6 @@ object Dependencies {
 
   lazy val zioDeps = Seq(
     "dev.zio" %% "zio" % Version.zio,
-    "dev.zio" %% "zio-streams" % Version.zio,
     "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`,
     "dev.zio" %% "zio-logging" % Version.`zio-logging`,
     "dev.zio" %% "zio-test" % Version.zio % Test,
@@ -50,7 +49,6 @@ object Dependencies {
 
   lazy val akkaDeps = Seq(
     "com.typesafe.akka" %% "akka-http" % Version.`akka-http`,
-    "com.typesafe.akka" %% "akka-actor" % Version.akka,
     "com.typesafe.akka" %% "akka-stream" % Version.akka,
     "com.typesafe.akka" %% "akka-slf4j" % Version.akka
   )
@@ -61,10 +59,8 @@ object Dependencies {
     "io.circe" %% "circe-parser" % Version.circe
   )
 
-  lazy val commonDeps = Seq(
-    "org.scalikejdbc" %% "scalikejdbc" % Version.scalikejdbc,
+  lazy val otherDeps = Seq(
     "org.scalikejdbc" %% "scalikejdbc-streams" % Version.scalikejdbc,
-    "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc,
     "com.typesafe" % "config" % Version.config,
     "ch.qos.logback" % "logback-classic" % Version.logback,
     "mysql" % "mysql-connector-java" % Version.mysql,
@@ -72,4 +68,14 @@ object Dependencies {
     "com.h2database" % "h2" % Version.h2 % Test,
     "org.scalatest" %% "scalatest" % Version.scalaTest % Test
   )
+
+  lazy val serverDeps: Seq[ModuleID] =  zioDeps ++ akkaDeps ++ otherDeps ++ circeDeps ++ tapirDeps ++ domainDeps
+
+  // 基础依赖 domain使用
+  lazy val domainDeps: Seq[ModuleID] = Seq(
+    "org.scalikejdbc" %% "scalikejdbc" % Version.scalikejdbc,
+    "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc,
+    "dev.zio" %% "zio-streams" % Version.zio,
+    "com.typesafe.akka" %% "akka-actor" % Version.akka,
+  ) ++ circeDeps
 }
