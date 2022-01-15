@@ -1,6 +1,3 @@
-import Dependencies._
-import ProjectSetting._
-
 Global / onLoad := {
   val GREEN = "\u001b[32m"
   val RESET = "\u001b[0m"
@@ -23,28 +20,37 @@ Global / onLoad := {
   (Global / onLoad).value
 }
 
-resolvers ++= Seq(
+ThisBuild / resolvers  ++= Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("public"),
   Resolver.sonatypeRepo("snapshots"),
   Resolver.typesafeIvyRepo("releases")
 )
 
-lazy val root = (project in file("."))
+lazy val configurationPublish: Project => Project =
+  _.settings(Information.value)
+    .settings(ProjectSetting.value)
+    .settings(crossScalaVersions := ProjectSetting.supportedScalaVersions)
+
+lazy val configurationNoPublish: Project => Project =
+  _.settings(Information.value)
+    .settings(ProjectSetting.value)
+    .settings(ProjectSetting.noPublish)
+
+lazy val zim = (project in file("."))
+  .aggregate(`zim-server`, `zim-domain`)
+  .configure(configurationNoPublish)
+
+lazy val `zim-server` = (project in file("modules/zim-server"))
   .settings(BuildInfoSettings.value)
-  .settings(
-    organization := "org.bitlap",
-    name := "zim",
-    crossScalaVersions := List(scala212, scala213),
-    version := (ThisBuild / version).value,
-    scalaVersion := scala213,
-    scalacOptions := (stdOptions ++ extraOptions(scalaVersion.value, !isSnapshot.value)),
-    libraryDependencies ++= zioDeps ++ tapirDeps ++ commonDeps ++ akkaDeps ++ circeDeps,
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"), TestFrameworks.ScalaTest),
-    autoAPIMappings := true,
-    Test / parallelExecution := false //see https://www.scalatest.org/user_guide/async_testing
-  )
+  .settings(libraryDependencies ++= Dependencies.serverDeps)
+  .configure(configurationNoPublish)
   .enablePlugins(GitVersioning, BuildInfoPlugin)
+  .dependsOn(`zim-domain`)
+
+lazy val `zim-domain` = (project in file("modules/zim-domain"))
+  .settings(libraryDependencies ++= Dependencies.domainDeps)
+  .configure(configurationPublish)
 
 // Aliases
 addCommandAlias("rel", "reload")
