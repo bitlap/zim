@@ -2,8 +2,15 @@ package org.bitlap.zim.application
 
 import org.bitlap.zim.application.ws.wsService
 import org.bitlap.zim.configuration.{ InfrastructureConfiguration, SystemConstant }
-import org.bitlap.zim.domain.{ AddInfo, ChatHistory, FriendList }
 import org.bitlap.zim.domain.model.{ AddFriend, AddMessage, FriendGroup, GroupList, GroupMember, Receive, User }
+import org.bitlap.zim.domain.{ AddInfo, ChatHistory, FriendList }
+import org.bitlap.zim.repository.TangibleAddMessageRepository.ZAddMessageRepository
+import org.bitlap.zim.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
+import org.bitlap.zim.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
+import org.bitlap.zim.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
+import org.bitlap.zim.repository.TangibleGroupRepository.ZGroupRepository
+import org.bitlap.zim.repository.TangibleReceiveRepository.ZReceiveRepository
+import org.bitlap.zim.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.repository.{
   AddMessageRepository,
   FriendGroupFriendRepository,
@@ -13,21 +20,12 @@ import org.bitlap.zim.repository.{
   ReceiveRepository,
   UserRepository
 }
-import org.bitlap.zim.repository.TangibleAddMessageRepository.ZAddMessageRepository
-import org.bitlap.zim.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
-import org.bitlap.zim.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
-import org.bitlap.zim.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
-import org.bitlap.zim.repository.TangibleGroupRepository.ZGroupRepository
-import org.bitlap.zim.repository.TangibleReceiveRepository.ZReceiveRepository
-import org.bitlap.zim.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.util.{ SecurityUtil, UuidUtil }
-import zio.{ stream, Has, ZIO, ZLayer }
 import zio.crypto.hash.{ Hash, MessageDigest }
 import zio.stream.ZStream
+import zio.{ stream, Has, URLayer, ZLayer }
 
 import java.time.ZonedDateTime
-import scala.collection.mutable.ListBuffer
-import zio.URLayer
 
 /**
  * 用户服务
@@ -52,13 +50,13 @@ private final class UserService(
   override def leaveOutGroup(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
     for {
       group <- groupRepository.findGroupById(gid)
-      master <- findUserById(group.createId)
       ret <-
         if (group == null) ZStream.succeed(false)
         else {
           if (group.createId.equals(uid)) groupRepository.deleteGroup(gid).map(_ == 1)
           else groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)).map(_ == 1)
         }
+      master <- findUserById(group.createId)
       _ <-
         if (ret && group.createId.equals(uid)) {
           groupMemberRepository.findGroupMembers(gid).flatMap { uid =>
@@ -116,8 +114,7 @@ private final class UserService(
     val to = AddFriend(tid, tgid)
     friendGroupFriendRepository
       .addFriend(from, to)
-      .flatMap(c => if (c == 1) updateAddMessage(messageBoxId, 1) else ZStream.succeed(false))
-      .onError(_ => ZIO.succeed(false))
+      .flatMap(c => if (c > 0) updateAddMessage(messageBoxId, 1) else ZStream.succeed(false))
   }
 
   override def createFriendGroup(groupname: String, uid: Int): stream.Stream[Throwable, Int] =
@@ -132,7 +129,6 @@ private final class UserService(
   override def findAddInfo(uid: Int): stream.Stream[Throwable, AddInfo] =
     for {
       addMessage <- addMessageRepository.findAddInfo(uid)
-      group <- groupRepository.findGroupById(addMessage.groupId)
       user <- findUserById(addMessage.fromUid)
       addInfo = AddInfo(
         addMessage.id,
@@ -147,11 +143,13 @@ private final class UserService(
         addMessage.time,
         user
       )
-      addInfoCopy =
+      addInfoCopy <-
         if (addMessage.`type` == 0) {
-          addInfo.copy(content = "申请添加你为好友")
+          ZStream.succeed(addInfo.copy(content = "申请添加你为好友"))
         } else {
-          if (group != null) addInfo.copy(content = s"申请加入 '${group.groupname}' 群聊中!") else addInfo
+          groupRepository.findGroupById(addMessage.groupId).map { group =>
+            addInfo.copy(content = s"申请加入 '${group.groupname}' 群聊中!")
+          }
         }
     } yield addInfoCopy
 
@@ -268,16 +266,10 @@ private final class UserService(
     val groupListStream = friendGroupRepository.findFriendGroupsById(uid).map { friendGroup =>
       FriendList(id = friendGroup.id, groupname = friendGroup.groupname, Nil)
     }
-    val gids = groupListStream.map(_.id).map { id =>
-      val userStream = userRepository.findUsersByFriendGroupIds(id)
-      val list = ListBuffer[User]()
-      userStream.foreach(u => ZIO.succeed(list.append(u)))
-      list.toList
-    }
     for {
       groupList <- groupListStream
-      users <- gids
-    } yield groupList.copy(list = users)
+      users <- ZStream.fromEffect(userRepository.findUsersByFriendGroupIds(groupList.id).runCollect)
+    } yield groupList.copy(list = users.toList)
   }
 
   override def findUserById(id: Int): stream.Stream[Throwable, User] =

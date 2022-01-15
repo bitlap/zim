@@ -68,7 +68,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
     cid = 0,
     mine = false,
     fromid = 2,
-    timestamp = 0L,
+    timestamp = 10086L,
     status = 0
   )
 
