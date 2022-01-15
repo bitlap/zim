@@ -20,7 +20,7 @@ Global / onLoad := {
   (Global / onLoad).value
 }
 
-resolvers ++= Seq(
+ThisBuild / resolvers  ++= Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("public"),
   Resolver.sonatypeRepo("snapshots"),
