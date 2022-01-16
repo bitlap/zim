@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/bitlap/zim/branch/master/graph/badge.svg?token=V95ZMWUUCE)](https://codecov.io/gh/bitlap/zim)
 
 
-`zim` is a functional-style, asynchronous and streaming IM based on scala, zio, tapir, akka-http, circle, scalikejdbc and redis.
+`zim` is a functional-style, asynchronous and streaming IM based on scala, zio, tapir, akka-http, circe, scalikejdbc and redis.
 
 > If you are interested, you can pay attention to it and develop it together.
 
@@ -17,7 +17,7 @@
 
 ## Where to start
 
-- doc API: `http://localhost:9000/api/v1.0/docs`
+- swagger-ui doc API: `http://localhost:9000/api/v1.0/docs`
 - heartbeat API: `http://localhost:9000/api/v1.0/health`
 
 ## Technology stack
@@ -35,59 +35,6 @@
 - Mail：simple-java-mail
 - Conf：config
 - Build：sbt
-
-## Project structure
-
-```
-zim-master
-├─ .github
-│    └─ workflows   
-│           └─ ScalaCI.yml                      -- GitHub action
-│           └─ auto-approve.yml
-│           └─ autoupdate.yml             
-├─ .gitignore
-├─ .jvmopts
-├─ .mergify.yml                                
-├─ prepare.sh                                  
-├─ .scalafmt.conf                              
-├─ LICENSE
-├─ README.md
-├─ build.sbt                                   
-├─ project
-│    ├─ BuildInfoSettings.scala                 -- It is used to generate the configuration of project global information during compilation
-│    ├─ Dependencies.scala                       
-│    ├─ build.properties                        
-│    └─ plugins.sbt                             
-└─ src
-       └─ main
-          ├─ resources
-          │    ├─ application.conf.example      -- Database and service configuration templates
-          │    └─ logback.xml                   
-          └─ scala
-             └─ org
-                └─ bitlap
-                   └─ zim
-                      ├─ ZimServer.scala        -- The entry point to the program
-                      ├─ api                    -- API base on tapir
-                      ├─ application            -- Service
-                      ├─ configuration        
-                      ├─ domain                 
-                         └─ model               -- Table model
-                      └─ repository             -- Scalikejdbc
-                      └─ util                   
-       └─ test
-          ├─ resources
-          │    ├─ application.conf                      
-          │    └─ logback-test.xml                      
-          └─ scala
-             └─ org
-                └─ bitlap
-                   └─ zim
-                      ├─ RandomData.scala                -- Code for creating user table data
-                      ├─ BaseData.scala                  -- Common parent class for unit test
-                      ├─ infrastructure.repository       -- Repository unit test
-                                          
-```
 
 ## Project organization structure
 
