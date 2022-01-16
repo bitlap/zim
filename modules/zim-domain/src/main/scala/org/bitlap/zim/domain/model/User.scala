@@ -34,7 +34,7 @@ final case class User(
   active: String
 )
 
-object User extends SQLSyntaxSupport[User] {
+object User extends BaseModel[User] {
 
   // for dsl query
   // see https://groups.google.com/g/scalikejdbc-users-group/c/h2bUE7xgS5o
@@ -45,6 +45,8 @@ object User extends SQLSyntaxSupport[User] {
   // 由于经过了中间处理，需要显示调用解码器
   implicit val decoder: Decoder[User] = deriveDecoder[User]
   implicit val encoder: Encoder[User] = deriveEncoder[User]
+
+  override def extract(rs: WrappedResultSet)(implicit sp: SyntaxProvider[User]): User = autoConstruct(rs, sp)
 
   def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[User]): User = autoConstruct(rs, sp)
 

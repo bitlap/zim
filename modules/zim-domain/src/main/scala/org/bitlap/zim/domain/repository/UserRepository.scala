@@ -1,5 +1,6 @@
 package org.bitlap.zim.domain.repository
 
+import org.bitlap.zim.domain.model.User
 import zio.stream
 
 /**
@@ -9,27 +10,27 @@ import zio.stream
  * @since 2021/12/25
  * @version 1.0
  */
-trait UserRepository[T] extends BaseRepository[T] {
+trait UserRepository extends BaseRepository[User] {
 
   def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int]
 
-  def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, T]
+  def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, User]
 
   def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int]
 
   def updateSign(sign: String, uid: Int): stream.Stream[Throwable, Int]
 
-  def updateUserInfo(id: Int, user: T): stream.Stream[Throwable, Int]
+  def updateUserInfo(id: Int, user: User): stream.Stream[Throwable, Int]
 
   def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Int]
 
   def activeUser(activeCode: String): stream.Stream[Throwable, Int]
 
-  def findUserByGroupId(gid: Int): stream.Stream[Throwable, T]
+  def findUserByGroupId(gid: Int): stream.Stream[Throwable, User]
 
-  def findUsersByFriendGroupIds(fgid: Int): stream.Stream[Throwable, T]
+  def findUsersByFriendGroupIds(fgid: Int): stream.Stream[Throwable, User]
 
-  def saveUser(user: T): stream.Stream[Throwable, Long]
+  def saveUser(user: User): stream.Stream[Throwable, Long]
 
-  def matchUser(email: String): stream.Stream[Throwable, T]
+  def matchUser(email: String): stream.Stream[Throwable, User]
 }

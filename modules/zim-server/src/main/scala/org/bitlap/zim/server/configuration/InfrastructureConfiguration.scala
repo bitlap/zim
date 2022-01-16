@@ -53,7 +53,7 @@ final class InfrastructureConfiguration {
 
   lazy val mysqlConfigurationProperties: MysqlConfigurationProperties = MysqlConfigurationProperties()
 
-  lazy val userRepository: UserRepository[User] = TangibleUserRepository(mysqlConfigurationProperties.databaseName)
+  lazy val userRepository: UserRepository = TangibleUserRepository(mysqlConfigurationProperties.databaseName)
 
   lazy val groupRepository: GroupRepository[GroupList] = TangibleGroupRepository(
     mysqlConfigurationProperties.databaseName
@@ -98,7 +98,7 @@ object InfrastructureConfiguration {
     MailConfigurationProperties.make
 
   // ==================================数据库============================================
-  val userRepository: URIO[ZInfrastructureConfiguration, UserRepository[User]] =
+  val userRepository: URIO[ZInfrastructureConfiguration, UserRepository] =
     ZIO.access(_.get.userRepository)
 
   val groupRepository: URIO[ZInfrastructureConfiguration, GroupRepository[GroupList]] =

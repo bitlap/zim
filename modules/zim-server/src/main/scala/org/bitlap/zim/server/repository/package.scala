@@ -85,9 +85,6 @@ package object repository {
     model.AddMessage.syntax("am")
 
   //==============================测试SQL========================================
-  private[repository] def queryFindUserById(id: Long): SQL[User, HasExtractor] =
-    sql"SELECT ${u.result.*} FROM ${User as u} WHERE id = ${id}".list().map(User(_))
-
   private[repository] def queryFindGroupById(table: TableDefSQLSyntax, id: Long): SQL[GroupList, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => GroupList(rs))
   private[repository] def queryFindReceiveById(table: TableDefSQLSyntax, id: Long): SQL[Receive, HasExtractor] =
