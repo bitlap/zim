@@ -11,20 +11,23 @@ import zio._
  * @since 2021/12/25
  * @version 1.0
  */
-object ActorSystemConfiguration {
+object AkkaActorSystemConfiguration {
 
-  type ZActorSystemConfiguration = Has[ActorSystem]
+  type ZAkkaActorSystemConfiguration = Has[ActorSystem]
 
   /**
    * 构造actorSystem对象，先使用classic actor
    */
   private lazy val actorSystem: RIO[ZInfrastructureConfiguration, ActorSystem] = {
     for {
-      actorSystem <- Task(ActorSystem("ActorSystem"))
+      actorSystem <- Task(ActorSystem("akkaActorSystem"))
     } yield actorSystem
   }
 
-  val live: RLayer[ZInfrastructureConfiguration, ZActorSystemConfiguration] = ZLayer
+  val live: RLayer[ZInfrastructureConfiguration, ZAkkaActorSystemConfiguration] = ZLayer
     .fromAcquireRelease(actorSystem)(actorSystem => UIO.succeed(actorSystem.terminate()).ignore)
+
+  def make: ZIO[Any, Throwable, ActorSystem] =
+    AkkaActorSystemConfiguration.actorSystem.provideLayer(InfrastructureConfiguration.live)
 
 }

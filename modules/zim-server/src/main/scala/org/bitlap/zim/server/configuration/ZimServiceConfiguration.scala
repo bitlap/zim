@@ -2,12 +2,13 @@ package org.bitlap.zim.server.configuration
 
 import org.bitlap.zim.server.application.ws.wsService.{ WsService, ZWsService }
 import org.bitlap.zim.server.cache.redisCacheService.{ RedisCacheService, ZRedisCacheService }
-import org.bitlap.zim.server.configuration.ActorSystemConfiguration.ZActorSystemConfiguration
+import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
 import org.bitlap.zim.server.configuration.AkkaHttpConfiguration.{ ZAkkaHttpConfiguration, ZMaterializer }
 import org.bitlap.zim.server.configuration.ApiConfiguration.ZApiConfiguration
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import zio.redis.RedisError
 import zio.{ Layer, TaskLayer, ULayer }
+import org.bitlap.zim.server.configuration.ZioActorSystemConfiguration.ZZioActorSystemConfiguration
 
 /**
  * 全局的服务依赖管理
@@ -18,15 +19,15 @@ import zio.{ Layer, TaskLayer, ULayer }
  */
 trait ZimServiceConfiguration {
 
-  private lazy val akkaSystemLayer: TaskLayer[ZActorSystemConfiguration] =
+  private lazy val akkaActorSystemLayer: TaskLayer[ZAkkaActorSystemConfiguration] =
     InfrastructureConfiguration.live >>>
-      ActorSystemConfiguration.live
+      AkkaActorSystemConfiguration.live
 
   private lazy val akkaHttpConfigurationLayer: TaskLayer[ZAkkaHttpConfiguration] =
-    akkaSystemLayer >>> AkkaHttpConfiguration.live
+    akkaActorSystemLayer >>> AkkaHttpConfiguration.live
 
   private lazy val materializerLayer: TaskLayer[ZMaterializer] =
-    akkaSystemLayer >>>
+    akkaActorSystemLayer >>>
       AkkaHttpConfiguration.materializerLive
 
   protected lazy val applicationConfigurationLayer: ULayer[ZApplicationConfiguration] =
@@ -39,8 +40,8 @@ trait ZimServiceConfiguration {
       materializerLayer) >>>
       ApiConfiguration.live
 
-  val ZimEnv: TaskLayer[ZApiConfiguration with ZActorSystemConfiguration with ZAkkaHttpConfiguration] =
-    apiConfigurationLayer ++ akkaSystemLayer ++ akkaHttpConfigurationLayer
+  val ZimEnv: TaskLayer[ZApiConfiguration with ZAkkaActorSystemConfiguration with ZAkkaHttpConfiguration] =
+    apiConfigurationLayer ++ akkaActorSystemLayer ++ akkaHttpConfigurationLayer
 
   // 非最佳实践
   protected lazy val redisLayer: Layer[RedisError.IOError, ZRedisCacheService] =
@@ -51,5 +52,8 @@ trait ZimServiceConfiguration {
 
   protected lazy val wsLayer: ULayer[ZWsService] =
     applicationConfigurationLayer >>> WsService.live
+
+  protected lazy val zioActorSystemLayer: TaskLayer[ZZioActorSystemConfiguration] =
+    InfrastructureConfiguration.live >>> ZioActorSystemConfiguration.live
 
 }

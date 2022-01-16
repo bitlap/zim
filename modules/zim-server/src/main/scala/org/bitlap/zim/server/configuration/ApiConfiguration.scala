@@ -3,10 +3,10 @@ package org.bitlap.zim.server.configuration
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
-import org.bitlap.zim.server.api.{ ActuatorApi, OpenApi, ZimUserApi }
+import org.bitlap.zim.server.api.{ ActuatorApi, OpenApi, WsApi, ZimUserApi }
+import org.bitlap.zim.server.configuration.AkkaHttpConfiguration.ZMaterializer
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import zio._
-import org.bitlap.zim.server.configuration.AkkaHttpConfiguration.ZMaterializer
 
 /**
  * API配置
@@ -22,6 +22,8 @@ final class ApiConfiguration(applicationConfiguration: ApplicationConfiguration)
   val zimActuatorApi: ActuatorApi = ActuatorApi()
 
   val zimOpenApi: OpenApi = OpenApi()
+
+  val wsApi: WsApi = WsApi()
 
 }
 
@@ -40,7 +42,8 @@ object ApiConfiguration {
       userRoute <- ZIO.access[ZApiConfiguration](_.get.zimUserApi.route)
       actuatorRoute <- ZIO.access[ZApiConfiguration](_.get.zimActuatorApi.route)
       openRoute <- ZIO.access[ZApiConfiguration](_.get.zimOpenApi.route)
-    } yield openRoute ~ actuatorRoute ~ userRoute
+      wsRoute <- ZIO.access[ZApiConfiguration](_.get.wsApi.route)
+    } yield openRoute ~ actuatorRoute ~ wsRoute ~ userRoute
 
   val live: RLayer[ZApplicationConfiguration with ZMaterializer, ZApiConfiguration] =
     ZLayer.fromServices[ApplicationConfiguration, Materializer, ApiConfiguration](ApiConfiguration(_, _))

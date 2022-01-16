@@ -33,8 +33,6 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
  */
 object ApplicationConfiguration {
 
-  import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
-
   def apply(infrastructureConfiguration: InfrastructureConfiguration): ApplicationConfiguration =
     new ApplicationConfiguration(infrastructureConfiguration)
 
