@@ -11,7 +11,7 @@ abstract class TangibleBaseRepository[T](t: BaseModel[T]) extends BaseRepository
   implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[T], T]
 
   override def findById(id: Long): stream.Stream[Throwable, T] = {
-    sql"SELECT ${sp.result.*} FROM ${t as sp} WHERE id = ${id}".list().map(rs => t.extract(rs))
+    sql"SELECT ${sp.result.*} FROM ${t as sp} WHERE id = ${id}".list().map(rs => t(rs))
       .toSQLOperation
   }
 }

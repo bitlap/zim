@@ -46,21 +46,5 @@ object User extends BaseModel[User] {
   implicit val decoder: Decoder[User] = deriveDecoder[User]
   implicit val encoder: Encoder[User] = deriveEncoder[User]
 
-  override def extract(rs: WrappedResultSet)(implicit sp: SyntaxProvider[User]): User = autoConstruct(rs, sp)
-
   def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[User]): User = autoConstruct(rs, sp)
-
-  def apply(id: Int, status: String): User =
-    User(
-      id = id,
-      username = null,
-      password = null,
-      sign = null,
-      avatar = null,
-      email = null,
-      createDate = null,
-      sex = 0,
-      status = status,
-      active = null
-    )
 }
