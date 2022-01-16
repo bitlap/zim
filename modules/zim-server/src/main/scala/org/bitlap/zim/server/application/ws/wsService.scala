@@ -74,6 +74,8 @@ object wsService extends ZimServiceConfiguration {
 
         new Service {
 
+          import zio.Task
+
           override def sendMessage(message: domain.Message): Task[Unit] =
             message.synchronized {
               //看起来有点怪 是否有必要存在？
@@ -116,7 +118,7 @@ object wsService extends ZimServiceConfiguration {
 
           override def sendMessage(message: String, actorRef: ActorRef): Task[Unit] = ???
 
-          override def changeOnline(uId: Int, status: String): Task[Boolean] = ???
+          override def changeOnline(uId: Int, status: String): Task[Boolean] = Task.succeed(true)
 
           override def readOfflineMessage(message: domain.Message): Task[Unit] =
             message.mine.id.synchronized {
@@ -179,7 +181,7 @@ object wsService extends ZimServiceConfiguration {
     for {
       _ <-
         if (status == SystemConstant.status.ONLINE) {
-          redisCacheService.setSet(SystemConstant.ONLINE_USER, "$uId")
+          redisCacheService.setSet(SystemConstant.ONLINE_USER, s"$uId")
         } else {
           redisCacheService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
         }
@@ -221,7 +223,7 @@ object wsService extends ZimServiceConfiguration {
           OverflowStrategy.fail
         )
         .map(TextMessage.Strict)
-        .toMat(Sink.asPublisher(false))(Keep.both)
+        .toMat(Sink.asPublisher(true))(Keep.both)
         .run()
     for {
       // we use akka-http, it must have akka-actor

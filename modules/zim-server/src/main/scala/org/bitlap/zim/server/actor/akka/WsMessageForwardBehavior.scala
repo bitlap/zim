@@ -20,16 +20,18 @@ object WsMessageForwardBehavior {
   def apply(): Behavior[Command[_]] =
     Behaviors.receiveMessage {
       case tm: TransmitMessageProxy =>
-        val zio = protocol.unStringify(tm.getMessage.`type`) match {
+        val tpe = protocol.unStringify(Option(tm.getMessage).map(_.`type`).getOrElse(protocol.unHandMessage.stringify))
+        val zio = tpe match {
           case protocol.readOfflineMessage => wsService.readOfflineMessage(tm.getMessage)
           case protocol.message            => wsService.sendMessage(tm.getMessage)
           case protocol.checkOnline =>
             wsService.checkOnline(tm.getMessage).flatMap { f =>
               tm.originActorRef.fold(ZIO.effect(()))(a => wsService.sendMessage(f.asJson.noSpaces, a))
             }
-          case protocol.addGroup    => wsService.addGroup(tm.uId, tm.getMessage)
-          case protocol.changOnline => wsService.changeOnline(tm.uId, tm.getMessage.msg)
-          case protocol.addFriend   => wsService.addFriend(tm.uId, tm.getMessage)
+          case protocol.addGroup => wsService.addGroup(tm.uId, tm.getMessage)
+          case protocol.changOnline =>
+            wsService.changeOnline(tm.uId, tm.getMessage.msg)
+          case protocol.addFriend => wsService.addFriend(tm.uId, tm.getMessage)
           case protocol.agreeAddFriend =>
             val actor = wsService.WsService.actorRefSessions.get(tm.getMessage.to.id)
             wsService.sendMessage(tm.msg, actor).unless(actor == null)
