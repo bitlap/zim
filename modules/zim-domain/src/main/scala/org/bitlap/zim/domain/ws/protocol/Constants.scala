@@ -6,7 +6,6 @@ package org.bitlap.zim.domain.ws.protocol
  */
 object Constants {
 
-  final val MESSAGE_HANDLE_ACTOR: String = "messageHandleActor"
   final val SCHEDULE_JOB_ACTOR: String = "scheduleJobActor"
   final val USER_STATUS_CHANGE_ACTOR: String = "userStatusChangeActor"
   final val WS_MESSAGE_FORWARD_ACTOR: String = "wsMessageForwardActor"
