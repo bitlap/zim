@@ -104,43 +104,6 @@ package object repository {
   ): SQL[model.AddMessage, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => model.AddMessage(rs))
   //==============================用户 SQL实现========================================
-  /**
-   * 根据用户名和性别统计用户
-   *
-   * @param username
-   * @param sex
-   * @return 这种stream只有一个元素
-   */
-  private[repository] def _countUser(username: Option[String], sex: Option[Int]): StreamReadySQL[Int] =
-    withSQL {
-      select(count(u.id))
-        .from(User as u)
-        .where(
-          sqls.toAndConditionOpt(
-            username.map(un => sqls.like(u.username, s"%$un%")),
-            sex.map(sex => sqls.eq(u.sex, sex))
-          )
-        )
-    }.toList().map(rs => rs.int(1)).iterator()
-
-  /**
-   * 根据用户名和性别查询用户
-   *
-   * @param username
-   * @param sex
-   * @return
-   */
-  private[repository] def _findUsers(username: Option[String], sex: Option[Int]): StreamReadySQL[User] =
-    withSQL {
-      select
-        .from(User as u)
-        .where(
-          sqls.toAndConditionOpt(
-            username.map(un => sqls.like(u.username, s"%$un%")),
-            sex.map(sex => sqls.eq(u.sex, sex))
-          )
-        )
-    }.map(rs => User(rs)).list().iterator()
 
   /**
    * 更新用户头像
@@ -231,18 +194,6 @@ package object repository {
   private[repository] def _saveUser(table: TableDefSQLSyntax, user: User): SQLUpdateWithGeneratedKey =
     sql"insert into $table(username,password,email,create_date,active) values(${user.username},${user.password},${user.email},${user.createDate},${user.active});"
       .updateAndReturnGeneratedKey("id")
-
-  /**
-   * 根据邮箱匹配用户
-   *
-   * @param email 邮件
-   * @return 这种stream只有一个元素
-   */
-  private[repository] def _matchUser(email: String): StreamReadySQL[User] =
-    sql"select ${u.result.*} from ${User as u} where email = ${email};"
-      .map(User(_))
-      .list()
-      .iterator()
 
   //==============================群组 SQL实现========================================
 

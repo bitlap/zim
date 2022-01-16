@@ -15,16 +15,17 @@ import scala.language.implicitConversions
  * @since 2021/12/25
  * @version 1.0
  */
-private final class TangibleUserRepository(databaseName: String) extends TangibleBaseRepository[model.User](User) with UserRepository {
+private final class TangibleUserRepository(databaseName: String)
+  extends TangibleBaseRepository(User) with UserRepository {
 
   override val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
   override implicit lazy val dbName: String = databaseName
 
   override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
-    _countUser(username, sex).toStreamOperation
+    this.count(Map("username" like username, "sex" === sex))
 
   override def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, model.User] =
-    _findUsers(username, sex).toStreamOperation
+    this.find(Map("username" like username, "sex" === sex))
 
   override def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int] =
     _updateAvatar(model.User.table, avatar, uid).toUpdateOperation
@@ -51,7 +52,7 @@ private final class TangibleUserRepository(databaseName: String) extends Tangibl
     _saveUser(model.User.table, user).toUpdateReturnKey
 
   override def matchUser(email: String): stream.Stream[Throwable, model.User] =
-    _matchUser(email).toStreamOperation
+    this.find(Map("email" -> email))
 }
 
 object TangibleUserRepository {
