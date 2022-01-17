@@ -3,21 +3,21 @@ import akka.NotUsed
 import akka.actor.ActorRef
 import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.ws.{ Message, TextMessage }
-import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
 import akka.stream.{ CompletionStrategy, Materializer, OverflowStrategy }
+import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.domain
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.ws.protocol.{ protocol, AddRefuseMessage, Constants, Done, TransmitMessageProxy }
 import org.bitlap.zim.domain.{ SystemConstant, Message => IMMessage }
+import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.server.actor.akka.WsMessageForwardBehavior
 import org.bitlap.zim.server.cache.redisCacheService
-import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.server.configuration.{ AkkaActorSystemConfiguration, ZimServiceConfiguration }
+import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.reactivestreams.Publisher
-import zio.actors.akka.AkkaTypedActor
 import zio.{ Has, Task, ZIO, ZLayer }
+import zio.actors.akka.AkkaTypedActor
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -64,7 +64,7 @@ object wsService extends ZimServiceConfiguration {
       def getConnections: Task[Int]
     }
 
-    // aka actor -> zio actor
+    // akka actor -> zio actor
     final lazy val actorRefSessions: ConcurrentHashMap[Integer, ActorRef] =
       new ConcurrentHashMap[Integer, ActorRef]
 
@@ -73,8 +73,6 @@ object wsService extends ZimServiceConfiguration {
         val userService = env.userApplication
 
         new Service {
-
-          import zio.Task
 
           override def sendMessage(message: domain.Message): Task[Unit] =
             message.synchronized {
@@ -233,11 +231,12 @@ object wsService extends ZimServiceConfiguration {
       akkaSystem <- AkkaActorSystemConfiguration.make
       akkaTypedActor = akkaSystem.spawn(WsMessageForwardBehavior(), Constants.WS_MESSAGE_FORWARD_ACTOR)
       _ <- changeStatus(uId, SystemConstant.status.ONLINE)
+      akkaActor <- AkkaTypedActor.make(akkaTypedActor)
       in = Flow[Message]
         .watchTermination()((_, ft) => ft.foreach(_ => closeConnection(uId)))
         .mapConcat {
           case TextMessage.Strict(message) =>
-            akkaTypedActor ! TransmitMessageProxy(uId, message, Some(actorRef))
+            zioRuntime.unsafeRun(akkaActor ! TransmitMessageProxy(uId, message, Some(actorRef)))
             Nil
           case _ => Nil
         }

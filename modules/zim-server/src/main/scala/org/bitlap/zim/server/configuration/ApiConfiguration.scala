@@ -9,7 +9,7 @@ import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplication
 import zio._
 
 /**
- * API配置
+ * api configuration
  *
  * @author 梦境迷离
  * @since 2021/12/25
@@ -28,7 +28,7 @@ final class ApiConfiguration(applicationConfiguration: ApplicationConfiguration)
 }
 
 /**
- * API依赖管理
+ * api dependencies
  */
 object ApiConfiguration {
 

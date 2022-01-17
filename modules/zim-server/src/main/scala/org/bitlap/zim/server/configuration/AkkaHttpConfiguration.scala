@@ -14,7 +14,7 @@ import zio._
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * akka http配置
+ * akka http configuration
  *
  * @author 梦境迷离
  * @since 2021/12/25

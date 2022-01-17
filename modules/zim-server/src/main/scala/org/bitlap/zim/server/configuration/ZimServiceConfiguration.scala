@@ -11,7 +11,7 @@ import zio.{ Layer, TaskLayer, ULayer }
 import org.bitlap.zim.server.configuration.ZioActorSystemConfiguration.ZZioActorSystemConfiguration
 
 /**
- * 全局的服务依赖管理
+ * global configuration to collect all service or system layer
  *
  * @author 梦境迷离
  * @since 2021/12/25

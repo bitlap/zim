@@ -38,7 +38,7 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
       .buildEmail()
     ZIO
       .fromFuture(make => mailer.sendMail(email).getFuture.asScala()(make))
-      .catchAllCause(_ => ZIO.unit) // 捕获所有异常
+      .catchAllCause(_ => ZIO.unit) // catch all exception
   }
 }
 

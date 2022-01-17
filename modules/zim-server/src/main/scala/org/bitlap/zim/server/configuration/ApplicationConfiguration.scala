@@ -5,7 +5,7 @@ import org.bitlap.zim.server.configuration.InfrastructureConfiguration.ZInfrastr
 import zio.{ URIO, _ }
 
 /**
- * 应用程序配置
+ * application configuration
  *
  * @author 梦境迷离
  * @since 2021/12/25
@@ -13,7 +13,7 @@ import zio.{ URIO, _ }
  */
 final class ApplicationConfiguration(infrastructureConfiguration: InfrastructureConfiguration) {
 
-  // 应用程序管理多个application
+  // multi application
   val userApplication: UserApplication = UserService(
     infrastructureConfiguration.userRepository,
     infrastructureConfiguration.groupRepository,
@@ -29,7 +29,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
 }
 
 /**
- * 应用程序依赖管理
+ * application dependencies
  */
 object ApplicationConfiguration {
 

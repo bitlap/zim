@@ -5,7 +5,7 @@ import org.bitlap.zim.server.configuration.InfrastructureConfiguration.ZInfrastr
 import zio._
 
 /**
- * akka actor配置
+ * akka actor configuration
  *
  * @author 梦境迷离
  * @since 2021/12/25
@@ -16,7 +16,7 @@ object AkkaActorSystemConfiguration {
   type ZAkkaActorSystemConfiguration = Has[ActorSystem]
 
   /**
-   * 构造actorSystem对象，先使用classic actor
+   * create actorSystem，convert to classic actor when use it in akkahttp
    */
   private lazy val actorSystem: RIO[ZInfrastructureConfiguration, ActorSystem] = {
     for {

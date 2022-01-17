@@ -9,7 +9,7 @@ import scala.util.Try
 import zio.UIO
 
 /**
- * simple java mail配置
+ * configuration for simple java mail
  *
  * @author 梦境迷离
  * @since 2021/12/30
