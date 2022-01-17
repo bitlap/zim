@@ -61,7 +61,7 @@ object redisCacheService extends ZimServiceConfiguration {
       }
   }
 
-  // 非最佳实践，为了使用unsafeRun，不能把environment传递到最外层，这里直接provideLayer
+  // use it by redisCacheService.xxx()
   def getSets(k: String): IO[RedisError, Chunk[String]] =
     ZIO.serviceWith[RedisCacheService.Service](_.getSets(k)).provideLayer(redisLayer)
 

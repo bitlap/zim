@@ -4,19 +4,33 @@ import akka.actor
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.settings.ServerSettings
 import akka.stream.Materializer
+import akka.util.ByteString
 import org.bitlap.zim.server.api.OpenApi
-import org.bitlap.zim.server.configuration.ActorSystemConfiguration.ZActorSystemConfiguration
+import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
 import zio._
 
+import java.util.concurrent.atomic.AtomicInteger
+
 /**
- * akka http配置
+ * akka http configuration
  *
  * @author 梦境迷离
  * @since 2021/12/25
  * @version 1.0
  */
 final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
+
+  private lazy val imServerSettings: ServerSettings = {
+    val defaultSettings = ServerSettings(actorSystem)
+    val pingCounter = new AtomicInteger()
+    val imWebsocketSettings = defaultSettings.websocketSettings.withPeriodicKeepAliveData(() =>
+      ByteString(s"debug-ping-${pingCounter.incrementAndGet()}")
+    )
+    defaultSettings.withWebsocketSettings(imWebsocketSettings)
+  }
+
   def httpServer(route: Route): Task[Unit] =
     for {
       infoConf <- InfrastructureConfiguration.zimConfigurationProperties
@@ -27,6 +41,7 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
             infoConf.interface,
             infoConf.port
           )
+          .withSettings(imServerSettings)
           .bind(route)
       }
       server <- Task
@@ -59,13 +74,13 @@ object AkkaHttpConfiguration {
   type ZAkkaHttpConfiguration = Has[AkkaHttpConfiguration]
   type ZMaterializer = Has[Materializer]
 
-  def httpServer(route: Route): RIO[ZAkkaHttpConfiguration with ZActorSystemConfiguration, Unit] =
+  def httpServer(route: Route): RIO[ZAkkaHttpConfiguration with ZAkkaActorSystemConfiguration, Unit] =
     ZIO.accessM(_.get.httpServer(route))
 
-  val materializerLive: URLayer[ZActorSystemConfiguration, ZMaterializer] =
+  val materializerLive: URLayer[ZAkkaActorSystemConfiguration, ZMaterializer] =
     ZLayer.fromService[ActorSystem, Materializer](Materializer.matFromSystem(_))
 
-  val live: URLayer[ZActorSystemConfiguration, ZAkkaHttpConfiguration] =
+  val live: URLayer[ZAkkaActorSystemConfiguration, ZAkkaHttpConfiguration] =
     ZLayer.fromService[ActorSystem, AkkaHttpConfiguration](AkkaHttpConfiguration(_))
 
 }

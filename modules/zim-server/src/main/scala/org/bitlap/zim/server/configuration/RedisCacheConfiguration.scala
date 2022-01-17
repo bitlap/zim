@@ -10,7 +10,7 @@ import zio.redis.{ RedisConfig, RedisError, RedisExecutor }
 import zio.schema.codec.Codec
 
 /**
- * redis配置
+ * redis configuration
  *
  * @author 梦境迷离
  * @since 2022/1/10
@@ -30,7 +30,7 @@ object RedisCacheConfiguration {
 
   // local redis layer
   val live: Layer[RedisError.IOError, RedisExecutor] = (Logging.ignore ++ ZLayer.succeed(redisConf)
-    ++ codec) >>> RedisExecutor.local
+    ++ codec) >>> RedisExecutor.local // not use socket
 
   // test redis layer
   val testLive: ULayer[RedisExecutor] = (Clock.live ++ Random.live) >>> RedisExecutor.test

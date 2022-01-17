@@ -4,7 +4,7 @@ import java.util.concurrent.{ Future => JFuture }
 import scala.concurrent.{ ExecutionContext, Future }
 
 /**
- * 将Java Future转化为Scala Future
+ * Convert Java future to Scala future
  *
  * @author 梦境迷离
  * @version 1.0,2021/12/30

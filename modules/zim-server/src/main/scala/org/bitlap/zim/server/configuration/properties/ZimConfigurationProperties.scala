@@ -5,7 +5,7 @@ import zio.{ Has, ULayer, ZIO, ZLayer }
 import zio.UIO
 
 /**
- * 应用总体配置（不含数据库）
+ * application configuration（exclude database）
  *
  * @author 梦境迷离
  * @since 2021/12/25

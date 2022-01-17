@@ -1,7 +1,6 @@
 package org.bitlap.zim.domain
 
-import io.circe.generic.semiauto._
-import io.circe.{ Decoder, Encoder }
+import io.circe.{ Decoder, Encoder, HCursor, Json }
 
 /**
  * 我发送的消息和我的信息
@@ -16,7 +15,26 @@ case class Mine(id: Int, username: String, mine: Boolean, avatar: String, conten
 
 object Mine {
 
-  implicit val decoder: Decoder[Mine] = deriveDecoder[Mine]
-  implicit val encoder: Encoder[Mine] = deriveEncoder[Mine]
+  implicit val decoder: Decoder[Mine] = (c: HCursor) =>
+    if (!c.succeeded || !c.downField("id").succeeded || !c.downField("mine").succeeded) null
+    else
+      for {
+        id <- c.getOrElse[Int]("id")(0)
+        username <- c.getOrElse[String]("username")("")
+        mine <- c.getOrElse[Boolean]("mine")(false)
+        avatar <- c.getOrElse[String]("avatar")("")
+        content <- c.getOrElse[String]("content")("")
+      } yield Mine(id, username, mine, avatar, content)
+
+  implicit val encoder: Encoder[Mine] = (a: Mine) =>
+    if (a == null) Json.Null
+    else
+      Json.obj(
+        ("id", Json.fromInt(a.id)),
+        ("username", Json.fromString(a.username)),
+        ("mine", Json.fromBoolean(a.mine)),
+        ("avatar", Json.fromString(a.avatar)),
+        ("content", Json.fromString(a.content))
+      )
 
 }

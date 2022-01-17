@@ -24,7 +24,6 @@ ThisBuild / resolvers  ++= Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("public"),
   Resolver.sonatypeRepo("snapshots"),
-  Resolver.typesafeIvyRepo("releases")
 )
 
 lazy val configurationPublish: Project => Project =

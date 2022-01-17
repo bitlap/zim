@@ -9,6 +9,8 @@ import org.bitlap.zim.server.application.ws.wsService.WsService.actorRefSessions
 import org.bitlap.zim.server.util.DateUtil
 import zio.ZIO
 import zio.actors.{ ActorRef => _ }
+import org.bitlap.zim.domain.ws.protocol.Command
+import zio.actors.akka.AkkaTypedActorRefLocal
 
 /**
  * @author 梦境迷离
@@ -88,7 +90,7 @@ package object ws {
       } else {
         userService.findGroupById(agree.groupId).runHead.flatMap { groupList =>
           // 通知加群成功
-          val actor: ActorRef = actorRefSessions.get(agree.toUid);
+          val actor = actorRefSessions.get(agree.toUid);
           {
             val message = Message(
               `type` = protocol.agreeAddGroup.stringify,

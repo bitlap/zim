@@ -1,7 +1,6 @@
 package org.bitlap.zim.domain
 
-import io.circe.generic.semiauto._
-import io.circe.{ Decoder, Encoder }
+import io.circe.{ Decoder, Encoder, HCursor, Json }
 
 /**
  * 发送给...的信息
@@ -23,7 +22,28 @@ case class To(
 )
 object To {
 
-  implicit val decoder: Decoder[To] = deriveDecoder[To]
-  implicit val encoder: Encoder[To] = deriveEncoder[To]
+  implicit val decoder: Decoder[To] = (c: HCursor) =>
+    if (!c.succeeded || !c.downField("id").succeeded) null
+    else
+      for {
+        id <- c.getOrElse[Int]("id")(0)
+        username <- c.getOrElse[String]("username")("")
+        sign <- c.getOrElse[String]("sign")("")
+        avatar <- c.getOrElse[String]("avatar")("")
+        status <- c.getOrElse[String]("status")("")
+        typ <- c.getOrElse[String]("type")("")
+      } yield To(id, username, sign, avatar, status, typ)
+
+  implicit val encoder: Encoder[To] = (a: To) =>
+    if (a == null) Json.Null
+    else
+      Json.obj(
+        ("id", Json.fromInt(a.id)),
+        ("username", Json.fromString(a.username)),
+        ("sign", Json.fromString(a.sign)),
+        ("avatar", Json.fromString(a.avatar)),
+        ("status", Json.fromString(a.status)),
+        ("type", Json.fromString(a.`type`))
+      )
 
 }
