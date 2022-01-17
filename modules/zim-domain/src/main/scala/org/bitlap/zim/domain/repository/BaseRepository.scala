@@ -1,4 +1,6 @@
 package org.bitlap.zim.domain.repository
+
+import scalikejdbc.interpolation.SQLSyntax
 import zio.stream
 
 /**
@@ -10,5 +12,13 @@ import zio.stream
  */
 trait BaseRepository[T] {
 
+  /**
+   * find by id
+   */
   def findById(id: Long): stream.Stream[Throwable, T]
+
+  /**
+   * find by params
+   */
+//  def find(params: Map[String, Any]): stream.Stream[Throwable, T]
 }

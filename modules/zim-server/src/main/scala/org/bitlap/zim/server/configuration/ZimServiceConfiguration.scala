@@ -1,14 +1,14 @@
 package org.bitlap.zim.server.configuration
 
+import org.bitlap.zim.cache.zioRedisService.ZRedisCacheService
+import org.bitlap.zim.cache.ZioRedisLive
 import org.bitlap.zim.server.application.ws.wsService.{ WsService, ZWsService }
-import org.bitlap.zim.server.cache.redisCacheService.{ RedisCacheService, ZRedisCacheService }
 import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
 import org.bitlap.zim.server.configuration.AkkaHttpConfiguration.{ ZAkkaHttpConfiguration, ZMaterializer }
 import org.bitlap.zim.server.configuration.ApiConfiguration.ZApiConfiguration
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
-import zio.redis.RedisError
-import zio.{ Layer, TaskLayer, ULayer }
 import org.bitlap.zim.server.configuration.ZioActorSystemConfiguration.ZZioActorSystemConfiguration
+import zio.{ Layer, TaskLayer, ULayer }
 
 /**
  * global configuration to collect all service or system layer
@@ -44,12 +44,6 @@ trait ZimServiceConfiguration {
     apiConfigurationLayer ++ akkaActorSystemLayer ++ akkaHttpConfigurationLayer
 
   // 非最佳实践
-  protected lazy val redisLayer: Layer[RedisError.IOError, ZRedisCacheService] =
-    RedisCacheConfiguration.live >>> RedisCacheService.live
-
-  protected lazy val redisTestLayer: Layer[RedisError.IOError, ZRedisCacheService] =
-    RedisCacheConfiguration.testLive >>> RedisCacheService.live
-
   protected lazy val wsLayer: ULayer[ZWsService] =
     applicationConfigurationLayer >>> WsService.live
 

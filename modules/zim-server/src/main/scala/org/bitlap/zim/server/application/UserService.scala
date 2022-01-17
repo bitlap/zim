@@ -36,7 +36,7 @@ import java.time.ZonedDateTime
  * @version 1.0
  */
 private final class UserService(
-  userRepository: UserRepository[User],
+  userRepository: UserRepository,
   groupRepository: GroupRepository[GroupList],
   receiveRepository: ReceiveRepository[Receive],
   friendGroupRepository: FriendGroupRepository[FriendGroup],
@@ -324,7 +324,7 @@ object UserService {
   type ZUserApplication = Has[UserApplication]
 
   def apply(
-    userRepository: UserRepository[User],
+    userRepository: UserRepository,
     groupRepository: GroupRepository[GroupList],
     receiveRepository: ReceiveRepository[Receive],
     friendGroupRepository: FriendGroupRepository[FriendGroup],
@@ -348,7 +348,7 @@ object UserService {
     ZUserRepository with ZGroupRepository with ZReceiveRepository with ZFriendGroupRepository with ZFriendGroupFriendRepository with ZFriendGroupFriendRepository with ZGroupMemberRepository with ZAddMessageRepository,
     ZUserApplication
   ] =
-    ZLayer.fromServices[UserRepository[User], GroupRepository[GroupList], ReceiveRepository[
+    ZLayer.fromServices[UserRepository, GroupRepository[GroupList], ReceiveRepository[
       Receive
     ], FriendGroupRepository[FriendGroup], FriendGroupFriendRepository[AddFriend], GroupMemberRepository[
       GroupMember

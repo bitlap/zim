@@ -72,7 +72,7 @@ package object repository {
   }
 
   //==============================表别名定义========================================
-  private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
+  implicit private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
   private[repository] lazy val g: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
   private[repository] lazy val r: QuerySQLSyntaxProvider[SQLSyntaxSupport[Receive], Receive] = Receive.syntax("r")
   private[repository] lazy val fg: QuerySQLSyntaxProvider[SQLSyntaxSupport[FriendGroup], FriendGroup] =
@@ -85,8 +85,6 @@ package object repository {
     model.AddMessage.syntax("am")
 
   //==============================测试SQL========================================
-  private[repository] def queryFindUserById(table: TableDefSQLSyntax, id: Long): SQL[User, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => User(rs))
   private[repository] def queryFindGroupById(table: TableDefSQLSyntax, id: Long): SQL[GroupList, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => GroupList(rs))
   private[repository] def queryFindReceiveById(table: TableDefSQLSyntax, id: Long): SQL[Receive, HasExtractor] =
@@ -106,43 +104,6 @@ package object repository {
   ): SQL[model.AddMessage, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => model.AddMessage(rs))
   //==============================用户 SQL实现========================================
-  /**
-   * 根据用户名和性别统计用户
-   *
-   * @param username
-   * @param sex
-   * @return 这种stream只有一个元素
-   */
-  private[repository] def _countUser(username: Option[String], sex: Option[Int]): StreamReadySQL[Int] =
-    withSQL {
-      select(count(u.id))
-        .from(User as u)
-        .where(
-          sqls.toAndConditionOpt(
-            username.map(un => sqls.like(u.username, s"%$un%")),
-            sex.map(sex => sqls.eq(u.sex, sex))
-          )
-        )
-    }.toList().map(rs => rs.int(1)).iterator()
-
-  /**
-   * 根据用户名和性别查询用户
-   *
-   * @param username
-   * @param sex
-   * @return
-   */
-  private[repository] def _findUsers(username: Option[String], sex: Option[Int]): StreamReadySQL[User] =
-    withSQL {
-      select
-        .from(User as u)
-        .where(
-          sqls.toAndConditionOpt(
-            username.map(un => sqls.like(u.username, s"%$un%")),
-            sex.map(sex => sqls.eq(u.sex, sex))
-          )
-        )
-    }.map(rs => User(rs)).list().iterator()
 
   /**
    * 更新用户头像
@@ -202,36 +163,24 @@ package object repository {
   /**
    * 根据群组ID查询群里用户的信息
    *
-   * @param table
-   * @param memberTable
-   * @param gid
+   * @param gid group id
    * @return
    */
-  private[repository] def _findUserByGroupId(
-    table: TableDefSQLSyntax,
-    memberTable: TableDefSQLSyntax,
-    gid: Int
-  ): StreamReadySQL[User] =
-    sql"select * from $table where id in(select uid from $memberTable where gid = ${gid});"
-      .map(rs => User(rs))
+  private[repository] def _findUserByGroupId(gid: Int): StreamReadySQL[User] =
+    sql"select ${u.result.*} from ${User as u} where id in(select ${gm.uid} from ${GroupMember as gm} where gid = ${gid});"
+      .map(User(_))
       .list()
       .iterator()
 
   /**
    * 根据好友列表ID查询用户信息列表
    *
-   * @param table
-   * @param friendGroupMemberTable
    * @param fgid
    * @return
    */
-  private[repository] def _findUsersByFriendGroupIds(
-    table: TableDefSQLSyntax,
-    friendGroupMemberTable: TableDefSQLSyntax,
-    fgid: Int
-  ): StreamReadySQL[User] =
-    sql"select * from $table where id in(select uid from $friendGroupMemberTable where fgid = ${fgid});"
-      .map(rs => User(rs))
+  private[repository] def _findUsersByFriendGroupIds(fgid: Int): StreamReadySQL[User] =
+    sql"select ${u.result.*} from ${User as u} where id in (select ${af.uid} from ${AddFriend as af} where fgid = ${fgid});"
+      .map(User(_))
       .list()
       .iterator()
 
@@ -245,19 +194,6 @@ package object repository {
   private[repository] def _saveUser(table: TableDefSQLSyntax, user: User): SQLUpdateWithGeneratedKey =
     sql"insert into $table(username,password,email,create_date,active) values(${user.username},${user.password},${user.email},${user.createDate},${user.active});"
       .updateAndReturnGeneratedKey("id")
-
-  /**
-   * 根据邮箱匹配用户
-   *
-   * @param table
-   * @param email
-   * @return 这种stream只有一个元素
-   */
-  private[repository] def _matchUser(table: TableDefSQLSyntax, email: String): StreamReadySQL[User] =
-    sql"select * from $table where email = ${email};"
-      .map(rs => User(rs))
-      .list()
-      .iterator()
 
   //==============================群组 SQL实现========================================
 

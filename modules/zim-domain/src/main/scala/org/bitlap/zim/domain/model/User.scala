@@ -34,7 +34,7 @@ final case class User(
   active: String
 )
 
-object User extends SQLSyntaxSupport[User] {
+object User extends BaseModel[User] {
 
   // for dsl query
   // see https://groups.google.com/g/scalikejdbc-users-group/c/h2bUE7xgS5o
@@ -46,30 +46,5 @@ object User extends SQLSyntaxSupport[User] {
   implicit val decoder: Decoder[User] = deriveDecoder[User]
   implicit val encoder: Encoder[User] = deriveEncoder[User]
 
-  def apply(rs: WrappedResultSet): User = User(
-    rs.int("id"),
-    rs.string("username"),
-    rs.string("password"),
-    rs.string("sign"),
-    rs.string("avatar"),
-    rs.string("email"),
-    rs.dateTime("create_date"),
-    rs.int("sex"),
-    rs.string("status"),
-    rs.string("active")
-  )
-
-  def apply(id: Int, status: String): User =
-    User(
-      id = id,
-      username = null,
-      password = null,
-      sign = null,
-      avatar = null,
-      email = null,
-      createDate = null,
-      sex = 0,
-      status = status,
-      active = null
-    )
+  def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[User]): User = autoConstruct(rs, sp)
 }
