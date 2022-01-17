@@ -12,13 +12,14 @@ import org.bitlap.zim.domain.{ SystemConstant, Message => IMMessage }
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.server.actor.akka.WsMessageForwardBehavior
-import org.bitlap.zim.server.cache.redisCacheService
 import org.bitlap.zim.server.configuration.{ AkkaActorSystemConfiguration, ZimServiceConfiguration }
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.reactivestreams.Publisher
 import zio.{ Has, Task, ZIO, ZLayer }
 import zio.actors.akka.AkkaTypedActor
-
+import org.bitlap.zim.cache.zioRedisService
+import akka.actor.Status
+import akka.Done
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
@@ -179,11 +180,11 @@ object wsService extends ZimServiceConfiguration {
     for {
       _ <-
         if (status == SystemConstant.status.ONLINE) {
-          redisCacheService.setSet(SystemConstant.ONLINE_USER, s"$uId")
+          zioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
         } else {
-          redisCacheService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
+          zioRedisService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
         }
-      _ <- redisCacheService.setSet(SystemConstant.ONLINE_USER, s"$uId")
+      _ <- zioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
       msg = IMMessage(
         `type` = protocol.changOnline.stringify,
         mine = null,
@@ -252,11 +253,12 @@ object wsService extends ZimServiceConfiguration {
    *
    * @param id
    */
-  def closeConnection(id: Integer): Unit =
+  def closeConnection(id: Int): Unit =
     wsConnections.asScala.get(id).foreach { ar =>
       wsConnections.remove(id)
       zioRuntime.unsafeRunAsync(changeStatus(id, SystemConstant.status.HIDE))(ex => ex.unit)
-      ar ! Done()
+      // Status(Done)
+      ar ! Status.Success(Done)
     }
 
 }
