@@ -17,7 +17,7 @@ object Dependencies {
     val scalikejdbc = "3.5.0"
     val logback = "1.2.10"
     val config = "1.4.1"
-    val mysql = "8.0.27"
+    val mysql = "8.0.28"
     val `zio-interop-reactiveStreams` = "1.3.9"
     val `simple-java-mail` = "6.7.5"
     val h2 = "2.1.210"
