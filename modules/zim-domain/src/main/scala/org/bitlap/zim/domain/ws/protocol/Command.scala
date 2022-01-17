@@ -7,7 +7,7 @@ import org.bitlap.zim.domain.Message
 /**
  * ws actor command
  */
-sealed trait Command[+Any]
+sealed trait Command[+T]
 
 /**
  * proxy
@@ -34,8 +34,3 @@ case class OnlineUserMessage() extends Command[Unit]
  * 用户状态变更
  */
 case class UserStatusChange(uId: Int, typ: String) extends Command[Unit]
-
-/**
- * DONE
- */
-case class Done() extends Command[String]
