@@ -2,15 +2,13 @@ package org.bitlap.zim.server.api.endpoint
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import org.bitlap.zim.domain.model.FriendGroup
-import org.bitlap.zim.domain.ChatHistory
+import org.bitlap.zim.domain
+import org.bitlap.zim.domain.model.{ GroupList, User }
+import org.bitlap.zim.domain.{ AddInfo, FriendAndGroupInfo, FriendList, UploadResult, UserVo, ZimError }
 import sttp.capabilities.akka.AkkaStreams
 import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe._
-import org.bitlap.zim.domain
-import org.bitlap.zim.domain.{ AddInfo, FriendAndGroupInfo, FriendList, UploadResult, UserVo, ZimError }
-import org.bitlap.zim.domain.model.{ GroupList, User }
 
 /**
  * 用户接口的端点

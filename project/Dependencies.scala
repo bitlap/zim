@@ -11,7 +11,6 @@ object Dependencies {
     val zio = "1.0.13"
     val `zio-logging` = "0.5.14"
     val tapir = "0.17.20" //TODO upgrade
-    val `tapir-swagger` = "0.18.3"
     val `akka-http` = "10.2.7"
     val akka = "2.6.18"
     val circe = "0.14.1"
@@ -26,6 +25,9 @@ object Dependencies {
     val `zio-actors` = "0.0.9"
   }
 
+  lazy val redisDeps = "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT" // 实验性质的
+  lazy val confDeps =     "com.typesafe" % "config" % Version.config
+
   lazy val zioDeps = Seq(
     "dev.zio" %% "zio" % Version.zio,
     "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`,
@@ -33,21 +35,23 @@ object Dependencies {
     "dev.zio" %% "zio-test" % Version.zio % Test,
     "dev.zio" %% "zio-test-sbt" % Version.zio % Test,
     "dev.zio" %% "zio-crypto" % "0.0.0+92-5672c642-SNAPSHOT", // 实验性质的
-    "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT", // 实验性质的
-    "dev.zio" %% "zio-schema" % "0.1.7", //TODO for Redis
-    "dev.zio" %% "zio-actors" % Version.`zio-actors`
+     redisDeps
   )
 
   lazy val tapirDeps = Seq(
     "com.softwaremill.sttp.tapir" %% "tapir-core" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir exclude ("com.typesafe.akka", "akka-stream_2.13"),
+    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-akka-http" % Version.tapir
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-akka-http" % Version.tapir,
+//    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"  % Version.tapir,
+//    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
+//    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe" % Version.tapir,
   )
 
   lazy val akkaDeps = Seq(
+    "com.typesafe.akka" %% "akka-actor-typed" % Version.akka,
     "com.typesafe.akka" %% "akka-http" % Version.`akka-http`,
     "com.typesafe.akka" %% "akka-stream" % Version.akka,
     "com.typesafe.akka" %% "akka-slf4j" % Version.akka
@@ -61,7 +65,7 @@ object Dependencies {
 
   lazy val otherDeps = Seq(
     "org.scalikejdbc" %% "scalikejdbc-streams" % Version.scalikejdbc,
-    "com.typesafe" % "config" % Version.config,
+    confDeps,
     "ch.qos.logback" % "logback-classic" % Version.logback,
     "mysql" % "mysql-connector-java" % Version.mysql,
     "org.simplejavamail" % "simple-java-mail" % Version.`simple-java-mail`,
@@ -69,13 +73,20 @@ object Dependencies {
     "org.scalatest" %% "scalatest" % Version.scalaTest % Test
   )
 
-  lazy val serverDeps: Seq[ModuleID] =  zioDeps ++ akkaDeps ++ otherDeps ++ circeDeps ++ tapirDeps ++ domainDeps
+  lazy val serverDeps: Seq[ModuleID] =  zioDeps ++ akkaDeps ++ otherDeps  ++ tapirDeps ++ domainDeps
 
   // 基础依赖 domain使用
   lazy val domainDeps: Seq[ModuleID] = Seq(
     "org.scalikejdbc" %% "scalikejdbc" % Version.scalikejdbc,
     "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc,
     "dev.zio" %% "zio-streams" % Version.zio,
-    "com.typesafe.akka" %% "akka-actor" % Version.akka,
+    "dev.zio" %% "zio-actors" % Version.`zio-actors`,
+    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`
   ) ++ circeDeps
+  
+  lazy val cacheDeps = Seq(
+    confDeps,
+    redisDeps,
+    "dev.zio" %% "zio-schema" % "0.1.7", //TODO for Redis
+  )
 }

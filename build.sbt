@@ -24,7 +24,6 @@ ThisBuild / resolvers  ++= Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("public"),
   Resolver.sonatypeRepo("snapshots"),
-  Resolver.typesafeIvyRepo("releases")
 )
 
 lazy val configurationPublish: Project => Project =
@@ -39,7 +38,7 @@ lazy val configurationNoPublish: Project => Project =
     .settings(commands ++= Commands.value)
 
 lazy val zim = (project in file("."))
-  .aggregate(`zim-server`, `zim-domain`)
+  .aggregate(`zim-server`, `zim-domain`, `zim-cache`)
   .configure(configurationNoPublish)
 
 lazy val `zim-server` = (project in file("modules/zim-server"))
@@ -47,9 +46,14 @@ lazy val `zim-server` = (project in file("modules/zim-server"))
   .settings(libraryDependencies ++= Dependencies.serverDeps)
   .configure(configurationNoPublish)
   .enablePlugins(GitVersioning, BuildInfoPlugin, ScalafmtPlugin)
-  .dependsOn(`zim-domain`)
+  .dependsOn(`zim-domain`, `zim-cache`)
 
 lazy val `zim-domain` = (project in file("modules/zim-domain"))
   .settings(libraryDependencies ++= Dependencies.domainDeps)
+  .configure(configurationPublish)
+  .enablePlugins(ScalafmtPlugin)
+
+lazy val `zim-cache` = (project in file("modules/zim-cache"))
+  .settings(libraryDependencies ++= Dependencies.cacheDeps)
   .configure(configurationPublish)
   .enablePlugins(ScalafmtPlugin)

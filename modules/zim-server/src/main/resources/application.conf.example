@@ -39,7 +39,14 @@ application {
 }
 
 akka {
+  actor.default-dispatcher.fork-join-executor.parallelism-max = 64
+  http.server.websocket.periodic-keep-alive-max-idle = 3 second
+  http.server.websocket.periodic-keep-alive-mode = pong
+  actor.debug.unhandled = true
+  actor.debug.receive = true
   loggers = ["akka.event.slf4j.Slf4jLogger"]
   loglevel = "DEBUG"
+  stdout-loglevel = "DEBUG"
   logging-filter = "akka.event.slf4j.Slf4jLoggingFilter"
 }
+

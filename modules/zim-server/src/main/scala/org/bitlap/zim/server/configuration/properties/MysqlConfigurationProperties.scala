@@ -3,7 +3,7 @@ package org.bitlap.zim.server.configuration.properties
 import com.typesafe.config.{ Config, ConfigFactory }
 
 /**
- * mysql配置
+ * mysql configuration
  *
  * @author 梦境迷离
  * @since 2021/12/25

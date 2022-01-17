@@ -29,7 +29,7 @@ import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings }
 import zio._
 
 /**
- * 基础设施配置
+ * infrastructure configuration
  *
  * @author 梦境迷离
  * @since 2021/12/25
@@ -79,7 +79,7 @@ final class InfrastructureConfiguration {
 }
 
 /**
- * 基础设施依赖管理
+ * infrastructure dependencies
  */
 object InfrastructureConfiguration {
 
@@ -87,7 +87,7 @@ object InfrastructureConfiguration {
 
   type ZInfrastructureConfiguration = Has[InfrastructureConfiguration]
 
-  // ==================================系统配置============================================
+  // ==================================system configuration============================================
   val mysqlConfigurationProperties: URIO[ZInfrastructureConfiguration, MysqlConfigurationProperties] =
     ZIO.access(_.get.mysqlConfigurationProperties)
 

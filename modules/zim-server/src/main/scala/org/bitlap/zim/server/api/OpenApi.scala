@@ -1,12 +1,11 @@
 package org.bitlap.zim.server.api
 
 import akka.http.scaladsl.server.Route
-import org.bitlap.zim.server.api.endpoint.{ ActuatorEndpoint, UserEndpoint }
+import org.bitlap.zim.server.api.endpoint.{ ActuatorEndpoint, ApiEndpoint, UserEndpoint }
 import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.openapi.{ Contact, Info, License }
 import sttp.tapir.swagger.akkahttp.SwaggerAkka
-import org.bitlap.zim.server.api.endpoint.ApiEndpoint
 
 /**
  * Open API
@@ -16,6 +15,12 @@ import org.bitlap.zim.server.api.endpoint.ApiEndpoint
  * @version 1.0
  */
 final class OpenApi {
+
+  private lazy val contextPath = "docs"
+//  private lazy val wsContextPath = "wsDocs"
+  lazy val openapi: String = s"${ApiEndpoint.apiResource}/${ApiEndpoint.apiVersion}/$contextPath"
+
+//  import Directives._
 
   private lazy val openApiYaml: String = OpenAPIDocsInterpreter
     .toOpenAPI(
@@ -68,11 +73,15 @@ final class OpenApi {
     )
     .toYaml
 
-  private lazy val contextPath = "docs"
-
-  lazy val openapi: String = s"${ApiEndpoint.apiResource}/${ApiEndpoint.apiVersion}/$contextPath"
+//  lazy val wsDocs: String = AsyncAPIInterpreter.toAsyncAPI(WsEndpoint.wsEndpoint, "zim web socket", "0.1.0").toYaml
 
   lazy val route: Route = new SwaggerAkka(openApiYaml, contextPath = openapi).routes
+//
+//  lazy val ws: Route = pathPrefix(ApiEndpoint.apiResource / ApiEndpoint.apiVersion / wsContextPath) {
+//    Directives.get {
+//      complete(wsDocs)
+//    }
+//  }
 
 }
 
