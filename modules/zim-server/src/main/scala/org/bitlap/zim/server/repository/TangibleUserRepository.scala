@@ -22,10 +22,10 @@ private final class TangibleUserRepository(databaseName: String)
   override implicit lazy val dbName: String = databaseName
 
   override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
-    this.count(Map("username" like username, "sex" === sex))
+    this.count("username" like username, "sex" === sex)
 
   override def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, model.User] =
-    this.find(Map("username" like username, "sex" === sex))
+    this.find("username" like username, "sex" === sex)
 
   override def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int] =
     _updateAvatar(model.User.table, avatar, uid).toUpdateOperation
@@ -52,7 +52,7 @@ private final class TangibleUserRepository(databaseName: String)
     _saveUser(model.User.table, user).toUpdateReturnKey
 
   override def matchUser(email: String): stream.Stream[Throwable, model.User] =
-    this.find(Map("email" -> email))
+    this.find("email" -> email)
 }
 
 object TangibleUserRepository {

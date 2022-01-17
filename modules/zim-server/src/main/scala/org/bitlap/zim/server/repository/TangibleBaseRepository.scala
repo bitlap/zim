@@ -19,14 +19,7 @@ abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository
     }.map(M(_)).toSQLOperation
   }
 
-  def find(conditions: Seq[Option[SQLSyntax]]): stream.Stream[Throwable, T] = {
-    withSQL {
-      select
-        .from(M as sp)
-        .where(sqls.toAndConditionOpt(conditions: _*))
-    }.map(M(_)).toSQLOperation
-  }
-
+  def find(params: (String, Any)*): stream.Stream[Throwable, T] = this.find(params.toMap)
   def find(params: Map[String, Any]): stream.Stream[Throwable, T] = {
     withSQL {
       select.from(M as sp)
@@ -46,14 +39,7 @@ abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository
     }.map(M(_)).toSQLOperation
   }
 
-  def count(conditions: Seq[Option[SQLSyntax]]): stream.Stream[Throwable, Int] = {
-    withSQL {
-      select(SQLSyntax.count(sp.id))
-        .from(M as sp)
-        .where(sqls.toAndConditionOpt(conditions: _*))
-    }.map(rs => rs.int(1)).toSQLOperation
-  }
-
+  def count(params: (String, Any)*): stream.Stream[Throwable, Int] = this.count(params.toMap)
   def count(params: Map[String, Any]): stream.Stream[Throwable, Int] = {
     withSQL {
       select(SQLSyntax.count(sp.id))
