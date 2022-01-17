@@ -1,18 +1,23 @@
-import sbt.CrossVersion
+import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
+import sbt.Keys._
+import sbt.{ CrossVersion, Def, _ }
 
 /**
- * 
  * @author 梦境迷离
  * @version 1.0,2022/1/11
  */
 object ProjectSetting {
 
-  lazy val scala212 = "2.12.14"
-  lazy val scala213 = "2.13.7"
+  lazy val scala212 = "2.12.15"
+  lazy val scala213 = "2.13.8"
+
+  lazy val supportedScalaVersions = List(scala212,scala213)
 
   def extraOptions(scalaVersion: String, optimize: Boolean): List[String] =
     CrossVersion.partialVersion(scalaVersion) match {
-      case Some((2, 13)) => /**List("-Wunused:imports") ++ **/ optimizerOptions(optimize)
+      case Some((2, 13)) =>
+        /** List("-Wunused:imports") ++ * */
+        optimizerOptions(optimize)
       case Some((2, 12)) =>
         List(
           "-opt-warnings",
@@ -48,5 +53,22 @@ object ProjectSetting {
       "-Ywarn-numeric-widen",
       "-Ywarn-value-discard"
     )
+
+  val value: Seq[Def.Setting[_]] = Seq(
+    scalaVersion := scala213,
+    scalacOptions := (stdOptions ++ extraOptions(scalaVersion.value, !isSnapshot.value)),
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"), TestFrameworks.ScalaTest),
+    autoAPIMappings := true,
+    version := (ThisBuild / version).value,
+    Test / parallelExecution := false, //see https://www.scalatest.org/user_guide/async_testing
+    Global / cancelable := true,
+    // OneJar
+    exportJars := true,
+    scalafmtOnCompile := true
+  )
+
+  val noPublish: Seq[Def.Setting[_]] = Seq(
+    publish / skip := true
+  )
 
 }
