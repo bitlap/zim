@@ -10,7 +10,7 @@ Makefile
 .idea
 null/
 # config
-moudles/zim-server/src/main/resources/application.conf
-moudles/zim-server/src/test/resources/application-dev.conf
-moudles/zim-server/src/test/resources/application-test.conf
+modules/zim-server/src/main/resources/application.conf
+modules/zim-server/src/test/resources/application-dev.conf
+modules/zim-server/src/test/resources/application-test.conf
 

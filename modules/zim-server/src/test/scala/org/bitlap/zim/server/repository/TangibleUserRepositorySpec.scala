@@ -12,6 +12,8 @@ import org.bitlap.zim.server.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.server.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.domain.model._
 
+import scala.language.postfixOps
+
 /**
  * t_user、t_group_members、t_friend_group_friends、t_friend_group 表操作的单测
  *
@@ -38,7 +40,18 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
 
     // t h e n
     actual.map(u => u.id -> u.username) shouldBe Some(mockUser.id -> mockUser.username)
+  }
 
+  it should "find users" in {
+    val dbUsers = unsafeRun(
+      (for {
+        _ <- TangibleUserRepository.saveUser(mockUser)
+        dbUsers <- TangibleUserRepository.findUsers(None, None)
+      } yield dbUsers).runCollect
+        .provideLayer(env)
+    )
+    dbUsers.size shouldBe 1
+    dbUsers.headOption.map(u => u.id -> u.username) shouldBe Some(mockUser.id -> mockUser.username)
   }
 
   it should "matchUser by email" in {

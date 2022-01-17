@@ -1,8 +1,9 @@
 package org.bitlap.zim.server.repository
 
 import org.bitlap.zim.domain.model
-import org.bitlap.zim.domain.model.{ AddFriend, GroupMember }
+import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.domain.repository.UserRepository
+import scalikejdbc._
 import zio._
 
 import scala.language.implicitConversions
@@ -14,19 +15,17 @@ import scala.language.implicitConversions
  * @since 2021/12/25
  * @version 1.0
  */
-private final class TangibleUserRepository(databaseName: String) extends UserRepository[model.User] {
+private final class TangibleUserRepository(databaseName: String)
+  extends TangibleBaseRepository(User) with UserRepository {
 
-  private implicit lazy val dbName: String = databaseName
-
-  // 有些没用的可能需要删掉，抽象出真正几个repository通用的到base repository
-  override def findById(id: Long): stream.Stream[Throwable, model.User] =
-    queryFindUserById(model.User.table, id).toSQLOperation
+  override val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
+  override implicit lazy val dbName: String = databaseName
 
   override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
-    _countUser(username, sex).toStreamOperation
+    this.count("username" like username, "sex" === sex)
 
   override def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, model.User] =
-    _findUsers(username, sex).toStreamOperation
+    this.find("username" like username, "sex" === sex)
 
   override def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int] =
     _updateAvatar(model.User.table, avatar, uid).toUpdateOperation
@@ -44,27 +43,28 @@ private final class TangibleUserRepository(databaseName: String) extends UserRep
     _activeUser(model.User.table, activeCode).toUpdateOperation
 
   override def findUserByGroupId(gid: Int): stream.Stream[Throwable, model.User] =
-    _findUserByGroupId(model.User.table, GroupMember.table, gid).toStreamOperation
+    _findUserByGroupId(gid).toStreamOperation
 
   override def findUsersByFriendGroupIds(fgid: Int): stream.Stream[Throwable, model.User] =
-    _findUsersByFriendGroupIds(model.User.table, AddFriend.table, fgid).toStreamOperation
+    _findUsersByFriendGroupIds(fgid).toStreamOperation
 
   override def saveUser(user: model.User): stream.Stream[Throwable, Long] =
     _saveUser(model.User.table, user).toUpdateReturnKey
 
   override def matchUser(email: String): stream.Stream[Throwable, model.User] =
-    _matchUser(model.User.table, email).toStreamOperation
+    this.find("email" -> email)
 }
 
 object TangibleUserRepository {
 
-  def apply(databaseName: String): UserRepository[model.User] =
+  def apply(databaseName: String): UserRepository =
     new TangibleUserRepository(databaseName)
 
-  type ZUserRepository = Has[UserRepository[model.User]]
+  type ZUserRepository = Has[UserRepository]
 
   /**
    * 下面的测试很有用，对外提供
+   *
    * @return
    */
   def findById(id: Int): stream.ZStream[ZUserRepository, Throwable, model.User] =
@@ -104,7 +104,7 @@ object TangibleUserRepository {
     stream.ZStream.accessStream(_.get.updateUserStatus(status, uid))
 
   val live: ZLayer[Has[String], Nothing, ZUserRepository] =
-    ZLayer.fromService[String, UserRepository[model.User]](TangibleUserRepository(_))
+    ZLayer.fromService[String, UserRepository](TangibleUserRepository(_))
 
   def make(databaseName: String): ULayer[ZUserRepository] =
     ZLayer.succeed(databaseName) >>> live
