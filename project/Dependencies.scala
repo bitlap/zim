@@ -23,6 +23,7 @@ object Dependencies {
     val h2 = "2.1.210"
     val scalaTest = "3.2.10"
     val `zio-actors` = "0.0.9"
+    val refined = "0.9.28"
   }
 
   lazy val redisDeps = "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT" // 实验性质的
@@ -81,7 +82,8 @@ object Dependencies {
     "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc,
     "dev.zio" %% "zio-streams" % Version.zio,
     "dev.zio" %% "zio-actors" % Version.`zio-actors`,
-    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`
+    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
+    "eu.timepit" %% "refined" % Version.refined,
   ) ++ circeDeps
 
   lazy val cacheDeps = Seq(

@@ -20,5 +20,5 @@ trait BaseRepository[T] {
   /**
    * find by params
    */
-//  def find(params: Map[String, Any]): stream.Stream[Throwable, T]
+//  def find(params: Map[String, QueryParamValue]): stream.Stream[Throwable, T]
 }

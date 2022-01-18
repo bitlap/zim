@@ -1,7 +1,7 @@
 package org.bitlap.zim.server.repository
 
 import org.bitlap.zim.domain.model.BaseModel
-import org.bitlap.zim.domain.repository.BaseRepository
+import org.bitlap.zim.domain.repository.{BaseRepository, QueryParamValue}
 import scalikejdbc._
 import zio.stream
 
@@ -19,19 +19,20 @@ abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository
     }.map(M(_)).toSQLOperation
   }
 
-  def find(params: (String, Any)*): stream.Stream[Throwable, T] = this.find(params.toMap)
-  def find(params: Map[String, Any]): stream.Stream[Throwable, T] = {
+  def find(params: (String, QueryParamValue)*): stream.Stream[Throwable, T] = {
     withSQL {
       select.from(M as sp)
         .where(
           sqls.toAndConditionOpt(
-            params.map {
+            params.toMap.view.mapValues(_.value).map {
+              case (_, null) => None
               case (k, Some(v)) =>
                 v match {
                   case syntax: SQLSyntax => Some(syntax)
                   case _ => Some(sqls"${sp.column(k)} = $v")
                 }
               case (_, None) => None
+              case (_, syntax: SQLSyntax) => Some(syntax)
               case (k, vo) => Option(vo).map(v => sqls"${sp.column(k)} = $v")
             }.toSeq: _*
           )
@@ -39,31 +40,25 @@ abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository
     }.map(M(_)).toSQLOperation
   }
 
-  def count(params: (String, Any)*): stream.Stream[Throwable, Int] = this.count(params.toMap)
-  def count(params: Map[String, Any]): stream.Stream[Throwable, Int] = {
+  def count(params: (String, QueryParamValue)*): stream.Stream[Throwable, Int] = {
     withSQL {
       select(SQLSyntax.count(sp.id))
         .from(M as sp)
         .where(
           sqls.toAndConditionOpt(
-            params.map {
+            params.toMap.view.mapValues(_.value).map {
+              case (_, null) => None
               case (k, Some(v)) =>
                 v match {
                   case syntax: SQLSyntax => Some(syntax)
                   case _ => Some(sqls"${sp.column(k)} = $v")
                 }
               case (_, None) => None
+              case (_, syntax: SQLSyntax) => Some(syntax)
               case (k, vo) => Option(vo).map(v => sqls"${sp.column(k)} = $v")
             }.toSeq: _*
           )
         )
     }.map(rs => rs.int(1)).toSQLOperation
-  }
-
-  implicit final class StringArrow(private val self: String) {
-    @inline def like (y: Option[String]): (String, Option[SQLSyntax]) = (self, y.map(sqls.like(sp.column(self), _)))
-    @inline def like (y: String): (String, Option[SQLSyntax]) = like(Option(y))
-    @inline def === [B: ParameterBinderFactory](y: Option[B]): (String, Option[SQLSyntax]) = (self, y.map(sqls.eq(sp.column(self), _)))
-    @inline def === [B: ParameterBinderFactory](y: B): (String, Option[SQLSyntax]) = ===(Option(y))
   }
 }
