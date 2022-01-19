@@ -10,7 +10,6 @@ import sqls.count
 import zio.{ stream, Task }
 import zio.interop.reactivestreams._
 import zio.stream.ZStream
-import org.bitlap.zim.domain.repository.ZCondition
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
@@ -78,12 +77,19 @@ package object repository {
     val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[T], T]
   ) {
 
-    @inline def like(y: Option[String]): ZCondition =
-      Refined.unsafeApply(Condition(self, y.map(sqls.like(sp.column(self), _)).orNull))
-    @inline def like(y: String): ZCondition = like(Option(y))
-    @inline def ===[B: ParameterBinderFactory](y: Option[B]): ZCondition =
-      Refined.unsafeApply(Condition(self, y.map(sqls.eq(sp.column(self), _)).orNull))
-    @inline def ===[B: ParameterBinderFactory](y: B): ZCondition = ===(Option(y))
+    import eu.timepit.refined.refineV
+    import org.bitlap.zim.domain.repository.Condition._
+    import org.bitlap.zim.domain.repository.Condition.ConditionValidator._
+
+    @inline def like(y: Option[String]): Option[ZCondition] =
+      refineV(Condition(self, y.map(sqls.like(sp.column(self), _)).orNull)).toOption
+
+    @inline def like(y: String): Option[ZCondition] = like(Option(y))
+
+    @inline def ===[B: ParameterBinderFactory](y: Option[B]): Option[ZCondition] =
+      refineV(Condition(self, y.map(sqls.eq(sp.column(self), _)).orNull)).toOption
+
+    @inline def ===[B: ParameterBinderFactory](y: B): Option[ZCondition] = ===(Option(y))
   }
 
   //==============================表别名定义========================================

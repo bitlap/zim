@@ -4,7 +4,7 @@ import org.bitlap.zim.domain.model.BaseModel
 import org.bitlap.zim.domain.repository.BaseRepository
 import scalikejdbc._
 import zio.stream
-import org.bitlap.zim.domain.repository.ZCondition
+import org.bitlap.zim.domain.repository.Condition._
 
 abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository[T] {
 
@@ -20,14 +20,15 @@ abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository
         )
     }.map(M(_)).toSQLOperation
 
-  def find(params: ZCondition*): stream.Stream[Throwable, T] =
+  def find(params: Option[ZCondition]*): stream.Stream[Throwable, T] =
     withSQL {
       select
         .from(M as sp)
         .where(
           sqls.toAndConditionOpt(
             params.view
-              .map(_.value)
+              .filter(_.isDefined)
+              .map(_.get.value)
               .map(cd => cd.key -> cd.value)
               .map {
                 case (_, null) => None
@@ -45,14 +46,15 @@ abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository
         )
     }.map(M(_)).toSQLOperation
 
-  def count(params: ZCondition*): stream.Stream[Throwable, Int] =
+  def count(params: Option[ZCondition]*): stream.Stream[Throwable, Int] =
     withSQL {
       select(SQLSyntax.count(sp.id))
         .from(M as sp)
         .where(
           sqls.toAndConditionOpt(
             params.view
-              .map(_.value)
+              .filter(_.isDefined)
+              .map(_.get.value)
               .map(cd => cd.key -> cd.value)
               .map {
                 case (_, null) => None

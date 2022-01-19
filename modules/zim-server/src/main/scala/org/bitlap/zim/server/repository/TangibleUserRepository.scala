@@ -26,7 +26,7 @@ private final class TangibleUserRepository(databaseName: String)
     this.count("username" like username, "sex" === sex)
 
   override def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, model.User] =
-    this.find("username" like username, "sex" === sex)
+    this.find("username" like username, "sex" === Option(null))
 
   override def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int] =
     _updateAvatar(model.User.table, avatar, uid).toUpdateOperation
