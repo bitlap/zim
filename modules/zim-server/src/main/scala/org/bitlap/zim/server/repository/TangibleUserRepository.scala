@@ -6,7 +6,7 @@ import org.bitlap.zim.domain.repository.UserRepository
 import scalikejdbc._
 import zio._
 
-import scala.language.{implicitConversions, postfixOps}
+import scala.language.{ implicitConversions, postfixOps }
 
 /**
  * 用户的操作实现
@@ -16,7 +16,8 @@ import scala.language.{implicitConversions, postfixOps}
  * @version 1.0
  */
 private final class TangibleUserRepository(databaseName: String)
-  extends TangibleBaseRepository(User) with UserRepository {
+    extends TangibleBaseRepository(User)
+    with UserRepository {
 
   override val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
   override implicit lazy val dbName: String = databaseName

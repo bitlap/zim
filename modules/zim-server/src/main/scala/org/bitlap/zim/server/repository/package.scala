@@ -2,14 +2,15 @@ package org.bitlap.zim.server
 
 import eu.timepit.refined.api.Refined
 import org.bitlap.zim.domain.model
-import org.bitlap.zim.domain.model.{AddFriend, FriendGroup, GroupList, GroupMember, Receive, User}
-import org.bitlap.zim.domain.repository.QueryParamValue
+import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup, GroupList, GroupMember, Receive, User }
+import org.bitlap.zim.domain.repository.Condition
+import scalikejdbc.{ SQL, _ }
 import scalikejdbc.streams._
-import scalikejdbc.{SQL, _}
 import sqls.count
+import zio.{ stream, Task }
 import zio.interop.reactivestreams._
 import zio.stream.ZStream
-import zio.{Task, stream}
+import org.bitlap.zim.domain.repository.ZCondition
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
@@ -73,12 +74,16 @@ package object repository {
       (NamedDB(Symbol(databaseName)) readOnlyStream streamReadySQL).toStream()
   }
 
-  implicit final class SQLSyntaxStringArrow[T](private val self: String)
-                                              (implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[T], T]) {
-    @inline def like (y: Option[String]): (String, QueryParamValue) = (self, Refined.unsafeApply(y.map(sqls.like(sp.column(self), _)).orNull))
-    @inline def like (y: String): (String, QueryParamValue) = like(Option(y))
-    @inline def === [B: ParameterBinderFactory](y: Option[B]): (String, QueryParamValue) = (self, Refined.unsafeApply(y.map(sqls.eq(sp.column(self), _)).orNull))
-    @inline def === [B: ParameterBinderFactory](y: B): (String, QueryParamValue) = ===(Option(y))
+  implicit final class SQLSyntaxStringArrow[T](private val self: String)(implicit
+    val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[T], T]
+  ) {
+
+    @inline def like(y: Option[String]): ZCondition =
+      Refined.unsafeApply(Condition(self, y.map(sqls.like(sp.column(self), _)).orNull))
+    @inline def like(y: String): ZCondition = like(Option(y))
+    @inline def ===[B: ParameterBinderFactory](y: Option[B]): ZCondition =
+      Refined.unsafeApply(Condition(self, y.map(sqls.eq(sp.column(self), _)).orNull))
+    @inline def ===[B: ParameterBinderFactory](y: B): ZCondition = ===(Option(y))
   }
 
   //==============================表别名定义========================================
