@@ -6,7 +6,7 @@ import org.bitlap.zim.domain.repository.UserRepository
 import scalikejdbc._
 import zio._
 
-import scala.language.implicitConversions
+import scala.language.{ implicitConversions, postfixOps }
 
 /**
  * 用户的操作实现
@@ -53,7 +53,7 @@ private final class TangibleUserRepository(databaseName: String)
     _saveUser(model.User.table, user).toUpdateReturnKey
 
   override def matchUser(email: String): stream.Stream[Throwable, model.User] =
-    this.find("email" -> email)
+    this.find("email" === email)
 }
 
 object TangibleUserRepository {

@@ -147,7 +147,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "findUser by username and sex" in {
     val actual: Chunk[(User, User)] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
+        _ <- TangibleUserRepository.saveUser(mockUser)
         dbUser1 <- TangibleUserRepository.findUsers(Some("zhangsan"), None)
         dbUser2 <- TangibleUserRepository.findUsers(Some("zhangsan"), Some(1))
       } yield dbUser1 -> dbUser2).runCollect

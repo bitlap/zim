@@ -1,13 +1,15 @@
 package org.bitlap.zim.server
 
+import eu.timepit.refined.api.Refined
 import org.bitlap.zim.domain.model
 import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup, GroupList, GroupMember, Receive, User }
-import scalikejdbc.streams._
+import org.bitlap.zim.domain.repository.Condition
 import scalikejdbc.{ SQL, _ }
+import scalikejdbc.streams._
 import sqls.count
+import zio.{ stream, Task }
 import zio.interop.reactivestreams._
 import zio.stream.ZStream
-import zio.{ stream, Task }
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
@@ -69,6 +71,25 @@ package object repository {
   implicit class executeStreamOperation[T](streamReadySQL: StreamReadySQL[T]) {
     def toStreamOperation(implicit databaseName: String): stream.Stream[Throwable, T] =
       (NamedDB(Symbol(databaseName)) readOnlyStream streamReadySQL).toStream()
+  }
+
+  implicit final class SQLSyntaxStringArrow[T](private val self: String)(implicit
+    val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[T], T]
+  ) {
+
+    import eu.timepit.refined.refineV
+    import org.bitlap.zim.domain.repository.Condition._
+    import org.bitlap.zim.domain.repository.Condition.ConditionValidator._
+
+    @inline def like(y: Option[String]): Option[ZCondition] =
+      refineV(Condition(self, y.map(sqls.like(sp.column(self), _)).orNull)).toOption
+
+    @inline def like(y: String): Option[ZCondition] = like(Option(y))
+
+    @inline def ===[B: ParameterBinderFactory](y: Option[B]): Option[ZCondition] =
+      refineV(Condition(self, y.map(sqls.eq(sp.column(self), _)).orNull)).toOption
+
+    @inline def ===[B: ParameterBinderFactory](y: B): Option[ZCondition] = ===(Option(y))
   }
 
   //==============================表别名定义========================================
