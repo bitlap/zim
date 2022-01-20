@@ -1,0 +1,43 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>查找/添加群组</title>
+<link rel="stylesheet" href="/static/layui/css/layui.css">
+<script src="/static/layui/layui.js"></script>
+</head>
+<body class="gray-bg">
+	<div class="layui-tab layui-tab-card">
+		<ul class="layui-tab-title">
+			<li class="layui-this">找人</li>
+			<li>找群</li>
+		</ul>
+		<div class="layui-tab-content">
+			<div class="layui-tab-item layui-show layui-form layui-friend">
+				<div class="layui-form-item">
+					<input type="text" name="friend_name" placeholder="请输入昵称"
+						autocomplete="off" class="layui-input layui-input-inline">
+					<input type="radio" name="sex" value="0" title="女">
+					<input type="radio" name="sex" value="1" title="男">
+					<input type="radio" name="sex" value="" title="All" checked>
+					<button id="findFriend" class="layui-btn layui-btn-normal">搜索</button>
+					<button id="createUserGroup" class="layui-btn">创建分组</button>
+				</div>
+			</div>
+			<div class="layui-tab-item layui-group">
+				<div class="layui-tab-item layui-show layui-form">
+					<div class="layui-form-item">
+						<input type="text" name="group_name" placeholder="请输入群昵称"
+							autocomplete="off" class="layui-input layui-input-inline">
+						<button id="findGroup" class="layui-btn layui-btn-normal">搜索</button>
+						<button id="myGroup" class="layui-btn layui-btn-warm">我的群</button>
+						<button id="createGroup" class="layui-btn">创建群</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="/static/js/find.js"></script>
+
+</html>

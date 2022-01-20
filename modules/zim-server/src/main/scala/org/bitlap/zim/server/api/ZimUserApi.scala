@@ -1,5 +1,6 @@
 package org.bitlap.zim.server.api
 
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import org.bitlap.zim.domain.model.User
@@ -21,12 +22,26 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
     with ApiErrorMapping {
 
   // 定义所有接口的路由
-  lazy val route: Route = Route.seal(userGetRoute)
+  lazy val route: Route = Route.seal(staticResources ~ userGetRoute)
 
   lazy val userGetRoute: Route = AkkaHttpServerInterpreter.toRoute(UserEndpoint.userGetOneEndpoint) { id =>
     val userStream = apiApplication.findById(id)
     buildMonoResponse[User](userStream)
   }
+
+  val staticResources: Route =
+    concat(
+      pathSingleSlash {
+        get {
+          getFromResource("index.html")
+        }
+      },
+      get {
+        pathPrefix("static" / Remaining) { resource =>
+          getFromResource("static/" + resource)
+        }
+      }
+    )
 }
 
 object ZimUserApi {

@@ -16,7 +16,8 @@ import scala.language.implicitConversions
  * @version 1.0
  */
 private final class TangibleUserRepository(databaseName: String)
-  extends TangibleBaseRepository(User) with UserRepository {
+    extends TangibleBaseRepository(User)
+    with UserRepository {
 
   override val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
   override implicit lazy val dbName: String = databaseName
