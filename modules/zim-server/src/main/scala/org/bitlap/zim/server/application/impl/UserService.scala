@@ -12,8 +12,8 @@ import org.bitlap.zim.domain.repository.{
   UserRepository
 }
 import org.bitlap.zim.domain.{ model, AddInfo, FriendList, SystemConstant }
-import org.bitlap.zim.server.application.ws.wsService
 import org.bitlap.zim.server.application.UserApplication
+import org.bitlap.zim.server.application.ws.wsService
 import org.bitlap.zim.server.configuration.InfrastructureConfiguration
 import org.bitlap.zim.server.repository.TangibleAddMessageRepository.ZAddMessageRepository
 import org.bitlap.zim.server.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
@@ -22,10 +22,11 @@ import org.bitlap.zim.server.repository.TangibleGroupMemberRepository.ZGroupMemb
 import org.bitlap.zim.server.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.server.repository.TangibleReceiveRepository.ZReceiveRepository
 import org.bitlap.zim.server.repository.TangibleUserRepository.ZUserRepository
-import org.bitlap.zim.server.util.{ SecurityUtil, UuidUtil }
+import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil, UuidUtil }
 import zio.crypto.hash.{ Hash, MessageDigest }
 import zio.stream.ZStream
 import zio.{ stream, Has, URLayer, ZLayer }
+import org.bitlap.zim.domain.ChatHistory
 
 import java.time.ZonedDateTime
 
@@ -47,7 +48,10 @@ private final class UserService(
 ) extends UserApplication {
 
   override def findById(id: Long): stream.Stream[Throwable, User] =
-    userRepository.findById(id)
+    for {
+      user <- userRepository.findById(id)
+      _ <- LogUtil.infoS(s"findById $id")
+    } yield user
 
   override def leaveOutGroup(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
     for {
@@ -58,12 +62,12 @@ private final class UserService(
           if (group.createId.equals(uid)) groupRepository.deleteGroup(gid).map(_ == 1)
           else groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)).map(_ == 1)
         }
+      _ <- LogUtil.infoS(s"leaveOutGroup gid=>$gid, uid=>$uid, group=>$group")
       master <- findUserById(group.createId)
       _ <-
         if (ret && group.createId.equals(uid)) {
           groupMemberRepository.findGroupMembers(gid).flatMap { uid =>
             // group owner leave
-            import org.bitlap.zim.server.application.ws.wsService
             groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)) *>
               ZStream.fromEffect(wsService.deleteGroup(master, group.groupname, gid, uid))
           }
@@ -80,6 +84,9 @@ private final class UserService(
         if (group != null) {
           updateAddMessage(messageBoxId, 1)
         } else ZStream.succeed(false)
+      _ <- LogUtil.infoS(
+        s"addGroupMember gid=>$gid, uid=>$uid, group=>$group, messageBoxId=>$messageBoxId, upRet=>$upRet"
+      )
       ret <-
         if (upRet && group.createId != uid) {
           groupMemberRepository.addGroupMember(GroupMember(gid, uid)).map(_ == 1)
@@ -146,6 +153,7 @@ private final class UserService(
         addMessage.time,
         user
       )
+      _ <- LogUtil.infoS(s"findAddInfo uid=>$uid, addInfo=>$addInfo, addMessage=>$addMessage, user=>$user")
       addInfoCopy <-
         if (addMessage.`type` == 0) {
           ZStream.succeed(addInfo.copy(content = "申请添加你为好友"))
@@ -195,14 +203,13 @@ private final class UserService(
     mid: Int,
     `type`: String
   ): stream.Stream[Throwable, domain.ChatHistory] = {
-    def userHistory() =
+    def userHistory(): stream.Stream[Throwable, ChatHistory] =
       //单人聊天记录
       for {
         toUser <- findUserById(mid)
         history <- receiveRepository.findHistoryMessage(Some(user.id), Some(mid), Some(`type`))
         newHistory =
           if (history.id == mid) {
-            import org.bitlap.zim.domain
             domain.ChatHistory(
               history.id,
               toUser.username,
@@ -211,24 +218,28 @@ private final class UserService(
               history.timestamp
             )
           } else {
-            import org.bitlap.zim.domain
             domain.ChatHistory(history.id, user.username, user.avatar, history.content, history.timestamp)
           }
+        _ <- LogUtil.infoS(
+          s"findHistoryMessage.userHistory user=>$user, mid=>${mid}, type=>${`type`}, toUser=>$toUser, newHistory=>$newHistory"
+        )
+
       } yield newHistory
 
-    def groupHistory() =
+    def groupHistory(): stream.Stream[Throwable, ChatHistory] =
       //群聊天记录
       for {
         u <- findUserById(mid)
         history <- receiveRepository.findHistoryMessage(None, Some(mid), Some(`type`))
         newHistory =
           if (history.fromid.equals(user.id)) {
-            import org.bitlap.zim.domain
             domain.ChatHistory(user.id, user.username, user.avatar, history.content, history.timestamp)
           } else {
-            import org.bitlap.zim.domain
             domain.ChatHistory(history.id, u.username, u.avatar, history.content, history.timestamp)
           }
+        _ <- LogUtil.infoS(
+          s"findHistoryMessage.groupHistory user=>$user, mid=>$mid, type=>${`type`}, toUser=>$u, newHistory=>$newHistory"
+        )
       } yield newHistory
     `type` match {
       case SystemConstant.FRIEND_TYPE => userHistory()
@@ -267,6 +278,7 @@ private final class UserService(
           .provideLayer(Hash.live)
       )
       ret <- if (u == null || !isMath) ZStream.empty else ZStream.succeed(u)
+      _ <- LogUtil.infoS(s"matchUser user=>$user, u=>$u, isMath=>$isMath, ret=>$ret")
     } yield ret
   }
 
@@ -280,6 +292,7 @@ private final class UserService(
     for {
       groupList <- groupListStream
       users <- ZStream.fromEffect(userRepository.findUsersByFriendGroupIds(groupList.id).runCollect)
+      _ <- LogUtil.infoS(s"findFriendGroupsById uid=>$uid, groupList=>$groupList, users=>$users")
     } yield groupList.copy(list = users.toList)
   }
 
@@ -314,6 +327,9 @@ private final class UserService(
           s"${userCopy.username} 请确定这是你本人注册的账号, http://${zimConf.interface}:${zimConf.port}/user/active/" + activeCode
         )
         .provideLayer(MailService.make(mailConf))
+      _ <- LogUtil.info(
+        s"saveUser user=>$user, activeCode=>$activeCode, userCopy=>$userCopy, zimConf=>$zimConf, mailConf=>$mailConf"
+      )
     } yield true
     ZStream.fromEffect(zioRet)
   }

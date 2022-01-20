@@ -1,11 +1,9 @@
 package org.bitlap.zim.server
 
-import org.bitlap.zim.server.configuration.ZimServiceConfiguration
+import org.bitlap.zim.server.configuration.{ AkkaHttpConfiguration, ApiConfiguration, ZimServiceConfiguration }
+import org.bitlap.zim.server.util.LogUtil
 import zio._
-import zio.clock.Clock
-import zio.console.Console
-import zio.logging.{ log, LogFormat, LogLevel, Logging }
-import org.bitlap.zim.server.configuration.{ AkkaHttpConfiguration, ApiConfiguration }
+import zio.logging.{ log, Logging }
 
 /**
  * main方法
@@ -14,12 +12,6 @@ import org.bitlap.zim.server.configuration.{ AkkaHttpConfiguration, ApiConfigura
  * @version 1.0,2021/12/24
  */
 object ZimServer extends ZimServiceConfiguration with zio.App {
-
-  private lazy val loggingLayer: URLayer[Console with Clock, Logging] =
-    Logging.console(
-      logLevel = LogLevel.Debug,
-      format = LogFormat.ColoredLogFormat()
-    ) >>> Logging.withRootLoggerName("ZimApplication")
 
   private val program: URIO[Logging, ExitCode] =
     (for {
@@ -33,6 +25,6 @@ object ZimServer extends ZimServiceConfiguration with zio.App {
       )
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
-    program.provideLayer(loggingLayer)
+    program.provideLayer(LogUtil.loggingLayer)
 
 }

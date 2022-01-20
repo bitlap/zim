@@ -5,6 +5,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.domain.ws.protocol.{ protocol, Command, TransmitMessageProxy }
 import org.bitlap.zim.server.application.ws.wsService
+import org.bitlap.zim.server.util.LogUtil
 import zio.{ UIO, ZIO }
 
 /**
@@ -21,6 +22,7 @@ object WsMessageForwardBehavior {
     Behaviors.receiveMessage {
       case tm: TransmitMessageProxy =>
         val tpe = protocol.unStringify(Option(tm.getMessage).map(_.`type`).getOrElse(protocol.unHandMessage.stringify))
+        zioRuntime.unsafeRun(LogUtil.info(s"TransmitMessageProxy=>$tm, type=>$tpe"))
         val zio = tpe match {
           case protocol.readOfflineMessage => wsService.readOfflineMessage(tm.getMessage)
           case protocol.message            => wsService.sendMessage(tm.getMessage)
