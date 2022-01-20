@@ -1,6 +1,7 @@
-package org.bitlap.zim.server.application
+package org.bitlap.zim.server.application.impl
 
 import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import zio.{ stream, Has }
 
 /**

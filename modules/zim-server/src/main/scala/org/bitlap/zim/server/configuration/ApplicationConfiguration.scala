@@ -1,8 +1,10 @@
 package org.bitlap.zim.server.configuration
 
-import org.bitlap.zim.server.application.{ ApiApplication, ApiService, UserApplication, UserService }
+import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import org.bitlap.zim.server.configuration.InfrastructureConfiguration.ZInfrastructureConfiguration
 import zio.{ URIO, _ }
+import org.bitlap.zim.server.application.impl.UserService
+import org.bitlap.zim.server.application.impl.ApiService
 
 /**
  * application configuration

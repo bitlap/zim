@@ -6,7 +6,7 @@ import akka.stream.Materializer
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.server.api.endpoint.{ ApiErrorMapping, ApiJsonCodec, UserEndpoint }
 import org.bitlap.zim.server.application.ApiApplication
-import org.bitlap.zim.server.application.ApiService.ZApiApplication
+import org.bitlap.zim.server.application.impl.ApiService.ZApiApplication
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
 

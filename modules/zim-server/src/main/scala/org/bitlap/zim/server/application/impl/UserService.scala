@@ -1,4 +1,4 @@
-package org.bitlap.zim.server.application
+package org.bitlap.zim.server.application.impl
 
 import org.bitlap.zim.domain
 import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup, GroupList, GroupMember, Receive, User }
@@ -13,6 +13,7 @@ import org.bitlap.zim.domain.repository.{
 }
 import org.bitlap.zim.domain.{ model, AddInfo, FriendList, SystemConstant }
 import org.bitlap.zim.server.application.ws.wsService
+import org.bitlap.zim.server.application.UserApplication
 import org.bitlap.zim.server.configuration.InfrastructureConfiguration
 import org.bitlap.zim.server.repository.TangibleAddMessageRepository.ZAddMessageRepository
 import org.bitlap.zim.server.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository

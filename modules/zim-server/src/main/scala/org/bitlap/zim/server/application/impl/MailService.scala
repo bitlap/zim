@@ -1,16 +1,13 @@
-package org.bitlap.zim.server.application
+package org.bitlap.zim.server.application.impl
 
-import org.bitlap.zim.server.configuration.properties.MailConfigurationProperties.ZMailConfigurationProperties
 import org.bitlap.zim.server.configuration.properties.MailConfigurationProperties
+import org.bitlap.zim.server.configuration.properties.MailConfigurationProperties.ZMailConfigurationProperties
 import org.bitlap.zim.server.util.ImplicitUtil._
 import org.simplejavamail.api.mailer.Mailer
 import org.simplejavamail.config.ConfigLoader
 import org.simplejavamail.email.EmailBuilder
 import org.simplejavamail.mailer.MailerBuilder
-import zio.{ Has, UIO, ZIO, ZLayer }
-import zio.URIO
-import zio.ULayer
-import zio.URLayer
+import zio.{ Has, UIO, ULayer, URIO, URLayer, ZIO, ZLayer }
 
 /**
  * 邮件发送服务

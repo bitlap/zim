@@ -5,7 +5,8 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import zio.{ BootstrapRuntime, ULayer }
 import org.bitlap.zim.server.configuration.properties.MailConfigurationProperties
-import org.bitlap.zim.server.application.MailService.ZMailService
+import org.bitlap.zim.server.application.impl.MailService.ZMailService
+import org.bitlap.zim.server.application.impl.MailService
 
 /**
  * @author 梦境迷离
