@@ -24,6 +24,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
   override def updateInfo(user: UserInput): stream.Stream[Throwable, Boolean] = {
     def check(): Boolean =
       user.password == null || user.password.trim.isEmpty || user.oldpwd == null || user.oldpwd.trim.isEmpty
+
     for {
       u <- userApplication.findUserById(user.id)
       pwdCheck <- ZStream.fromEffect(SecurityUtil.matched(user.oldpwd, MessageDigest(u.password)))

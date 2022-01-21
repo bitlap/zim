@@ -24,13 +24,17 @@ object Dependencies {
     val scalaTest = "3.2.10"
     val `zio-actors` = "0.0.9"
     val refined = "0.9.28"
+    val `zio-schema` = "0.1.7"
   }
 
   lazy val redisDeps = "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT" // 实验性质的
   lazy val confDeps = "com.typesafe" % "config" % Version.config
+  lazy val schemaDeps = "dev.zio" %% "zio-schema" % Version.`zio-schema`
+  lazy val  `schema-derivation` =  "dev.zio" %% "zio-schema-derivation" % Version.`zio-schema`
+  lazy val zio = "dev.zio" %% "zio" % Version.zio
 
   lazy val zioDeps = Seq(
-    "dev.zio" %% "zio" % Version.zio,
+    zio,
     "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`,
     "dev.zio" %% "zio-logging" % Version.`zio-logging`,
     "dev.zio" %% "zio-test" % Version.zio % Test,
@@ -84,11 +88,14 @@ object Dependencies {
     "dev.zio" %% "zio-actors" % Version.`zio-actors`,
     "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
     "eu.timepit" %% "refined" % Version.refined,
+    schemaDeps,
+    `schema-derivation`
   ) ++ circeDeps
 
   lazy val cacheDeps = Seq(
     confDeps,
     redisDeps,
-    "dev.zio" %% "zio-schema" % "0.1.7" //TODO for Redis
+    schemaDeps,
+    zio
   )
 }
