@@ -148,7 +148,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
       resp <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
       result = (if (resp == null && returnError) ResultSet(data = resp, code = code, msg = msg)
                 else ResultSet(data = resp)).asJson.noSpaces
-      r <- ZStream(result).map(body => ByteString(body)).toPublisher
+      r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r
     val value = unsafeRun(resp)
     Future.successful(
@@ -165,7 +165,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
       resp <- respStream.runHead.map(_.getOrElse(0))
       result = (if (resp < 1 && returnError) ResultSet(data = resp, code = code, msg = msg)
                 else ResultSet(data = resp)).asJson.noSpaces
-      r <- ZStream(result).map(body => ByteString(body)).toPublisher
+      r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r
     val value = unsafeRun(resp)
     Future.successful(
@@ -182,7 +182,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
       resp <- respStream.runHead.map(_.getOrElse(false))
       result = (if (!resp && returnError) ResultSet(data = resp, code = code, msg = msg)
                 else ResultSet(data = resp)).asJson.noSpaces
-      r <- ZStream(result).map(body => ByteString(body)).toPublisher
+      r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r
     val value = unsafeRun(resp)
     Future.successful(
