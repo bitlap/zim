@@ -1,4 +1,5 @@
 package org.bitlap.zim.server.application
+import zio.stream
 
 import org.bitlap.zim.domain.model.User
 
@@ -10,4 +11,8 @@ import org.bitlap.zim.domain.model.User
  * @since 2022/1/8
  * @version 1.0
  */
-trait ApiApplication extends BaseApplication[User]
+trait ApiApplication extends BaseApplication[User] {
+
+  def existEmail(email: String): stream.Stream[Throwable, Boolean]
+
+}

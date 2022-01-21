@@ -128,7 +128,7 @@
                 url: "user/existEmail",
                 type: "POST",
                 dataType: "JSON",
-                data: {email: $("#emailsignup").val()},
+                data: JSON.stringify({email: $("#emailsignup").val()}),
                 success: function (data) {
                     if (data.data) {
                         $("#emailsignup").val("").focus();

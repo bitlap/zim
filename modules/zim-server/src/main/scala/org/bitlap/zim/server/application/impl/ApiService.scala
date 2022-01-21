@@ -12,6 +12,9 @@ import zio.{ stream, Has }
 private final class ApiService(userApplication: UserApplication) extends ApiApplication {
 
   override def findById(id: Long): stream.Stream[Throwable, User] = userApplication.findById(id)
+
+  override def existEmail(email: String): stream.Stream[Throwable, Boolean] = userApplication.existEmail(email)
+
 }
 
 object ApiService {

@@ -22,14 +22,19 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
     with ApiErrorMapping {
 
   // 定义所有接口的路由
-  lazy val route: Route = Route.seal(staticResources ~ userGetRoute)
+  val route: Route = Route.seal(staticResources ~ userGetRoute ~ existEmailRoute)
 
   lazy val userGetRoute: Route = AkkaHttpServerInterpreter.toRoute(UserEndpoint.userGetOneEndpoint) { id =>
     val userStream = apiApplication.findById(id)
     buildMonoResponse[User](userStream)
   }
 
-  val staticResources: Route =
+  lazy val existEmailRoute: Route = AkkaHttpServerInterpreter.toRoute(UserEndpoint.existEmailEndpoint) { input =>
+    val resultStream = apiApplication.existEmail(input.email)
+    buildBooleanMonoResponse(resultStream)
+  }
+
+  lazy val staticResources: Route =
     concat(
       pathSingleSlash {
         get {

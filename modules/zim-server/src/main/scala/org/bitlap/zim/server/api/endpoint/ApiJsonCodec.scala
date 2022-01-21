@@ -61,6 +61,22 @@ trait ApiJsonCodec extends BootstrapRuntime {
         ("code", Json.fromInt(a.code))
       )
 
+  implicit def encodeBooleanResultSet: Encoder[ResultSet[Boolean]] =
+    (a: ResultSet[Boolean]) =>
+      Json.obj(
+        ("data", a.data.asJson),
+        ("msg", Json.fromString(a.msg)),
+        ("code", Json.fromInt(a.code))
+      )
+
+  implicit def encodeIntResultSet: Encoder[ResultSet[Int]] =
+    (a: ResultSet[Int]) =>
+      Json.obj(
+        ("data", a.data.asJson),
+        ("msg", Json.fromString(a.msg)),
+        ("code", Json.fromInt(a.code))
+      )
+
   implicit def encodeGenericResultSets[T <: Product]: Encoder[ResultSet[List[T]]] =
     (a: ResultSet[List[T]]) =>
       Json.obj(
@@ -108,19 +124,50 @@ trait ApiJsonCodec extends BootstrapRuntime {
     )
   }
 
+  /**
+   * 这些函数本来是没有必要的，因为都使用了ResultSet和Stream，被迫在这里转换
+   * @tparam T
+   * @return
+   */
   private[api] def buildMonoResponse[T <: Product]
     : stream.Stream[Throwable, T] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
-    val list = ListBuffer[T]()
     val resp = for {
-      _ <- respStream.foreach(u => ZIO.effect(list.append(u)))
-      resp = ResultSet[T](data = list.headOption.getOrElse[T](null.asInstanceOf[T])).asJson.noSpaces
-      r <- ZStream(resp).map(body => ByteString(body)).toPublisher
+      resp <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
+      result = ResultSet[T](data = resp).asJson.noSpaces
+      r <- ZStream(result).map(body => ByteString(body)).toPublisher
     } yield r
     val value = unsafeRun(resp)
     Future.successful(
       Right(Source.fromPublisher(value))
     )
   }
+
+  private[api] def buildIntMonoResponse
+    : stream.Stream[Throwable, Int] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
+    val resp = for {
+      resp <- respStream.runHead.map(_.getOrElse(0))
+      result = ResultSet[Int](data = resp).asJson.noSpaces
+      r <- ZStream(result).map(body => ByteString(body)).toPublisher
+    } yield r
+    val value = unsafeRun(resp)
+    Future.successful(
+      Right(Source.fromPublisher(value))
+    )
+  }
+
+  private[api] def buildBooleanMonoResponse
+    : stream.Stream[Throwable, Boolean] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream =>
+    {
+      val resp = for {
+        resp <- respStream.runHead.map(_.getOrElse(false))
+        result = ResultSet[Boolean](data = resp).asJson.noSpaces
+        r <- ZStream(result).map(body => ByteString(body)).toPublisher
+      } yield r
+      val value = unsafeRun(resp)
+      Future.successful(
+        Right(Source.fromPublisher(value))
+      )
+    }
 }
 
 object ApiJsonCodec extends ApiJsonCodec
