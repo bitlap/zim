@@ -15,4 +15,6 @@ trait ApiApplication extends BaseApplication[User] {
 
   def existEmail(email: String): stream.Stream[Throwable, Boolean]
 
+  def findUserById(id: Int): stream.Stream[Throwable, User]
+
 }

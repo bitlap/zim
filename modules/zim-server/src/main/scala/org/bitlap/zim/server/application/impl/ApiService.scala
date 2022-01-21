@@ -15,6 +15,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def existEmail(email: String): stream.Stream[Throwable, Boolean] = userApplication.existEmail(email)
 
+  override def findUserById(id: Int): stream.Stream[Throwable, User] = userApplication.findUserById(id)
 }
 
 object ApiService {

@@ -27,7 +27,7 @@ trait UserEndpoint extends ApiErrorMapping {
   //================================================用户API定义（这是用于测试的接口）===============================================================
   private[api] lazy val userGetOneEndpoint: Endpoint[Long, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
     endpoint.get
-      .in(userResource / "getOne" / query[Long]("id").example(10086L).description("query parameter"))
+      .in(userResource / "getOne" / query[Long]("id").example(1L).description("query parameter"))
       .name("查询一个用户")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
@@ -277,7 +277,7 @@ trait UserEndpoint extends ApiErrorMapping {
 
   private[api] lazy val findUserEndpoint: Endpoint[Int, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
     endpoint.get
-      .in(userResource / "findUser" / query[Int]("id"))
+      .in(userResource / "findUser" / query[Int]("id").example(1).description("user id"))
       .name("根据id查找用户信息")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
@@ -287,7 +287,7 @@ trait UserEndpoint extends ApiErrorMapping {
     : Endpoint[ExistEmailInput, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
     endpoint.post
       .in(userResource / "existEmail")
-      .in(jsonBody[ExistEmailInput].example(ExistEmailInput("dreamylost@outlook.com")))
+      .in(jsonBody[ExistEmailInput].example(ExistEmailInput("dreamylost@outlook.com")).description("user mail"))
       .name("判断邮件是否存在")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean), CodecFormat.Json()))
