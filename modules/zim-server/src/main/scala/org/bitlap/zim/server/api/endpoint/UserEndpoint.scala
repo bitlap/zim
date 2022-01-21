@@ -9,6 +9,7 @@ import sttp.capabilities.akka.AkkaStreams
 import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe._
+import org.bitlap.zim.domain.input.{ ExistEmailInput, UserInput }
 
 /**
  * 用户接口的端点

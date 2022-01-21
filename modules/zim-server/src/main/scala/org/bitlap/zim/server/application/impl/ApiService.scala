@@ -1,6 +1,6 @@
 package org.bitlap.zim.server.application.impl
 
-import org.bitlap.zim.domain.UserInput
+import org.bitlap.zim.domain.input.UserInput
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import org.bitlap.zim.server.util.SecurityUtil

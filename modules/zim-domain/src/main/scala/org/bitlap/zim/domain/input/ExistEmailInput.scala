@@ -1,4 +1,5 @@
-package org.bitlap.zim.domain
+package org.bitlap.zim.domain.input
+
 import io.circe.Decoder
 import io.circe.generic.semiauto.deriveDecoder
 

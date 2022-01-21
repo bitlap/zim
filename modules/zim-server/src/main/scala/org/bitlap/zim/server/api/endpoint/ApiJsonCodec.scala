@@ -19,6 +19,7 @@ import zio.stream.ZStream
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
+import org.bitlap.zim.domain.SystemConstant
 
 /**
  * API的circe解码器
@@ -28,8 +29,6 @@ import scala.concurrent.Future
  * @version 1.0
  */
 trait ApiJsonCodec extends BootstrapRuntime {
-
-  import org.bitlap.zim.domain.SystemConstant
 
   implicit val customConfig: Configuration = Configuration.default.withDefaults
 

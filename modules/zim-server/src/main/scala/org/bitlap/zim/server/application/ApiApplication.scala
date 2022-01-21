@@ -1,8 +1,7 @@
 package org.bitlap.zim.server.application
+import org.bitlap.zim.domain.input.UserInput
 import zio.stream
-
 import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.UserInput
 
 /**
  *  直接提供给endpoint使用
