@@ -1,7 +1,7 @@
 package org.bitlap.zim.domain
 
+import io.circe.Decoder
 import io.circe.generic.semiauto._
-import io.circe.{ Decoder, Encoder }
 
 /**
  * 返回个人信息更新
@@ -13,7 +13,7 @@ import io.circe.{ Decoder, Encoder }
  * @param sign     签名
  * @param sex      性别
  */
-case class UserVo(
+case class UserInput(
   id: Int,
   username: String,
   password: String,
@@ -21,9 +21,7 @@ case class UserVo(
   sign: String,
   sex: String
 )
-object UserVo {
+object UserInput {
 
-  implicit val decoder: Decoder[UserVo] = deriveDecoder[UserVo]
-  implicit val encoder: Encoder[UserVo] = deriveEncoder[UserVo]
-
+  implicit val decoder: Decoder[UserInput] = deriveDecoder[UserInput]
 }

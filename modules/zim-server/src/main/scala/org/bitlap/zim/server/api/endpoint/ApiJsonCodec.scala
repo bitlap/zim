@@ -7,17 +7,15 @@ import io.circe.generic.extras.Configuration
 import io.circe.parser.parse
 import io.circe.syntax.EncoderOps
 import io.circe.{ Decoder, Encoder, HCursor, Json }
-import org.bitlap.zim.domain.ResultPageSet
-import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain
 import org.bitlap.zim.domain.ZimError.BusinessException
-import org.bitlap.zim.domain.ZimError
+import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.{ ResultPageSet, ResultSet }
 import sttp.tapir.Codec.JsonCodec
 import sttp.tapir.json.circe._
 import zio._
 import zio.interop.reactivestreams.streamToPublisher
 import zio.stream.ZStream
-import org.bitlap.zim.domain
-import org.bitlap.zim.domain.ResultSet
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
@@ -30,6 +28,8 @@ import scala.concurrent.Future
  * @version 1.0
  */
 trait ApiJsonCodec extends BootstrapRuntime {
+
+  import org.bitlap.zim.domain.SystemConstant
 
   implicit val customConfig: Configuration = Configuration.default.withDefaults
 
@@ -110,12 +110,20 @@ trait ApiJsonCodec extends BootstrapRuntime {
         msg <- c.get[String]("msg")
       } yield BusinessException(code = code, msg = msg).asInstanceOf[A]
 
-  private[api] def buildFlowResponse[T <: Product]
-    : stream.Stream[Throwable, T] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
+  /**
+   * @param code 默认错误码
+   * @param msg 默认错误提示
+   * @tparam T 支持的多元素的类型
+   * @return
+   */
+  private[api] def buildFlowResponse[T <: Product](
+    code: Int = SystemConstant.ERROR,
+    msg: String = SystemConstant.ERROR_MESSAGE
+  ): stream.Stream[Throwable, T] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
     val list = ListBuffer[T]()
     val resp = for {
       _ <- respStream.foreach(u => ZIO.effect(list.append(u)))
-      resp = ResultSet[List[T]](data = list.toList).asJson.noSpaces
+      resp = ResultSet[List[T]](data = list.toList, code = code, msg = msg).asJson.noSpaces
       r <- ZStream(resp).map(body => ByteString(body)).toPublisher
     } yield r
     val value = unsafeRun(resp)
@@ -126,14 +134,21 @@ trait ApiJsonCodec extends BootstrapRuntime {
 
   /**
    * 这些函数本来是没有必要的，因为都使用了ResultSet和Stream，被迫在这里转换
-   * @tparam T
+   * @param returnError 是否检验null，如果检验，出现null则返回错误信息
+   * @param code 默认错误码
+   * @param msg 默认错误提示
+   * @tparam T 支持的单元素的类型
    * @return
    */
-  private[api] def buildMonoResponse[T <: Product]
-    : stream.Stream[Throwable, T] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
+  private[api] def buildMonoResponse[T <: Product](
+    returnError: Boolean = true,
+    code: Int = SystemConstant.ERROR,
+    msg: String = SystemConstant.ERROR_MESSAGE
+  ): stream.Stream[Throwable, T] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
     val resp = for {
       resp <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
-      result = ResultSet[T](data = resp).asJson.noSpaces
+      result = (if (resp == null && returnError) ResultSet(data = resp, code = code, msg = msg)
+                else ResultSet(data = resp)).asJson.noSpaces
       r <- ZStream(result).map(body => ByteString(body)).toPublisher
     } yield r
     val value = unsafeRun(resp)
@@ -142,11 +157,15 @@ trait ApiJsonCodec extends BootstrapRuntime {
     )
   }
 
-  private[api] def buildIntMonoResponse
-    : stream.Stream[Throwable, Int] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
+  private[api] def buildIntMonoResponse(
+    returnError: Boolean = true,
+    code: Int = SystemConstant.ERROR,
+    msg: String = SystemConstant.ERROR_MESSAGE
+  ): stream.Stream[Throwable, Int] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
     val resp = for {
       resp <- respStream.runHead.map(_.getOrElse(0))
-      result = ResultSet[Int](data = resp).asJson.noSpaces
+      result = (if (resp < 1 && returnError) ResultSet(data = resp, code = code, msg = msg)
+                else ResultSet(data = resp)).asJson.noSpaces
       r <- ZStream(result).map(body => ByteString(body)).toPublisher
     } yield r
     val value = unsafeRun(resp)
@@ -155,19 +174,23 @@ trait ApiJsonCodec extends BootstrapRuntime {
     )
   }
 
-  private[api] def buildBooleanMonoResponse
-    : stream.Stream[Throwable, Boolean] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream =>
-    {
-      val resp = for {
-        resp <- respStream.runHead.map(_.getOrElse(false))
-        result = ResultSet[Boolean](data = resp).asJson.noSpaces
-        r <- ZStream(result).map(body => ByteString(body)).toPublisher
-      } yield r
-      val value = unsafeRun(resp)
-      Future.successful(
-        Right(Source.fromPublisher(value))
-      )
-    }
+  private[api] def buildBooleanMonoResponse(
+    returnError: Boolean = true,
+    code: Int = SystemConstant.ERROR,
+    msg: String = SystemConstant.ERROR_MESSAGE
+  ): stream.Stream[Throwable, Boolean] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
+    val resp = for {
+      resp <- respStream.runHead.map(_.getOrElse(false))
+      result = (if (!resp && returnError) ResultSet(data = resp, code = code, msg = msg)
+                else ResultSet(data = resp)).asJson.noSpaces
+      r <- ZStream(result).map(body => ByteString(body)).toPublisher
+    } yield r
+    val value = unsafeRun(resp)
+    Future.successful(
+      Right(Source.fromPublisher(value))
+    )
+  }
+
 }
 
 object ApiJsonCodec extends ApiJsonCodec

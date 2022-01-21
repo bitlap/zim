@@ -257,10 +257,13 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SInteger), CodecFormat.Json()))
       .errorOut(oneOf(statusInternalServerError, statusDefault))
 
-  private[api] lazy val updateInfoEndpoint: Endpoint[UserVo, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
+  private[api] lazy val updateInfoEndpoint
+    : Endpoint[UserInput, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
     endpoint.post
       .in(userResource / "updateInfo")
-      .in(jsonBody[UserVo])
+      .in(
+        jsonBody[UserInput].example(UserInput(1, "userName", "pwd", "oldpwd", "sign", "nan")).description("user info")
+      )
       .name("更新信息个人信息")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean), CodecFormat.Json()))

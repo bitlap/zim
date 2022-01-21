@@ -1,12 +1,11 @@
 package org.bitlap.zim.server
 
-import zio.crypto.hash.Hash
-import zio.{ ExitCode, Has, URIO, ZIO }
+import org.bitlap.zim.server.util.SecurityUtil
+import zio.{ ExitCode, URIO, ZIO }
 
 import java.text.SimpleDateFormat
 import java.util.{ Calendar, Date }
 import scala.util.Random
-import org.bitlap.zim.server.util.SecurityUtil
 
 /**
  * 造数据
@@ -30,9 +29,9 @@ object RandomData extends zio.App {
     "134,135,136,137,138,139,150,151,152,157,158,159,130,131,132,155,156,133,153".split(",")
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
-    myAppLogic.provideLayer(Hash.live).exitCode
+    myAppLogic.exitCode
 
-  val myAppLogic: ZIO[Has[Hash], Throwable, Unit] = {
+  val myAppLogic: ZIO[Any, Throwable, Unit] = {
     for {
       password <- SecurityUtil.encrypt("123456")
     } yield (0 to 100).foreach { _ =>

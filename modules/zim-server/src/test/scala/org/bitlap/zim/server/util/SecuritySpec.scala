@@ -13,14 +13,14 @@ import zio.crypto.hash.Hash
 final class SecuritySpec extends AnyFlatSpec with Matchers with BootstrapRuntime {
 
   "encrypt" should "ok" in {
-    val encrypt = unsafeRun(SecurityUtil.encrypt("123456").provideLayer(Hash.live))
+    val encrypt = unsafeRun(SecurityUtil.encrypt("123456"))
     println(encrypt.value)
     assert(encrypt.value == "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
   }
 
   "getUuid32" should "ok" in {
-    val encrypt = unsafeRun(SecurityUtil.encrypt("123456").provideLayer(Hash.live))
-    val matchPwd = unsafeRun(SecurityUtil.matched("123456", encrypt).provideLayer(Hash.live))
+    val encrypt = unsafeRun(SecurityUtil.encrypt("123456"))
+    val matchPwd = unsafeRun(SecurityUtil.matched("123456", encrypt))
     println(matchPwd)
     assert(matchPwd)
   }

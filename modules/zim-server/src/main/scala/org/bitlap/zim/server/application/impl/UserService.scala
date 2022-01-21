@@ -275,7 +275,6 @@ private final class UserService(
       isMath <- ZStream.fromEffect(
         SecurityUtil
           .matched(user.password, MessageDigest(u.password))
-          .provideLayer(Hash.live)
       )
       ret <- if (u == null || !isMath) ZStream.empty else ZStream.succeed(u)
       _ <- LogUtil.infoS(s"matchUser user=>$user, u=>$u, isMath=>$isMath, ret=>$ret")
@@ -309,7 +308,7 @@ private final class UserService(
     // TODO createFriendGroup不用返回Stream会好看点
     val zioRet = for {
       activeCode <- UuidUtil.getUuid64
-      pwd <- SecurityUtil.encrypt(user.password).provideLayer(Hash.live)
+      pwd <- SecurityUtil.encrypt(user.password)
       userCopy = user.copy(
         active = activeCode,
         createDate = ZonedDateTime.now(),

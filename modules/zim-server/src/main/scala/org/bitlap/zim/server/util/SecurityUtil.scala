@@ -1,7 +1,7 @@
 package org.bitlap.zim.server.util
 
+import zio.{ RIO, Task }
 import zio.crypto.hash.{ Hash, HashAlgorithm, MessageDigest }
-import zio.{ Has, RIO }
 
 import java.nio.charset.StandardCharsets.US_ASCII
 
@@ -19,8 +19,8 @@ object SecurityUtil {
    * @param rawPassword
    * @return 80位加密后的密码
    */
-  def encrypt(rawPassword: String): RIO[Has[Hash], MessageDigest[String]] =
-    Hash.hash[HashAlgorithm.SHA256](rawPassword, US_ASCII)
+  def encrypt(rawPassword: String): Task[MessageDigest[String]] =
+    Hash.hash[HashAlgorithm.SHA256](rawPassword, US_ASCII).provideLayer(Hash.live)
 
   /**
    * 验证密码和加密后密码是否一致
@@ -29,9 +29,9 @@ object SecurityUtil {
    * @param password    加密后的密码
    * @return Boolean
    */
-  def matched(rawPassword: String, password: MessageDigest[String]): RIO[Has[Hash], Boolean] =
-    if (rawPassword == null && password == null) RIO.succeed(true)
-    else Hash.verify[HashAlgorithm.SHA256](rawPassword, password, charset = US_ASCII)
+  def matched(rawPassword: String, password: MessageDigest[String]): Task[Boolean] =
+    (if (rawPassword == null && password == null) RIO.succeed(true)
+     else Hash.verify[HashAlgorithm.SHA256](rawPassword, password, charset = US_ASCII)).provideLayer(Hash.live)
 
   // 继承extends zio.App测试
 //  override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
