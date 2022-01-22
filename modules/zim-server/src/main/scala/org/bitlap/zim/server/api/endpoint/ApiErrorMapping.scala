@@ -2,7 +2,8 @@ package org.bitlap.zim.server.api.endpoint
 
 import akka.event.slf4j.Logger
 import akka.http.scaladsl.model.StatusCodes.{ InternalServerError, NotFound }
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
+import akka.http.scaladsl.model.headers.Authorization
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpHeader, HttpResponse }
 import akka.http.scaladsl.server.Directives.{ complete, extractUri }
 import akka.http.scaladsl.server.{ ExceptionHandler, RejectionHandler }
 import io.circe.syntax.EncoderOps
@@ -13,6 +14,9 @@ import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.{ EndpointOutput, _ }
 
+import java.util.Base64
+import scala.util.Try
+
 /**
  * 错误处理
  *
@@ -21,6 +25,8 @@ import sttp.tapir.{ EndpointOutput, _ }
  * @version 1.0
  */
 trait ApiErrorMapping extends ApiJsonCodec {
+
+  import org.bitlap.zim.domain.input.UserSecurity
 
   lazy val errorOut: EndpointIO.Body[String, BusinessException] = jsonBody[BusinessException].description("unknown")
 
@@ -60,4 +66,11 @@ trait ApiErrorMapping extends ApiJsonCodec {
         complete(HttpResponse(NotFound, entity = resp))
       }
       .result()
+
+  def extractAuthorization: PartialFunction[HttpHeader, Option[UserSecurity]] = {
+    case h: HttpHeader =>
+      val secret: String = Try(new String(Base64.getDecoder.decode(h.value()))).getOrElse(null)
+      Option(secret).map(f => UserSecurity(f))
+    case _ => None
+  }
 }

@@ -14,6 +14,7 @@ import sttp.tapir.json.circe._
 import sttp.tapir.server.PartialServerEndpoint
 
 import scala.concurrent.Future
+import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
 
 /**
  * 用户接口的端点
@@ -23,8 +24,6 @@ import scala.concurrent.Future
  * @version 1.0
  */
 trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
-
-  import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
 
   // API 最前缀path
   private[api] lazy val userResource: EndpointInput[Unit] = "user"

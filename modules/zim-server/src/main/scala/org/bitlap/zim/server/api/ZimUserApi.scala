@@ -1,15 +1,23 @@
 package org.bitlap.zim.server.api
 
+import akka.http.scaladsl.model.StatusCodes.OK
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
+import akka.http.scaladsl.server.Directive.addDirectiveApply
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import org.bitlap.zim.domain.SystemConstant
+import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.server.api.endpoint.UserEndpoint.{ authenticate, userResource, Authorization }
 import org.bitlap.zim.server.api.endpoint.{ ApiErrorMapping, ApiJsonCodec, UserEndpoint }
 import org.bitlap.zim.server.application.ApiApplication
 import org.bitlap.zim.server.application.impl.ApiService.ZApiApplication
+import org.bitlap.zim.server.util.FileUtil
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * 用户API
@@ -30,6 +38,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ findUserByIdRoute
       ~ updateInfoRoute
       ~ loginRoute
+      ~ indexRoute
   )
 
   lazy val userGetRoute: Route = AkkaHttpServerInterpreter().toRoute(UserEndpoint.userGetOneEndpoint.serverLogic { id =>
@@ -63,7 +72,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       val resultStream = apiApplication.login(input)
       buildMonoResponse[User](
         t => if (t == null || t.status.equals("nonactivated")) true else false,
-        msg = SystemConstant.NONACTIVED
+        msg = SystemConstant.REGISTER_FAIL
       )(resultStream)
     }
   )
@@ -76,11 +85,37 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
         }
       },
       get {
+        path("favicon.ico") {
+          getFromResource("static/image/favicon.ico")
+        }
+      },
+      get {
         pathPrefix("static" / Remaining) { resource =>
           getFromResource("static/" + resource)
         }
       }
     )
+
+  lazy val indexRoute: Route = get {
+    pathPrefix(userResource.show / "index") {
+      headerValueByName(Authorization) { user =>
+        val checkFuture = authenticate(UserSecurity(user)).map(_.getOrElse(null))
+        onComplete(checkFuture) {
+          case util.Success(u) if u != null =>
+            // 这是不使用任何渲染模板
+            val resp =
+              HttpEntity(
+                ContentTypes.`text/html(UTF-8)`,
+                FileUtil.getFileAndInjectData("static/html/index.html", "${uid}", s"${u.id}")
+              )
+            val httpResp = HttpResponse(OK, entity = resp) /*.addAttribute(AttributeKey("uid"), u.id)*/
+            complete(httpResp)
+          case _ => getFromResource("static/html/403.html")
+
+        }
+      }
+    }
+  }
 }
 
 object ZimUserApi {

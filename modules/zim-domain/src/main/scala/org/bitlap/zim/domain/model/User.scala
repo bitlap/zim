@@ -48,8 +48,8 @@ object User extends BaseModel[User] {
 
   def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[User]): User = autoConstruct(rs, sp)
 
-  def apply(email: String, password: String) = new User(
-    0,
+  def apply(id: Int, email: String, password: String) = new User(
+    id = id,
     username = null,
     password = password,
     sign = null,
