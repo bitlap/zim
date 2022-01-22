@@ -19,7 +19,7 @@ object Dependencies {
     val config = "1.4.1"
     val mysql = "8.0.28"
     val `zio-interop-reactiveStreams` = "1.3.9"
-    val `simple-java-mail` = "6.7.5"
+    val `simple-java-mail` = "6.7.6"
     val h2 = "2.1.210"
     val scalaTest = "3.2.10"
     val `zio-actors` = "0.0.9"
@@ -83,7 +83,7 @@ object Dependencies {
     "dev.zio" %% "zio-streams" % Version.zio,
     "dev.zio" %% "zio-actors" % Version.`zio-actors`,
     "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
-    "eu.timepit" %% "refined" % Version.refined,
+    "eu.timepit" %% "refined" % Version.refined
   ) ++ circeDeps
 
   lazy val cacheDeps = Seq(
