@@ -2,11 +2,11 @@ package org.bitlap.zim.server.api.endpoint
 
 import akka.event.slf4j.Logger
 import akka.http.scaladsl.model.StatusCodes.{ InternalServerError, NotFound }
-import akka.http.scaladsl.model.headers.Authorization
 import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpHeader, HttpResponse }
 import akka.http.scaladsl.server.Directives.{ complete, extractUri }
 import akka.http.scaladsl.server.{ ExceptionHandler, RejectionHandler }
 import io.circe.syntax.EncoderOps
+import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.{ ResultSet, SystemConstant }
 import org.bitlap.zim.server.api.exception.ZimError.BusinessException
 import sttp.model.StatusCode
@@ -25,8 +25,6 @@ import scala.util.Try
  * @version 1.0
  */
 trait ApiErrorMapping extends ApiJsonCodec {
-
-  import org.bitlap.zim.domain.input.UserSecurity
 
   lazy val errorOut: EndpointIO.Body[String, BusinessException] = jsonBody[BusinessException].description("unknown")
 
