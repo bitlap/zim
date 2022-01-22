@@ -271,7 +271,7 @@ private final class UserService(
       return ZStream.empty
     }
     for {
-      u <- userRepository.matchUser(user.email)
+      u <- userRepository.matchUser(user.email) //TODO 前端加密传输
       isMath <- ZStream.fromEffect(
         SecurityUtil
           .matched(user.password, MessageDigest(u.password))

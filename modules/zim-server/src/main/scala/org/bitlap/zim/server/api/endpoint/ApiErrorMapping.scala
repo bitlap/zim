@@ -1,16 +1,16 @@
 package org.bitlap.zim.server.api.endpoint
 
 import akka.event.slf4j.Logger
-import akka.http.scaladsl.model
 import akka.http.scaladsl.model.StatusCodes.{ InternalServerError, NotFound }
 import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
 import akka.http.scaladsl.server.Directives.{ complete, extractUri }
 import akka.http.scaladsl.server.{ ExceptionHandler, RejectionHandler }
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.domain
-import org.bitlap.zim.domain.ZimError.BusinessException
 import org.bitlap.zim.domain.{ ResultSet, SystemConstant }
+import org.bitlap.zim.server.api.exception.ZimError.BusinessException
 import sttp.model.StatusCode
+import sttp.tapir.generic.auto.schemaForCaseClass
+import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.{ EndpointOutput, _ }
 
 /**
@@ -22,20 +22,13 @@ import sttp.tapir.{ EndpointOutput, _ }
  */
 trait ApiErrorMapping extends ApiJsonCodec {
 
-  private[api] lazy val defaultDescription = "Unknown Error"
-  private[api] lazy val statusDefault: EndpointOutput.StatusMapping[domain.ZimError] =
-    statusDefaultMapping(
-      anyJsonBody[domain.ZimError].example(domain.ZimError.BusinessException()).description(defaultDescription)
-    )
+  lazy val errorOut: EndpointIO.Body[String, BusinessException] = jsonBody[BusinessException].description("unknown")
 
-  private lazy val internalServerErrorDescription: String = model.StatusCodes.InternalServerError.defaultMessage
-  private[api] lazy val statusInternalServerError: EndpointOutput.StatusMapping[domain.ZimError.BusinessException] =
-    statusMapping(
-      StatusCode.InternalServerError,
-      anyJsonBody[domain.ZimError.BusinessException]
-        .example(domain.ZimError.BusinessException())
-        .description(internalServerErrorDescription)
-    )
+  lazy val errorOutVar: Seq[EndpointOutput.OneOfVariant[BusinessException]] = Seq(
+    oneOfVariant(StatusCode.Unauthorized, jsonBody[BusinessException].description("unauthorized")),
+    oneOfVariant(StatusCode.NotFound, jsonBody[BusinessException].description("not found")),
+    oneOfDefaultVariant(jsonBody[BusinessException].description("business exception"))
+  )
 
   // 注意这里是PartialFunction，不能使用`_`匹配
   private[api] implicit def customExceptionHandler: ExceptionHandler = ExceptionHandler {

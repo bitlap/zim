@@ -7,6 +7,7 @@ import org.bitlap.zim.server.util.SecurityUtil
 import zio.crypto.hash.MessageDigest
 import zio.stream.ZStream
 import zio.{ stream, Has }
+import org.bitlap.zim.domain.input.UserSecurity
 
 /**
  * @author 梦境迷离
@@ -49,6 +50,9 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         }
     } yield checkAndUpdate
   }
+
+  override def login(user: UserSecurity.UserSecurityInfo): stream.Stream[Throwable, User] =
+    userApplication.matchUser(User(user.email, user.password))
 }
 
 object ApiService {

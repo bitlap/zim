@@ -4,7 +4,7 @@ import io.circe.Decoder
 import io.circe.generic.semiauto._
 
 /**
- * 返回个人信息更新
+ * 用户信息提交 输入
  *
  * @param id
  * @param username 用户名

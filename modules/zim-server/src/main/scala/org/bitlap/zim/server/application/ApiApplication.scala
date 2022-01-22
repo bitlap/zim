@@ -2,6 +2,7 @@ package org.bitlap.zim.server.application
 import org.bitlap.zim.domain.input.UserInput
 import zio.stream
 import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.input.UserSecurity
 
 /**
  *  直接提供给endpoint使用
@@ -18,5 +19,7 @@ trait ApiApplication extends BaseApplication[User] {
   def findUserById(id: Int): stream.Stream[Throwable, User]
 
   def updateInfo(user: UserInput): stream.Stream[Throwable, Boolean]
+
+  def login(user: UserSecurity.UserSecurityInfo): stream.Stream[Throwable, User]
 
 }

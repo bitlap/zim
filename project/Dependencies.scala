@@ -10,7 +10,7 @@ object Dependencies {
   object Version {
     val zio = "1.0.13"
     val `zio-logging` = "0.5.14"
-    val tapir = "0.17.20" //TODO upgrade
+    val tapir = "0.19.3"
     val `akka-http` = "10.2.7"
     val akka = "2.6.18"
     val circe = "0.14.1"
@@ -25,6 +25,7 @@ object Dependencies {
     val `zio-actors` = "0.0.9"
     val refined = "0.9.28"
     val `zio-schema` = "0.1.7"
+    val `akka-http-session` = "0.6.1"
   }
 
   lazy val redisDeps = "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT" // 实验性质的
@@ -49,7 +50,8 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-akka-http" % Version.tapir
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % Version.tapir,
+    "com.softwaremill.akka-http-session" %% "core" % Version.`akka-http-session`
 //    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"  % Version.tapir,
 //    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
 //    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe" % Version.tapir,

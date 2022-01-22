@@ -47,4 +47,17 @@ object User extends BaseModel[User] {
   implicit val encoder: Encoder[User] = deriveEncoder[User]
 
   def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[User]): User = autoConstruct(rs, sp)
+
+  def apply(email: String, password: String) = new User(
+    0,
+    username = null,
+    password = password,
+    sign = null,
+    avatar = null,
+    email = email,
+    createDate = null,
+    sex = 0,
+    status = null,
+    active = null
+  )
 }

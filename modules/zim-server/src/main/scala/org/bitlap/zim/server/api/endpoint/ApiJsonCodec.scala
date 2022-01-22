@@ -1,16 +1,15 @@
 package org.bitlap.zim.server.api.endpoint
 
-import akka.NotUsed
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import io.circe.generic.extras.Configuration
 import io.circe.parser.parse
 import io.circe.syntax.EncoderOps
 import io.circe.{ Decoder, Encoder, HCursor, Json }
-import org.bitlap.zim.domain
-import org.bitlap.zim.domain.ZimError.BusinessException
 import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.{ ResultPageSet, ResultSet }
+import org.bitlap.zim.domain.{ ResultPageSet, ResultSet, SystemConstant }
+import org.bitlap.zim.server.api.exception.ZimError
+import org.bitlap.zim.server.api.exception.ZimError.BusinessException
 import sttp.tapir.Codec.JsonCodec
 import sttp.tapir.json.circe._
 import zio._
@@ -19,7 +18,6 @@ import zio.stream.ZStream
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
-import org.bitlap.zim.domain.SystemConstant
 
 /**
  * API的circe解码器
@@ -92,7 +90,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
       }
     )
 
-  private[api] implicit def zimErrorCodec[A <: domain.ZimError]: JsonCodec[A] =
+  private[api] implicit def zimErrorCodec[A <: ZimError]: JsonCodec[A] =
     implicitly[JsonCodec[Json]].map(json =>
       json.as[A] match {
         case Left(_)      => throw new RuntimeException("MessageParsingError")
@@ -100,9 +98,9 @@ trait ApiJsonCodec extends BootstrapRuntime {
       }
     )(error => error.asJson)
 
-  implicit def encodeZimError[A <: domain.ZimError]: Encoder[A] = (_: A) => Json.Null
+  implicit def encodeZimError[A <: ZimError]: Encoder[A] = (_: A) => Json.Null
 
-  implicit def decodeZimError[A <: domain.ZimError]: Decoder[A] =
+  implicit def decodeZimError[A <: ZimError]: Decoder[A] =
     (c: HCursor) =>
       for {
         code <- c.get[Int]("code")
@@ -118,7 +116,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
   private[api] def buildFlowResponse[T <: Product](
     code: Int = SystemConstant.ERROR,
     msg: String = SystemConstant.ERROR_MESSAGE
-  ): stream.Stream[Throwable, T] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
+  ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val list = ListBuffer[T]()
     val resp = for {
       _ <- respStream.foreach(u => ZIO.effect(list.append(u)))
@@ -140,13 +138,13 @@ trait ApiJsonCodec extends BootstrapRuntime {
    * @return
    */
   private[api] def buildMonoResponse[T <: Product](
-    returnError: Boolean = true,
+    returnError: T => Boolean = (t: T) => false,
     code: Int = SystemConstant.ERROR,
     msg: String = SystemConstant.ERROR_MESSAGE
-  ): stream.Stream[Throwable, T] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
+  ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = for {
       resp <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
-      result = (if (resp == null && returnError) ResultSet(data = resp, code = code, msg = msg)
+      result = (if (returnError(resp)) ResultSet(data = resp, code = code, msg = msg)
                 else ResultSet(data = resp)).asJson.noSpaces
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r
@@ -160,7 +158,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
     returnError: Boolean = true,
     code: Int = SystemConstant.ERROR,
     msg: String = SystemConstant.ERROR_MESSAGE
-  ): stream.Stream[Throwable, Int] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
+  ): stream.Stream[Throwable, Int] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = for {
       resp <- respStream.runHead.map(_.getOrElse(0))
       result = (if (resp < 1 && returnError) ResultSet(data = resp, code = code, msg = msg)
@@ -177,7 +175,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
     returnError: Boolean = true,
     code: Int = SystemConstant.ERROR,
     msg: String = SystemConstant.ERROR_MESSAGE
-  ): stream.Stream[Throwable, Boolean] => Future[Either[domain.ZimError, Source[ByteString, NotUsed]]] = respStream => {
+  ): stream.Stream[Throwable, Boolean] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = for {
       resp <- respStream.runHead.map(_.getOrElse(false))
       result = (if (!resp && returnError) ResultSet(data = resp, code = code, msg = msg)
