@@ -27,6 +27,7 @@ import zio.crypto.hash.{ Hash, MessageDigest }
 import zio.stream.ZStream
 import zio.{ stream, Has, URLayer, ZLayer }
 import org.bitlap.zim.domain.ChatHistory
+import org.bitlap.zim.server.api.exception.ZimError.BusinessException
 
 import java.time.ZonedDateTime
 
@@ -274,7 +275,7 @@ private final class UserService(
       u <- userRepository.matchUser(user.email) //TODO 前端加密传输
       isMath <- ZStream.fromEffect(
         SecurityUtil
-          .matched(user.password, MessageDigest(u.password))
+          .matched(user.password, u.password)
       )
       ret <- if (u == null || !isMath) ZStream.empty else ZStream.succeed(u)
       _ <- LogUtil.infoS(s"matchUser user=>$user, u=>$u, isMath=>$isMath, ret=>$ret")

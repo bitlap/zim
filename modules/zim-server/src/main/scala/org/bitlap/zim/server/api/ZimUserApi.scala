@@ -6,17 +6,17 @@ import akka.http.scaladsl.server.Directive.addDirectiveApply
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
-import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
 import org.bitlap.zim.server.api.endpoint.UserEndpoint.{ authenticate, Authorization }
 import org.bitlap.zim.server.api.endpoint.{ ApiErrorMapping, ApiJsonCodec, UserEndpoint }
 import org.bitlap.zim.server.application.ApiApplication
 import org.bitlap.zim.server.application.impl.ApiService.ZApiApplication
 import org.bitlap.zim.server.util.FileUtil
+import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
-import sttp.model.headers.CookieValueWithMeta
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -45,7 +45,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
 
   lazy val userGetRoute: Route = AkkaHttpServerInterpreter().toRoute(UserEndpoint.userGetOneEndpoint.serverLogic { id =>
     val userStream = apiApplication.findById(id)
-    buildMonoResponse[User](returnError => returnError == null)(userStream)
+    buildMonoResponse[User]()(userStream)
   })
 
   // 超高阶函数
@@ -72,10 +72,11 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   lazy val loginRoute: Route = AkkaHttpServerInterpreter().toRoute(
     UserEndpoint.loginEndpoint.serverLogic { input =>
       val resultStream = apiApplication.login(input)
-      val ret = buildMonoResponse[User](
-        t => if (t == null || t.status.equals("nonactivated")) true else false,
-        msg = SystemConstant.REGISTER_FAIL
-      )(resultStream)
+      val ret = buildMonoResponse[User] {
+        case user: User if user == null                       => SystemConstant.LOGIN_ERROR
+        case user: User if user.status.equals("nonactivated") => SystemConstant.NONACTIVED
+        case _                                                => null
+      }(resultStream)
       ret.map {
         case Right(s) =>
           Right(

@@ -29,7 +29,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
     for {
       u <- userApplication.findUserById(user.id)
-      pwdCheck <- ZStream.fromEffect(SecurityUtil.matched(user.oldpwd, MessageDigest(u.password)))
+      pwdCheck <- ZStream.fromEffect(SecurityUtil.matched(user.oldpwd, u.password))
       newPwd <- ZStream.fromEffect(SecurityUtil.encrypt(user.password))
       sex = if (user.sex.equals("nan")) 1 else 0
       checkAndUpdate <-

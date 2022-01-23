@@ -145,14 +145,17 @@ trait ApiJsonCodec extends BootstrapRuntime {
    * @return
    */
   private[api] def buildMonoResponse[T <: Product](
-    returnError: T => Boolean = (t: T) => false,
-    code: Int = SystemConstant.ERROR,
-    msg: String = SystemConstant.ERROR_MESSAGE
+    returnError: PartialFunction[T, String] = {
+      { case tt: T @unchecked =>
+        null
+      }: PartialFunction[T, String]
+    }
   ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = for {
       ret <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
       result = (
-        if (returnError(ret)) ResultSet[T](data = ret, code = code, msg = msg)
+        if (returnError(ret) != null)
+          ResultSet[T](data = null.asInstanceOf[T], code = SystemConstant.ERROR, msg = returnError(ret))
         else ResultSet[T](data = ret)
       ).asJson.noSpaces
       _ <- LogUtil.info(s"buildMonoResponse ret=>$ret result=>$result")
