@@ -16,6 +16,7 @@ import sttp.model.headers.CookieValueWithMeta
 
 import scala.concurrent.Future
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
+import org.bitlap.zim.server.api.exception.ZimError.Unauthorized
 
 /**
  * 用户接口的端点
@@ -31,6 +32,12 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
   // API  资源描述
   private[api] lazy val userResourceDescription: String = "User Endpoint"
 
+  val secureEndpoint: PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, Unauthorized, Unit, Any, Future] =
+    endpoint
+      .securityIn(cookie[String](Authorization).mapTo[UserSecurity])
+      .errorOut(customJsonBody[Unauthorized])
+      .serverSecurityLogic(authenticate)
+
   //================================================用户API定义（这是用于测试的接口）===============================================================
   private[api] lazy val userGetOneEndpoint
     : Endpoint[Unit, Long, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
@@ -43,10 +50,11 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   //================================================用户API定义（正式接口）===============================================================
-  private[api] lazy val leaveOutGroupEndpoint: PartialServerEndpoint[UserSecurity, User, (Int, Int), ZimError, Source[
-    ByteString,
-    Any
-  ], Any with AkkaStreams, Future] =
+  private[api] lazy val leaveOutGroupEndpoint
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, (Int, Int), ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "leaveOutGroup" / query[Int]("groupId") / query[Int]("uid"))
       .name("退出群")
@@ -55,7 +63,10 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants(errorOutVar.head, errorOutVar.tail: _*)
 
   private[api] lazy val removeFriendEndpoint
-    : PartialServerEndpoint[UserSecurity, User, Int, ZimError, Source[ByteString, Any], Any with AkkaStreams, Future] =
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, Int, ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "removeFriend" / query[Int]("removeFriend"))
       .name("删除好友")
@@ -63,10 +74,11 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  private[api] lazy val changeGroupEndpoint: PartialServerEndpoint[UserSecurity, User, (Int, Int), ZimError, Source[
-    ByteString,
-    Any
-  ], Any with AkkaStreams, Future] =
+  private[api] lazy val changeGroupEndpoint
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, (Int, Int), ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "changeGroup" / query[Int]("groupId") / query[Int]("userId"))
       .name("移动好友分组")
@@ -74,10 +86,11 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  private[api] lazy val refuseFriendEndpoint: PartialServerEndpoint[UserSecurity, User, (Int, Int), ZimError, Source[
-    ByteString,
-    Any
-  ], Any with AkkaStreams, Future] =
+  private[api] lazy val refuseFriendEndpoint
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, (Int, Int), ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "refuseFriend" / query[Int]("messageBoxId") / query[Int]("to"))
       .name("拒绝添加好友")
@@ -86,7 +99,7 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   private[api] lazy val agreeFriendEndpoint
-    : PartialServerEndpoint[UserSecurity, User, (Int, Int, Int, Int), ZimError, Source[
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, (Int, Int, Int, Int), ZimError, Source[
       ByteString,
       Any
     ], Any with AkkaStreams, Future] =
@@ -101,10 +114,11 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  private[api] lazy val findAddInfoEndpoint: PartialServerEndpoint[UserSecurity, User, (Int, Int), ZimError, Source[
-    ByteString,
-    Any
-  ], Any with AkkaStreams, Future] =
+  private[api] lazy val findAddInfoEndpoint
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, (Int, Int), ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.get
       .in(userResource / "findAddInfo" / query[Int]("uid") / query[Int]("page"))
       .name("查询消息盒子信息")
@@ -113,7 +127,7 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   private[api] lazy val findUsersEndpoint
-    : PartialServerEndpoint[UserSecurity, User, (Int, Option[Boolean], Option[Int]), ZimError, Source[
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, (Int, Option[Boolean], Option[Int]), ZimError, Source[
       ByteString,
       Any
     ], Any with AkkaStreams, Future] =
@@ -128,7 +142,7 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   private[api] lazy val findGroupsEndpoint
-    : PartialServerEndpoint[UserSecurity, User, (Int, Option[Boolean]), ZimError, Source[
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, (Int, Option[Boolean]), ZimError, Source[
       ByteString,
       Any
     ], Any with AkkaStreams, Future] =
@@ -139,10 +153,11 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[GroupList].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  private[api] lazy val findMyGroupsEndpoint: PartialServerEndpoint[UserSecurity, User, (Int, Int), ZimError, Source[
-    ByteString,
-    Any
-  ], Any with AkkaStreams, Future] =
+  private[api] lazy val findMyGroupsEndpoint
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, (Int, Int), ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.get
       .in(userResource / "findMyGroups" / query[Int]("page").default(1) / query[Int]("createId"))
       .name("分页查询我的创建的群组")
@@ -150,10 +165,11 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[GroupList].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  private[api] lazy val chatLogEndpoint: PartialServerEndpoint[UserSecurity, User, (Int, String, Int), ZimError, Source[
-    ByteString,
-    Any
-  ], Any with AkkaStreams, Future] =
+  private[api] lazy val chatLogEndpoint
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, (Int, String, Int), ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "chatLog" / query[Int]("id") / query[String]("type") / query[Int]("page").default(1))
       .name("获取聊天记录")
@@ -162,10 +178,11 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   // TODO 返回页面且携带数据
-  private[api] lazy val chatLogIndexEndpoint: PartialServerEndpoint[UserSecurity, User, (Int, String), ZimError, Source[
-    ByteString,
-    Any
-  ], Any with AkkaStreams, Future] =
+  private[api] lazy val chatLogIndexEndpoint
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, (Int, String), ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.get
       .in(userResource / "chatLogIndex" / query[Int]("id") / query[String]("type"))
       .name("弹出聊天记录页面")
@@ -174,7 +191,10 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   private[api] lazy val getOffLineMessageEndpoint
-    : PartialServerEndpoint[UserSecurity, User, Unit, ZimError, Source[ByteString, Any], Any with AkkaStreams, Future] =
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "getOffLineMessage")
       .name("获取离线消息")
@@ -182,10 +202,11 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[domain.ChatHistory].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  private[api] lazy val updateSignEndpoint: PartialServerEndpoint[UserSecurity, User, String, ZimError, Source[
-    ByteString,
-    Any
-  ], Any with AkkaStreams, Future] =
+  private[api] lazy val updateSignEndpoint
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, String, ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "updateSign" / query[String]("sign"))
       .name("更新签名")
@@ -193,8 +214,10 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  private[api] lazy val initEndpoint
-    : PartialServerEndpoint[UserSecurity, User, Int, ZimError, Source[ByteString, Any], Any with AkkaStreams, Future] =
+  private[api] lazy val initEndpoint: PartialServerEndpoint[UserSecurity, UserSecurityInfo, Int, ZimError, Source[
+    ByteString,
+    Any
+  ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "init" / path[Int]("userId"))
       .name("初始化主界面数据")
@@ -203,7 +226,10 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   private[api] lazy val getMembersEndpoint
-    : PartialServerEndpoint[UserSecurity, User, Unit, ZimError, Source[ByteString, Any], Any with AkkaStreams, Future] =
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.get
       .in(userResource / "getMembers")
       .name("获取群成员")
@@ -213,7 +239,10 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
 
   // TODO 上传文件 file
   private[api] lazy val uploadImageEndpoint
-    : PartialServerEndpoint[UserSecurity, User, Unit, ZimError, Source[ByteString, Any], Any with AkkaStreams, Future] =
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "upload" / "image")
       .name("客户端上传图片")
@@ -223,7 +252,10 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
 
   // TODO 上传文件 file
   private[api] lazy val uploadFileEndpoint
-    : PartialServerEndpoint[UserSecurity, User, Unit, ZimError, Source[ByteString, Any], Any with AkkaStreams, Future] =
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "upload" / "file")
       .name("客户端上传文件")
@@ -233,7 +265,10 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
 
   // TODO 上传文件 file
   private[api] lazy val uploadGroupAvatarEndpoint
-    : PartialServerEndpoint[UserSecurity, User, Unit, ZimError, Source[ByteString, Any], Any with AkkaStreams, Future] =
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "upload" / "groupAvatar")
       .name("上传群组头像")
@@ -243,7 +278,10 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
 
   // TODO 上传文件 avatar
   private[api] lazy val updateAvatarEndpoint
-    : PartialServerEndpoint[UserSecurity, User, Unit, ZimError, Source[ByteString, Any], Any with AkkaStreams, Future] =
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "updateAvatar")
       .name("用户更新头像")
@@ -251,10 +289,11 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[UploadResult].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  private[api] lazy val createGroupEndpoint: PartialServerEndpoint[UserSecurity, User, GroupList, ZimError, Source[
-    ByteString,
-    Any
-  ], Any with AkkaStreams, Future] =
+  private[api] lazy val createGroupEndpoint
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, GroupList, ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "createGroup")
       .in(jsonBody[GroupList])
@@ -264,7 +303,7 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   private[api] lazy val createUserGroupEndpoint
-    : PartialServerEndpoint[UserSecurity, User, FriendGroup, ZimError, Source[
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, FriendGroup, ZimError, Source[
       ByteString,
       Any
     ], Any with AkkaStreams, Future] =
@@ -276,10 +315,11 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SInteger()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  private[api] lazy val updateInfoEndpoint: PartialServerEndpoint[UserSecurity, User, UserInput, ZimError, Source[
-    ByteString,
-    Any
-  ], Any with AkkaStreams, Future] =
+  private[api] lazy val updateInfoEndpoint
+    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, UserInput, ZimError, Source[
+      ByteString,
+      Any
+    ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "updateInfo")
       .in(
@@ -291,8 +331,10 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   // TODO 跳转主页
-  private[api] lazy val indexEndpoint
-    : PartialServerEndpoint[UserSecurity, User, Unit, ZimError, Source[ByteString, Any], Any with AkkaStreams, Future] =
+  private[api] lazy val indexEndpoint: PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, ZimError, Source[
+    ByteString,
+    Any
+  ], Any with AkkaStreams, Future] =
     secureEndpoint.get
       .in(userResource / "index")
       .name("跳转主页")
@@ -300,8 +342,10 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SString()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  private[api] lazy val findUserEndpoint
-    : PartialServerEndpoint[UserSecurity, User, Int, ZimError, Source[ByteString, Any], Any with AkkaStreams, Future] =
+  private[api] lazy val findUserEndpoint: PartialServerEndpoint[UserSecurity, UserSecurityInfo, Int, ZimError, Source[
+    ByteString,
+    Any
+  ], Any with AkkaStreams, Future] =
     secureEndpoint.get
       .in(userResource / "findUser" / query[Int]("id").example(1).description("user id"))
       .name("根据id查找用户信息")
