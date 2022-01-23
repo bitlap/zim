@@ -4,8 +4,9 @@ import akka.http.scaladsl.model.ws.TextMessage
 import akka.stream.scaladsl.Flow
 import sttp.capabilities.WebSockets
 import sttp.capabilities.akka.AkkaStreams
+import sttp.tapir.Codec.parsedString
 import sttp.tapir.generic.auto.schemaForCaseClass
-import sttp.tapir.{ Endpoint, endpoint, query, _ }
+import sttp.tapir.{ endpoint, query, _ }
 import sttp.ws.WebSocketFrame
 
 import scala.concurrent.duration.DurationInt
@@ -13,13 +14,16 @@ import scala.concurrent.duration.DurationInt
 /**
  * @author 梦境迷离
  * @since 2022/1/16
- * @version 1.0
+ * @version 2.0
  */
 trait WsEndpoint {
 
   // TODO use domain, not TextMessage
-  private[api] lazy val wsEndpoint
-    : Endpoint[Int, Unit, Flow[TextMessage.Strict, TextMessage.Strict, Any], Any with AkkaStreams with WebSockets] =
+  private[api] lazy val wsEndpoint: PublicEndpoint[Int, Unit, Flow[
+    TextMessage.Strict,
+    TextMessage.Strict,
+    Any
+  ], Any with AkkaStreams with WebSockets] =
     endpoint
       .in("websocket" / query[Int]("uid"))
       .description("Websocket Endpoint")
@@ -37,11 +41,13 @@ trait WsEndpoint {
   ], AkkaStreams] =
     new WebSocketBodyBuilder[TextMessage.Strict, CodecFormat, TextMessage.Strict, CodecFormat]
       .apply(AkkaStreams)(
-        requests = Codec.textWebSocketFrameCodec(
-          Codec.stringCodec(s => TextMessage(s))
+        requests = Codec.textWebSocketFrame(
+          parsedString[TextMessage.Strict](t => TextMessage.Strict(t))
+            .schema(implicitly[Schema[TextMessage.Strict]])
         ),
-        responses = Codec.textWebSocketFrameCodec(
-          Codec.stringCodec(s => TextMessage.Strict(s))
+        responses = Codec.textWebSocketFrame(
+          parsedString[TextMessage.Strict](t => TextMessage.Strict(t))
+            .schema(implicitly[Schema[TextMessage.Strict]])
         )
       )
       .concatenateFragmentedFrames(false)

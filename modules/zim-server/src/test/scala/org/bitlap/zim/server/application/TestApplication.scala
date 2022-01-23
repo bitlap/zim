@@ -1,7 +1,7 @@
 package org.bitlap.zim.server.application
 
 import org.bitlap.zim.server.BaseData
-import org.bitlap.zim.server.application.UserService.ZUserApplication
+import org.bitlap.zim.server.application.impl.UserService.ZUserApplication
 import org.bitlap.zim.server.configuration.InfrastructureConfiguration
 import org.bitlap.zim.server.repository.TangibleAddMessageRepository.ZAddMessageRepository
 import org.bitlap.zim.server.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
@@ -12,6 +12,7 @@ import org.bitlap.zim.server.repository.TangibleReceiveRepository.ZReceiveReposi
 import org.bitlap.zim.server.repository.TangibleUserRepository.ZUserRepository
 import scalikejdbc._
 import zio.{ Layer, TaskLayer, ULayer, ZLayer }
+import org.bitlap.zim.server.application.impl.UserService
 
 /**
  * 测试service的所有layer

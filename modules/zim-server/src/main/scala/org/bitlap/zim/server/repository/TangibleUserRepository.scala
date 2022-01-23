@@ -6,7 +6,7 @@ import org.bitlap.zim.domain.repository.UserRepository
 import scalikejdbc._
 import zio._
 
-import scala.language.implicitConversions
+import scala.language.{ implicitConversions, postfixOps }
 
 /**
  * 用户的操作实现
@@ -16,7 +16,8 @@ import scala.language.implicitConversions
  * @version 1.0
  */
 private final class TangibleUserRepository(databaseName: String)
-  extends TangibleBaseRepository(User) with UserRepository {
+    extends TangibleBaseRepository(User)
+    with UserRepository {
 
   override val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
   override implicit lazy val dbName: String = databaseName
@@ -52,7 +53,7 @@ private final class TangibleUserRepository(databaseName: String)
     _saveUser(model.User.table, user).toUpdateReturnKey
 
   override def matchUser(email: String): stream.Stream[Throwable, model.User] =
-    this.find("email" -> email)
+    this.find("email" === email)
 }
 
 object TangibleUserRepository {

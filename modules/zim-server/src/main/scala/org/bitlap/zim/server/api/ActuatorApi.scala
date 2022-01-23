@@ -14,14 +14,14 @@ import scala.concurrent.Future
  *
  * @author 梦境迷离
  * @since 2021/12/25
- * @version 1.0
+ * @version 2.0
  */
 final class ActuatorApi {
 
   // https://doc.akka.io/docs/akka-http/current/routing-dsl/directives/debugging-directives/logRequestResult.html
   lazy val route: Route = DebuggingDirectives.logRequestResult("actuator-logger") {
-    AkkaHttpServerInterpreter.toRoute(ActuatorEndpoint.healthEndpoint)(_ =>
-      Future.successful(Right(ZimBuildInfo.toMap))
+    AkkaHttpServerInterpreter().toRoute(
+      ActuatorEndpoint.healthEndpoint.serverLogic[Future](_ => Future.successful(Right(ZimBuildInfo.toMap)))
     )
   }
 

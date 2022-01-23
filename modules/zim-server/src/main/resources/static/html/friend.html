@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>好友信息</title>
+<link rel="stylesheet" href="/static/layui/css/layui.css">
+<script src="/static/layui/layui.js"></script>
+</head>
+<body>
+<div style="padding: 15px">
+	<div class="layui-form layui-form-pane">
+		<div id="user_info">
+			<div class="layui-form-item">
+				<label for="user_name" class="layui-form-label">用户名</label>
+				<div class="layui-input-inline">
+					<input type="text" id="username" name="username" autocomplete="off" class="layui-input" value="" disabled="">
+				</div>				
+			</div>
+			
+            <div class="site-demo-upload" style="position:absolute; top:5px;margin-left: 330px;">
+                <img id="LAY_demo_upload" src="" width="130px" height="150px">
+            </div>
+            
+			<div class="layui-form-item">
+				<label for="user_email" class="layui-form-label">邮箱</label>
+				<div class="layui-input-inline">
+					<input type="email" id="email" name="email" autocomplete="off" class="layui-input" value="" disabled="">
+				</div>
+			</div>
+			<div class="layui-form-item sex">
+				<label class="layui-form-label">性别</label>
+				<div class="layui-input-inline">
+					<input type="text" id="sex" name="sex" autocomplete="off" class="layui-input" value="" disabled="">
+				</div>				
+			</div>
+			<div class="layui-form-item">
+				<label for="user_email" class="layui-form-label">签名</label>
+				<div class="layui-input-inline">
+					<input type="text" id="sign" name="sign" autocomplete="off" class="layui-input" style="width: 350px;" disabled="">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+<script src="/static/js/friend.js"></script>
+</html>

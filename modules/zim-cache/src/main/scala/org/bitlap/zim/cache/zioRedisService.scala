@@ -1,7 +1,8 @@
 package org.bitlap.zim.cache
 
-import zio.{ Chunk, Has, IO, Layer, ZIO }
 import zio.redis.RedisError
+import zio.schema.Schema
+import zio.{ Chunk, Has, IO, Layer, ZIO }
 
 /**
  * Redis缓存服务
@@ -43,6 +44,30 @@ object zioRedisService {
        * @return Long
        */
       def setSet(k: String, v: String): IO[RedisError, Long]
+
+      /**
+       * 存储key-value
+       *
+       * @param key
+       * @return Object
+       */
+      def set(key: String, value: String): IO[RedisError, Boolean]
+
+      /**
+       * 根据key获取value
+       *
+       * @param key
+       * @return Object
+       */
+      def get[T: Schema](key: String): IO[RedisError, Option[T]]
+
+      /**
+       * 判断key是否存在
+       *
+       * @param key
+       * @return Boolean
+       */
+      def exists(key: String): IO[RedisError, Long]
     }
   }
 
@@ -62,4 +87,20 @@ object zioRedisService {
     layer: Layer[RedisError.IOError, ZRedisCacheService]
   ): IO[RedisError, Long] =
     ZIO.serviceWith[RedisCacheService.Service](_.setSet(k, v)).provideLayer(layer)
+
+  def set(key: String, value: String)(implicit
+    layer: Layer[RedisError.IOError, ZRedisCacheService]
+  ): IO[RedisError, Boolean] =
+    ZIO.serviceWith[RedisCacheService.Service](_.set(key, value)).provideLayer(layer)
+
+  def get[T: Schema](key: String)(implicit
+    layer: Layer[RedisError.IOError, ZRedisCacheService]
+  ): IO[RedisError, Option[T]] =
+    ZIO.serviceWith[RedisCacheService.Service](_.get(key)).provideLayer(layer)
+
+  def exists(key: String)(implicit
+    layer: Layer[RedisError.IOError, ZRedisCacheService]
+  ): IO[RedisError, Long] =
+    ZIO.serviceWith[RedisCacheService.Service](_.exists(key)).provideLayer(layer)
+
 }
