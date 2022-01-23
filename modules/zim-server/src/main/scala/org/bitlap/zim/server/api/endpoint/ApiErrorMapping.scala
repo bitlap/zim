@@ -1,14 +1,14 @@
 package org.bitlap.zim.server.api.endpoint
 
 import akka.event.slf4j.Logger
-import akka.http.scaladsl.model.StatusCodes.{ InternalServerError, NotFound }
+import akka.http.scaladsl.model.StatusCodes.InternalServerError
 import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpHeader, HttpResponse }
-import akka.http.scaladsl.server.Directives.{ complete, extractUri }
-import akka.http.scaladsl.server.{ ExceptionHandler, RejectionHandler }
+import akka.http.scaladsl.server.Directives.{ complete, extractUri, getFromResource }
+import akka.http.scaladsl.server._
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.{ ResultSet, SystemConstant }
-import org.bitlap.zim.server.api.exception.ZimError.BusinessException
+import org.bitlap.zim.server.api.exception.ZimError.{ BusinessException, Unauthorized }
 import sttp.model.StatusCode
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe.jsonBody
@@ -36,6 +36,11 @@ trait ApiErrorMapping extends ApiJsonCodec {
 
   // 注意这里是PartialFunction，不能使用`_`匹配
   private[api] implicit def customExceptionHandler: ExceptionHandler = ExceptionHandler {
+    case e: Unauthorized =>
+      extractUri { uri =>
+        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.getCause}")
+        getFromResource("static/html/403.html")
+      }
     case e: BusinessException =>
       extractUri { uri =>
         Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.getCause}")
@@ -54,14 +59,19 @@ trait ApiErrorMapping extends ApiJsonCodec {
       }
   }
 
-  // 处理404
+  // 处理403 404 500
   implicit def customRejectionHandler: RejectionHandler =
     RejectionHandler
       .newBuilder()
       .handleNotFound {
-        val result = ResultSet(code = 404)
-        val resp = HttpEntity(ContentTypes.`application/json`, result.asJson.noSpaces)
-        complete(HttpResponse(NotFound, entity = resp))
+        getFromResource("static/html/404.html")
+      }
+      .handle { case MissingCookieRejection(_) =>
+        getFromResource("static/html/403.html")
+      }
+      .handle { case _ =>
+        // 所有其他的先使用404，后续改成500
+        getFromResource("static/html/404.html")
       }
       .result()
 
