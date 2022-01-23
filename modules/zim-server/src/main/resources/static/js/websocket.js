@@ -32,7 +32,7 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
             if ('WebSocket' in window) {
                 var host = window.location.host
                 if(window.location.post !== ""){
-                	host = host.split(":")[0] + ":" + 18080;
+                	host = host.split(":")[0] + ":" + 9000;
                 }
                 //因为目前不太理解akka stream，先用query params将就一下
                 var url = 'ws://' + host + '/websocket?uid=' + getUid();

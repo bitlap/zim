@@ -17,7 +17,7 @@ trait ApiEndpoint {
   private[api] lazy val apiDescriptionResource: String = "Api Resources"
   private[api] lazy val baseApiEndpoint: EndpointInput[Unit] = apiResource / apiVersion
 
-  private[api] lazy val baseEndpoint: Endpoint[Unit, Unit, Unit, Any] =
+  private[api] lazy val baseEndpoint: PublicEndpoint[Unit, Unit, Unit, Any] =
     endpoint.in(baseApiEndpoint).name(apiNameResource).description(apiDescriptionResource)
 
 }

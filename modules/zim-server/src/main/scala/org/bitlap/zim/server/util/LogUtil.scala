@@ -3,6 +3,7 @@ import zio.clock.Clock
 import zio.console.Console
 import zio.logging.{ LogFormat, LogLevel, Logger, Logging }
 import zio.{ UIO, ULayer, URLayer, ZIO }
+import zio.stream.{ UStream, ZStream }
 
 /**
  * @author 梦境迷离
@@ -10,8 +11,6 @@ import zio.{ UIO, ULayer, URLayer, ZIO }
  * @version 1.0
  */
 object LogUtil {
-
-  import zio.stream.{ UStream, ZStream }
 
   lazy val loggingLayer: URLayer[Console with Clock, Logging] =
     Logging.console(

@@ -10,7 +10,7 @@ object Dependencies {
   object Version {
     val zio = "1.0.13"
     val `zio-logging` = "0.5.14"
-    val tapir = "0.17.20" //TODO upgrade
+    val tapir = "0.19.3"
     val `akka-http` = "10.2.7"
     val akka = "2.6.18"
     val circe = "0.14.1"
@@ -24,13 +24,18 @@ object Dependencies {
     val scalaTest = "3.2.10"
     val `zio-actors` = "0.0.9"
     val refined = "0.9.28"
+    val `zio-schema` = "0.1.7"
+    val `akka-http-session` = "0.6.1"
   }
 
   lazy val redisDeps = "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT" // 实验性质的
   lazy val confDeps = "com.typesafe" % "config" % Version.config
+  lazy val schemaDeps = "dev.zio" %% "zio-schema" % Version.`zio-schema`
+  lazy val  `schema-derivation` =  "dev.zio" %% "zio-schema-derivation" % Version.`zio-schema`
+  lazy val zio = "dev.zio" %% "zio" % Version.zio
 
   lazy val zioDeps = Seq(
-    "dev.zio" %% "zio" % Version.zio,
+    zio,
     "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`,
     "dev.zio" %% "zio-logging" % Version.`zio-logging`,
     "dev.zio" %% "zio-test" % Version.zio % Test,
@@ -45,7 +50,8 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-akka-http" % Version.tapir
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % Version.tapir,
+    "com.softwaremill.akka-http-session" %% "core" % Version.`akka-http-session`
 //    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"  % Version.tapir,
 //    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
 //    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe" % Version.tapir,
@@ -83,12 +89,15 @@ object Dependencies {
     "dev.zio" %% "zio-streams" % Version.zio,
     "dev.zio" %% "zio-actors" % Version.`zio-actors`,
     "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
-    "eu.timepit" %% "refined" % Version.refined
+    "eu.timepit" %% "refined" % Version.refined,
+    schemaDeps,
+    `schema-derivation`
   ) ++ circeDeps
 
   lazy val cacheDeps = Seq(
     confDeps,
     redisDeps,
-    "dev.zio" %% "zio-schema" % "0.1.7" //TODO for Redis
+    schemaDeps,
+    zio
   )
 }
