@@ -53,7 +53,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
   }
 
   override def login(user: UserSecurity.UserSecurityInfo): stream.Stream[Throwable, User] =
-    userApplication.matchUser(User(0, user.email, user.password))
+    userApplication.matchUser(User(user.id, user.email, user.password))
 
   override def init(userId: Int): stream.Stream[Throwable, FriendAndGroupInfo] = {
     val ret = for {

@@ -49,9 +49,10 @@ object zioRedisService {
        * 存储key-value
        *
        * @param key
+       * @param value 目前仅支持 primitives type
        * @return Object
        */
-      def set(key: String, value: String): IO[RedisError, Boolean]
+      def set[T: Schema](key: String, value: T): IO[RedisError, Boolean]
 
       /**
        * 根据key获取value
@@ -88,10 +89,10 @@ object zioRedisService {
   ): IO[RedisError, Long] =
     ZIO.serviceWith[RedisCacheService.Service](_.setSet(k, v)).provideLayer(layer)
 
-  def set(key: String, value: String)(implicit
+  def set[T: Schema](key: String, value: T)(implicit
     layer: Layer[RedisError.IOError, ZRedisCacheService]
   ): IO[RedisError, Boolean] =
-    ZIO.serviceWith[RedisCacheService.Service](_.set(key, value)).provideLayer(layer)
+    ZIO.serviceWith[RedisCacheService.Service](_.set[T](key, value)).provideLayer(layer)
 
   def get[T: Schema](key: String)(implicit
     layer: Layer[RedisError.IOError, ZRedisCacheService]

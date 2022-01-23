@@ -2,11 +2,9 @@ package org.bitlap.zim.cache
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import zio._
-import zio.clock.Clock
 import zio.logging.Logging
-import zio.random.Random
-import zio.redis.{ RedisConfig, RedisError, RedisExecutor }
 import zio.redis.codec.StringUtf8Codec
+import zio.redis.{ RedisConfig, RedisError, RedisExecutor }
 import zio.schema.codec.Codec
 
 /**
@@ -34,7 +32,4 @@ object ZioRedisConfiguration {
   // local redis layer
   val live: Layer[RedisError.IOError, RedisExecutor] = (Logging.ignore ++ ZLayer.succeed(redisConf)
     ++ codec) >>> RedisExecutor.local // not use socket
-
-  // test redis layer
-  val testLive: ULayer[RedisExecutor] = (Clock.live ++ Random.live) >>> RedisExecutor.test
 }

@@ -2,13 +2,12 @@ package org.bitlap.zim.server.util
 
 import io.circe.jawn
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.{ FriendAndGroupInfo, FriendList, Message, Mine }
+import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
+import org.bitlap.zim.domain.model.{ GroupList, User }
+import org.bitlap.zim.domain.{ FriendAndGroupInfo, FriendList, Message, Mine, ResultSet }
+import org.bitlap.zim.server.api.endpoint.ApiJsonCodec
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.bitlap.zim.domain.model.GroupList
-import org.bitlap.zim.domain.ResultSet
-import org.bitlap.zim.server.api.endpoint.ApiJsonCodec
 
 /**
  * @author 梦境迷离
@@ -49,6 +48,21 @@ class CirceJsonSpec extends AnyFlatSpec with Matchers with ApiJsonCodec {
     )
     val ret = ResultSet(data = fagi)
     ret.asJson != null shouldBe true
+  }
+
+  "userSecurityInfo" should "ok" in {
+    val userSecurity = UserSecurityInfo(
+      0,
+      "12@qqcom.c",
+      "123"
+    )
+    val json = userSecurity.asJson(UserSecurityInfo.encoder).noSpaces
+    println(json)
+
+    val obj = jawn.decode[UserSecurityInfo](json).getOrElse(null)
+    println(obj)
+
+    json != null shouldBe true
   }
 
 }
