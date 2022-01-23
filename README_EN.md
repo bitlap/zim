@@ -35,7 +35,3 @@
 - Mail：simple-java-mail
 - Conf：config
 - Build：sbt
-
-## Project organization structure
-
-![](./zim.jpeg)

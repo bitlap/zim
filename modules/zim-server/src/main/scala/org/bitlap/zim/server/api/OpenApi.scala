@@ -2,17 +2,21 @@ package org.bitlap.zim.server.api
 
 import akka.http.scaladsl.server.Route
 import org.bitlap.zim.server.api.endpoint.{ ActuatorEndpoint, ApiEndpoint, UserEndpoint }
+import sttp.tapir.AnyEndpoint
 import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.openapi.{ Contact, Info, License }
-import sttp.tapir.swagger.akkahttp.SwaggerAkka
+import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
+import sttp.tapir.swagger.SwaggerUI
+
+import scala.concurrent.Future
 
 /**
  * Open API
  * @see http://localhost:9000/api/v1.0/docs
  * @author 梦境迷离
  * @since 2021/12/25
- * @version 1.0
+ * @version 2.0
  */
 final class OpenApi {
 
@@ -22,40 +26,42 @@ final class OpenApi {
 
 //  import Directives._
 
-  private lazy val openApiYaml: String = OpenAPIDocsInterpreter
+  // 需要鉴权的不支持
+  private lazy val endpoints: Seq[AnyEndpoint] = Seq(
+    ActuatorEndpoint.healthEndpoint,
+    UserEndpoint.userGetOneEndpoint,
+//    UserEndpoint.findUserEndpoint,
+//    UserEndpoint.indexEndpoint,
+    UserEndpoint.existEmailEndpoint,
+    UserEndpoint.activeUserEndpoint,
+//    UserEndpoint.agreeFriendEndpoint,
+//    UserEndpoint.refuseFriendEndpoint,
+//    UserEndpoint.changeGroupEndpoint,
+//    UserEndpoint.chatLogEndpoint,
+//    UserEndpoint.chatLogIndexEndpoint,
+//    UserEndpoint.createGroupEndpoint,
+//    UserEndpoint.createUserGroupEndpoint,
+//    UserEndpoint.findAddInfoEndpoint,
+//    UserEndpoint.findGroupsEndpoint,
+//    UserEndpoint.findMyGroupsEndpoint,
+//    UserEndpoint.findUsersEndpoint,
+//    UserEndpoint.getMembersEndpoint,
+//    UserEndpoint.getOffLineMessageEndpoint,
+//    UserEndpoint.uploadImageEndpoint,
+//    UserEndpoint.updateInfoEndpoint,
+//    UserEndpoint.updateSignEndpoint,
+//    UserEndpoint.uploadFileEndpoint,
+//    UserEndpoint.updateAvatarEndpoint,
+//    UserEndpoint.uploadGroupAvatarEndpoint,
+//    UserEndpoint.removeFriendEndpoint,
+//    UserEndpoint.leaveOutGroupEndpoint,
+    UserEndpoint.loginEndpoint,
+    UserEndpoint.registerEndpoint
+//    UserEndpoint.initEndpoint
+  )
+  private lazy val openApiYaml: String = OpenAPIDocsInterpreter()
     .toOpenAPI(
-      Seq(
-        ActuatorEndpoint.healthEndpoint,
-        UserEndpoint.userGetOneEndpoint,
-        UserEndpoint.findUserEndpoint,
-        UserEndpoint.indexEndpoint,
-        UserEndpoint.existEmailEndpoint,
-        UserEndpoint.activeUserEndpoint,
-        UserEndpoint.agreeFriendEndpoint,
-        UserEndpoint.refuseFriendEndpoint,
-        UserEndpoint.changeGroupEndpoint,
-        UserEndpoint.chatLogEndpoint,
-        UserEndpoint.chatLogIndexEndpoint,
-        UserEndpoint.createGroupEndpoint,
-        UserEndpoint.createUserGroupEndpoint,
-        UserEndpoint.findAddInfoEndpoint,
-        UserEndpoint.findGroupsEndpoint,
-        UserEndpoint.findMyGroupsEndpoint,
-        UserEndpoint.findUsersEndpoint,
-        UserEndpoint.getMembersEndpoint,
-        UserEndpoint.getOffLineMessageEndpoint,
-        UserEndpoint.uploadImageEndpoint,
-        UserEndpoint.updateInfoEndpoint,
-        UserEndpoint.updateSignEndpoint,
-        UserEndpoint.uploadFileEndpoint,
-        UserEndpoint.updateAvatarEndpoint,
-        UserEndpoint.uploadGroupAvatarEndpoint,
-        UserEndpoint.removeFriendEndpoint,
-        UserEndpoint.leaveOutGroupEndpoint,
-        UserEndpoint.loginEndpoint,
-        UserEndpoint.registerEndpoint,
-        UserEndpoint.initEndpoint
-      ),
+      endpoints,
       Info(
         title = "zim",
         version = "0.0.1",
@@ -75,7 +81,8 @@ final class OpenApi {
 
 //  lazy val wsDocs: String = AsyncAPIInterpreter.toAsyncAPI(WsEndpoint.wsEndpoint, "zim web socket", "0.1.0").toYaml
 
-  lazy val route: Route = new SwaggerAkka(openApiYaml, contextPath = openapi).routes
+  lazy val route: Route =
+    AkkaHttpServerInterpreter().toRoute(SwaggerUI[Future](openApiYaml, prefix = openapi.split("/").toList))
 //
 //  lazy val ws: Route = pathPrefix(ApiEndpoint.apiResource / ApiEndpoint.apiVersion / wsContextPath) {
 //    Directives.get {

@@ -1,17 +1,21 @@
 package org.bitlap.zim.server.api.endpoint
 
 import akka.event.slf4j.Logger
-import akka.http.scaladsl.model
-import akka.http.scaladsl.model.StatusCodes.{ InternalServerError, NotFound }
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
-import akka.http.scaladsl.server.Directives.{ complete, extractUri }
-import akka.http.scaladsl.server.{ ExceptionHandler, RejectionHandler }
+import akka.http.scaladsl.model.StatusCodes.InternalServerError
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpHeader, HttpResponse }
+import akka.http.scaladsl.server.Directives.{ complete, extractUri, getFromResource }
+import akka.http.scaladsl.server._
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.domain
-import org.bitlap.zim.domain.ZimError.BusinessException
+import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.{ ResultSet, SystemConstant }
+import org.bitlap.zim.server.api.exception.ZimError.{ BusinessException, Unauthorized }
 import sttp.model.StatusCode
+import sttp.tapir.generic.auto.schemaForCaseClass
+import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.{ EndpointOutput, _ }
+
+import java.util.Base64
+import scala.util.Try
 
 /**
  * 错误处理
@@ -22,23 +26,21 @@ import sttp.tapir.{ EndpointOutput, _ }
  */
 trait ApiErrorMapping extends ApiJsonCodec {
 
-  private[api] lazy val defaultDescription = "Unknown Error"
-  private[api] lazy val statusDefault: EndpointOutput.StatusMapping[domain.ZimError] =
-    statusDefaultMapping(
-      anyJsonBody[domain.ZimError].example(domain.ZimError.BusinessException()).description(defaultDescription)
-    )
+  lazy val errorOut: EndpointIO.Body[String, BusinessException] = jsonBody[BusinessException].description("unknown")
 
-  private lazy val internalServerErrorDescription: String = model.StatusCodes.InternalServerError.defaultMessage
-  private[api] lazy val statusInternalServerError: EndpointOutput.StatusMapping[domain.ZimError.BusinessException] =
-    statusMapping(
-      StatusCode.InternalServerError,
-      anyJsonBody[domain.ZimError.BusinessException]
-        .example(domain.ZimError.BusinessException())
-        .description(internalServerErrorDescription)
-    )
+  lazy val errorOutVar: Seq[EndpointOutput.OneOfVariant[BusinessException]] = Seq(
+    oneOfVariant(StatusCode.Unauthorized, jsonBody[BusinessException].description("unauthorized")),
+    oneOfVariant(StatusCode.NotFound, jsonBody[BusinessException].description("not found")),
+    oneOfDefaultVariant(jsonBody[BusinessException].description("business exception"))
+  )
 
   // 注意这里是PartialFunction，不能使用`_`匹配
   private[api] implicit def customExceptionHandler: ExceptionHandler = ExceptionHandler {
+    case e: Unauthorized =>
+      extractUri { uri =>
+        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.getCause}")
+        getFromResource("static/html/403.html")
+      }
     case e: BusinessException =>
       extractUri { uri =>
         Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.getCause}")
@@ -57,14 +59,26 @@ trait ApiErrorMapping extends ApiJsonCodec {
       }
   }
 
-  // 处理404
+  // 处理403 404 500
   implicit def customRejectionHandler: RejectionHandler =
     RejectionHandler
       .newBuilder()
       .handleNotFound {
-        val result = ResultSet(code = 404)
-        val resp = HttpEntity(ContentTypes.`application/json`, result.asJson.noSpaces)
-        complete(HttpResponse(NotFound, entity = resp))
+        getFromResource("static/html/404.html")
+      }
+      .handle { case MissingCookieRejection(_) =>
+        getFromResource("static/html/403.html")
+      }
+      .handle { case _ =>
+        // 所有其他的先使用404，后续改成500
+        getFromResource("static/html/404.html")
       }
       .result()
+
+  def extractAuthorization: PartialFunction[HttpHeader, Option[UserSecurity]] = {
+    case h: HttpHeader =>
+      val secret: String = Try(new String(Base64.getDecoder.decode(h.value()))).getOrElse(null)
+      Option(secret).map(f => UserSecurity(f))
+    case _ => None
+  }
 }

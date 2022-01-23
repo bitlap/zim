@@ -1,16 +1,13 @@
 package org.bitlap.zim.server.application
 
-import akka.actor.ActorRef
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.domain.model.{ Receive, User }
 import org.bitlap.zim.domain.ws.protocol.{ protocol, AddRefuseMessage }
 import org.bitlap.zim.domain.{ Message, SystemConstant }
 import org.bitlap.zim.server.application.ws.wsService.WsService.actorRefSessions
 import org.bitlap.zim.server.util.DateUtil
-import zio.ZIO
+import zio.{ IO, ZIO }
 import zio.actors.{ ActorRef => _ }
-import org.bitlap.zim.domain.ws.protocol.Command
-import zio.actors.akka.AkkaTypedActorRefLocal
 
 /**
  * @author 梦境迷离
@@ -42,7 +39,7 @@ package object ws {
     )
   }
 
-  private[ws] def friendMessageHandler(userService: UserApplication)(message: Message): ZIO[Any, Throwable, Unit] = {
+  private[ws] def friendMessageHandler(userService: UserApplication)(message: Message): IO[Throwable, Unit] = {
     val gid = message.to.id
     val receive = getReceive(message)
     userService.findUserById(gid).runHead.flatMap { us =>
@@ -59,7 +56,7 @@ package object ws {
     }
   }
 
-  private[ws] def groupMessageHandler(userService: UserApplication)(message: Message): ZIO[Any, Throwable, Unit] = {
+  private[ws] def groupMessageHandler(userService: UserApplication)(message: Message): IO[Throwable, Unit] = {
     val gid = message.to.id
     val receive = getReceive(message)
     var receiveArchive: Receive = receive.copy(id = gid)
@@ -83,7 +80,7 @@ package object ws {
 
   private[ws] def agreeAddGroupHandler(
     userService: UserApplication
-  )(agree: AddRefuseMessage): ZIO[Any, Throwable, Unit] =
+  )(agree: AddRefuseMessage): IO[Throwable, Unit] =
     userService.addGroupMember(agree.groupId, agree.toUid, agree.messageBoxId).runHead.map { f =>
       if (!f.fold(false)(t => t)) {
         ZIO.effect(DEFAULT_VALUE)
@@ -107,7 +104,7 @@ package object ws {
 
   private[ws] def refuseAddFriendHandler(
     userService: UserApplication
-  )(messageBoxId: Int, user: User, to: Int): ZIO[Any, Throwable, Boolean] =
+  )(messageBoxId: Int, user: User, to: Int): IO[Throwable, Boolean] =
     userService.updateAddMessage(messageBoxId, 2).runHead.flatMap { r =>
       r.fold(ZIO.effect(false)) { ret =>
         val actor = actorRefSessions.get(to)
@@ -120,7 +117,7 @@ package object ws {
 
   private[ws] def readOfflineMessageHandler(
     userService: UserApplication
-  )(message: Message): ZIO[Any, Throwable, Unit] =
+  )(message: Message): IO[Throwable, Unit] =
     userService
       .findOffLineMessage(message.mine.id, 0)
       .runCount

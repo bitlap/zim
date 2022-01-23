@@ -47,4 +47,18 @@ object User extends BaseModel[User] {
   implicit val encoder: Encoder[User] = deriveEncoder[User]
 
   def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[User]): User = autoConstruct(rs, sp)
+
+  // null序列化需要自己定义，不能使用deriveEncoder/deriveDecoder宏 这里偷懒先使用默认值
+  def apply(id: Int, email: String, password: String) = new User(
+    id = id,
+    username = "",
+    password = password,
+    sign = "",
+    avatar = "",
+    email = email,
+    createDate = ZonedDateTime.now(),
+    sex = 0,
+    status = "",
+    active = ""
+  )
 }
