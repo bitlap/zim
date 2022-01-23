@@ -48,16 +48,17 @@ object User extends BaseModel[User] {
 
   def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[User]): User = autoConstruct(rs, sp)
 
+  // null序列化需要自己定义，不能使用deriveEncoder/deriveDecoder宏 这里偷懒先使用默认值
   def apply(id: Int, email: String, password: String) = new User(
     id = id,
-    username = null,
+    username = "",
     password = password,
-    sign = null,
-    avatar = null,
+    sign = "",
+    avatar = "",
     email = email,
-    createDate = null,
+    createDate = ZonedDateTime.now(),
     sex = 0,
-    status = null,
-    active = null
+    status = "",
+    active = ""
   )
 }

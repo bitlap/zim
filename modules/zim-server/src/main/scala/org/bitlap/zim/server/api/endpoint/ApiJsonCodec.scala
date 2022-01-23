@@ -6,10 +6,11 @@ import io.circe.generic.extras.Configuration
 import io.circe.parser.parse
 import io.circe.syntax.EncoderOps
 import io.circe.{ Decoder, Encoder, HCursor, Json }
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.{ ResultPageSet, ResultSet, SystemConstant }
+import org.bitlap.zim.domain.model.{ GroupList, User }
+import org.bitlap.zim.domain._
 import org.bitlap.zim.server.api.exception.ZimError
 import org.bitlap.zim.server.api.exception.ZimError.BusinessException
+import org.bitlap.zim.server.util.LogUtil
 import sttp.tapir.Codec.JsonCodec
 import sttp.tapir.json.circe._
 import zio._
@@ -35,8 +36,14 @@ trait ApiJsonCodec extends BootstrapRuntime {
     if (a == null) Json.Null
     else {
       a match {
-        case u: User => User.encoder(u)
-        case _       => Json.Null
+        case u: FriendAndGroupInfo => FriendAndGroupInfo.encoder(u)
+        case u: GroupList          => GroupList.encoder(u)
+        case u: FriendList         => FriendList.encoder(u)
+        case u: User               => User.encoder(u)
+        case u: Message            => Message.encoder(u)
+        case u: Mine               => Mine.encoder(u)
+        case u: To                 => To.encoder(u)
+        case _                     => Json.Null
       }
     }
   }
@@ -143,9 +150,12 @@ trait ApiJsonCodec extends BootstrapRuntime {
     msg: String = SystemConstant.ERROR_MESSAGE
   ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = for {
-      resp <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
-      result = (if (returnError(resp)) ResultSet(data = resp, code = code, msg = msg)
-                else ResultSet(data = resp)).asJson.noSpaces
+      ret <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
+      result = (
+        if (returnError(ret)) ResultSet[T](data = ret, code = code, msg = msg)
+        else ResultSet[T](data = ret)
+      ).asJson.noSpaces
+      _ <- LogUtil.info(s"buildMonoResponse ret=>$ret result=>$result")
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r
     val value = unsafeRun(resp)

@@ -6,16 +6,17 @@ import akka.http.scaladsl.server.Directive.addDirectiveApply
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
-import org.bitlap.zim.domain.SystemConstant
+import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.server.api.endpoint.UserEndpoint.{ authenticate, userResource, Authorization }
+import org.bitlap.zim.server.api.endpoint.UserEndpoint.{ authenticate, Authorization }
 import org.bitlap.zim.server.api.endpoint.{ ApiErrorMapping, ApiJsonCodec, UserEndpoint }
 import org.bitlap.zim.server.application.ApiApplication
 import org.bitlap.zim.server.application.impl.ApiService.ZApiApplication
 import org.bitlap.zim.server.util.FileUtil
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
+import sttp.model.headers.CookieValueWithMeta
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -39,6 +40,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ updateInfoRoute
       ~ loginRoute
       ~ indexRoute
+      ~ initRoute
   )
 
   lazy val userGetRoute: Route = AkkaHttpServerInterpreter().toRoute(UserEndpoint.userGetOneEndpoint.serverLogic { id =>
@@ -70,12 +72,34 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   lazy val loginRoute: Route = AkkaHttpServerInterpreter().toRoute(
     UserEndpoint.loginEndpoint.serverLogic { input =>
       val resultStream = apiApplication.login(input)
-      buildMonoResponse[User](
+      val ret = buildMonoResponse[User](
         t => if (t == null || t.status.equals("nonactivated")) true else false,
         msg = SystemConstant.REGISTER_FAIL
       )(resultStream)
+      ret.map {
+        case Right(s) =>
+          Right(
+            Tuple2(
+              s,
+              CookieValueWithMeta.unsafeApply(
+                value = input.toCookieValue,
+                maxAge = Some(30 * 60 * 7L),
+                httpOnly = true,
+                secure = true
+              )
+            )
+          )
+        case Left(value) => Left(value)
+
+      }
     }
   )
+
+  lazy val initRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(UserEndpoint.initEndpoint.serverLogic { user => input =>
+      val userStream = apiApplication.init(input)
+      buildMonoResponse[FriendAndGroupInfo]()(userStream)
+    })
 
   lazy val staticResources: Route =
     concat(
@@ -97,9 +121,9 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
     )
 
   lazy val indexRoute: Route = get {
-    pathPrefix(userResource.show / "index") {
-      headerValueByName(Authorization) { user =>
-        val checkFuture = authenticate(UserSecurity(user)).map(_.getOrElse(null))
+    pathPrefix("user" / "index") {
+      cookie(Authorization) { user =>
+        val checkFuture = authenticate(UserSecurity(user.value)).map(_.getOrElse(null))
         onComplete(checkFuture) {
           case util.Success(u) if u != null =>
             // 这是不使用任何渲染模板

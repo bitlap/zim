@@ -3,9 +3,11 @@ package org.bitlap.zim.server.api.endpoint
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.server.api.exception.ZimError.Unauthorized
+import org.bitlap.zim.server.configuration.properties.MysqlConfigurationProperties
 import org.bitlap.zim.server.repository.TangibleUserRepository
+import sttp.tapir.Codec.string
 import sttp.tapir.server.PartialServerEndpoint
-import sttp.tapir.{ auth, customJsonBody, endpoint }
+import sttp.tapir.{ cookie, customJsonBody, endpoint }
 
 import java.util.Base64
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,7 +33,7 @@ trait ZAuthorizer extends ApiJsonCodec {
    */
   def authenticate(token: UserSecurity): Future[Either[Unauthorized, User]] =
     Future {
-      val tk = if (token.value.trim.contains(" ")) token.value.trim.split(" ")(1) else token.value
+      val tk = if (token.cookie.trim.contains(" ")) token.cookie.trim.split(" ")(1) else token.cookie
       val secret: String = Try(new String(Base64.getDecoder.decode(tk))).getOrElse(null)
       if (secret == null || secret.isEmpty) {
         Left(Unauthorized())
@@ -39,7 +41,10 @@ trait ZAuthorizer extends ApiJsonCodec {
         val usernamePassword = secret.split(":")
         val email = usernamePassword(0)
         val user = zioRuntime.unsafeRun(
-          TangibleUserRepository.matchUser(email).runHead.provideLayer(TangibleUserRepository.make("zim"))
+          TangibleUserRepository
+            .matchUser(email)
+            .runHead
+            .provideLayer(TangibleUserRepository.make(MysqlConfigurationProperties().databaseName))
         )
         if (user.isEmpty) Left(Unauthorized())
         else
@@ -50,7 +55,7 @@ trait ZAuthorizer extends ApiJsonCodec {
     }
 
   val secureEndpoint: PartialServerEndpoint[UserSecurity, User, Unit, Unauthorized, Unit, Any, Future] = endpoint
-    .securityIn(auth.basic[String]().mapTo[UserSecurity])
+    .securityIn(cookie[String](Authorization).mapTo[UserSecurity])
     .errorOut(customJsonBody[Unauthorized])
     .serverSecurityLogic(authenticate)
 

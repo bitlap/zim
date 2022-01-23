@@ -12,6 +12,7 @@ import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe._
 import sttp.tapir.server.PartialServerEndpoint
+import sttp.model.headers.CookieValueWithMeta
 
 import scala.concurrent.Future
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
@@ -343,13 +344,14 @@ trait UserEndpoint extends ApiErrorMapping with ZAuthorizer {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   private[api] lazy val loginEndpoint
-    : PublicEndpoint[UserSecurityInfo, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
+    : Endpoint[Unit, UserSecurityInfo, ZimError, (Source[ByteString, Any], CookieValueWithMeta), Any with AkkaStreams] =
     endpoint.post
       .in(userResource / "login")
       .in(jsonBody[UserSecurityInfo])
       .name("登录")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
+      .out(setCookie(Authorization))
       .errorOut(errorOut)
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 

@@ -1,13 +1,14 @@
 package org.bitlap.zim.server.application.impl
 
-import org.bitlap.zim.domain.input.UserInput
+import org.bitlap.zim.domain._
+import org.bitlap.zim.domain.input.{ UserInput, UserSecurity }
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import org.bitlap.zim.server.util.SecurityUtil
 import zio.crypto.hash.MessageDigest
 import zio.stream.ZStream
 import zio.{ stream, Has }
-import org.bitlap.zim.domain.input.UserSecurity
+import org.bitlap.zim.server.util.LogUtil
 
 /**
  * @author 梦境迷离
@@ -53,6 +54,25 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def login(user: UserSecurity.UserSecurityInfo): stream.Stream[Throwable, User] =
     userApplication.matchUser(User(0, user.email, user.password))
+
+  override def init(userId: Int): stream.Stream[Throwable, FriendAndGroupInfo] = {
+    val ret = for {
+      user <- userApplication.findUserById(userId).runHead
+      _ <- LogUtil.info(s"init user=>$user")
+      friends <- userApplication.findFriendGroupsById(userId).runCollect
+      _ <- LogUtil.info(s"init friends=>$friends")
+      groups <- userApplication.findGroupsById(userId).runCollect
+      _ <- LogUtil.info(s"init groups=>$groups")
+      resp = FriendAndGroupInfo(
+        // 怎么区分主动刷新？这样如果主动刷新会将隐式重置为在线
+        mine = user.fold[User](null)(u => u.copy(status = SystemConstant.status.ONLINE)),
+        friend = friends.toList,
+        group = groups.toList
+      )
+      _ <- LogUtil.info(s"init ret=>$resp")
+    } yield resp
+    ZStream.fromEffect(ret)
+  }
 }
 
 object ApiService {
