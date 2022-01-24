@@ -1,4 +1,4 @@
-package org.bitlap.zim.server.api.endpoint
+package org.bitlap.zim.tapir
 
 import sttp.tapir.{ EndpointInput, _ }
 
@@ -13,11 +13,11 @@ trait ApiEndpoint {
 
   lazy val apiResource: String = "api"
   lazy val apiVersion: String = "v1.0"
-  private[api] lazy val apiNameResource: String = "api-resource"
-  private[api] lazy val apiDescriptionResource: String = "Api Resources"
-  private[api] lazy val baseApiEndpoint: EndpointInput[Unit] = apiResource / apiVersion
+  private[tapir] lazy val apiNameResource: String = "api-resource"
+  private[tapir] lazy val apiDescriptionResource: String = "Api Resources"
+  private[tapir] lazy val baseApiEndpoint: EndpointInput[Unit] = apiResource / apiVersion
 
-  private[api] lazy val baseEndpoint: PublicEndpoint[Unit, Unit, Unit, Any] =
+  private[tapir] lazy val baseEndpoint: PublicEndpoint[Unit, Unit, Unit, Any] =
     endpoint.in(baseApiEndpoint).name(apiNameResource).description(apiDescriptionResource)
 
 }

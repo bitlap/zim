@@ -3,7 +3,6 @@ package org.bitlap.zim.server.util
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import zio.BootstrapRuntime
-import zio.crypto.hash.Hash
 
 /**
  * @author 梦境迷离

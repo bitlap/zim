@@ -9,8 +9,8 @@ import akka.stream.Materializer
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
-import org.bitlap.zim.server.api.endpoint.UserEndpoint.{ authenticate, Authorization }
-import org.bitlap.zim.server.api.endpoint.{ ApiErrorMapping, ApiJsonCodec, UserEndpoint }
+import org.bitlap.zim.server.api.endpoint.SecurityUserEndpoint.{ authenticate, Authorization }
+import org.bitlap.zim.tapir.{ ApiErrorMapping, ApiJsonCodec }
 import org.bitlap.zim.server.application.ApiApplication
 import org.bitlap.zim.server.application.impl.ApiService.ZApiApplication
 import org.bitlap.zim.server.util.FileUtil
@@ -19,6 +19,7 @@ import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import org.bitlap.zim.server.api.endpoint.SecurityUserEndpoint
 
 /**
  * 用户API
@@ -43,34 +44,35 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ initRoute
   )
 
-  lazy val userGetRoute: Route = AkkaHttpServerInterpreter().toRoute(UserEndpoint.userGetOneEndpoint.serverLogic { id =>
-    val userStream = apiApplication.findById(id)
-    buildMonoResponse[User]()(userStream)
-  })
+  lazy val userGetRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.userGetOneEndpoint.serverLogic { id =>
+      val userStream = apiApplication.findById(id)
+      buildMonoResponse[User]()(userStream)
+    })
 
   // 超高阶函数
   // user是一阶入参 表示登录用户
   // uid是二阶入参 表示接口的参数
   lazy val findUserByIdRoute: Route =
-    AkkaHttpServerInterpreter().toRoute(UserEndpoint.findUserEndpoint.serverLogic { user => uid =>
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.findUserEndpoint.serverLogic { user => uid =>
       val resultStream = apiApplication.findUserById(uid)
       buildMonoResponse()(resultStream)
     })
 
   lazy val existEmailRoute: Route =
-    AkkaHttpServerInterpreter().toRoute(UserEndpoint.existEmailEndpoint.serverLogic { input =>
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.existEmailEndpoint.serverLogic { input =>
       val resultStream = apiApplication.existEmail(input.email)
       buildBooleanMonoResponse()(resultStream)
     })
 
   lazy val updateInfoRoute: Route =
-    AkkaHttpServerInterpreter().toRoute(UserEndpoint.updateInfoEndpoint.serverLogic { user => input =>
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.updateInfoEndpoint.serverLogic { user => input =>
       val resultStream = apiApplication.updateInfo(input)
       buildBooleanMonoResponse()(resultStream)
     })
 
   lazy val loginRoute: Route = AkkaHttpServerInterpreter().toRoute(
-    UserEndpoint.loginEndpoint.serverLogic { input =>
+    SecurityUserEndpoint.loginEndpoint.serverLogic { input =>
       val resultStream = apiApplication.login(input)
       val ret = buildMonoResponse[User] {
         case user: User if user == null                       => SystemConstant.LOGIN_ERROR
@@ -81,13 +83,13 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
         case Right(s) =>
           Right(
             Tuple2(
-              s,
               CookieValueWithMeta.unsafeApply(
                 value = input.toCookieValue,
                 maxAge = Some(30 * 60 * 7L),
                 httpOnly = true,
                 secure = true
-              )
+              ),
+              s
             )
           )
         case Left(value) => Left(value)
@@ -97,7 +99,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   )
 
   lazy val initRoute: Route =
-    AkkaHttpServerInterpreter().toRoute(UserEndpoint.initEndpoint.serverLogic { user => input =>
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.initEndpoint.serverLogic { user => input =>
       val userStream = apiApplication.init(input)
       buildMonoResponse[FriendAndGroupInfo]()(userStream)
     })

@@ -1,7 +1,4 @@
-package org.bitlap.zim.server.api.exception
-
-import org.bitlap.zim.domain.SystemConstant
-import sttp.tapir.{ Schema, SchemaType }
+package org.bitlap.zim.domain
 
 /**
  * 系统异常
@@ -26,7 +23,4 @@ object ZimError {
     override val code: Int = SystemConstant.ERROR,
     override val msg: String = SystemConstant.NOT_LOGIN
   ) extends ZimError
-
-  implicit val schemaForZimErrorInfo: Schema[ZimError] =
-    Schema[ZimError](SchemaType.SProduct(Nil), Some(Schema.SName("ZimError")))
 }

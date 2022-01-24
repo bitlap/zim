@@ -2,16 +2,8 @@ package org.bitlap.zim.server.application.impl
 
 import org.bitlap.zim.domain
 import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup, GroupList, GroupMember, Receive, User }
-import org.bitlap.zim.domain.repository.{
-  AddMessageRepository,
-  FriendGroupFriendRepository,
-  FriendGroupRepository,
-  GroupMemberRepository,
-  GroupRepository,
-  ReceiveRepository,
-  UserRepository
-}
-import org.bitlap.zim.domain.{ model, AddInfo, FriendList, SystemConstant }
+import org.bitlap.zim.domain.repository._
+import org.bitlap.zim.domain._
 import org.bitlap.zim.server.application.UserApplication
 import org.bitlap.zim.server.application.ws.wsService
 import org.bitlap.zim.server.configuration.InfrastructureConfiguration
@@ -23,11 +15,8 @@ import org.bitlap.zim.server.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.server.repository.TangibleReceiveRepository.ZReceiveRepository
 import org.bitlap.zim.server.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil, UuidUtil }
-import zio.crypto.hash.{ Hash, MessageDigest }
-import zio.stream.ZStream
 import zio.{ stream, Has, URLayer, ZLayer }
-import org.bitlap.zim.domain.ChatHistory
-import org.bitlap.zim.server.api.exception.ZimError.BusinessException
+import zio.stream.ZStream
 
 import java.time.ZonedDateTime
 

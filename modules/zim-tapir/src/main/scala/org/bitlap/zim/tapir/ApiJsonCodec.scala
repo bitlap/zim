@@ -1,4 +1,4 @@
-package org.bitlap.zim.server.api.endpoint
+package org.bitlap.zim.tapir
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
@@ -8,9 +8,6 @@ import io.circe.syntax.EncoderOps
 import io.circe.{ Decoder, Encoder, HCursor, Json }
 import org.bitlap.zim.domain.model.{ GroupList, User }
 import org.bitlap.zim.domain._
-import org.bitlap.zim.server.api.exception.ZimError
-import org.bitlap.zim.server.api.exception.ZimError.BusinessException
-import org.bitlap.zim.server.util.LogUtil
 import sttp.tapir.Codec.JsonCodec
 import sttp.tapir.json.circe._
 import zio._
@@ -19,6 +16,9 @@ import zio.stream.ZStream
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
+import org.bitlap.zim.domain.ZimError.BusinessException
+import sttp.tapir.Schema
+import sttp.tapir.SchemaType
 
 /**
  * API的circe解码器
@@ -30,6 +30,9 @@ import scala.concurrent.Future
 trait ApiJsonCodec extends BootstrapRuntime {
 
   implicit val customConfig: Configuration = Configuration.default.withDefaults
+
+  implicit val schemaForZimErrorInfo: Schema[ZimError] =
+    Schema[ZimError](SchemaType.SProduct(Nil), Some(Schema.SName("ZimError")))
 
   // User不能使用`asJson`，会爆栈
   implicit def encodeGeneric[T <: Product]: Encoder[T] = (a: T) => {
@@ -89,7 +92,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
         ("code", Json.fromInt(a.code))
       )
 
-  private[api] implicit lazy val stringCodec: JsonCodec[String] =
+  implicit lazy val stringCodec: JsonCodec[String] =
     implicitly[JsonCodec[Json]].map(json => json.noSpaces)(string =>
       parse(string) match {
         case Left(_)      => throw new RuntimeException("ApiJsonCoded")
@@ -97,7 +100,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
       }
     )
 
-  private[api] implicit def zimErrorCodec[A <: ZimError]: JsonCodec[A] =
+  implicit def zimErrorCodec[A <: ZimError]: JsonCodec[A] =
     implicitly[JsonCodec[Json]].map(json =>
       json.as[A] match {
         case Left(_)      => throw new RuntimeException("MessageParsingError")
@@ -120,7 +123,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
    * @tparam T 支持的多元素的类型
    * @return
    */
-  private[api] def buildFlowResponse[T <: Product](
+  def buildFlowResponse[T <: Product](
     code: Int = SystemConstant.ERROR,
     msg: String = SystemConstant.ERROR_MESSAGE
   ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
@@ -139,12 +142,10 @@ trait ApiJsonCodec extends BootstrapRuntime {
   /**
    * 这些函数本来是没有必要的，因为都使用了ResultSet和Stream，被迫在这里转换
    * @param returnError 是否检验null，如果检验，出现null则返回错误信息
-   * @param code 默认错误码
-   * @param msg 默认错误提示
    * @tparam T 支持的单元素的类型
    * @return
    */
-  private[api] def buildMonoResponse[T <: Product](
+  def buildMonoResponse[T <: Product](
     returnError: PartialFunction[T, String] = {
       { case tt: T @unchecked =>
         null
@@ -158,7 +159,6 @@ trait ApiJsonCodec extends BootstrapRuntime {
           ResultSet[T](data = null.asInstanceOf[T], code = SystemConstant.ERROR, msg = returnError(ret))
         else ResultSet[T](data = ret)
       ).asJson.noSpaces
-      _ <- LogUtil.info(s"buildMonoResponse ret=>$ret result=>$result")
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r
     val value = unsafeRun(resp)
@@ -167,7 +167,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
     )
   }
 
-  private[api] def buildIntMonoResponse(
+  def buildIntMonoResponse(
     returnError: Boolean = true,
     code: Int = SystemConstant.ERROR,
     msg: String = SystemConstant.ERROR_MESSAGE
@@ -184,7 +184,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
     )
   }
 
-  private[api] def buildBooleanMonoResponse(
+  def buildBooleanMonoResponse(
     returnError: Boolean = true,
     code: Int = SystemConstant.ERROR,
     msg: String = SystemConstant.ERROR_MESSAGE
