@@ -21,7 +21,7 @@ object Dependencies {
     val `zio-interop-reactiveStreams` = "1.3.9"
     val `simple-java-mail` = "6.7.6"
     val h2 = "2.1.210"
-    val scalaTest = "3.2.10"
+    val scalaTest = "3.2.11"
     val `zio-actors` = "0.0.9"
     val refined = "0.9.28"
     val `zio-schema` = "0.1.7"
@@ -31,7 +31,7 @@ object Dependencies {
   lazy val redisDeps = "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT" // 实验性质的
   lazy val confDeps = "com.typesafe" % "config" % Version.config
   lazy val schemaDeps = "dev.zio" %% "zio-schema" % Version.`zio-schema`
-  lazy val  `schema-derivation` =  "dev.zio" %% "zio-schema-derivation" % Version.`zio-schema`
+  lazy val `schema-derivation` = "dev.zio" %% "zio-schema-derivation" % Version.`zio-schema`
   lazy val zio = "dev.zio" %% "zio" % Version.zio
 
   lazy val zioDeps = Seq(
