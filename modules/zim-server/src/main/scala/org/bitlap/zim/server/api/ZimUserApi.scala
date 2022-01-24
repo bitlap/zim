@@ -83,13 +83,13 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
         case Right(s) =>
           Right(
             Tuple2(
-              s,
               CookieValueWithMeta.unsafeApply(
                 value = input.toCookieValue,
                 maxAge = Some(30 * 60 * 7L),
                 httpOnly = true,
                 secure = true
-              )
+              ),
+              s
             )
           )
         case Left(value) => Left(value)

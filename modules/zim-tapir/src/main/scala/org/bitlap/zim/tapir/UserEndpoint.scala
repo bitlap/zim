@@ -364,14 +364,14 @@ trait UserEndpoint extends ApiErrorMapping {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   lazy val loginEndpoint
-    : Endpoint[Unit, UserSecurityInfo, ZimError, (Source[ByteString, Any], CookieValueWithMeta), Any with AkkaStreams] =
+    : Endpoint[Unit, UserSecurityInfo, ZimError, (CookieValueWithMeta, Source[ByteString, Any]), Any with AkkaStreams] =
     endpoint.post
       .in(userResource / "login")
       .in(jsonBody[UserSecurityInfo])
       .name("登录")
       .description(userResourceDescription)
-      .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
       .out(setCookie(Authorization))
+      .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
       .errorOut(errorOut)
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
