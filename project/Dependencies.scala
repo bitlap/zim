@@ -33,10 +33,11 @@ object Dependencies {
   lazy val schemaDeps = "dev.zio" %% "zio-schema" % Version.`zio-schema`
   lazy val `schema-derivation` = "dev.zio" %% "zio-schema-derivation" % Version.`zio-schema`
   lazy val zio = "dev.zio" %% "zio" % Version.zio
+  lazy val `zio-interop-reactivestreams` = "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
 
   lazy val zioDeps = Seq(
     zio,
-    "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`,
+    `zio-interop-reactivestreams`,
     "dev.zio" %% "zio-logging" % Version.`zio-logging`,
     "dev.zio" %% "zio-test" % Version.zio % Test,
     "dev.zio" %% "zio-test-sbt" % Version.zio % Test,
@@ -80,7 +81,9 @@ object Dependencies {
     "org.scalatest" %% "scalatest" % Version.scalaTest % Test
   )
 
-  lazy val serverDeps: Seq[ModuleID] = zioDeps ++ akkaDeps ++ otherDeps ++ tapirDeps ++ domainDeps
+  lazy val serverDeps: Seq[ModuleID] = domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
+
+  lazy val tapirApiDeps: Seq[ModuleID] = Seq(zio, `zio-interop-reactivestreams`) ++ akkaDeps ++ tapirDeps
 
   // 基础依赖 domain使用
   lazy val domainDeps: Seq[ModuleID] = Seq(

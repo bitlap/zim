@@ -5,7 +5,6 @@ import org.bitlap.zim.domain.input.{ UserInput, UserSecurity }
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import org.bitlap.zim.server.util.SecurityUtil
-import zio.crypto.hash.MessageDigest
 import zio.stream.ZStream
 import zio.{ stream, Has }
 import org.bitlap.zim.server.util.LogUtil

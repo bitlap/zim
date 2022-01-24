@@ -3,8 +3,8 @@ package org.bitlap.zim.server.api
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.DebuggingDirectives
 import org.bitlap.zim.ZimBuildInfo
-import org.bitlap.zim.server.api.endpoint.ActuatorEndpoint
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
+import org.bitlap.zim.tapir.ActuatorEndpoint
 
 import scala.concurrent.Future
 

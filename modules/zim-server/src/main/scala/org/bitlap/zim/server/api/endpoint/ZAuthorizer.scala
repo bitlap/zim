@@ -5,7 +5,6 @@ import io.circe.syntax.EncoderOps
 import org.bitlap.zim.cache.zioRedisService
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
-import org.bitlap.zim.server.api.exception.ZimError.Unauthorized
 import org.bitlap.zim.server.configuration.properties.MysqlConfigurationProperties
 import org.bitlap.zim.server.repository.TangibleUserRepository
 import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil }
@@ -15,6 +14,7 @@ import java.util.Base64
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Try
+import org.bitlap.zim.domain.ZimError.Unauthorized
 
 /**
  *  auth
@@ -23,8 +23,6 @@ import scala.util.Try
  * @version 1.0
  */
 trait ZAuthorizer {
-
-  lazy val Authorization: String = "Authorization"
 
   lazy val zioRuntime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
 

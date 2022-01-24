@@ -1,4 +1,4 @@
-package org.bitlap.zim.server.api.endpoint
+package org.bitlap.zim.tapir
 
 import akka.http.scaladsl.model.ws.TextMessage
 import akka.stream.scaladsl.Flow
@@ -19,7 +19,7 @@ import scala.concurrent.duration.DurationInt
 trait WsEndpoint {
 
   // TODO use domain, not TextMessage
-  private[api] lazy val wsEndpoint: PublicEndpoint[Int, Unit, Flow[
+  lazy val wsEndpoint: PublicEndpoint[Int, Unit, Flow[
     TextMessage.Strict,
     TextMessage.Strict,
     Any

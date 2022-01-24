@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.ws.{ Message, TextMessage }
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import akka.stream.scaladsl.Flow
-import org.bitlap.zim.server.api.endpoint.WsEndpoint
+import org.bitlap.zim.tapir.WsEndpoint
 import org.bitlap.zim.server.application.ws.wsService
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 

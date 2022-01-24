@@ -1,7 +1,7 @@
 package org.bitlap.zim.server.api
 
 import akka.http.scaladsl.server.Route
-import org.bitlap.zim.server.api.endpoint.{ ActuatorEndpoint, ApiEndpoint, UserEndpoint }
+import org.bitlap.zim.tapir.{ ActuatorEndpoint, ApiEndpoint }
 import sttp.tapir.AnyEndpoint
 import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
@@ -10,6 +10,7 @@ import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import sttp.tapir.swagger.SwaggerUI
 
 import scala.concurrent.Future
+import org.bitlap.zim.server.api.endpoint.SecurityUserEndpoint
 
 /**
  * Open API
@@ -29,11 +30,11 @@ final class OpenApi {
   // 需要鉴权的不支持
   private lazy val endpoints: Seq[AnyEndpoint] = Seq(
     ActuatorEndpoint.healthEndpoint,
-    UserEndpoint.userGetOneEndpoint,
+    SecurityUserEndpoint.userGetOneEndpoint,
 //    UserEndpoint.findUserEndpoint,
 //    UserEndpoint.indexEndpoint,
-    UserEndpoint.existEmailEndpoint,
-    UserEndpoint.activeUserEndpoint,
+    SecurityUserEndpoint.existEmailEndpoint,
+    SecurityUserEndpoint.activeUserEndpoint,
 //    UserEndpoint.agreeFriendEndpoint,
 //    UserEndpoint.refuseFriendEndpoint,
 //    UserEndpoint.changeGroupEndpoint,
@@ -55,8 +56,8 @@ final class OpenApi {
 //    UserEndpoint.uploadGroupAvatarEndpoint,
 //    UserEndpoint.removeFriendEndpoint,
 //    UserEndpoint.leaveOutGroupEndpoint,
-    UserEndpoint.loginEndpoint,
-    UserEndpoint.registerEndpoint
+    SecurityUserEndpoint.loginEndpoint,
+    SecurityUserEndpoint.registerEndpoint
 //    UserEndpoint.initEndpoint
   )
   private lazy val openApiYaml: String = OpenAPIDocsInterpreter()

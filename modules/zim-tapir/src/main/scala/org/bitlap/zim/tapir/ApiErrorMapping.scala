@@ -1,4 +1,4 @@
-package org.bitlap.zim.server.api.endpoint
+package org.bitlap.zim.tapir
 
 import akka.event.slf4j.Logger
 import akka.http.scaladsl.model.StatusCodes.InternalServerError
@@ -8,11 +8,11 @@ import akka.http.scaladsl.server._
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.{ ResultSet, SystemConstant }
-import org.bitlap.zim.server.api.exception.ZimError.{ BusinessException, Unauthorized }
 import sttp.model.StatusCode
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.{ EndpointOutput, _ }
+import org.bitlap.zim.domain.ZimError._
 
 import java.util.Base64
 import scala.util.Try
@@ -35,7 +35,7 @@ trait ApiErrorMapping extends ApiJsonCodec {
   )
 
   // 注意这里是PartialFunction，不能使用`_`匹配
-  private[api] implicit def customExceptionHandler: ExceptionHandler = ExceptionHandler {
+  implicit def customExceptionHandler: ExceptionHandler = ExceptionHandler {
     case e: Unauthorized =>
       extractUri { uri =>
         Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.getCause}")
