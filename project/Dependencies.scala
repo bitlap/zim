@@ -83,7 +83,7 @@ object Dependencies {
 
   lazy val serverDeps: Seq[ModuleID] = domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
 
-  lazy val tapirApiDeps: Seq[ModuleID] = Seq(zio, `zio-interop-reactivestreams`, schemaDeps) ++ akkaDeps ++ tapirDeps
+  lazy val tapirApiDeps: Seq[ModuleID] = Seq(zio, `zio-interop-reactivestreams`) ++ akkaDeps ++ tapirDeps ++ domainDeps
 
   // 基础依赖 domain使用
   lazy val domainDeps: Seq[ModuleID] = Seq(
