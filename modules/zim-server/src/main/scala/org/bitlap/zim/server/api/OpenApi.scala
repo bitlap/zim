@@ -10,7 +10,6 @@ import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import sttp.tapir.swagger.SwaggerUI
 
 import scala.concurrent.Future
-import org.bitlap.zim.server.api.endpoint.SecurityUserEndpoint
 
 /**
  * Open API

@@ -16,6 +16,7 @@ import sttp.model.headers.CookieValueWithMeta
 
 import scala.concurrent.Future
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
+import sttp.model.HeaderNames.Authorization
 
 /**
  * 用户接口的端点
@@ -25,8 +26,6 @@ import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
  * @version 1.0
  */
 trait UserEndpoint extends ApiErrorMapping {
-
-  lazy val Authorization: String = "Authorization"
 
   // API 最前缀path
   private[tapir] lazy val userResource: EndpointInput[Unit] = "user"

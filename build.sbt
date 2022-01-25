@@ -20,10 +20,10 @@ Global / onLoad := {
   (Global / onLoad).value
 }
 
-ThisBuild / resolvers  ++= Seq(
+ThisBuild / resolvers ++= Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("public"),
-  Resolver.sonatypeRepo("snapshots"),
+  Resolver.sonatypeRepo("snapshots")
 )
 
 lazy val configurationPublish: Project => Project =
@@ -38,7 +38,7 @@ lazy val configurationNoPublish: Project => Project =
     .settings(commands ++= Commands.value)
 
 lazy val zim = (project in file("."))
-  .aggregate(`zim-server`, `zim-domain`, `zim-cache`)
+  .aggregate(`zim-server`, `zim-domain`, `zim-cache`, `zim-tapir`, `zim-auth`)
   .configure(configurationNoPublish)
 
 lazy val `zim-server` = (project in file("modules/zim-server"))
@@ -46,7 +46,7 @@ lazy val `zim-server` = (project in file("modules/zim-server"))
   .settings(libraryDependencies ++= Dependencies.serverDeps)
   .configure(configurationNoPublish)
   .enablePlugins(GitVersioning, BuildInfoPlugin, ScalafmtPlugin)
-  .dependsOn(`zim-domain`, `zim-cache`,`zim-tapir`)
+  .dependsOn(`zim-domain`, `zim-cache`, `zim-tapir`, `zim-auth`)
 
 lazy val `zim-domain` = (project in file("modules/zim-domain"))
   .settings(libraryDependencies ++= Dependencies.domainDeps)
@@ -62,5 +62,11 @@ lazy val `zim-tapir` = (project in file("modules/zim-tapir"))
   .settings(BuildInfoSettings.value)
   .settings(libraryDependencies ++= Dependencies.tapirApiDeps)
   .configure(configurationPublish)
-  .enablePlugins(GitVersioning, BuildInfoPlugin,ScalafmtPlugin)
+  .enablePlugins(GitVersioning, BuildInfoPlugin, ScalafmtPlugin)
+  .dependsOn(`zim-domain`)
+
+lazy val `zim-auth` = (project in file("modules/zim-auth"))
+  .settings(libraryDependencies ++= Dependencies.domainDeps)
+  .configure(configurationPublish)
+  .enablePlugins(ScalafmtPlugin)
   .dependsOn(`zim-domain`)

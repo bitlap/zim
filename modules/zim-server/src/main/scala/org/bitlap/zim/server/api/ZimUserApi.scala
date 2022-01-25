@@ -1,25 +1,24 @@
 package org.bitlap.zim.server.api
 
-import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
+import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.server.Directive.addDirectiveApply
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
+import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
-import org.bitlap.zim.server.api.endpoint.SecurityUserEndpoint.{ authenticate, Authorization }
-import org.bitlap.zim.tapir.{ ApiErrorMapping, ApiJsonCodec }
 import org.bitlap.zim.server.application.ApiApplication
 import org.bitlap.zim.server.application.impl.ApiService.ZApiApplication
 import org.bitlap.zim.server.util.FileUtil
+import org.bitlap.zim.tapir.{ ApiErrorMapping, ApiJsonCodec }
 import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
-
+import sttp.model.HeaderNames.Authorization
+import org.bitlap.zim.server.api.SecurityUserEndpoint._
 import scala.concurrent.ExecutionContext.Implicits.global
-import org.bitlap.zim.server.api.endpoint.SecurityUserEndpoint
 
 /**
  * 用户API
@@ -126,7 +125,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   lazy val indexRoute: Route = get {
     pathPrefix("user" / "index") {
       cookie(Authorization) { user =>
-        val checkFuture = authenticate(UserSecurity(user.value)).map(_.getOrElse(null))
+        val checkFuture = authenticate(UserSecurity(user.value))(authorityCacheFunction).map(_.getOrElse(null))
         onComplete(checkFuture) {
           case util.Success(u) if u != null =>
             // 这是不使用任何渲染模板

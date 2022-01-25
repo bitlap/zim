@@ -28,12 +28,17 @@ object Dependencies {
     val `akka-http-session` = "0.6.1"
   }
 
-  lazy val redisDeps = "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT" // 实验性质的
-  lazy val confDeps = "com.typesafe" % "config" % Version.config
-  lazy val schemaDeps = "dev.zio" %% "zio-schema" % Version.`zio-schema`
+  lazy val redis = "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT" // 实验性质的
+  lazy val config = "com.typesafe" % "config" % Version.config
+  lazy val `zio-schema` = "dev.zio" %% "zio-schema" % Version.`zio-schema`
   lazy val `schema-derivation` = "dev.zio" %% "zio-schema-derivation" % Version.`zio-schema`
   lazy val zio = "dev.zio" %% "zio" % Version.zio
   lazy val `zio-interop-reactivestreams` = "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
+  lazy val `zio-actors` = Seq(
+    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
+    "dev.zio" %% "zio-actors" % Version.`zio-actors`
+  )
+  lazy val `akka-actor` = "com.typesafe.akka" %% "akka-actor-typed" % Version.akka
 
   lazy val zioDeps = Seq(
     zio,
@@ -42,7 +47,7 @@ object Dependencies {
     "dev.zio" %% "zio-test" % Version.zio % Test,
     "dev.zio" %% "zio-test-sbt" % Version.zio % Test,
     "dev.zio" %% "zio-crypto" % "0.0.0+92-5672c642-SNAPSHOT", // 实验性质的
-    redisDeps
+    redis
   )
 
   lazy val tapirDeps = Seq(
@@ -59,7 +64,7 @@ object Dependencies {
   )
 
   lazy val akkaDeps = Seq(
-    "com.typesafe.akka" %% "akka-actor-typed" % Version.akka,
+    `akka-actor`,
     "com.typesafe.akka" %% "akka-http" % Version.`akka-http`,
     "com.typesafe.akka" %% "akka-stream" % Version.akka,
     "com.typesafe.akka" %% "akka-slf4j" % Version.akka
@@ -73,7 +78,7 @@ object Dependencies {
 
   lazy val otherDeps = Seq(
     "org.scalikejdbc" %% "scalikejdbc-streams" % Version.scalikejdbc,
-    confDeps,
+    config,
     "ch.qos.logback" % "logback-classic" % Version.logback,
     "mysql" % "mysql-connector-java" % Version.mysql,
     "org.simplejavamail" % "simple-java-mail" % Version.`simple-java-mail`,
@@ -81,26 +86,20 @@ object Dependencies {
     "org.scalatest" %% "scalatest" % Version.scalaTest % Test
   )
 
-  lazy val serverDeps: Seq[ModuleID] = domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
+  lazy val serverDeps: Seq[ModuleID] = domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps ++ `zio-actors`
 
   lazy val tapirApiDeps: Seq[ModuleID] = Seq(zio, `zio-interop-reactivestreams`) ++ akkaDeps ++ tapirDeps ++ domainDeps
 
   // 基础依赖 domain使用
   lazy val domainDeps: Seq[ModuleID] = Seq(
-    "org.scalikejdbc" %% "scalikejdbc" % Version.scalikejdbc,
-    "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc,
-    "dev.zio" %% "zio-streams" % Version.zio,
-    "dev.zio" %% "zio-actors" % Version.`zio-actors`,
-    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
+    "org.scalikejdbc" %% "scalikejdbc" % Version.scalikejdbc % Compile,
+    "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc % Compile,
+    "dev.zio" %% "zio-streams" % Version.zio % Compile,
     "eu.timepit" %% "refined" % Version.refined,
-    schemaDeps,
-    `schema-derivation`
+    `zio-schema`,
+    `schema-derivation`,
+    `akka-actor`
   ) ++ circeDeps
 
-  lazy val cacheDeps = Seq(
-    confDeps,
-    redisDeps,
-    schemaDeps,
-    zio
-  )
+  lazy val cacheDeps = Seq(config, redis, `zio-schema`, zio)
 }
