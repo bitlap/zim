@@ -19,7 +19,7 @@ object Dependencies {
     val config = "1.4.1"
     val mysql = "8.0.28"
     val `zio-interop-reactiveStreams` = "1.3.9"
-    val `simple-java-mail` = "6.7.6"
+    val `simple-java-mail` = "7.0.2"
     val h2 = "2.1.210"
     val scalaTest = "3.2.11"
     val `zio-actors` = "0.0.9"
@@ -33,7 +33,8 @@ object Dependencies {
   lazy val `zio-schema` = "dev.zio" %% "zio-schema" % Version.`zio-schema`
   lazy val `schema-derivation` = "dev.zio" %% "zio-schema-derivation" % Version.`zio-schema`
   lazy val zio = "dev.zio" %% "zio" % Version.zio
-  lazy val `zio-interop-reactivestreams` = "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
+  lazy val `zio-interop-reactivestreams` =
+    "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
   lazy val `zio-actors` = Seq(
     "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
     "dev.zio" %% "zio-actors" % Version.`zio-actors`
