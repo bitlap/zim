@@ -135,7 +135,7 @@ package object ws {
         } when (c > 0)
       } map (_ => DEFAULT_VALUE)
 
-  private[ws] def changeOnline(
+  private[ws] def changeOnlineHandler(
     userService: UserApplication
   )(uId: Int, status: String): IO[Throwable, Boolean] = {
     val isOnline = SystemConstant.status.ONLINE.equals(status)

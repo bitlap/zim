@@ -225,7 +225,7 @@ object wsService extends ZimServiceConfiguration {
 
           override def changeOnline(uId: Int, status: String): Task[Boolean] =
             uId.synchronized {
-              changeOnline(uId, status)
+              changeOnlineHandler(userService)(uId, status)
             }
 
           override def readOfflineMessage(message: domain.Message): Task[Unit] =
