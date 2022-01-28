@@ -1,26 +1,28 @@
 package org.bitlap.zim.server.application.ws
-import akka.NotUsed
-import akka.actor.ActorRef
 import akka.actor.typed.scaladsl.adapter._
+import akka.actor.{ ActorRef, Status }
 import akka.http.scaladsl.model.ws.{ Message, TextMessage }
-import akka.stream.{ CompletionStrategy, Materializer, OverflowStrategy }
 import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
+import akka.stream.{ CompletionStrategy, Materializer, OverflowStrategy }
+import akka.{ Done, NotUsed }
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.domain
-import org.bitlap.zim.domain.{ SystemConstant, Message => IMMessage }
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.ws.protocol._
-import org.bitlap.zim.server.actor.akka.WsMessageForwardBehavior
-import org.bitlap.zim.server.configuration.{ AkkaActorSystemConfiguration, ZimServiceConfiguration }
-import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
-import org.reactivestreams.Publisher
-import zio.{ Has, Task, ZIO, ZLayer }
-import zio.actors.akka.AkkaTypedActor
 import org.bitlap.zim.cache.zioRedisService
-import akka.actor.Status
-import akka.Done
+import org.bitlap.zim.domain
+import org.bitlap.zim.domain.model.{ AddMessage, User }
+import org.bitlap.zim.domain.ws.protocol._
+import org.bitlap.zim.domain.{ Add, SystemConstant, Message => IMMessage }
+import org.bitlap.zim.server.actor.akka.WsMessageForwardBehavior
+import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
+import org.bitlap.zim.server.configuration.{ AkkaActorSystemConfiguration, ZimServiceConfiguration }
+import org.bitlap.zim.server.util.LogUtil
+import org.reactivestreams.Publisher
+import zio.actors.akka.AkkaTypedActor
+import zio.{ Has, Task, ZIO, ZLayer }
+
+import java.time.ZonedDateTime
 import java.util.concurrent.ConcurrentHashMap
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
 
@@ -95,7 +97,20 @@ object wsService extends ZimServiceConfiguration {
               }
           }
 
-          override def refuseAddGroup(msg: domain.Message): Task[Unit] = ???
+          override def refuseAddGroup(msg: domain.Message): Task[Unit] = {
+            val refuse = decode[AddRefuseMessage](msg.msg).getOrElse(null)
+            if (refuse == null) return Task.unit
+            refuse.messageBoxId.synchronized {
+              val actor = actorRefSessions.get(refuse.toUid)
+              for {
+                _ <- userService.updateAddMessage(refuse.messageBoxId, 2).runHead
+                r <- {
+                  val result = Map("type" -> "refuseAddGroup", "username" -> refuse.mine.username)
+                  sendMessage(result.asJson.noSpaces, actor)
+                }.unless(actor == null)
+              } yield r
+            }
+          }
 
           override def refuseAddFriend(messageBoxId: Int, user: User, to: Int): Task[Boolean] =
             messageBoxId.synchronized {
@@ -103,28 +118,126 @@ object wsService extends ZimServiceConfiguration {
             }
 
           override def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): Task[Unit] =
-            Task.succeed(())
+            gid.synchronized {
+              val actor: ActorRef = actorRefSessions.get(uid);
+              {
+                val result = Map(
+                  "type" -> "deleteGroup",
+                  "username" -> master.username,
+                  "uid" -> s"${master.id}",
+                  "groupname" -> groupname,
+                  "gid" -> s"$gid"
+                )
+                sendMessage(result.asJson.noSpaces, actor)
+              }.when(actor != null && uid != master.id)
+            }
 
-          override def removeFriend(uId: Int, friendId: Int): Task[Unit] = ???
+          override def removeFriend(uId: Int, friendId: Int): Task[Unit] =
+            uId.synchronized {
+              //对方是否在线，在线则处理，不在线则不处理
+              val actor = actorRefSessions.get(friendId);
+              {
+                val result = Map(
+                  "type" -> protocol.delFriend.stringify,
+                  "uId" -> s"$uId"
+                )
+                sendMessage(result.asJson.noSpaces, actor)
 
-          override def addGroup(uId: Int, message: domain.Message): Task[Unit] = ???
+              }.when(actor != null)
+            }
 
-          override def addFriend(uId: Int, message: domain.Message): Task[Unit] = ???
+          override def addGroup(uId: Int, message: domain.Message): Task[Unit] =
+            uId.synchronized {
+              val t = decode[Group](message.msg).getOrElse(null);
+              {
+                userService
+                  .saveAddMessage(
+                    AddMessage(
+                      fromUid = message.mine.id,
+                      toUid = message.to.id,
+                      groupId = t.groupId,
+                      remark = t.remark,
+                      `type` = 1,
+                      time = ZonedDateTime.now()
+                    )
+                  )
+                  .runHead
+                  .when(t != null)
+              } *> {
+                val actorRef = actorRefSessions.get(message.to.id);
+                {
+                  val result = Map(
+                    "type" -> protocol.addGroup.stringify
+                  )
+                  sendMessage(result.asJson.noSpaces, actorRef)
+                }.when(actorRef != null)
+              }
+            }
 
-          override def countUnHandMessage(uId: Int): Task[Map[String, String]] = ???
+          override def addFriend(uId: Int, message: domain.Message): Task[Unit] =
+            uId.synchronized {
+              val mine = message.mine
+              val actorRef = actorRefSessions.get(message.to.id);
+              val add = decode[Add](message.msg).getOrElse(null);
+              {
+                val addMessageCopy = AddMessage(
+                  fromUid = mine.id,
+                  toUid = message.to.id,
+                  groupId = add.groupId,
+                  remark = add.remark,
+                  `type` = add.`type`,
+                  time = ZonedDateTime.now()
+                )
+                userService.saveAddMessage(addMessageCopy).runHead
+              }.when(add != null) *>
+                sendMessage(
+                  Map("type" -> protocol.addFriend.stringify).asJson.noSpaces,
+                  actorRef = actorRef
+                ).when(actorRef != null)
+            }
 
-          override def checkOnline(message: domain.Message): Task[Map[String, String]] = ???
+          override def countUnHandMessage(uId: Int): Task[Map[String, String]] =
+            uId.synchronized {
+              userService.countUnHandMessage(uId, 0).runHead.map { count =>
+                Map(
+                  "type" -> protocol.unHandMessage.stringify,
+                  "count" -> s"${count.getOrElse(0)}"
+                )
+              }
+            }
 
-          override def sendMessage(message: String, actorRef: ActorRef): Task[Unit] = ???
+          override def checkOnline(message: domain.Message): Task[Map[String, String]] =
+            message.to.id.synchronized {
+              val result = mutable.HashMap[String, String]()
+              result.put("type", protocol.checkOnline.stringify)
+              zioRedisService.getSets(SystemConstant.ONLINE_USER).map { uids =>
+                if (uids.contains(message.to.id.toString))
+                  result.put("status", SystemConstant.status.ONLINE_DESC)
+                else result.put("status", SystemConstant.status.HIDE_DESC)
+                result.toMap
+              }
+            }
 
-          override def changeOnline(uId: Int, status: String): Task[Boolean] = Task.succeed(true)
+          override def sendMessage(message: String, actorRef: ActorRef): Task[Unit] =
+            this.synchronized {
+
+              LogUtil
+                .info(s"sendMessage message=>$message actorRef=>${actorRef.path}")
+                .as(actorRef ! message)
+                .when(actorRef != null)
+            }
+
+          override def changeOnline(uId: Int, status: String): Task[Boolean] =
+            uId.synchronized {
+              changeOnlineHandler(userService)(uId, status)
+            }
 
           override def readOfflineMessage(message: domain.Message): Task[Unit] =
             message.mine.id.synchronized {
               readOfflineMessageHandler(userService)(message)
             }
 
-          override def getConnections: Task[Int] = ZIO.succeed(actorRefSessions.size())
+          override def getConnections: Task[Int] = ZIO.effect(actorRefSessions.size())
         }
       }
 
@@ -207,9 +320,9 @@ object wsService extends ZimServiceConfiguration {
    */
   def openConnection(
     uId: Int
-  )(implicit m: Materializer): ZIO[Any, Throwable, Flow[Message, TextMessage.Strict, NotUsed]] = {
+  )(implicit m: Materializer): ZIO[Any, Throwable, Flow[Message, String, NotUsed]] = {
     //closeConnection(uId)
-    val (actorRef: akka.actor.ActorRef, publisher: Publisher[TextMessage.Strict]) =
+    val (actorRef: akka.actor.ActorRef, publisher: Publisher[String]) =
       Source
         .actorRef(
           { case akka.actor.Status.Success(s: CompletionStrategy) =>
@@ -222,6 +335,7 @@ object wsService extends ZimServiceConfiguration {
           OverflowStrategy.fail
         )
         .map(TextMessage.Strict)
+        .map(_.text)
         .toMat(Sink.asPublisher(true))(Keep.both)
         .run()
     for {

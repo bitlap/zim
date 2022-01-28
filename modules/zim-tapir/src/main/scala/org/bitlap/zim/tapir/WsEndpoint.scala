@@ -1,15 +1,15 @@
 package org.bitlap.zim.tapir
 
-import akka.http.scaladsl.model.ws.TextMessage
-import akka.stream.scaladsl.Flow
 import sttp.capabilities.WebSockets
 import sttp.capabilities.akka.AkkaStreams
+import sttp.capabilities.akka.AkkaStreams.Pipe
 import sttp.tapir.Codec.parsedString
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.{ endpoint, query, _ }
 import sttp.ws.WebSocketFrame
 
 import scala.concurrent.duration.DurationInt
+import akka.http.scaladsl.model.ws.TextMessage
 
 /**
  * @author 梦境迷离
@@ -18,36 +18,27 @@ import scala.concurrent.duration.DurationInt
  */
 trait WsEndpoint {
 
-  // TODO use domain, not TextMessage
-  lazy val wsEndpoint: PublicEndpoint[Int, Unit, Flow[
-    TextMessage.Strict,
-    TextMessage.Strict,
-    Any
-  ], Any with AkkaStreams with WebSockets] =
+  // TODO typed ws
+  lazy val wsEndpoint
+    : PublicEndpoint[Int, Unit, Pipe[TextMessage.Strict, String], Any with AkkaStreams with WebSockets] =
     endpoint
       .in("websocket" / query[Int]("uid"))
       .description("Websocket Endpoint")
       .name("Websocket")
       .out(out)
 
-  lazy val out: WebSocketBodyOutput[Flow[
+  lazy val out: WebSocketBodyOutput[Pipe[TextMessage.Strict, String], TextMessage.Strict, String, Pipe[
     TextMessage.Strict,
-    TextMessage.Strict,
-    Any
-  ], TextMessage.Strict, TextMessage.Strict, Flow[
-    TextMessage.Strict,
-    TextMessage.Strict,
-    Any
+    String
   ], AkkaStreams] =
-    new WebSocketBodyBuilder[TextMessage.Strict, CodecFormat, TextMessage.Strict, CodecFormat]
+    new WebSocketBodyBuilder[TextMessage.Strict, CodecFormat.TextPlain, String, CodecFormat.TextPlain]
       .apply(AkkaStreams)(
         requests = Codec.textWebSocketFrame(
-          parsedString[TextMessage.Strict](t => TextMessage.Strict(t))
+          parsedString[TextMessage.Strict](TextMessage.Strict)
             .schema(implicitly[Schema[TextMessage.Strict]])
         ),
         responses = Codec.textWebSocketFrame(
-          parsedString[TextMessage.Strict](t => TextMessage.Strict(t))
-            .schema(implicitly[Schema[TextMessage.Strict]])
+          Codec.string
         )
       )
       .concatenateFragmentedFrames(false)
