@@ -21,7 +21,7 @@ final class WsApi()(implicit materializer: Materializer) {
   private lazy val runTime: zio.Runtime[zio.ZEnv] = wsService.zioRuntime
 
   lazy val route: Route = AkkaHttpServerInterpreter().toRoute(WsEndpoint.wsEndpoint.serverLogic[Future] { uid =>
-    val ret: Right[Nothing, Flow[Message, TextMessage.Strict, NotUsed]] =
+    val ret: Right[Nothing, Flow[Message, String, NotUsed]] =
       Right(runTime.unsafeRun(wsService.openConnection(uid)))
     val either = ret.withLeft[Unit]
     Future.apply(either)

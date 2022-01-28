@@ -21,7 +21,7 @@ trait WsEndpoint {
   // TODO use domain, not TextMessage
   lazy val wsEndpoint: PublicEndpoint[Int, Unit, Flow[
     TextMessage.Strict,
-    TextMessage.Strict,
+    String,
     Any
   ], Any with AkkaStreams with WebSockets] =
     endpoint
@@ -30,24 +30,15 @@ trait WsEndpoint {
       .name("Websocket")
       .out(out)
 
-  lazy val out: WebSocketBodyOutput[Flow[
-    TextMessage.Strict,
-    TextMessage.Strict,
-    Any
-  ], TextMessage.Strict, TextMessage.Strict, Flow[
-    TextMessage.Strict,
-    TextMessage.Strict,
-    Any
-  ], AkkaStreams] =
-    new WebSocketBodyBuilder[TextMessage.Strict, CodecFormat, TextMessage.Strict, CodecFormat]
+  lazy val out =
+    new WebSocketBodyBuilder[TextMessage.Strict, CodecFormat.TextPlain, String, CodecFormat.TextPlain]
       .apply(AkkaStreams)(
         requests = Codec.textWebSocketFrame(
-          parsedString[TextMessage.Strict](t => TextMessage.Strict(t))
+          parsedString[TextMessage.Strict](TextMessage.Strict)
             .schema(implicitly[Schema[TextMessage.Strict]])
         ),
         responses = Codec.textWebSocketFrame(
-          parsedString[TextMessage.Strict](t => TextMessage.Strict(t))
-            .schema(implicitly[Schema[TextMessage.Strict]])
+          Codec.string
         )
       )
       .concatenateFragmentedFrames(false)

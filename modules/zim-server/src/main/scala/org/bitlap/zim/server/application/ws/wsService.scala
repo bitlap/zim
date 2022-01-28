@@ -18,6 +18,7 @@ import org.bitlap.zim.server.configuration.{ AkkaActorSystemConfiguration, ZimSe
 import org.reactivestreams.Publisher
 import zio.actors.akka.AkkaTypedActor
 import zio.{ Has, Task, ZIO, ZLayer }
+import org.bitlap.zim.server.util.LogUtil
 
 import java.time.ZonedDateTime
 import java.util.concurrent.ConcurrentHashMap
@@ -200,7 +201,7 @@ object wsService extends ZimServiceConfiguration {
               userService.countUnHandMessage(uId, 0).runHead.map { count =>
                 Map(
                   "type" -> protocol.unHandMessage.stringify,
-                  "count" -> s"$count"
+                  "count" -> s"${count.getOrElse(0)}"
                 )
               }
             }
@@ -220,7 +221,7 @@ object wsService extends ZimServiceConfiguration {
           override def sendMessage(message: String, actorRef: ActorRef): Task[Unit] =
             synchronized {
               actorRef ! message
-              Task.unit
+              LogUtil.info(s"sendMessage message=>$message actorRef=>${actorRef.path}")
             }
 
           override def changeOnline(uId: Int, status: String): Task[Boolean] =
@@ -316,9 +317,9 @@ object wsService extends ZimServiceConfiguration {
    */
   def openConnection(
     uId: Int
-  )(implicit m: Materializer): ZIO[Any, Throwable, Flow[Message, TextMessage.Strict, NotUsed]] = {
+  )(implicit m: Materializer): ZIO[Any, Throwable, Flow[Message, String, NotUsed]] = {
     //closeConnection(uId)
-    val (actorRef: akka.actor.ActorRef, publisher: Publisher[TextMessage.Strict]) =
+    val (actorRef: akka.actor.ActorRef, publisher: Publisher[String]) =
       Source
         .actorRef(
           { case akka.actor.Status.Success(s: CompletionStrategy) =>
@@ -331,6 +332,7 @@ object wsService extends ZimServiceConfiguration {
           OverflowStrategy.fail
         )
         .map(TextMessage.Strict)
+        .map(_.text)
         .toMat(Sink.asPublisher(true))(Keep.both)
         .run()
     for {
