@@ -15,10 +15,10 @@ import org.bitlap.zim.domain.{ Add, SystemConstant, Message => IMMessage }
 import org.bitlap.zim.server.actor.akka.WsMessageForwardBehavior
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.server.configuration.{ AkkaActorSystemConfiguration, ZimServiceConfiguration }
+import org.bitlap.zim.server.util.LogUtil
 import org.reactivestreams.Publisher
 import zio.actors.akka.AkkaTypedActor
 import zio.{ Has, Task, ZIO, ZLayer }
-import org.bitlap.zim.server.util.LogUtil
 
 import java.time.ZonedDateTime
 import java.util.concurrent.ConcurrentHashMap
@@ -219,9 +219,12 @@ object wsService extends ZimServiceConfiguration {
             }
 
           override def sendMessage(message: String, actorRef: ActorRef): Task[Unit] =
-            synchronized {
-              actorRef ! message
-              LogUtil.info(s"sendMessage message=>$message actorRef=>${actorRef.path}")
+            this.synchronized {
+
+              LogUtil
+                .info(s"sendMessage message=>$message actorRef=>${actorRef.path}")
+                .as(actorRef ! message)
+                .when(actorRef != null)
             }
 
           override def changeOnline(uId: Int, status: String): Task[Boolean] =
