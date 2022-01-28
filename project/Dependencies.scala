@@ -56,11 +56,13 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % Version.tapir,
-    "com.softwaremill.akka-http-session" %% "core" % Version.`akka-http-session`
-//    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"  % Version.tapir,
-//    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
-//    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe" % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % Version.tapir
+  )
+
+  lazy val `tapir-async-doc` = Seq(
+    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"  % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe" % Version.tapir
   )
 
   lazy val akkaDeps = Seq(
@@ -86,7 +88,7 @@ object Dependencies {
     "org.scalatest" %% "scalatest" % Version.scalaTest % Test
   )
 
-  lazy val serverDeps: Seq[ModuleID] = domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps ++ `zio-actors`
+  lazy val serverDeps: Seq[ModuleID] = domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps ++ `zio-actors` ++ `tapir-async-doc`
 
   lazy val tapirApiDeps: Seq[ModuleID] = Seq(zio, `zio-interop-reactivestreams`) ++ akkaDeps ++ tapirDeps ++ domainDeps
 

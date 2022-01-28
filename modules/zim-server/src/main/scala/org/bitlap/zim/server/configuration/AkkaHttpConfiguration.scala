@@ -58,7 +58,10 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
         .fork
       _ <- UIO(
         actorSystem.log.info(
-          s"Server online at http://${infoConf.interface}:${infoConf.port}/${OpenApi().openapi}"
+          s"""
+             |Server online at http://${infoConf.interface}:${infoConf.port}/${OpenApi().openapi}
+             |Websocket Server online at http://localhost:9000/api/v1.0/wsDocs
+             |""".stripMargin
         )
       )
       _ <- server.join

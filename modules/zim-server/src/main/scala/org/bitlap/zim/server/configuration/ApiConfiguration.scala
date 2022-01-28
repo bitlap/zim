@@ -42,8 +42,9 @@ object ApiConfiguration {
       userRoute <- ZIO.access[ZApiConfiguration](_.get.zimUserApi.route)
       actuatorRoute <- ZIO.access[ZApiConfiguration](_.get.zimActuatorApi.route)
       openRoute <- ZIO.access[ZApiConfiguration](_.get.zimOpenApi.route)
+      wsDocsRoute <- ZIO.access[ZApiConfiguration](_.get.zimOpenApi.wsDocsRoute)
       wsRoute <- ZIO.access[ZApiConfiguration](_.get.wsApi.route)
-    } yield openRoute ~ actuatorRoute ~ wsRoute ~ userRoute
+    } yield openRoute ~ actuatorRoute ~ wsRoute ~ wsDocsRoute ~ userRoute
 
   val live: RLayer[ZApplicationConfiguration with ZMaterializer, ZApiConfiguration] =
     ZLayer.fromServices[ApplicationConfiguration, Materializer, ApiConfiguration](ApiConfiguration(_, _))

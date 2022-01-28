@@ -1,8 +1,11 @@
 package org.bitlap.zim.server.api
 
 import akka.http.scaladsl.server.Route
-import org.bitlap.zim.tapir.{ ActuatorEndpoint, ApiEndpoint }
+import org.bitlap.zim.ZimBuildInfo
+import org.bitlap.zim.tapir.{ ActuatorEndpoint, ApiEndpoint, WsEndpoint }
 import sttp.tapir.AnyEndpoint
+import sttp.tapir.asyncapi.circe.yaml.RichAsyncAPI
+import sttp.tapir.docs.asyncapi.AsyncAPIInterpreter
 import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.openapi.{ Contact, Info, License }
@@ -20,12 +23,12 @@ import scala.concurrent.Future
  */
 final class OpenApi {
 
+  private lazy val info: ZimBuildInfo.type = ZimBuildInfo
   private lazy val contextPath = "docs"
-//  private lazy val wsContextPath = "wsDocs"
+  private lazy val wsContextPath = "wsDocs"
   lazy val openapi: String = s"${ApiEndpoint.apiResource}/${ApiEndpoint.apiVersion}/$contextPath"
 
-//  import Directives._
-
+  import akka.http.scaladsl.server.Directives._
   // 需要鉴权的不支持
   private lazy val endpoints: Seq[AnyEndpoint] = Seq(
     ActuatorEndpoint.healthEndpoint,
@@ -63,9 +66,9 @@ final class OpenApi {
     .toOpenAPI(
       endpoints,
       Info(
-        title = "zim",
-        version = "0.0.1",
-        description = Some("A LayIM base on ZIO"),
+        title = info.name,
+        version = info.version,
+        description = Some("zim is a ZIO-based IM"),
         termsOfService = None,
         contact = Some(
           Contact(
@@ -79,16 +82,17 @@ final class OpenApi {
     )
     .toYaml
 
-//  lazy val wsDocs: String = AsyncAPIInterpreter.toAsyncAPI(WsEndpoint.wsEndpoint, "zim web socket", "0.1.0").toYaml
+  lazy val wsDocs: String =
+    AsyncAPIInterpreter().toAsyncAPI(WsEndpoint.wsEndpoint, "zim websocket endpoint", info.version).toYaml
 
   lazy val route: Route =
     AkkaHttpServerInterpreter().toRoute(SwaggerUI[Future](openApiYaml, prefix = openapi.split("/").toList))
-//
-//  lazy val ws: Route = pathPrefix(ApiEndpoint.apiResource / ApiEndpoint.apiVersion / wsContextPath) {
-//    Directives.get {
-//      complete(wsDocs)
-//    }
-//  }
+
+  lazy val wsDocsRoute: Route = pathPrefix(ApiEndpoint.apiResource / ApiEndpoint.apiVersion / wsContextPath) {
+    get {
+      complete(wsDocs)
+    }
+  }
 
 }
 
