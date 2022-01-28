@@ -61,4 +61,17 @@ object User extends BaseModel[User] {
     status = "",
     active = ""
   )
+
+  def apply(id: Int, status: String) = new User(
+    id = id,
+    username = "",
+    password = "",
+    sign = "",
+    avatar = "",
+    email = "",
+    createDate = ZonedDateTime.now(),
+    sex = 0,
+    status = status,
+    active = ""
+  )
 }

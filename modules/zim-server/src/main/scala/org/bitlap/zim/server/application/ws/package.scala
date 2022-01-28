@@ -6,8 +6,8 @@ import org.bitlap.zim.domain.ws.protocol.{ protocol, AddRefuseMessage }
 import org.bitlap.zim.domain.{ Message, SystemConstant }
 import org.bitlap.zim.server.application.ws.wsService.WsService.actorRefSessions
 import org.bitlap.zim.server.util.DateUtil
-import zio.{ IO, ZIO }
 import zio.actors.{ ActorRef => _ }
+import zio.{ IO, ZIO }
 
 /**
  * @author 梦境迷离
@@ -15,6 +15,9 @@ import zio.actors.{ ActorRef => _ }
  * @version 1.0
  */
 package object ws {
+
+  import org.bitlap.zim.cache.zioRedisService
+  import zio.stream.ZStream
 
   private[ws] final val DEFAULT_VALUE: Unit = ()
 
@@ -131,4 +134,36 @@ package object ws {
           }
         } when (c > 0)
       } map (_ => DEFAULT_VALUE)
+
+  private[ws] def changeOnline(
+    userService: UserApplication
+  )(uId: Int, status: String): IO[Throwable, Boolean] = {
+    val isOnline = SystemConstant.status.ONLINE.equals(status)
+    val beforeChange =
+      if (isOnline) zioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
+      else zioRedisService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
+    // 向我的所有在线好友发送广播消息，告知我的状态变更，否则只能再次打聊天开窗口时变更,todo 异步发送
+    beforeChange *> {
+      val ret = for {
+        fs <- userService.findFriendGroupsById(uId)
+        users <- ZStream.fromEffect(zioRedisService.getSets(SystemConstant.ONLINE_USER))
+        u <- ZStream.fromIterable(fs.list)
+        notify <- {
+          val fu = users.contains(u.id.toString)
+          val actorRef = actorRefSessions.get(u.id);
+          {
+            val msg = Map(
+              "id" -> s"$uId", //对好友而言，好友的好友就是我
+              "type" -> protocol.checkOnline.stringify,
+              "status" -> (if (isOnline) SystemConstant.status.ONLINE_DESC
+                           else SystemConstant.status.HIDE_DESC)
+            )
+            ZStream.fromEffect(wsService.sendMessage(msg.asJson.noSpaces, actorRef))
+          }.when(fu && actorRef != null)
+        }
+      } yield notify
+
+      ret.runCollect
+    } *> userService.updateUserStatus(User(uId, status)).runHead.map(_.getOrElse(false))
+  }
 }
