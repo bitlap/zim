@@ -4,10 +4,10 @@ import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input.{ UserInput, UserSecurity }
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
-import org.bitlap.zim.server.util.SecurityUtil
+import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil }
 import zio.stream.ZStream
 import zio.{ stream, Has }
-import org.bitlap.zim.server.util.LogUtil
+import org.bitlap.zim.domain.model.Receive
 
 /**
  * @author 梦境迷离
@@ -71,6 +71,21 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       _ <- LogUtil.info(s"init ret=>$resp")
     } yield resp
     ZStream.fromEffect(ret)
+  }
+
+  override def getOffLineMessage(userId: Int): stream.Stream[Throwable, Receive] = {
+    val groupReceives = for {
+      gId <- userApplication.findGroupsById(userId).map(_.id)
+      groupMsg <- userApplication.findOffLineMessage(gId, 0)
+      _ <- LogUtil.infoS(s"getOffLineMessage userId=>$userId gId=>$gId groupMsg=>$groupMsg")
+    } yield groupMsg
+
+    val receives = groupReceives.filter(_.fromid != userId) ++ userApplication.findOffLineMessage(userId, 0)
+    receives.flatMap { receive =>
+      userApplication
+        .findUserById(receive.fromid)
+        .map(user => receive.copy(username = user.username, avatar = user.avatar))
+    }
   }
 }
 

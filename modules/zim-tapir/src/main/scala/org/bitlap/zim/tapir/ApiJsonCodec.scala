@@ -118,19 +118,14 @@ trait ApiJsonCodec extends BootstrapRuntime {
       } yield BusinessException(code = code, msg = msg).asInstanceOf[A]
 
   /**
-   * @param code 默认错误码
-   * @param msg 默认错误提示
    * @tparam T 支持的多元素的类型
    * @return
    */
-  def buildFlowResponse[T <: Product](
-    code: Int = SystemConstant.ERROR,
-    msg: String = SystemConstant.ERROR_MESSAGE
-  ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
-    val list = ListBuffer[T]()
+  def buildFlowResponse[T <: Product]
+    : stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = for {
-      _ <- respStream.foreach(u => ZIO.effect(list.append(u)))
-      resp = ResultSet[List[T]](data = list.toList, code = code, msg = msg).asJson.noSpaces
+      list <- respStream.runCollect
+      resp = ResultSet[List[T]](data = list.toList).asJson.noSpaces
       r <- ZStream(resp).map(body => ByteString(body)).toPublisher
     } yield r
     val value = unsafeRun(resp)

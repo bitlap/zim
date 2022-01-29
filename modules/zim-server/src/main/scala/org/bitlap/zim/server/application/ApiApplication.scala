@@ -4,6 +4,7 @@ import zio.stream
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.FriendAndGroupInfo
+import org.bitlap.zim.domain.model.Receive
 
 /**
  *  直接提供给endpoint使用
@@ -24,5 +25,7 @@ trait ApiApplication extends BaseApplication[User] {
   def login(user: UserSecurity.UserSecurityInfo): stream.Stream[Throwable, User]
 
   def init(userId: Int): stream.Stream[Throwable, FriendAndGroupInfo]
+
+  def getOffLineMessage(userId: Int): stream.Stream[Throwable, Receive]
 
 }

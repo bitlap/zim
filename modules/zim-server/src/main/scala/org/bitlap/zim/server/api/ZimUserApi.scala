@@ -41,12 +41,19 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ loginRoute
       ~ indexRoute
       ~ initRoute
+      ~ getOffLineMessageRoute
   )
 
   lazy val userGetRoute: Route =
     AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.userGetOneEndpoint.serverLogic { id =>
       val userStream = apiApplication.findById(id)
       buildMonoResponse[User]()(userStream)
+    })
+
+  lazy val getOffLineMessageRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.getOffLineMessageEndpoint.serverLogic { user => _ =>
+      val resultStream = apiApplication.getOffLineMessage(user.id)
+      buildFlowResponse(resultStream)
     })
 
   // 超高阶函数
