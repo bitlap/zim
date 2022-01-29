@@ -1,23 +1,24 @@
 package org.bitlap.zim.server.api
 
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
 import akka.http.scaladsl.model.StatusCodes.OK
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
 import akka.http.scaladsl.server.Directive.addDirectiveApply
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
-import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
+import org.bitlap.zim.server.api.SecurityUserEndpoint._
 import org.bitlap.zim.server.application.ApiApplication
 import org.bitlap.zim.server.application.impl.ApiService.ZApiApplication
 import org.bitlap.zim.server.util.FileUtil
 import org.bitlap.zim.tapir.{ ApiErrorMapping, ApiJsonCodec }
+import sttp.model.HeaderNames.Authorization
 import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
-import sttp.model.HeaderNames.Authorization
-import org.bitlap.zim.server.api.SecurityUserEndpoint._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -42,12 +43,19 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ indexRoute
       ~ initRoute
       ~ getOffLineMessageRoute
+      ~ registerRoute
   )
 
   lazy val userGetRoute: Route =
     AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.userGetOneEndpoint.serverLogic { id =>
       val userStream = apiApplication.findById(id)
       buildMonoResponse[User]()(userStream)
+    })
+
+  lazy val registerRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.registerEndpoint.serverLogic { input =>
+      val resultStream = apiApplication.register(input)
+      buildBooleanMonoResponse(msg = SystemConstant.REGISTER_FAIL)(resultStream)
     })
 
   lazy val getOffLineMessageRoute: Route =
@@ -82,7 +90,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       val resultStream = apiApplication.login(input)
       val ret = buildMonoResponse[User] {
         case user: User if user == null                       => SystemConstant.LOGIN_ERROR
-        case user: User if user.status.equals("nonactivated") => SystemConstant.NONACTIVED
+        case user: User if user.status.equals("nonactivated") => SystemConstant.NON_ACTIVE
         case _                                                => null
       }(resultStream)
       ret.map {

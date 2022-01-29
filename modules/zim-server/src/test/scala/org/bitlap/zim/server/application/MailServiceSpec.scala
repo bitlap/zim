@@ -1,12 +1,12 @@
 package org.bitlap.zim.server.application
 
 import org.bitlap.zim.server.application.MailServiceSpec.env
+import org.bitlap.zim.server.application.impl.MailService
+import org.bitlap.zim.server.application.impl.MailService.ZMailService
+import org.bitlap.zim.server.configuration.properties.MailConfigurationProperties
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import zio.{ BootstrapRuntime, ULayer }
-import org.bitlap.zim.server.configuration.properties.MailConfigurationProperties
-import org.bitlap.zim.server.application.impl.MailService.ZMailService
-import org.bitlap.zim.server.application.impl.MailService
 
 /**
  * @author 梦境迷离
@@ -15,7 +15,7 @@ import org.bitlap.zim.server.application.impl.MailService
  */
 final class MailServiceSpec extends AnyFlatSpec with Matchers with BootstrapRuntime {
 
-  "sendHtmlMail" should "ignore error" in {
+  "sendHtmlMail" should "send async ignore error" in {
     val task =
       MailService
         .sendHtmlMail("12222@qq.com", "hello world", """<a href="http://localhost:9000"/>""")
@@ -30,7 +30,7 @@ object MailServiceSpec {
 
   // 本地
 //  lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties(
-//    config = ConfigFactory.load("application-test.conf").getConfig("infrastructure.javamail")
+//    config = ConfigFactory.load("application-test.conf").getConfig("application.javamail")
 //  )
 
   lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties()

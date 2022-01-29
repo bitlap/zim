@@ -3,20 +3,20 @@ package org.bitlap.zim.tapir
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import org.bitlap.zim.domain
-import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.input.{ ExistEmailInput, UserInput, UserSecurity }
-import org.bitlap.zim.domain.model.{ FriendGroup, GroupList, User }
 import org.bitlap.zim.domain.ZimError._
+import org.bitlap.zim.domain._
+import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
+import org.bitlap.zim.domain.input._
+import org.bitlap.zim.domain.model.{ FriendGroup, GroupList, User }
 import sttp.capabilities.akka.AkkaStreams
+import sttp.model.HeaderNames.Authorization
+import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe._
 import sttp.tapir.server.PartialServerEndpoint
-import sttp.model.headers.CookieValueWithMeta
 
 import scala.concurrent.Future
-import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
-import sttp.model.HeaderNames.Authorization
 
 /**
  * 用户接口的端点
@@ -293,14 +293,16 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SInteger()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val updateInfoEndpoint: PartialServerEndpoint[UserSecurity, UserSecurityInfo, UserInput, ZimError, Source[
+  lazy val updateInfoEndpoint: PartialServerEndpoint[UserSecurity, UserSecurityInfo, UpdateUserInput, ZimError, Source[
     ByteString,
     Any
   ], Any with AkkaStreams, Future] =
     secureEndpoint.post
       .in(userResource / "updateInfo")
       .in(
-        jsonBody[UserInput].example(UserInput(1, "userName", "pwd", "oldpwd", "sign", "nan")).description("user info")
+        jsonBody[UpdateUserInput]
+          .example(UpdateUserInput(1, "userName", "pwd", "oldpwd", "sign", "nan"))
+          .description("user info")
       )
       .name("更新信息个人信息")
       .description(userResourceDescription)
@@ -352,10 +354,11 @@ trait UserEndpoint extends ApiErrorMapping {
       .errorOut(errorOut)
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val registerEndpoint: PublicEndpoint[User, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
+  lazy val registerEndpoint
+    : PublicEndpoint[RegisterUserInput, ZimError, Source[ByteString, Any], Any with AkkaStreams] =
     endpoint.post
       .in(userResource / "register")
-      .in(jsonBody[User])
+      .in(jsonBody[RegisterUserInput])
       .name("注册")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))

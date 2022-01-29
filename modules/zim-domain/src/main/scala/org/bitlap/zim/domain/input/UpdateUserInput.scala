@@ -13,7 +13,7 @@ import io.circe.generic.semiauto._
  * @param sign     签名
  * @param sex      性别
  */
-case class UserInput(
+case class UpdateUserInput(
   id: Int,
   username: String,
   password: String,
@@ -21,7 +21,7 @@ case class UserInput(
   sign: String,
   sex: String
 )
-object UserInput {
+object UpdateUserInput {
 
-  implicit val decoder: Decoder[UserInput] = deriveDecoder[UserInput]
+  implicit val decoder: Decoder[UpdateUserInput] = deriveDecoder[UpdateUserInput]
 }

@@ -3,11 +3,15 @@ package org.bitlap.zim.server.application.impl
 import org.bitlap.zim.server.configuration.properties.MailConfigurationProperties
 import org.bitlap.zim.server.configuration.properties.MailConfigurationProperties.ZMailConfigurationProperties
 import org.bitlap.zim.server.util.ImplicitUtil._
+import org.bitlap.zim.server.util.LogUtil
 import org.simplejavamail.api.mailer.Mailer
 import org.simplejavamail.config.ConfigLoader
 import org.simplejavamail.email.EmailBuilder
 import org.simplejavamail.mailer.MailerBuilder
 import zio.{ Has, UIO, ULayer, URIO, URLayer, ZIO, ZLayer }
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 /**
  * 邮件发送服务
@@ -21,6 +25,7 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
 
   private lazy val mailer: Mailer = MailerBuilder
     .withDebugLogging(mailConfigurationProperties.debug)
+    .withSessionTimeout(3000.millis._1.toInt)
     .withThreadPoolSize(mailConfigurationProperties.threadPoolSize)
     .withConnectionPoolCoreSize(mailConfigurationProperties.connectionPoolCoreSize)
     .buildMailer()
@@ -33,9 +38,14 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
       .withSubject(subject)
       .appendTextHTML(content)
       .buildEmail()
+
+    val future = mailer.sendMail(email, true).getFuture.asScala()
+
     ZIO
-      .fromFuture(make => mailer.sendMail(email).getFuture.asScala()(make))
-      .catchAllCause(_ => ZIO.unit) // catch all exception
+      .fromFuture(_ => future)
+      .catchAllCause { e =>
+        LogUtil.error(e.map(_.getLocalizedMessage).prettyPrint)
+      } // catch all exception
   }
 }
 

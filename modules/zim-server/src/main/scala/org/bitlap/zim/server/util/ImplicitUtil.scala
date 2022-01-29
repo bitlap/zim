@@ -14,7 +14,7 @@ object ImplicitUtil {
   implicit class JFutureWrapper[T](f: JFuture[T]) {
 
     def asScala()(implicit ex: ExecutionContext): Future[T] = Future {
-      Thread.sleep(500)
+      Thread.sleep(100)
       f
     }.flatMap(f =>
       if (f.isDone) Future {

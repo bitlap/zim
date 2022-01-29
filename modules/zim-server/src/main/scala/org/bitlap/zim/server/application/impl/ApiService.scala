@@ -1,13 +1,14 @@
 package org.bitlap.zim.server.application.impl
 
 import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.input.{ UserInput, UserSecurity }
-import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.input.{ UpdateUserInput, UserSecurity }
+import org.bitlap.zim.domain.model.{ Receive, User }
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil }
 import zio.stream.ZStream
 import zio.{ stream, Has }
-import org.bitlap.zim.domain.model.Receive
+import java.time.ZonedDateTime
+import org.bitlap.zim.domain.input.RegisterUserInput
 
 /**
  * @author 梦境迷离
@@ -22,7 +23,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def findUserById(id: Int): stream.Stream[Throwable, User] = userApplication.findUserById(id)
 
-  override def updateInfo(user: UserInput): stream.Stream[Throwable, Boolean] = {
+  override def updateInfo(user: UpdateUserInput): stream.Stream[Throwable, Boolean] = {
     def check(): Boolean =
       user.password == null || user.password.trim.isEmpty || user.oldpwd == null || user.oldpwd.trim.isEmpty
 
@@ -87,6 +88,22 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         .map(user => receive.copy(username = user.username, avatar = user.avatar))
     }
   }
+
+  override def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean] =
+    userApplication.saveUser(
+      User(
+        id = 0,
+        username = user.username,
+        password = user.password,
+        sign = null,
+        avatar = null,
+        email = user.email,
+        createDate = ZonedDateTime.now(),
+        sex = 0,
+        status = null,
+        active = null
+      )
+    )
 }
 
 object ApiService {
