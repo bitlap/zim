@@ -1,11 +1,8 @@
 package org.bitlap.zim.server.application
-import org.bitlap.zim.domain.input.UpdateUserInput
-import zio.stream
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.FriendAndGroupInfo
-import org.bitlap.zim.domain.model.Receive
-import org.bitlap.zim.domain.input.RegisterUserInput
+import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
+import org.bitlap.zim.domain.model.{ Receive, User }
+import zio.stream
 
 /**
  *  直接提供给endpoint使用
@@ -32,5 +29,9 @@ trait ApiApplication extends BaseApplication[User] {
   def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean]
 
   def activeUser(activeCode: String): stream.Stream[Throwable, Int]
+
+  def createUserGroup(friendGroup: FriendGroupInput): stream.Stream[Throwable, Int]
+
+  def createGroup(groupInput: GroupInput): stream.Stream[Throwable, Int]
 
 }

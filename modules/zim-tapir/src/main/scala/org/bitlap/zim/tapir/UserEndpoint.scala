@@ -220,19 +220,19 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[UploadResult].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val createGroupEndpoint: ZimSecurityOut[GroupList] =
+  lazy val createGroupEndpoint: ZimSecurityOut[GroupInput] =
     secureEndpoint.post
       .in(userResource / "createGroup")
-      .in(jsonBody[GroupList])
+      .in(jsonBody[GroupInput])
       .name("用户创建群组")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SInteger()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val createUserGroupEndpoint: ZimSecurityOut[FriendGroup] =
+  lazy val createUserGroupEndpoint: ZimSecurityOut[FriendGroupInput] =
     secureEndpoint.post
       .in(userResource / "createUserGroup")
-      .in(jsonBody[domain.model.FriendGroup])
+      .in(jsonBody[FriendGroupInput])
       .name("用户创建好友分组")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SInteger()), CodecFormat.Json()))

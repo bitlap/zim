@@ -1,7 +1,7 @@
 package org.bitlap.zim.server.api
 
 import akka.http.scaladsl.model.StatusCodes.OK
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse, StatusCodes }
 import akka.http.scaladsl.server.Directive.addDirectiveApply
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -18,7 +18,6 @@ import sttp.model.HeaderNames.Authorization
 import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
-import akka.http.scaladsl.model.StatusCodes
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -48,12 +47,26 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ getOffLineMessageRoute
       ~ registerRoute
       ~ activeRoute
+      ~ createGroupRoute
+      ~ createUserGroupRoute
   )
 
   lazy val userGetRoute: Route =
     AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.userGetOneEndpoint.serverLogic { id =>
       val userStream = apiApplication.findById(id)
       buildMonoResponse[User]()(userStream)
+    })
+
+  lazy val createGroupRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.createGroupEndpoint.serverLogic { _ => input =>
+      val userStream = apiApplication.createGroup(input)
+      buildIntMonoResponse()(userStream)
+    })
+
+  lazy val createUserGroupRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.createUserGroupEndpoint.serverLogic { _ => input =>
+      val userStream = apiApplication.createUserGroup(input)
+      buildIntMonoResponse()(userStream)
     })
 
   lazy val activeRoute: Route =
@@ -81,7 +94,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   // user是一阶入参 表示登录用户
   // uid是二阶入参 表示接口的参数
   lazy val findUserByIdRoute: Route =
-    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.findUserEndpoint.serverLogic { user => uid =>
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.findUserEndpoint.serverLogic { _ => uid =>
       val resultStream = apiApplication.findUserById(uid)
       buildMonoResponse()(resultStream)
     })
@@ -93,7 +106,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
     })
 
   lazy val updateInfoRoute: Route =
-    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.updateInfoEndpoint.serverLogic { user => input =>
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.updateInfoEndpoint.serverLogic { _ => input =>
       val resultStream = apiApplication.updateInfo(input)
       buildBooleanMonoResponse()(resultStream)
     })
@@ -126,7 +139,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   )
 
   lazy val initRoute: Route =
-    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.initEndpoint.serverLogic { user => input =>
+    AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.initEndpoint.serverLogic { _ => input =>
       val userStream = apiApplication.init(input)
       buildMonoResponse[FriendAndGroupInfo]()(userStream)
     })

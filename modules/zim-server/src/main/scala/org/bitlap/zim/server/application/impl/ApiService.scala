@@ -1,8 +1,8 @@
 package org.bitlap.zim.server.application.impl
 
 import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.input.{ RegisterUserInput, UpdateUserInput, UserSecurity }
-import org.bitlap.zim.domain.model.{ Receive, User }
+import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
+import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil }
 import zio.stream.ZStream
@@ -109,6 +109,21 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     userApplication
       .activeUser(activeCode)
       .map(i => if (i == 1) 1 else 0)
+
+  override def createUserGroup(friendGroup: FriendGroupInput): stream.Stream[Throwable, Int] =
+    userApplication.createFriendGroup(friendGroup.groupname, friendGroup.uid)
+
+  override def createGroup(groupInput: GroupInput): stream.Stream[Throwable, Int] = {
+    val ret = userApplication.createGroup(
+      GroupList(id = 0, createId = groupInput.createId, groupname = groupInput.groupname, avatar = groupInput.avatar)
+    )
+    ret.flatMap(f =>
+      if (f > 0) {
+        userApplication.addGroupMember(f, groupInput.createId).map(b => if (b) f else -1)
+      } else ZStream.succeed(-1)
+    )
+
+  }
 }
 
 object ApiService {
