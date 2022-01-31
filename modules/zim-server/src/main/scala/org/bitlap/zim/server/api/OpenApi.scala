@@ -36,7 +36,6 @@ final class OpenApi {
 //    UserEndpoint.findUserEndpoint,
 //    UserEndpoint.indexEndpoint,
     SecurityUserEndpoint.existEmailEndpoint,
-    SecurityUserEndpoint.activeUserEndpoint,
 //    UserEndpoint.agreeFriendEndpoint,
 //    UserEndpoint.refuseFriendEndpoint,
 //    UserEndpoint.changeGroupEndpoint,
