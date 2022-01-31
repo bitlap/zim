@@ -25,7 +25,7 @@ import sttp.model.HeaderNames.Authorization
  * @since 2021/12/25
  * @version 1.0
  */
-trait SecurityUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndpoint {
+trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndpoint {
 
   def authorityCacheFunction(email: String, passwd: String): IO[Throwable, (Boolean, Option[UserSecurityInfo])] =
     for {
@@ -56,4 +56,4 @@ trait SecurityUserEndpoint extends ApiErrorMapping with CookieAuthority with Use
     .serverSecurityLogic(token => authenticate(token)(authorityCacheFunction))
 }
 
-object SecurityUserEndpoint extends SecurityUserEndpoint
+object ZimUserEndpoint extends ZimUserEndpoint

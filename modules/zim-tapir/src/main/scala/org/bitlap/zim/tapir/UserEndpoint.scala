@@ -7,10 +7,11 @@ import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
 import org.bitlap.zim.domain.input._
-import org.bitlap.zim.domain.model.{ FriendGroup, GroupList, User }
+import org.bitlap.zim.domain.model.{ GroupList, User }
 import sttp.capabilities.akka.AkkaStreams
 import sttp.model.HeaderNames.Authorization
 import sttp.model.headers.CookieValueWithMeta
+import sttp.model.{ HeaderNames, Uri }
 import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe._
@@ -269,6 +270,16 @@ trait UserEndpoint extends ApiErrorMapping {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   // =======================================不需要鉴权=====================================
+  lazy val activeUserEndpoint: PublicEndpoint[String, String, (Uri, Source[ByteString, Any]), Any with AkkaStreams] =
+    endpoint.get
+      .in(userResource / "active" / path[String]("activeCode"))
+      .name("激活")
+      .description(userResourceDescription)
+      .out(statusCode(sttp.model.StatusCode.PermanentRedirect))
+      .out(header[Uri](HeaderNames.Location))
+      .out(streamBody(AkkaStreams)(Schema(Schema.schemaForInt.schemaType), CodecFormat.Json()))
+      .errorOut(customJsonBody[String].description("Redirect Error"))
+
   lazy val existEmailEndpoint: ZimOut[ExistEmailInput] =
     endpoint.post
       .in(userResource / "existEmail")

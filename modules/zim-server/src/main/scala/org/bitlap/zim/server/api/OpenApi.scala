@@ -32,34 +32,11 @@ final class OpenApi {
   // 需要鉴权的不支持
   private lazy val endpoints: Seq[AnyEndpoint] = Seq(
     ActuatorEndpoint.healthEndpoint,
-    SecurityUserEndpoint.userGetOneEndpoint,
-//    UserEndpoint.findUserEndpoint,
-//    UserEndpoint.indexEndpoint,
-    SecurityUserEndpoint.existEmailEndpoint,
-//    UserEndpoint.agreeFriendEndpoint,
-//    UserEndpoint.refuseFriendEndpoint,
-//    UserEndpoint.changeGroupEndpoint,
-//    UserEndpoint.chatLogEndpoint,
-//    UserEndpoint.chatLogIndexEndpoint,
-//    UserEndpoint.createGroupEndpoint,
-//    UserEndpoint.createUserGroupEndpoint,
-//    UserEndpoint.findAddInfoEndpoint,
-//    UserEndpoint.findGroupsEndpoint,
-//    UserEndpoint.findMyGroupsEndpoint,
-//    UserEndpoint.findUsersEndpoint,
-//    UserEndpoint.getMembersEndpoint,
-//    UserEndpoint.getOffLineMessageEndpoint,
-//    UserEndpoint.uploadImageEndpoint,
-//    UserEndpoint.updateInfoEndpoint,
-//    UserEndpoint.updateSignEndpoint,
-//    UserEndpoint.uploadFileEndpoint,
-//    UserEndpoint.updateAvatarEndpoint,
-//    UserEndpoint.uploadGroupAvatarEndpoint,
-//    UserEndpoint.removeFriendEndpoint,
-//    UserEndpoint.leaveOutGroupEndpoint,
-    SecurityUserEndpoint.loginEndpoint,
-    SecurityUserEndpoint.registerEndpoint
-//    UserEndpoint.initEndpoint
+    ZimUserEndpoint.userGetOneEndpoint,
+    ZimUserEndpoint.existEmailEndpoint,
+    ZimUserEndpoint.loginEndpoint,
+    ZimUserEndpoint.registerEndpoint,
+    ZimUserEndpoint.activeUserEndpoint
   )
   private lazy val openApiYaml: String = OpenAPIDocsInterpreter()
     .toOpenAPI(
