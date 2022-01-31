@@ -1,14 +1,14 @@
 package org.bitlap.zim.server.application.impl
 
 import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.input.{ UpdateUserInput, UserSecurity }
+import org.bitlap.zim.domain.input.{ RegisterUserInput, UpdateUserInput, UserSecurity }
 import org.bitlap.zim.domain.model.{ Receive, User }
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil }
 import zio.stream.ZStream
 import zio.{ stream, Has }
+
 import java.time.ZonedDateTime
-import org.bitlap.zim.domain.input.RegisterUserInput
 
 /**
  * @author 梦境迷离
@@ -104,6 +104,11 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         active = null
       )
     )
+
+  override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
+    userApplication
+      .activeUser(activeCode)
+      .map(i => if (i == 1) 1 else 0)
 }
 
 object ApiService {

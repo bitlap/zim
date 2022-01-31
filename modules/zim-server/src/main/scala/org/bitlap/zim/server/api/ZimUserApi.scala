@@ -18,6 +18,7 @@ import sttp.model.HeaderNames.Authorization
 import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
+import akka.http.scaladsl.model.StatusCodes
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -32,6 +33,8 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
     extends ApiJsonCodec
     with ApiErrorMapping {
 
+  private val USER: String = "user"
+
   // 定义所有接口的路由
   val route: Route = Route.seal(
     staticResources
@@ -44,6 +47,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ initRoute
       ~ getOffLineMessageRoute
       ~ registerRoute
+      ~ activeRoute
   )
 
   lazy val userGetRoute: Route =
@@ -51,6 +55,15 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       val userStream = apiApplication.findById(id)
       buildMonoResponse[User]()(userStream)
     })
+
+  lazy val activeRoute: Route =
+    path(USER / "active" / Remaining) { activeCode =>
+      get {
+        val status = apiApplication.activeUser(activeCode)
+        val str = unsafeRun(status.runHead).getOrElse(0)
+        redirect(s"/#tologin?status=$str", StatusCodes.PermanentRedirect)
+      }
+    }
 
   lazy val registerRoute: Route =
     AkkaHttpServerInterpreter().toRoute(SecurityUserEndpoint.registerEndpoint.serverLogic { input =>
@@ -138,7 +151,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
     )
 
   lazy val indexRoute: Route = get {
-    pathPrefix("user" / "index") {
+    pathPrefix(USER / "index") {
       cookie(Authorization) { user =>
         val checkFuture = authenticate(UserSecurity(user.value))(authorityCacheFunction).map(_.getOrElse(null))
         onComplete(checkFuture) {

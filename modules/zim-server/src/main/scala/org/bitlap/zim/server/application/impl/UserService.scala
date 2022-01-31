@@ -300,6 +300,7 @@ private final class UserService(
       activeCode <- UuidUtil.getUuid64
       pwd <- SecurityUtil.encrypt(user.password)
       userCopy = user.copy(
+        sign = "",
         active = activeCode,
         createDate = ZonedDateTime.now(),
         password = pwd.value

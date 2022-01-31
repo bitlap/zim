@@ -31,4 +31,6 @@ trait ApiApplication extends BaseApplication[User] {
 
   def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean]
 
+  def activeUser(activeCode: String): stream.Stream[Throwable, Int]
+
 }

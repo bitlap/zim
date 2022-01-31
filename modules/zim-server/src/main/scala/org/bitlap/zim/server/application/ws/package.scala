@@ -8,6 +8,8 @@ import org.bitlap.zim.server.application.ws.wsService.WsService.actorRefSessions
 import org.bitlap.zim.server.util.DateUtil
 import zio.actors.{ ActorRef => _ }
 import zio.{ IO, ZIO }
+import org.bitlap.zim.cache.zioRedisService
+import zio.stream.ZStream
 
 /**
  * @author 梦境迷离
@@ -15,9 +17,6 @@ import zio.{ IO, ZIO }
  * @version 1.0
  */
 package object ws {
-
-  import org.bitlap.zim.cache.zioRedisService
-  import zio.stream.ZStream
 
   private[ws] final val DEFAULT_VALUE: Unit = ()
 
