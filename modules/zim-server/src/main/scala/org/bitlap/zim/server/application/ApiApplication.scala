@@ -1,7 +1,7 @@
 package org.bitlap.zim.server.application
-import org.bitlap.zim.domain.FriendAndGroupInfo
 import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
 import org.bitlap.zim.domain.model.{ Receive, User }
+import org.bitlap.zim.domain.{ FriendAndGroupInfo, FriendList }
 import zio.stream
 
 /**
@@ -24,7 +24,7 @@ trait ApiApplication extends BaseApplication[User] {
 
   def init(userId: Int): stream.Stream[Throwable, FriendAndGroupInfo]
 
-  def getOffLineMessage(userId: Int): stream.Stream[Throwable, Receive]
+  def getOffLineMessage(mid: Int): stream.Stream[Throwable, Receive]
 
   def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean]
 
@@ -33,5 +33,19 @@ trait ApiApplication extends BaseApplication[User] {
   def createUserGroup(friendGroup: FriendGroupInput): stream.Stream[Throwable, Int]
 
   def createGroup(groupInput: GroupInput): stream.Stream[Throwable, Int]
+
+  def getMembers(id: Int): stream.Stream[Throwable, FriendList]
+
+  def updateSign(sign: String, mid: Int): stream.Stream[Throwable, Boolean]
+
+  def leaveOutGroup(groupId: Int, mid: Int): stream.Stream[Throwable, Int]
+
+  def removeFriend(friendId: Int, mid: Int): stream.Stream[Throwable, Boolean]
+
+  def changeGroup(groupId: Int, userId: Int, mid: Int): stream.Stream[Throwable, Boolean]
+
+  def refuseFriend(messageBoxId: Int, to: Int, username: String): stream.Stream[Throwable, Boolean]
+
+  def agreeFriend(uid: Int, fromGroup: Int, group: Int, messageBoxId: Int, mid: Int): stream.Stream[Throwable, Boolean]
 
 }

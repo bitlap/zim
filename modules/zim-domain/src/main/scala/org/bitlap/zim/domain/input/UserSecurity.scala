@@ -17,7 +17,7 @@ object UserSecurity {
 
   implicit val decoder: Decoder[UserSecurity] = deriveDecoder[UserSecurity]
 
-  case class UserSecurityInfo(id: Int, email: String, password: String) {
+  case class UserSecurityInfo(id: Int, email: String, password: String, username: String) {
     def toCookieValue: String = {
       val base64 = Base64.getEncoder.encode(s"$email:$password".getBytes(Charset.forName("utf8")))
       new String(base64)
@@ -35,7 +35,8 @@ object UserSecurity {
           id <- c.getOrElse("id")(0)
           email <- c.downField("email").as[String]
           password <- c.downField("password").as[String]
-        } yield UserSecurityInfo(id, email, password)
+          username <- c.downField("username").as[String]
+        } yield UserSecurityInfo(id, email, password, username)
     }
 
     implicit val userSecuritySchema: Schema[UserSecurityInfo] = DeriveSchema.gen[UserSecurityInfo]

@@ -106,12 +106,12 @@ package object ws {
 
   private[ws] def refuseAddFriendHandler(
     userService: UserApplication
-  )(messageBoxId: Int, user: User, to: Int): IO[Throwable, Boolean] =
+  )(messageBoxId: Int, username: String, to: Int): IO[Throwable, Boolean] =
     userService.updateAddMessage(messageBoxId, 2).runHead.flatMap { r =>
       r.fold(ZIO.effect(false)) { ret =>
         val actor = actorRefSessions.get(to)
         if (actor != null) {
-          val result = Map("type" -> "refuseAddFriend", "username" -> user.username)
+          val result = Map("type" -> "refuseAddFriend", "username" -> username)
           wsService.sendMessage(result.asJson.noSpaces, actor).as(ret)
         } else ZIO.effect(ret)
       }

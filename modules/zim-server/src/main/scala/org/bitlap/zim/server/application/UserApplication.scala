@@ -153,11 +153,11 @@ trait UserApplication extends BaseApplication[User] {
   /**
    * 拒绝添加好友
    * @param messageBoxId
-   * @param user
+   * @param username
    * @param to
    * @return
    */
-  def refuseAddFriend(messageBoxId: Int, user: User, to: Int): stream.Stream[Throwable, Boolean]
+  def refuseAddFriend(messageBoxId: Int, username: String, to: Int): stream.Stream[Throwable, Boolean]
 
   /**
    * 好友消息已读

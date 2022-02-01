@@ -157,8 +157,8 @@ private final class UserService(
   override def updateAddMessage(messageBoxId: Int, agree: Int): stream.Stream[Throwable, Boolean] =
     addMessageRepository.updateAddMessage(model.AddMessage(agree = agree, id = messageBoxId)).map(_ == 1)
 
-  override def refuseAddFriend(messageBoxId: Int, user: User, to: Int): stream.Stream[Throwable, Boolean] =
-    ZStream.fromEffect(wsService.refuseAddFriend(messageBoxId, user, to))
+  override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): stream.Stream[Throwable, Boolean] =
+    ZStream.fromEffect(wsService.refuseAddFriend(messageBoxId, username, to))
 
   override def readFriendMessage(mine: Int, to: Int): stream.Stream[Throwable, Boolean] =
     receiveRepository.readMessage(mine, to, SystemConstant.FRIEND_TYPE).map(_ == 1)

@@ -44,7 +44,7 @@ object wsService extends ZimServiceConfiguration {
 
       def refuseAddGroup(msg: domain.Message): Task[Unit]
 
-      def refuseAddFriend(messageBoxId: Int, user: User, to: Int): Task[Boolean]
+      def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean]
 
       def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): Task[Unit]
 
@@ -112,9 +112,9 @@ object wsService extends ZimServiceConfiguration {
             }
           }
 
-          override def refuseAddFriend(messageBoxId: Int, user: User, to: Int): Task[Boolean] =
+          override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean] =
             messageBoxId.synchronized {
-              refuseAddFriendHandler(userService)(messageBoxId, user, to)
+              refuseAddFriendHandler(userService)(messageBoxId, username, to)
             }
 
           override def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): Task[Unit] =
@@ -253,8 +253,8 @@ object wsService extends ZimServiceConfiguration {
   def refuseAddGroup(msg: domain.Message): Task[Unit] =
     ZIO.serviceWith[WsService.Service](_.refuseAddGroup(msg)).provideLayer(wsLayer)
 
-  def refuseAddFriend(messageBoxId: Int, user: domain.model.User, to: Int): Task[Boolean] =
-    ZIO.serviceWith[WsService.Service](_.refuseAddFriend(messageBoxId, user, to)).provideLayer(wsLayer)
+  def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean] =
+    ZIO.serviceWith[WsService.Service](_.refuseAddFriend(messageBoxId, username, to)).provideLayer(wsLayer)
 
   def deleteGroup(master: domain.model.User, groupname: String, gid: Int, uid: Int): Task[Unit] =
     ZIO.serviceWith[WsService.Service](_.deleteGroup(master, groupname, gid, uid)).provideLayer(wsLayer)

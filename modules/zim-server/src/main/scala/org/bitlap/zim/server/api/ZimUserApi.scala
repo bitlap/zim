@@ -51,12 +51,61 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ activeRoute
       ~ createGroupRoute
       ~ createUserGroupRoute
+      ~ getMembersRoute
+      ~ updateSignRoute
+      ~ leaveOutGroupRoute
+      ~ removeFriendRoute
+      ~ changeGroupRoute
+      ~ refuseFriendRoute
+      ~ agreeFriendRoute
   )
 
   lazy val userGetRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.userGetOneEndpoint.serverLogic { id =>
       val userStream = apiApplication.findById(id)
       buildMonoResponse[User]()(userStream)
+    })
+
+  lazy val agreeFriendRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.agreeFriendEndpoint.serverLogic { user => input =>
+      val userStream = apiApplication.agreeFriend(input._1, input._2, input._3, input._4, user.id)
+      buildBooleanMonoResponse()(userStream)
+    })
+
+  lazy val refuseFriendRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.refuseFriendEndpoint.serverLogic { user => input =>
+      val userStream = apiApplication.refuseFriend(input._1, input._2, user.username)
+      buildBooleanMonoResponse()(userStream)
+    })
+
+  lazy val changeGroupRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.changeGroupEndpoint.serverLogic { user => input =>
+      val userStream = apiApplication.changeGroup(input._1, input._2, user.id)
+      buildBooleanMonoResponse()(userStream)
+    })
+
+  lazy val removeFriendRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.removeFriendEndpoint.serverLogic { user => friendId =>
+      val userStream = apiApplication.removeFriend(friendId, user.id)
+      buildBooleanMonoResponse()(userStream)
+    })
+
+  lazy val leaveOutGroupRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.leaveOutGroupEndpoint.serverLogic { _ => input =>
+      val userStream = apiApplication.leaveOutGroup(input._1, input._2)
+      buildIntMonoResponse()(userStream)
+    })
+
+  lazy val updateSignRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.updateSignEndpoint.serverLogic { user => sign =>
+      val userStream = apiApplication.updateSign(sign, user.id)
+      buildBooleanMonoResponse()(userStream)
+    })
+
+  lazy val getMembersRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.getMembersEndpoint.serverLogic { _ => id =>
+      val userStream = apiApplication.getMembers(id)
+      buildFlowResponse(userStream)
     })
 
   lazy val createGroupRoute: Route =

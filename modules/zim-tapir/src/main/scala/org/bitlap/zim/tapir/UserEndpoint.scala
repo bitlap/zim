@@ -56,7 +56,7 @@ trait UserEndpoint extends ApiErrorMapping {
       .errorOut(errorOut)
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  //================================================用户API定义（正式接口）===============================================================
+  //================================================用户API定义（正式接口）这些API目前不是标准的restful api===============================================================
   lazy val leaveOutGroupEndpoint: ZimSecurityOut[(Int, Int)] =
     secureEndpoint.post
       .in(userResource / "leaveOutGroup" / query[Int]("groupId") / query[Int]("uid"))
@@ -67,7 +67,7 @@ trait UserEndpoint extends ApiErrorMapping {
 
   lazy val removeFriendEndpoint: ZimSecurityOut[Int] =
     secureEndpoint.post
-      .in(userResource / "removeFriend" / query[Int]("removeFriend"))
+      .in(userResource / "removeFriend" / query[Int]("friendId"))
       .name("删除好友")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
@@ -177,9 +177,9 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(streamBody(AkkaStreams)(Schema(Schema.derivedSchema[FriendAndGroupInfo].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val getMembersEndpoint: ZimSecurityOut[Unit] =
+  lazy val getMembersEndpoint: ZimSecurityOut[Int] =
     secureEndpoint.get
-      .in(userResource / "getMembers")
+      .in(userResource / "getMembers" / query[Int]("id"))
       .name("获取群成员")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[FriendList].schemaType), CodecFormat.Json()))

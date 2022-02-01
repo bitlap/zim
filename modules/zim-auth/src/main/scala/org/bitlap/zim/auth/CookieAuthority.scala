@@ -42,7 +42,7 @@ trait CookieAuthority {
         if (!check) {
           Left(Unauthorized())
         } else {
-          Right(user.orNull)
+          if (user.orNull == null) Left(Unauthorized()) else Right(user.orNull)
         }
       } else {
         Left(Unauthorized())

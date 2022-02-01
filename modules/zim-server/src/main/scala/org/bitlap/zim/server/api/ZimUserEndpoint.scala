@@ -36,7 +36,7 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
         if (userSecurityInfo.isEmpty || userSecurityInfo.get == null)
           TangibleUserRepository
             .matchUser(email)
-            .map(user => UserSecurityInfo(user.id, user.email, user.password))
+            .map(user => UserSecurityInfo(user.id, user.email, user.password, user.username))
             .runHead
             .provideLayer(TangibleUserRepository.make(MysqlConfigurationProperties().databaseName))
         else ZIO.succeed(userSecurityInfo)

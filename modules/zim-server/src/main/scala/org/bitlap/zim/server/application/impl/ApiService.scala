@@ -5,8 +5,9 @@ import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserI
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil }
+import zio.Has
 import zio.stream.ZStream
-import zio.{ stream, Has }
+import zio.stream
 
 import java.time.ZonedDateTime
 
@@ -74,14 +75,14 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     ZStream.fromEffect(ret)
   }
 
-  override def getOffLineMessage(userId: Int): stream.Stream[Throwable, Receive] = {
+  override def getOffLineMessage(mid: Int): stream.Stream[Throwable, Receive] = {
     val groupReceives = for {
-      gId <- userApplication.findGroupsById(userId).map(_.id)
+      gId <- userApplication.findGroupsById(mid).map(_.id)
       groupMsg <- userApplication.findOffLineMessage(gId, 0)
-      _ <- LogUtil.infoS(s"getOffLineMessage userId=>$userId gId=>$gId groupMsg=>$groupMsg")
+      _ <- LogUtil.infoS(s"getOffLineMessage userId=>$mid gId=>$gId groupMsg=>$groupMsg")
     } yield groupMsg
 
-    val receives = groupReceives.filter(_.fromid != userId) ++ userApplication.findOffLineMessage(userId, 0)
+    val receives = groupReceives.filter(_.fromid != mid) ++ userApplication.findOffLineMessage(mid, 0)
     receives.flatMap { receive =>
       userApplication
         .findUserById(receive.fromid)
@@ -124,6 +125,42 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     )
 
   }
+
+  override def getMembers(id: Int): stream.Stream[Throwable, FriendList] = {
+    val usersZio = userApplication
+      .findUserByGroupId(id)
+      .runCollect
+      .map(f => FriendList(id = 0, groupname = null, list = f.toList))
+    ZStream.fromEffect(usersZio)
+  }
+
+  override def updateSign(sign: String, mid: Int): stream.Stream[Throwable, Boolean] =
+    userApplication.findUserById(mid).flatMap(user => userApplication.updateSing(user.copy(sign = sign)))
+
+  override def leaveOutGroup(groupId: Int, mid: Int): stream.Stream[Throwable, Int] = {
+    val masterId = userApplication.findGroupById(groupId).map(_.createId)
+    userApplication.leaveOutGroup(groupId, mid).flatMap { ret =>
+      if (ret) masterId else ZStream.succeed(-1)
+    }
+  }
+
+  override def removeFriend(friendId: Int, mid: Int): stream.Stream[Throwable, Boolean] =
+    userApplication.removeFriend(friendId, mid)
+
+  override def changeGroup(groupId: Int, userId: Int, mid: Int): stream.Stream[Throwable, Boolean] =
+    userApplication.changeGroup(groupId, userId, mid)
+
+  override def refuseFriend(messageBoxId: Int, to: Int, username: String): stream.Stream[Throwable, Boolean] =
+    userApplication.refuseAddFriend(messageBoxId, username, to)
+
+  override def agreeFriend(
+    uid: Int,
+    fromGroup: Int,
+    group: Int,
+    messageBoxId: Int,
+    mid: Int
+  ): stream.Stream[Throwable, Boolean] =
+    userApplication.addFriend(mid, group, uid, fromGroup, messageBoxId)
 }
 
 object ApiService {
