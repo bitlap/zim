@@ -16,7 +16,7 @@ object Dependencies {
     val circe = "0.14.1"
     val scalikejdbc = "3.5.0"
     val logback = "1.2.10"
-    val config = "1.4.1"
+    val config = "1.4.2"
     val mysql = "8.0.28"
     val `zio-interop-reactiveStreams` = "1.3.9"
     val `simple-java-mail` = "6.7.6"
@@ -33,7 +33,8 @@ object Dependencies {
   lazy val `zio-schema` = "dev.zio" %% "zio-schema" % Version.`zio-schema`
   lazy val `schema-derivation` = "dev.zio" %% "zio-schema-derivation" % Version.`zio-schema`
   lazy val zio = "dev.zio" %% "zio" % Version.zio
-  lazy val `zio-interop-reactivestreams` = "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
+  lazy val `zio-interop-reactivestreams` =
+    "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
   lazy val `zio-actors` = Seq(
     "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
     "dev.zio" %% "zio-actors" % Version.`zio-actors`
@@ -60,7 +61,7 @@ object Dependencies {
   )
 
   lazy val `tapir-async-doc` = Seq(
-    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"  % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe" % Version.tapir
   )
@@ -88,7 +89,8 @@ object Dependencies {
     "org.scalatest" %% "scalatest" % Version.scalaTest % Test
   )
 
-  lazy val serverDeps: Seq[ModuleID] = domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps ++ `zio-actors` ++ `tapir-async-doc`
+  lazy val serverDeps: Seq[ModuleID] =
+    domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps ++ `zio-actors` ++ `tapir-async-doc`
 
   lazy val tapirApiDeps: Seq[ModuleID] = Seq(zio, `zio-interop-reactivestreams`) ++ akkaDeps ++ tapirDeps ++ domainDeps
 
