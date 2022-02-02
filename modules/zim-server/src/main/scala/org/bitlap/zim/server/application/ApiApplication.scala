@@ -1,8 +1,8 @@
 package org.bitlap.zim.server.application
+import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
 import org.bitlap.zim.domain.model.{ Receive, User }
-import org.bitlap.zim.domain.{ FriendAndGroupInfo, FriendList }
-import zio.stream
+import zio.{ stream, Chunk, IO }
 
 /**
  *  直接提供给endpoint使用
@@ -48,4 +48,26 @@ trait ApiApplication extends BaseApplication[User] {
 
   def agreeFriend(uid: Int, fromGroup: Int, group: Int, messageBoxId: Int, mid: Int): stream.Stream[Throwable, Boolean]
 
+  def chatLogIndex(id: Int, `type`: String, mid: Int): stream.Stream[Throwable, Int]
+
+  /**
+   * 分页接口 内存分页
+   *
+   * TODO 没有使用数据的offset
+   * @param id
+   * @param `type`
+   * @param page
+   * @param mid
+   * @return
+   */
+  def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, List[ChatHistory]]
+
+  /**
+   * 分页接口 内存分页
+   *
+   * @param uid
+   * @param page
+   * @return
+   */
+  def findAddInfo(uid: Int, page: Int): IO[Throwable, ResultPageSet[AddInfo]]
 }

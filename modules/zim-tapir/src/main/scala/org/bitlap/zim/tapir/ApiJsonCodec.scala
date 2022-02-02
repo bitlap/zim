@@ -6,19 +6,17 @@ import io.circe.generic.extras.Configuration
 import io.circe.parser.parse
 import io.circe.syntax.EncoderOps
 import io.circe.{ Decoder, Encoder, HCursor, Json }
-import org.bitlap.zim.domain.model.{ GroupList, User }
+import org.bitlap.zim.domain.ZimError.BusinessException
 import org.bitlap.zim.domain._
+import org.bitlap.zim.domain.model.{ GroupList, User }
 import sttp.tapir.Codec.JsonCodec
 import sttp.tapir.json.circe._
+import sttp.tapir.{ Schema, SchemaType }
 import zio._
 import zio.interop.reactivestreams.streamToPublisher
 import zio.stream.ZStream
 
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
-import org.bitlap.zim.domain.ZimError.BusinessException
-import sttp.tapir.Schema
-import sttp.tapir.SchemaType
 
 /**
  * API的circe解码器
@@ -46,19 +44,12 @@ trait ApiJsonCodec extends BootstrapRuntime {
         case u: Message            => Message.encoder(u)
         case u: Mine               => Mine.encoder(u)
         case u: To                 => To.encoder(u)
+        case u: ChatHistory        => ChatHistory.encoder(u)
+        case u: AddInfo            => AddInfo.encoder(u)
         case _                     => Json.Null
       }
     }
   }
-
-  implicit def encodeGenericResultPageSet[T <: Product]: Encoder[ResultPageSet[T]] =
-    (a: ResultPageSet[T]) =>
-      Json.obj(
-        ("data", a.data.asJson),
-        ("msg", Json.fromString(a.msg)),
-        ("code", Json.fromInt(a.code)),
-        ("pages", Json.fromInt(a.pages))
-      )
 
   implicit def encodeGenericResultSet[T <: Product]: Encoder[ResultSet[T]] =
     (a: ResultSet[T]) =>
@@ -90,6 +81,15 @@ trait ApiJsonCodec extends BootstrapRuntime {
         ("data", a.data.asJson),
         ("msg", Json.fromString(a.msg)),
         ("code", Json.fromInt(a.code))
+      )
+
+  implicit def encodeGenericResultPageSets[T <: Product]: Encoder[ResultPageSet[T]] =
+    (a: ResultPageSet[T]) =>
+      Json.obj(
+        ("data", a.data.asJson),
+        ("msg", Json.fromString(a.msg)),
+        ("code", Json.fromInt(a.code)),
+        ("pages", Json.fromInt(a.pages))
       )
 
   implicit lazy val stringCodec: JsonCodec[String] =
@@ -195,6 +195,19 @@ trait ApiJsonCodec extends BootstrapRuntime {
       Right(Source.fromPublisher(value))
     )
   }
+
+  def buildPagesResponse[T <: Product]
+    : IO[Throwable, ResultPageSet[T]] => Future[Either[ZimError, Source[ByteString, Any]]] =
+    respIO => {
+      val resp = for {
+        resp <- respIO
+        r <- ZStream.succeed(resp.asJson.noSpaces).map(body => ByteString(body)).toPublisher
+      } yield r
+      val value = unsafeRun(resp)
+      Future.successful(
+        Right(Source.fromPublisher(value))
+      )
+    }
 
 }
 

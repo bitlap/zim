@@ -198,7 +198,7 @@ object wsService extends ZimServiceConfiguration {
 
           override def countUnHandMessage(uId: Int): Task[Map[String, String]] =
             uId.synchronized {
-              userService.countUnHandMessage(uId, 0).runHead.map { count =>
+              userService.countUnHandMessage(uId, Some(0)).runHead.map { count =>
                 Map(
                   "type" -> protocol.unHandMessage.stringify,
                   "count" -> s"${count.getOrElse(0)}"

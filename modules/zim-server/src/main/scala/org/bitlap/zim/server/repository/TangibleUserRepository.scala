@@ -19,7 +19,7 @@ private final class TangibleUserRepository(databaseName: String)
     extends TangibleBaseRepository(User)
     with UserRepository {
 
-  override val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
+  override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
   override implicit lazy val dbName: String = databaseName
 
   override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =

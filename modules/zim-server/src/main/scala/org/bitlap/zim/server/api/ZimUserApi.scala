@@ -58,12 +58,27 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ changeGroupRoute
       ~ refuseFriendRoute
       ~ agreeFriendRoute
+      ~ chatLogIndexRoute
+      ~ chatLogRoute
+      ~ findAddInfoRoute
   )
 
   lazy val userGetRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.userGetOneEndpoint.serverLogic { id =>
       val userStream = apiApplication.findById(id)
       buildMonoResponse[User]()(userStream)
+    })
+
+  lazy val findAddInfoRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.findAddInfoEndpoint.serverLogic { _ => input =>
+      val userIO = apiApplication.findAddInfo(input._1, input._2)
+      buildPagesResponse(userIO)
+    })
+
+  lazy val chatLogRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.chatLogEndpoint.serverLogic { user => input =>
+      val userIO = apiApplication.chatLog(input._1, input._2, input._3, user.id)
+      buildFlowResponse(ZStream.fromIterable(unsafeRun(userIO)))
     })
 
   lazy val agreeFriendRoute: Route =
@@ -216,6 +231,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       }
     )
 
+  // TODO 暂时先这样搞
   lazy val indexRoute: Route = get {
     pathPrefix(USER / "index") {
       cookie(Authorization) { user =>
@@ -232,6 +248,33 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
             complete(httpResp)
           case _ => getFromResource("static/html/403.html")
 
+        }
+      }
+    }
+  }
+
+  // TODO 暂时先这样搞
+  lazy val chatLogIndexRoute: Route = get {
+    pathPrefix(USER / "chatLogIndex") {
+      parameters("id".as[Int], "type") { (id, `type`) =>
+        cookie(Authorization) { user =>
+          val checkFuture = authenticate(UserSecurity(user.value))(authorityCacheFunction).map(_.getOrElse(null))
+          onComplete(checkFuture) {
+            case util.Success(u) if u != null =>
+              val pages = unsafeRun(apiApplication.chatLogIndex(id, `type`, u.id).runHead)
+              val resp =
+                HttpEntity(
+                  ContentTypes.`text/html(UTF-8)`,
+                  FileUtil.getFileAndInjectData(
+                    "static/html/chatlog.html",
+                    "${id}" -> id.toString,
+                    "${type}" -> `type`,
+                    "${pages}" -> pages.toString
+                  )
+                )
+              complete(HttpResponse(OK, entity = resp))
+            case _ => getFromResource("static/html/403.html")
+          }
         }
       }
     }

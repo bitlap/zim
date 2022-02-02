@@ -144,15 +144,6 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[domain.ChatHistory].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  // TODO 返回页面且携带数据
-  lazy val chatLogIndexEndpoint: ZimSecurityOut[(Int, String)] =
-    secureEndpoint.get
-      .in(userResource / "chatLogIndex" / query[Int]("id") / query[String]("type"))
-      .name("弹出聊天记录页面")
-      .description(userResourceDescription)
-      .out(streamBody(AkkaStreams)(Schema(Schema.derived[domain.ChatHistory].schemaType), CodecFormat.Json()))
-      .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
-
   lazy val getOffLineMessageEndpoint: ZimSecurityOut[Unit] =
     secureEndpoint.post
       .in(userResource / "getOffLineMessage")

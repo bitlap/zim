@@ -73,7 +73,7 @@ final class InfrastructureConfiguration {
   lazy val groupMemberRepository: GroupMemberRepository[GroupMember] = TangibleGroupMemberRepository(
     mysqlConfigurationProperties.databaseName
   )
-  lazy val addMessageRepository: AddMessageRepository[model.AddMessage] = TangibleAddMessageRepository(
+  lazy val addMessageRepository: AddMessageRepository = TangibleAddMessageRepository(
     mysqlConfigurationProperties.databaseName
   )
 }
@@ -113,7 +113,7 @@ object InfrastructureConfiguration {
   val groupMemberRepository: URIO[ZInfrastructureConfiguration, GroupMemberRepository[GroupMember]] =
     ZIO.access(_.get.groupMemberRepository)
 
-  val addMessageRepository: URIO[ZInfrastructureConfiguration, AddMessageRepository[model.AddMessage]] =
+  val addMessageRepository: URIO[ZInfrastructureConfiguration, AddMessageRepository] =
     ZIO.access(_.get.addMessageRepository)
 
   val live: ULayer[ZInfrastructureConfiguration] =

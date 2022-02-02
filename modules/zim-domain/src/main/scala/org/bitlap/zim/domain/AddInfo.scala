@@ -1,7 +1,7 @@
 package org.bitlap.zim.domain
 
+import io.circe._
 import io.circe.generic.semiauto._
-import io.circe.{ Decoder, Encoder }
 import org.bitlap.zim.domain.model.User
 
 import java.time.ZonedDateTime

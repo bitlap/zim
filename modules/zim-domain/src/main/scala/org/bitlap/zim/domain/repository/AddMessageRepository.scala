@@ -1,4 +1,5 @@
 package org.bitlap.zim.domain.repository
+import org.bitlap.zim.domain.model.AddMessage
 import zio.stream
 
 /**
@@ -6,13 +7,13 @@ import zio.stream
  * @since 2022/1/15
  * @version 1.0
  */
-trait AddMessageRepository[T] extends BaseRepository[T] {
+trait AddMessageRepository extends BaseRepository[AddMessage] {
 
-  def countUnHandMessage(uid: Int, agree: Int): stream.Stream[Throwable, Int]
+  def countUnHandMessage(uid: Int, agree: Option[Int]): stream.Stream[Throwable, Int]
 
-  def findAddInfo(uid: Int): stream.Stream[Throwable, T]
+  def findAddInfo(uid: Int): stream.Stream[Throwable, AddMessage]
 
-  def updateAddMessage(addMessage: T): stream.Stream[Throwable, Int]
+  def updateAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int]
 
-  def saveAddMessage(addMessage: T): stream.Stream[Throwable, Int]
+  def saveAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int]
 }

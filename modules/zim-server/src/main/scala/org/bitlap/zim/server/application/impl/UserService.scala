@@ -34,7 +34,7 @@ private final class UserService(
   friendGroupRepository: FriendGroupRepository[FriendGroup],
   friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend],
   groupMemberRepository: GroupMemberRepository[GroupMember],
-  addMessageRepository: AddMessageRepository[model.AddMessage]
+  addMessageRepository: AddMessageRepository
 ) extends UserApplication {
 
   override def findById(id: Long): stream.Stream[Throwable, User] =
@@ -123,7 +123,7 @@ private final class UserService(
   override def createGroup(groupList: GroupList): stream.Stream[Throwable, Int] =
     groupRepository.createGroupList(groupList).map(_.toInt)
 
-  override def countUnHandMessage(uid: Int, agree: Int): stream.Stream[Throwable, Int] =
+  override def countUnHandMessage(uid: Int, agree: Option[Int]): stream.Stream[Throwable, Int] =
     addMessageRepository.countUnHandMessage(uid, agree)
 
   override def findAddInfo(uid: Int): stream.Stream[Throwable, AddInfo] =
@@ -138,7 +138,7 @@ private final class UserService(
         addMessage.groupId,
         addMessage.`type`,
         addMessage.remark,
-        null,
+        "",
         addMessage.agree,
         addMessage.time,
         user
@@ -337,7 +337,7 @@ object UserService {
     friendGroupRepository: FriendGroupRepository[FriendGroup],
     friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend],
     groupMemberRepository: GroupMemberRepository[GroupMember],
-    addMessageRepository: AddMessageRepository[model.AddMessage]
+    addMessageRepository: AddMessageRepository
   ): UserApplication =
     new UserService(
       userRepository,
@@ -359,7 +359,7 @@ object UserService {
       Receive
     ], FriendGroupRepository[FriendGroup], FriendGroupFriendRepository[AddFriend], GroupMemberRepository[
       GroupMember
-    ], AddMessageRepository[model.AddMessage], UserApplication] { (a, b, c, d, e, f, g) =>
+    ], AddMessageRepository, UserApplication] { (a, b, c, d, e, f, g) =>
       UserService(a, b, c, d, e, f, g)
     }
 

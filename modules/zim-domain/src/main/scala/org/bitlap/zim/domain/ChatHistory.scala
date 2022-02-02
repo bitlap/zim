@@ -22,7 +22,7 @@ case class ChatHistory(
 
 object ChatHistory {
 
-  implicit val userDecoder: Decoder[ChatHistory] = deriveDecoder[ChatHistory]
-  implicit val userEncoder: Encoder[ChatHistory] = deriveEncoder[ChatHistory]
+  implicit val decoder: Decoder[ChatHistory] = deriveDecoder[ChatHistory]
+  implicit val encoder: Encoder[ChatHistory] = deriveEncoder[ChatHistory]
 
 }

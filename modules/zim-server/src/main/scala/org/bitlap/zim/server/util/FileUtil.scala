@@ -25,4 +25,10 @@ object FileUtil {
     FileUtil.readFile(f).replace(source, target)
   }
 
+  def getFileAndInjectData(file: String, sourceTargets: (String, String)*): String = {
+    val f = classOf[ActorSystem].getClassLoader.getResource(file)
+    val fileContent = FileUtil.readFile(f)
+    sourceTargets.foldLeft(fileContent)((e, op) => e.replace(op._1, op._2))
+  }
+
 }

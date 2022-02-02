@@ -54,7 +54,8 @@ class CirceJsonSpec extends AnyFlatSpec with Matchers with ApiJsonCodec {
     val userSecurity = UserSecurityInfo(
       0,
       "12@qqcom.c",
-      "123"
+      "123",
+      "u"
     )
     val json = userSecurity.asJson(UserSecurityInfo.encoder).noSpaces
     println(json)

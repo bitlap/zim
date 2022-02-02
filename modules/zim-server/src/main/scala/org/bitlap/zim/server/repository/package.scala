@@ -1,15 +1,14 @@
 package org.bitlap.zim.server
 
-import eu.timepit.refined.api.Refined
 import org.bitlap.zim.domain.model
-import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup, GroupList, GroupMember, Receive, User }
+import org.bitlap.zim.domain.model._
 import org.bitlap.zim.domain.repository.Condition
-import scalikejdbc.{ SQL, _ }
 import scalikejdbc.streams._
+import scalikejdbc.{ SQL, _ }
 import sqls.count
-import zio.{ stream, Task }
 import zio.interop.reactivestreams._
 import zio.stream.ZStream
+import zio.{ stream, Task }
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
@@ -78,8 +77,8 @@ package object repository {
   ) {
 
     import eu.timepit.refined.refineV
-    import org.bitlap.zim.domain.repository.Condition._
     import org.bitlap.zim.domain.repository.Condition.ConditionValidator._
+    import org.bitlap.zim.domain.repository.Condition._
 
     @inline def like(y: Option[String]): Option[ZCondition] =
       refineV(Condition(self, y.map(sqls.like(sp.column(self), _)).orNull)).toOption
@@ -93,17 +92,16 @@ package object repository {
   }
 
   //==============================表别名定义========================================
-  implicit private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
-  private[repository] lazy val g: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
-  private[repository] lazy val r: QuerySQLSyntaxProvider[SQLSyntaxSupport[Receive], Receive] = Receive.syntax("r")
-  private[repository] lazy val fg: QuerySQLSyntaxProvider[SQLSyntaxSupport[FriendGroup], FriendGroup] =
+  implicit private lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
+  implicit private lazy val g: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
+  implicit private lazy val r: QuerySQLSyntaxProvider[SQLSyntaxSupport[Receive], Receive] = Receive.syntax("r")
+  implicit private lazy val fg: QuerySQLSyntaxProvider[SQLSyntaxSupport[FriendGroup], FriendGroup] =
     FriendGroup.syntax("fg")
-  private[repository] lazy val af: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddFriend], AddFriend] =
-    AddFriend.syntax("af")
-  private[repository] lazy val gm: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupMember], GroupMember] =
+  implicit private lazy val af: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddFriend], AddFriend] = AddFriend.syntax("af")
+  implicit private lazy val gm: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupMember], GroupMember] =
     GroupMember.syntax("gm")
-  private[repository] lazy val am: QuerySQLSyntaxProvider[SQLSyntaxSupport[model.AddMessage], model.AddMessage] =
-    model.AddMessage.syntax("am")
+  implicit private lazy val am: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddMessage], AddMessage] =
+    AddMessage.syntax("am")
 
   //==============================测试SQL========================================
   private[repository] def queryFindGroupById(table: TableDefSQLSyntax, id: Long): SQL[GroupList, HasExtractor] =
@@ -122,8 +120,8 @@ package object repository {
   private[repository] def queryFindAddMessageById(
     table: TableDefSQLSyntax,
     id: Long
-  ): SQL[model.AddMessage, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => model.AddMessage(rs))
+  ): SQL[AddMessage, HasExtractor] =
+    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => AddMessage(rs))
   //==============================用户 SQL实现========================================
 
   /**
@@ -539,26 +537,6 @@ package object repository {
       .update()
 
   //==============================申请消息 SQL实现==============================================
-
-  /**
-   * 统计未处理的消息
-   *
-   * @param table
-   * @param uid
-   * @param agree
-   * @return
-   */
-  private[repository] def _countUnHandMessage(uid: Int, agree: Int): StreamReadySQL[Int] =
-    withSQL {
-      import org.bitlap.zim.domain.model
-      select(count(am.id))
-        .from(model.AddMessage as am)
-        .where(
-          sqls.eq(am.toUid, uid) and
-            sqls.eq(am.agree, agree)
-        )
-    }.toList().map(rs => rs.int(1)).iterator()
-
   /**
    * 查询添加好友、群组信息
    *
@@ -566,16 +544,15 @@ package object repository {
    * @param uid
    * @return
    */
-  private[repository] def _findAddInfo(uid: Int): StreamReadySQL[model.AddMessage] =
+  private[repository] def _findAddInfo(uid: Int): StreamReadySQL[AddMessage] =
     withSQL {
-      import org.bitlap.zim.domain.model
       select
-        .from(model.AddMessage as am)
+        .from(AddMessage as am)
         .where
         .eq(am.toUid, uid)
         .orderBy(am.time)
         .desc
-    }.map(rs => model.AddMessage(rs)).list().iterator()
+    }.map(rs => AddMessage(rs)).list().iterator()
 
   /**
    * 更新好友、群组信息请求
@@ -584,7 +561,7 @@ package object repository {
    * @param addMessage 添加好友、群组信息对象
    * @return
    */
-  private[repository] def _updateAddMessage(table: TableDefSQLSyntax, addMessage: model.AddMessage): SQLUpdate =
+  private[repository] def _updateAddMessage(table: TableDefSQLSyntax, addMessage: AddMessage): SQLUpdate =
     sql"update ${table} set agree = ${addMessage.agree} where id = ${addMessage.id}".update()
 
   /**
@@ -595,7 +572,7 @@ package object repository {
    * @param addMessage 添加好友、群组信息对象
    * @return
    */
-  private[repository] def _saveAddMessage(table: TableDefSQLSyntax, addMessage: model.AddMessage): SQLUpdate =
+  private[repository] def _saveAddMessage(table: TableDefSQLSyntax, addMessage: AddMessage): SQLUpdate =
     sql"insert into ${table}(from_uid,to_uid,group_id,remark,agree,type,time) values(${addMessage.fromUid},${addMessage.toUid},${addMessage.groupId},${addMessage.remark},${addMessage.agree},${addMessage.`type`},${addMessage.time}) ON DUPLICATE KEY UPDATE remark=${addMessage.remark},time=${addMessage.time},agree=${addMessage.agree};"
       .update()
 }

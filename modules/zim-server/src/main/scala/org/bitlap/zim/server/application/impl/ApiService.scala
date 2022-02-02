@@ -5,9 +5,8 @@ import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserI
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil }
-import zio.Has
 import zio.stream.ZStream
-import zio.stream
+import zio.{ stream, Has, IO }
 
 import java.time.ZonedDateTime
 
@@ -161,6 +160,43 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     mid: Int
   ): stream.Stream[Throwable, Boolean] =
     userApplication.addFriend(mid, group, uid, fromGroup, messageBoxId)
+
+  override def chatLogIndex(id: Int, `type`: String, mid: Int): stream.Stream[Throwable, Int] =
+    userApplication
+      .countHistoryMessage(mid, id, `type`)
+      .map(pages => if (pages < SystemConstant.SYSTEM_PAGE) pages else pages / SystemConstant.SYSTEM_PAGE + 1)
+
+  override def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, List[ChatHistory]] = {
+    val ret = for {
+      list <- userApplication
+        .findUserById(mid)
+        .flatMap { u =>
+          userApplication.findHistoryMessage(u, id, `type`)
+        }
+        .runCollect
+      pageRet = list
+        .slice(
+          SystemConstant.SYSTEM_PAGE * (page - 1),
+          math.min(SystemConstant.SYSTEM_PAGE * page, list.size)
+        )
+        .toList
+    } yield pageRet
+    ret
+  }
+
+  override def findAddInfo(uid: Int, page: Int): IO[Throwable, ResultPageSet[AddInfo]] =
+    for {
+      list <- userApplication.findAddInfo(uid).runCollect
+      listRet = list.slice(
+        SystemConstant.ADD_MESSAGE_PAGE * (page - 1),
+        math.min(SystemConstant.ADD_MESSAGE_PAGE * page, list.size)
+      )
+      countIO <- userApplication.countUnHandMessage(uid, None).runHead
+      count = countIO.getOrElse(0)
+    } yield {
+      val pages = if (count < SystemConstant.ADD_MESSAGE_PAGE) 1 else count / SystemConstant.ADD_MESSAGE_PAGE + 1
+      ResultPageSet(listRet.toList, pages)
+    }
 }
 
 object ApiService {

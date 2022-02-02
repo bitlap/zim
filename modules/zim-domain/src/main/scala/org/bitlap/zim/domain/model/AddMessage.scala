@@ -30,7 +30,10 @@ final case class AddMessage(
   time: ZonedDateTime
 )
 
-object AddMessage extends SQLSyntaxSupport[AddMessage] {
+object AddMessage extends BaseModel[AddMessage] {
+
+  // 日期格式化
+  import org.bitlap.zim.domain._
 
   override lazy val columns: collection.Seq[String] = autoColumns[AddMessage]()
 
@@ -39,16 +42,7 @@ object AddMessage extends SQLSyntaxSupport[AddMessage] {
   implicit val decoder: Decoder[AddMessage] = deriveDecoder[AddMessage]
   implicit val encoder: Encoder[AddMessage] = deriveEncoder[AddMessage]
 
-  def apply(rs: WrappedResultSet): AddMessage = AddMessage(
-    rs.int("id"),
-    rs.int("from_uid"),
-    rs.int("to_uid"),
-    rs.int("group_id"),
-    rs.string("remark"),
-    rs.int("agree"),
-    rs.int("type"),
-    rs.zonedDateTime("time")
-  )
+  override def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[AddMessage]): AddMessage = autoConstruct(rs, sp)
 
   def apply(id: Int, agree: Int): AddMessage =
     AddMessage(
