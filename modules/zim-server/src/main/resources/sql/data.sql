@@ -367,315 +367,315 @@ VALUES ('443', '1', '1', '106', 'fdfd', 'group', '1492390925888', '1');
 -- ----------------------------
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('边月', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15605832957@sina.com', 'http://localhost/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2002-10-20');
+        '15605832957@sina.com', '/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2002-10-20');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('侯梅希', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13901622213@ask.com', 'http://localhost/static/image/avatar/avatar(0).jpg', 1, '123', 'hide', '2011-07-02');
+        '13901622213@ask.com', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2011-07-02');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('申山', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13700505911@163.net', 'http://localhost/static/image/avatar/avatar(0).jpg', 0, '123', 'hide', '2003-09-07');
+        '13700505911@163.net', '/static/image/avatar/avatar(2).jpg', 0, '123', 'hide', '2003-09-07');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('殴云丽', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13400872279@0355.net', 'http://localhost/static/image/avatar/avatar(3).jpg', 1, '123', 'hide', '1991-03-11');
+        '13400872279@0355.net', '/static/image/avatar/avatar(3).jpg', 1, '123', 'hide', '1991-03-11');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('赖希', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15603347311@3721.net', 'http://localhost/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '1997-04-13');
+        '15603347311@3721.net', '/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '1997-04-13');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('韩莎', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15301204071@ask.com', 'http://localhost/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '2004-10-24');
+        '15301204071@ask.com', '/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '2004-10-24');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('胥婉苑', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15007697659@sina.com', 'http://localhost/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '2013-05-14');
+        '15007697659@sina.com', '/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '2013-05-14');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('夏翔厚', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15606848938@yahoo.com', 'http://localhost/static/image/avatar/avatar(5).jpg', 0, '123', 'hide', '2009-06-22');
+        '15606848938@yahoo.com', '/static/image/avatar/avatar(5).jpg', 0, '123', 'hide', '2009-06-22');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('竺兰婷', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15802021990@live.com', 'http://localhost/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2013-05-04');
+        '15802021990@live.com', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2013-05-04');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('戚友', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13903830257@live.com', 'http://localhost/static/image/avatar/avatar(8).jpg', 0, '123', 'hide', '1993-04-24');
+        '13903830257@live.com', '/static/image/avatar/avatar(8).jpg', 0, '123', 'hide', '1993-04-24');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('屠盛', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15503511548@126.com', 'http://localhost/static/image/avatar/avatar(8).jpg', 0, '123', 'hide', '1991-01-26');
+        '15503511548@126.com', '/static/image/avatar/avatar(8).jpg', 0, '123', 'hide', '1991-01-26');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('霍枫', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15900273312@0355.net', 'http://localhost/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2001-05-10');
+        '15900273312@0355.net', '/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2001-05-10');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('容蕊芬', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13703494814@gmail.com', 'http://localhost/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2010-08-30');
+        '13703494814@gmail.com', '/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2010-08-30');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('卜庆承', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13101768528@gmail.com', 'http://localhost/static/image/avatar/avatar(1).jpg', 0, '123', 'hide', '2007-11-17');
+        '13101768528@gmail.com', '/static/image/avatar/avatar(1).jpg', 0, '123', 'hide', '2007-11-17');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('满咏琴', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13201874403@qq.com', 'http://localhost/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2000-05-08');
+        '13201874403@qq.com', '/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2000-05-08');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('左清', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13700345359@live.com', 'http://localhost/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '1993-01-10');
+        '13700345359@live.com', '/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '1993-01-10');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('习胜', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15200532435@gmail.com', 'http://localhost/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '1993-12-18');
+        '15200532435@gmail.com', '/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '1993-12-18');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('宰琰', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13207073510@msn.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '2007-06-04');
+        '13207073510@msn.com', '/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '2007-06-04');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('鲁飞鹏', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15107594698@live.com', 'http://localhost/static/image/avatar/avatar(6).jpg', 0, '123', 'hide', '2002-02-10');
+        '15107594698@live.com', '/static/image/avatar/avatar(6).jpg', 0, '123', 'hide', '2002-02-10');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('左波健', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15602927444@yeah.net', 'http://localhost/static/image/avatar/avatar(4).jpg', 0, '123', 'hide', '1999-04-20');
+        '15602927444@yeah.net', '/static/image/avatar/avatar(4).jpg', 0, '123', 'hide', '1999-04-20');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('官浩谦', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13801942028@sina.com', 'http://localhost/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2003-10-25');
+        '13801942028@sina.com', '/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2003-10-25');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('褚振磊', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13503746557@126.com', 'http://localhost/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '1999-12-19');
+        '13503746557@126.com', '/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '1999-12-19');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('姚斌', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13603652150@yeah.net', 'http://localhost/static/image/avatar/avatar(4).jpg', 0, '123', 'hide', '2001-11-27');
+        '13603652150@yeah.net', '/static/image/avatar/avatar(4).jpg', 0, '123', 'hide', '2001-11-27');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('黄黛', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15005846482@yeah.net', 'http://localhost/static/image/avatar/avatar(1).jpg', 0, '123', 'hide', '1994-11-17');
+        '15005846482@yeah.net', '/static/image/avatar/avatar(1).jpg', 0, '123', 'hide', '1994-11-17');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('柯飘', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13706055022@googlemail.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 0, '123', 'hide',
+        '13706055022@googlemail.com', '/static/image/avatar/avatar(7).jpg', 0, '123', 'hide',
         '1997-05-24');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('柴胜诚', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13202123926@msn.com', 'http://localhost/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '1995-02-19');
+        '13202123926@msn.com', '/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '1995-02-19');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('康柔桂', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13903317367@yeah.net', 'http://localhost/static/image/avatar/avatar(1).jpg', 1, '123', 'hide', '2010-04-15');
+        '13903317367@yeah.net', '/static/image/avatar/avatar(1).jpg', 1, '123', 'hide', '2010-04-15');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('微瑶婷', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15706487221@263.net', 'http://localhost/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '1994-03-19');
+        '15706487221@263.net', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '1994-03-19');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('柏仪', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15900147912@sohu.com', 'http://localhost/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '2003-08-03');
+        '15900147912@sohu.com', '/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '2003-08-03');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('田炎', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13808781268@3721.net', 'http://localhost/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2009-01-12');
+        '13808781268@3721.net', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2009-01-12');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('东梁亮', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15803836020@163.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '2007-08-26');
+        '15803836020@163.com', '/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '2007-08-26');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('尉林', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13104611094@yahoo.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '2004-06-27');
+        '13104611094@yahoo.com', '/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '2004-06-27');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('平燕岚', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13207994837@0355.net', 'http://localhost/static/image/avatar/avatar(0).jpg', 0, '123', 'hide', '2004-01-15');
+        '13207994837@0355.net', '/static/image/avatar/avatar(2).jpg', 0, '123', 'hide', '2004-01-15');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('颛才', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13804443526@gmail.com', 'http://localhost/static/image/avatar/avatar(4).jpg', 1, '123', 'hide', '1990-01-10');
+        '13804443526@gmail.com', '/static/image/avatar/avatar(4).jpg', 1, '123', 'hide', '1990-01-10');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('暨寒莺', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15302154003@126.com', 'http://localhost/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '1994-09-15');
+        '15302154003@126.com', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '1994-09-15');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('莘栋泽', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13005174289@live.com', 'http://localhost/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '2014-06-13');
+        '13005174289@live.com', '/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '2014-06-13');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('融香琳', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13307477257@qq.com', 'http://localhost/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2014-06-23');
+        '13307477257@qq.com', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2014-06-23');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('於致壮', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13301417965@ask.com', 'http://localhost/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2002-08-14');
+        '13301417965@ask.com', '/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2002-08-14');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('焦凤', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13306256329@qq.com', 'http://localhost/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '1999-05-15');
+        '13306256329@qq.com', '/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '1999-05-15');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('葛河刚', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13308263395@googlemail.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 0, '123', 'hide',
+        '13308263395@googlemail.com', '/static/image/avatar/avatar(7).jpg', 0, '123', 'hide',
         '2010-05-07');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('寇芝希', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15205202731@hotmail.com', 'http://localhost/static/image/avatar/avatar(6).jpg', 1, '123', 'hide',
+        '15205202731@hotmail.com', '/static/image/avatar/avatar(6).jpg', 1, '123', 'hide',
         '1992-07-05');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('宗薇馨', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13107077759@sohu.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '2005-12-29');
+        '13107077759@sohu.com', '/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '2005-12-29');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('涂婉', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13006913015@yahoo.com', 'http://localhost/static/image/avatar/avatar(1).jpg', 0, '123', 'hide', '1999-01-24');
+        '13006913015@yahoo.com', '/static/image/avatar/avatar(1).jpg', 0, '123', 'hide', '1999-01-24');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('逄裕', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15505815686@qq.com', 'http://localhost/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '1996-04-27');
+        '15505815686@qq.com', '/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '1996-04-27');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('双承利', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15301965725@0355.net', 'http://localhost/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2004-01-23');
+        '15301965725@0355.net', '/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2004-01-23');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('皇咏琦', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13602400122@qq.com', 'http://localhost/static/image/avatar/avatar(5).jpg', 0, '123', 'hide', '2003-04-08');
+        '13602400122@qq.com', '/static/image/avatar/avatar(5).jpg', 0, '123', 'hide', '2003-04-08');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('逯楠', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13100255491@163.net', 'http://localhost/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '1998-01-02');
+        '13100255491@163.net', '/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '1998-01-02');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('楚妹冰', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13905441770@live.com', 'http://localhost/static/image/avatar/avatar(1).jpg', 0, '123', 'hide', '2000-10-02');
+        '13905441770@live.com', '/static/image/avatar/avatar(1).jpg', 0, '123', 'hide', '2000-10-02');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('父珠', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13901066514@sina.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '2008-11-09');
+        '13901066514@sina.com', '/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '2008-11-09');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('宰义', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13707301937@sina.com', 'http://localhost/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '2012-08-10');
+        '13707301937@sina.com', '/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '2012-08-10');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('唐维', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13408056175@gmail.com', 'http://localhost/static/image/avatar/avatar(0).jpg', 1, '123', 'hide', '1996-08-12');
+        '13408056175@gmail.com', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '1996-08-12');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('宰咏', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13404142271@163.net', 'http://localhost/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2012-09-26');
+        '13404142271@163.net', '/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2012-09-26');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('门贞贞', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13408748220@163.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '1996-06-22');
+        '13408748220@163.com', '/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '1996-06-22');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('那婵', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13306056717@163.com', 'http://localhost/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '1998-06-11');
+        '13306056717@163.com', '/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '1998-06-11');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('杭波绍', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15100674200@yeah.net', 'http://localhost/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '1992-09-18');
+        '15100674200@yeah.net', '/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '1992-09-18');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('申翠', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13205334430@ask.com', 'http://localhost/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '1990-04-04');
+        '13205334430@ask.com', '/static/image/avatar/avatar(6).jpg', 1, '123', 'hide', '1990-04-04');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('凌博', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15306637225@googlemail.com', 'http://localhost/static/image/avatar/avatar(5).jpg', 0, '123', 'hide',
+        '15306637225@googlemail.com', '/static/image/avatar/avatar(5).jpg', 0, '123', 'hide',
         '2010-02-20');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('徐琰', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13403493904@sohu.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '1991-05-04');
+        '13403493904@sohu.com', '/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '1991-05-04');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('宗航', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15703675257@aol.com', 'http://localhost/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2001-05-01');
+        '15703675257@aol.com', '/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2001-05-01');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('有蓓妍', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13304025380@hotmail.com', 'http://localhost/static/image/avatar/avatar(1).jpg', 0, '123', 'hide',
+        '13304025380@hotmail.com', '/static/image/avatar/avatar(1).jpg', 0, '123', 'hide',
         '1995-03-21');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('龙浩', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15001835427@sina.com', 'http://localhost/static/image/avatar/avatar(0).jpg', 0, '123', 'hide', '1994-11-17');
+        '15001835427@sina.com', '/static/image/avatar/avatar(2).jpg', 0, '123', 'hide', '1994-11-17');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('臧军先', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15107493124@aol.com', 'http://localhost/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2004-01-26');
+        '15107493124@aol.com', '/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2004-01-26');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('年钧友', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13207528433@qq.com', 'http://localhost/static/image/avatar/avatar(1).jpg', 1, '123', 'hide', '1994-12-24');
+        '13207528433@qq.com', '/static/image/avatar/avatar(1).jpg', 1, '123', 'hide', '1994-12-24');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('褚霄滢', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13100894652@msn.com', 'http://localhost/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '2007-05-12');
+        '13100894652@msn.com', '/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '2007-05-12');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('平健', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13700928788@163.com', 'http://localhost/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '1995-12-31');
+        '13700928788@163.com', '/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '1995-12-31');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('羊蕊玲', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13200152690@163.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '2004-02-25');
+        '13200152690@163.com', '/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '2004-02-25');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('戚坚茂', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13207525160@aol.com', 'http://localhost/static/image/avatar/avatar(9).jpg', 1, '123', 'hide', '2006-11-06');
+        '13207525160@aol.com', '/static/image/avatar/avatar(9).jpg', 1, '123', 'hide', '2006-11-06');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('阳寒', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13105951913@yahoo.com', 'http://localhost/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '1991-12-26');
+        '13105951913@yahoo.com', '/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '1991-12-26');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('宓之', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15201911216@live.com', 'http://localhost/static/image/avatar/avatar(5).jpg', 0, '123', 'hide', '2006-10-13');
+        '15201911216@live.com', '/static/image/avatar/avatar(5).jpg', 0, '123', 'hide', '2006-10-13');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('谈羽', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15002600226@hotmail.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 0, '123', 'hide',
+        '15002600226@hotmail.com', '/static/image/avatar/avatar(7).jpg', 0, '123', 'hide',
         '2011-03-11');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('梁榕昌', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15708052377@qq.com', 'http://localhost/static/image/avatar/avatar(2).jpg', 0, '123', 'hide', '2006-04-22');
+        '15708052377@qq.com', '/static/image/avatar/avatar(2).jpg', 0, '123', 'hide', '2006-04-22');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('龚丹飘', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13407394931@googlemail.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 1, '123', 'hide',
+        '13407394931@googlemail.com', '/static/image/avatar/avatar(7).jpg', 1, '123', 'hide',
         '2000-09-02');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('方超山', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15803194907@yeah.net', 'http://localhost/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '2000-05-02');
+        '15803194907@yeah.net', '/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '2000-05-02');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('拔广冠', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13501161119@263.net', 'http://localhost/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '1994-07-15');
+        '13501161119@263.net', '/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '1994-07-15');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('里凝', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13308445850@163.com', 'http://localhost/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '2009-07-01');
+        '13308445850@163.com', '/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '2009-07-01');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('宋怡', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15104496675@3721.net', 'http://localhost/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2013-07-16');
+        '15104496675@3721.net', '/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2013-07-16');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('谭娜伊', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13603931551@gmail.com', 'http://localhost/static/image/avatar/avatar(2).jpg', 0, '123', 'hide', '1994-01-02');
+        '13603931551@gmail.com', '/static/image/avatar/avatar(2).jpg', 0, '123', 'hide', '1994-01-02');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('司强勇', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15101077205@yeah.net', 'http://localhost/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '1997-03-10');
+        '15101077205@yeah.net', '/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '1997-03-10');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('房琴', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15507700151@hotmail.com', 'http://localhost/static/image/avatar/avatar(1).jpg', 1, '123', 'hide',
+        '15507700151@hotmail.com', '/static/image/avatar/avatar(1).jpg', 1, '123', 'hide',
         '1993-12-01');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('谢星贵', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13001633106@yeah.net', 'http://localhost/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '2013-04-26');
+        '13001633106@yeah.net', '/static/image/avatar/avatar(8).jpg', 1, '123', 'hide', '2013-04-26');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('狐静茗', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13305247316@sina.com', 'http://localhost/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2010-07-22');
+        '13305247316@sina.com', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2010-07-22');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('薛勤静', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15904345915@3721.net', 'http://localhost/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '1991-10-17');
+        '15904345915@3721.net', '/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '1991-10-17');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('谯岩', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13808763279@aol.com', 'http://localhost/static/image/avatar/avatar(4).jpg', 1, '123', 'hide', '2015-02-26');
+        '13808763279@aol.com', '/static/image/avatar/avatar(4).jpg', 1, '123', 'hide', '2015-02-26');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('言腾弘', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15107042392@263.net', 'http://localhost/static/image/avatar/avatar(1).jpg', 0, '123', 'hide', '1994-05-30');
+        '15107042392@263.net', '/static/image/avatar/avatar(1).jpg', 0, '123', 'hide', '1994-05-30');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('厍之德', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13103816897@sohu.com', 'http://localhost/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '1992-02-28');
+        '13103816897@sohu.com', '/static/image/avatar/avatar(9).jpg', 0, '123', 'hide', '1992-02-28');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('汪素', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15206122291@live.com', 'http://localhost/static/image/avatar/avatar(0).jpg', 1, '123', 'hide', '2013-08-05');
+        '15206122291@live.com', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2013-08-05');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('邱芸滢', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13306888302@msn.com', 'http://localhost/static/image/avatar/avatar(9).jpg', 1, '123', 'hide', '2011-02-01');
+        '13306888302@msn.com', '/static/image/avatar/avatar(9).jpg', 1, '123', 'hide', '2011-02-01');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('钭荷', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15206746459@263.net', 'http://localhost/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '1998-07-13');
+        '15206746459@263.net', '/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '1998-07-13');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('倪秋', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15508373082@163.net', 'http://localhost/static/image/avatar/avatar(0).jpg', 0, '123', 'hide', '2013-08-24');
+        '15508373082@163.net', '/static/image/avatar/avatar(2).jpg', 0, '123', 'hide', '2013-08-24');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('申裕厚', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15700771177@aol.com', 'http://localhost/static/image/avatar/avatar(8).jpg', 0, '123', 'hide', '2007-03-23');
+        '15700771177@aol.com', '/static/image/avatar/avatar(8).jpg', 0, '123', 'hide', '2007-03-23');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('终聪芸', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15803822828@163.net', 'http://localhost/static/image/avatar/avatar(0).jpg', 1, '123', 'hide', '2011-02-02');
+        '15803822828@163.net', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '2011-02-02');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('狄婉艺', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13504970131@sina.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '1995-08-24');
+        '13504970131@sina.com', '/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '1995-08-24');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('公伯', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15607053770@qq.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '1993-01-26');
+        '15607053770@qq.com', '/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '1993-01-26');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('莫聪', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13504271752@yeah.net', 'http://localhost/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2000-05-11');
+        '13504271752@yeah.net', '/static/image/avatar/avatar(3).jpg', 0, '123', 'hide', '2000-05-11');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('家茗嘉', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '13705762571@163.net', 'http://localhost/static/image/avatar/avatar(8).jpg', 0, '123', 'hide', '1992-09-16');
+        '13705762571@163.net', '/static/image/avatar/avatar(8).jpg', 0, '123', 'hide', '1992-09-16');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('商明毅', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15008175682@aol.com', 'http://localhost/static/image/avatar/avatar(4).jpg', 1, '123', 'hide', '1997-10-14');
+        '15008175682@aol.com', '/static/image/avatar/avatar(4).jpg', 1, '123', 'hide', '1997-10-14');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('卞羽', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15904301500@qq.com', 'http://localhost/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2006-02-13');
+        '15904301500@qq.com', '/static/image/avatar/avatar(5).jpg', 1, '123', 'hide', '2006-02-13');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('谢卿锦', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15802335560@ask.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '1992-11-26');
+        '15802335560@ask.com', '/static/image/avatar/avatar(7).jpg', 0, '123', 'hide', '1992-11-26');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('马风震', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15908510852@263.net', 'http://localhost/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '1995-03-24');
+        '15908510852@263.net', '/static/image/avatar/avatar(2).jpg', 1, '123', 'hide', '1995-03-24');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('赵毓', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15600620712@msn.com', 'http://localhost/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '2012-06-16');
+        '15600620712@msn.com', '/static/image/avatar/avatar(7).jpg', 1, '123', 'hide', '2012-06-16');
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('卞豪', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',
-        '15602253303@yeah.net', 'http://localhost/static/image/avatar/avatar(8).jpg', 0, '123', 'hide', '2015-12-08');
+        '15602253303@yeah.net', '/static/image/avatar/avatar(8).jpg', 0, '123', 'hide', '2015-12-08');
 
 -- 给每个人初始化默认的好友列表
 insert into `t_friend_group` (uid, group_name)

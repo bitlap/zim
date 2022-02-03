@@ -28,18 +28,18 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
       } yield dbGroup).runHead
         .provideLayer(env)
     )
-    actual.map(u => u.id -> u.groupname) shouldBe Some(mockGroupList.id -> mockGroupList.groupname)
+    actual.map(u => u.id -> u.groupName) shouldBe Some(mockGroupList.id -> mockGroupList.groupName)
   }
 
   it should "findGroup by groupname" in {
     val actual: Option[GroupList] = unsafeRun(
       (for {
         id <- TangibleGroupRepository.createGroupList(mockGroupList)
-        dbGroup <- TangibleGroupRepository.findGroup(Some(mockGroupList.groupname))
+        dbGroup <- TangibleGroupRepository.findGroup(Some(mockGroupList.groupName))
       } yield dbGroup).runHead
         .provideLayer(env)
     )
-    actual.map(u => u.id -> u.groupname) shouldBe Some(mockGroupList.id -> mockGroupList.groupname)
+    actual.map(u => u.id -> u.groupName) shouldBe Some(mockGroupList.id -> mockGroupList.groupName)
   }
 
   it should "findGroupsById by uid" in {
@@ -51,14 +51,14 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
       } yield dbGroup).runHead
         .provideLayer(env)
     )
-    actual.map(u => u.id -> u.groupname) shouldBe Some(mockGroupList.id -> mockGroupList.groupname)
+    actual.map(u => u.id -> u.groupName) shouldBe Some(mockGroupList.id -> mockGroupList.groupName)
   }
 
   it should "countGroup by groupname" in {
     val actual: Option[Int] = unsafeRun(
       (for {
         id <- TangibleGroupRepository.createGroupList(mockGroupList)
-        dbGroup <- TangibleGroupRepository.countGroup(Some(mockGroupList.groupname))
+        dbGroup <- TangibleGroupRepository.countGroup(Some(mockGroupList.groupName))
       } yield dbGroup).runHead
         .provideLayer(env)
     )

@@ -55,7 +55,7 @@ final class InfrastructureConfiguration {
 
   lazy val userRepository: UserRepository = TangibleUserRepository(mysqlConfigurationProperties.databaseName)
 
-  lazy val groupRepository: GroupRepository[GroupList] = TangibleGroupRepository(
+  lazy val groupRepository: GroupRepository = TangibleGroupRepository(
     mysqlConfigurationProperties.databaseName
   )
   lazy val receiveRepository: ReceiveRepository[Receive] = TangibleReceiveRepository(
@@ -101,7 +101,7 @@ object InfrastructureConfiguration {
   val userRepository: URIO[ZInfrastructureConfiguration, UserRepository] =
     ZIO.access(_.get.userRepository)
 
-  val groupRepository: URIO[ZInfrastructureConfiguration, GroupRepository[GroupList]] =
+  val groupRepository: URIO[ZInfrastructureConfiguration, GroupRepository] =
     ZIO.access(_.get.groupRepository)
 
   val receiveRepository: URIO[ZInfrastructureConfiguration, ReceiveRepository[Receive]] =

@@ -21,13 +21,13 @@ private final class TangibleAddMessageRepository(databaseName: String)
     _findAddInfo(uid).toStreamOperation
 
   override def updateAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int] =
-    _updateAddMessage(AddMessage.table, addMessage).toUpdateOperation
+    _updateAddMessage(addMessage).toUpdateOperation
 
   override def saveAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int] =
-    _saveAddMessage(AddMessage.table, addMessage).toUpdateOperation
+    _saveAddMessage(addMessage).toUpdateOperation
 
   override def findById(id: Long): stream.Stream[Throwable, AddMessage] =
-    queryFindAddMessageById(AddMessage.table, id).toSQLOperation
+    queryFindAddMessageById(id).toSQLOperation
 
 }
 

@@ -29,13 +29,13 @@ private final class TangibleUserRepository(databaseName: String)
     this.find("username" like username, "sex" === sex)
 
   override def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int] =
-    _updateAvatar(model.User.table, avatar, uid).toUpdateOperation
+    _updateAvatar(avatar, uid).toUpdateOperation
 
   override def updateSign(sign: String, uid: Int): stream.Stream[Throwable, Int] =
-    _updateSign(model.User.table, sign, uid).toUpdateOperation
+    _updateSign(sign, uid).toUpdateOperation
 
   override def updateUserInfo(id: Int, user: model.User): stream.Stream[Throwable, Int] =
-    _updateUserInfo(model.User.table, id, user).toUpdateOperation
+    _updateUserInfo(id, user).toUpdateOperation
 
   override def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Int] =
     _updateUserStatus(model.User.table, status, uid).toUpdateOperation
@@ -50,7 +50,7 @@ private final class TangibleUserRepository(databaseName: String)
     _findUsersByFriendGroupIds(fgid).toStreamOperation
 
   override def saveUser(user: model.User): stream.Stream[Throwable, Long] =
-    _saveUser(model.User.table, user).toUpdateReturnKey
+    _saveUser(user).toUpdateReturnKey
 
   override def matchUser(email: String): stream.Stream[Throwable, model.User] =
     this.find("email" === email)

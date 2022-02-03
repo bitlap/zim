@@ -1,8 +1,8 @@
 package org.bitlap.zim.server.application
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
-import org.bitlap.zim.domain.model.{ Receive, User }
-import zio.{ stream, Chunk, IO }
+import org.bitlap.zim.domain.model._
+import zio.{ stream, IO }
 
 /**
  *  直接提供给endpoint使用
@@ -62,12 +62,11 @@ trait ApiApplication extends BaseApplication[User] {
    */
   def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, List[ChatHistory]]
 
-  /**
-   * 分页接口 内存分页
-   *
-   * @param uid
-   * @param page
-   * @return
-   */
   def findAddInfo(uid: Int, page: Int): IO[Throwable, ResultPageSet[AddInfo]]
+
+  def findUsers(name: Option[String], sex: Option[Int], page: Int): IO[Throwable, ResultPageSet[User]]
+
+  def findGroups(name: Option[String], page: Int): IO[Throwable, ResultPageSet[GroupList]]
+
+  def findMyGroups(createId: Int, page: Int): IO[Throwable, ResultPageSet[GroupList]]
 }

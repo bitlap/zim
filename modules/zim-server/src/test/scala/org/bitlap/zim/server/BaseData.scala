@@ -55,7 +55,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
 
   val mockGroupList = GroupList(
     id = 1,
-    groupname = "我的好友",
+    groupName = "我的好友",
     avatar = "",
     createId = 1
   )

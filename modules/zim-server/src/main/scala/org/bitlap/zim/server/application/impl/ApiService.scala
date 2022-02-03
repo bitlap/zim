@@ -115,7 +115,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def createGroup(groupInput: GroupInput): stream.Stream[Throwable, Int] = {
     val ret = userApplication.createGroup(
-      GroupList(id = 0, createId = groupInput.createId, groupname = groupInput.groupname, avatar = groupInput.avatar)
+      GroupList(id = 0, createId = groupInput.createId, groupName = groupInput.groupname, avatar = groupInput.avatar)
     )
     ret.flatMap(f =>
       if (f > 0) {
@@ -129,7 +129,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     val usersZio = userApplication
       .findUserByGroupId(id)
       .runCollect
-      .map(f => FriendList(id = 0, groupname = null, list = f.toList))
+      .map(f => FriendList(id = 0, groupName = null, list = f.toList))
     ZStream.fromEffect(usersZio)
   }
 
@@ -194,8 +194,57 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       countIO <- userApplication.countUnHandMessage(uid, None).runHead
       count = countIO.getOrElse(0)
     } yield {
-      val pages = if (count < SystemConstant.ADD_MESSAGE_PAGE) 1 else count / SystemConstant.ADD_MESSAGE_PAGE + 1
+      val pages = calculatePages(count, SystemConstant.ADD_MESSAGE_PAGE)
       ResultPageSet(listRet.toList, pages)
+    }
+
+  override def findUsers(name: Option[String], sex: Option[Int], page: Int): IO[Throwable, ResultPageSet[User]] =
+    for {
+      list <- userApplication.findUsers(name, sex).runCollect
+      listRet = list.slice(
+        SystemConstant.USER_PAGE * (page - 1),
+        math.min(SystemConstant.USER_PAGE * page, list.size)
+      )
+      countIO <- userApplication.countUser(name, sex).runHead
+      count = countIO.getOrElse(0)
+    } yield {
+      val pages = calculatePages(count, SystemConstant.USER_PAGE)
+      ResultPageSet(listRet.toList, pages)
+    }
+
+  override def findGroups(name: Option[String], page: Int): IO[Throwable, ResultPageSet[GroupList]] =
+    for {
+      list <- userApplication.findGroups(name).runCollect
+      listRet = list.slice(
+        SystemConstant.USER_PAGE * (page - 1),
+        math.min(SystemConstant.USER_PAGE * page, list.size)
+      )
+      countIO <- userApplication.countGroup(name).runHead
+      count = countIO.getOrElse(0)
+    } yield {
+      val pages = calculatePages(count, SystemConstant.USER_PAGE)
+      ResultPageSet(listRet.toList, pages)
+    }
+
+  override def findMyGroups(createId: Int, page: Int): IO[Throwable, ResultPageSet[GroupList]] =
+    for {
+      list <- userApplication.findGroupsById(createId).runCollect
+      listFilter = list.filter(x => x.createId.equals(createId))
+      listRet = listFilter.slice(
+        SystemConstant.USER_PAGE * (page - 1),
+        math.min(SystemConstant.USER_PAGE * page, listFilter.size)
+      )
+      count = listRet.size
+    } yield {
+      val pages = calculatePages(count, SystemConstant.USER_PAGE)
+      ResultPageSet(listRet.toList, pages)
+    }
+
+  private def calculatePages(count: Int, PAGE: Int): Int =
+    if (count < PAGE) 1
+    else {
+      if (count % PAGE == 0) count / PAGE
+      else count / PAGE + 1
     }
 }
 

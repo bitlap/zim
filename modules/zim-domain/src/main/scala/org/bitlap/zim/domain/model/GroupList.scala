@@ -10,32 +10,36 @@ import scalikejdbc.{ WrappedResultSet, _ }
  *
  * @see table:t_group
  * @param id        群组id
- * @param groupname 群组名称
+ * @param groupName 群组名称
  * @param avatar    头像
  * @param createId  创建人ID
  */
 final case class GroupList(
   override val id: Int,
-  override val groupname: String,
+  override val groupName: String,
   avatar: String,
   createId: Int
-) extends Group(id, groupname)
+) extends Group(id, groupName)
 
-object GroupList extends SQLSyntaxSupport[GroupList] {
+object GroupList extends BaseModel[GroupList] {
 
-  // 数据库列名和字段名不同，使用DSL时需要指定列表，如：`g.column("group_name")` 而不是 `g.groupname`
-  override lazy val columns: collection.Seq[String] = Seq("id", "group_name", "avatar", "create_id")
+  // 能自动处理驼峰和非驼峰  不能处理 group_name => groupname
+  override lazy val columns: collection.Seq[String] = autoColumns[GroupList]()
 
   override def tableName: String = "t_group"
 
   implicit val decoder: Decoder[GroupList] = deriveDecoder[GroupList]
-  implicit val encoder: Encoder[GroupList] = deriveEncoder[GroupList]
+  implicit val encoder: Encoder[GroupList] = (a: GroupList) => {
+    if (a == null) Json.Null
+    else
+      Json.obj(
+        ("id", Json.fromInt(a.id)),
+        ("groupname", Json.fromString(a.groupName)),
+        ("avatar", Json.fromString(a.avatar)),
+        ("createId", Json.fromInt(a.createId))
+      )
+  }
 
-  def apply(rs: WrappedResultSet): GroupList = GroupList(
-    rs.int("id"),
-    rs.string("group_name"),
-    rs.string("avatar"),
-    rs.int("create_id")
-  )
+  override def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[GroupList]): GroupList = autoConstruct(rs, sp)
 
 }

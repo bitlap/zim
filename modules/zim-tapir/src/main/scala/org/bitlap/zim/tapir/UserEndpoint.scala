@@ -109,20 +109,21 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(streamBody(AkkaStreams)(Schema(Schema.derivedSchema[AddInfo].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val findUsersEndpoint: ZimSecurityOut[(Int, Option[Boolean], Option[Int])] =
+  lazy val findUsersEndpoint: ZimSecurityOut[(Int, Option[String], String)] =
     secureEndpoint.get
       .in(
         userResource / "findUsers" / query[Int]("page")
-          .default(1) / query[Option[Boolean]]("name") / query[Option[Int]]("sex")
+          .default(1) / query[Option[String]]("name")
+          .default(None) / query[String]("sex").default("")
       )
       .name("分页查找好友")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val findGroupsEndpoint: ZimSecurityOut[(Int, Option[Boolean])] =
+  lazy val findGroupsEndpoint: ZimSecurityOut[(Int, Option[String])] =
     secureEndpoint.get
-      .in(userResource / "findGroups" / query[Int]("page").default(1) / query[Option[Boolean]]("name"))
+      .in(userResource / "findGroups" / query[Int]("page").default(1) / query[Option[String]]("name").default(None))
       .name("分页查找群组")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[GroupList].schemaType), CodecFormat.Json()))

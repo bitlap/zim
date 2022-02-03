@@ -22,6 +22,7 @@ import zio._
 import zio.stream.ZStream
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 
 /**
  * 用户API
@@ -61,12 +62,37 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ chatLogIndexRoute
       ~ chatLogRoute
       ~ findAddInfoRoute
+      ~ findUsersRoute
+      ~ findGroupsRoute
+      ~ findMyGroupsRoute
   )
 
   lazy val userGetRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.userGetOneEndpoint.serverLogic { id =>
       val userStream = apiApplication.findById(id)
       buildMonoResponse[User]()(userStream)
+    })
+
+  lazy val findUsersRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.findUsersEndpoint.serverLogic { _ => input =>
+      val userIO = apiApplication.findUsers(
+        input._2,
+        if (input._3.isEmpty) None else Some(Try(input._3.toInt).getOrElse(0)),
+        input._1
+      )
+      buildPagesResponse(userIO)
+    })
+
+  lazy val findGroupsRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.findGroupsEndpoint.serverLogic { _ => input =>
+      val userIO = apiApplication.findGroups(input._2, input._1)
+      buildPagesResponse(userIO)
+    })
+
+  lazy val findMyGroupsRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.findMyGroupsEndpoint.serverLogic { _ => input =>
+      val userIO = apiApplication.findMyGroups(input._1, input._2)
+      buildPagesResponse(userIO)
     })
 
   lazy val findAddInfoRoute: Route =
