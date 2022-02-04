@@ -11,6 +11,7 @@ import java.net.URL
 import java.nio.charset.Charset
 import scala.io.Source
 import scala.util.Using
+import org.bitlap.zim.domain.ZimError
 
 /**
  * @author 梦境迷离
@@ -18,8 +19,6 @@ import scala.util.Using
  * @version 1.0
  */
 object FileUtil {
-
-  import org.bitlap.zim.domain.ZimError
 
   def readFile(file: URL): String = {
     val input = Source.fromFile(new File(file.getFile))
