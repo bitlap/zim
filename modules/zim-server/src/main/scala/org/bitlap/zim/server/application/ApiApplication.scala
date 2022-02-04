@@ -2,6 +2,7 @@ package org.bitlap.zim.server.application
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
 import org.bitlap.zim.domain.model._
+import org.bitlap.zim.tapir.MultipartInput
 import zio.{ stream, IO }
 
 /**
@@ -69,4 +70,39 @@ trait ApiApplication extends BaseApplication[User] {
   def findGroups(name: Option[String], page: Int): IO[Throwable, ResultPageSet[GroupList]]
 
   def findMyGroups(createId: Int, page: Int): IO[Throwable, ResultPageSet[GroupList]]
+
+  /**
+   * 聊天文件上传
+   *
+   * @param multipartInput
+   * @return
+   */
+  def uploadFile(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult]
+
+  /**
+   * 聊天图片上传
+   *
+   * @param multipartInput
+   * @return
+   */
+  def uploadImage(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult]
+
+  /**
+   * 用户资料的头像更新
+   *
+   * NOTE: 上传成功就已经更新了。
+   *
+   * @param multipartInput
+   * @return
+   */
+  def updateAvatar(multipartInput: MultipartInput, mid: Int): stream.Stream[Throwable, UploadResult]
+
+  /**
+   * 群组资料的头像上传
+   *
+   * @param multipartInput
+   * @return
+   */
+  def uploadGroupAvatar(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult]
+
 }

@@ -65,12 +65,40 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ findUsersRoute
       ~ findGroupsRoute
       ~ findMyGroupsRoute
+      ~ uploadFileRoute
+      ~ uploadImageRoute
+      ~ uploadGroupAvatarRoute
+      ~ updateAvatarRoute
   )
 
   lazy val userGetRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.userGetOneEndpoint.serverLogic { id =>
       val userStream = apiApplication.findById(id)
       buildMonoResponse[User]()(userStream)
+    })
+
+  lazy val uploadFileRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.uploadFileEndpoint.serverLogic { _ => file =>
+      val resultStream = apiApplication.uploadFile(file)
+      buildMonoResponse()(resultStream)
+    })
+
+  lazy val uploadImageRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.uploadImageEndpoint.serverLogic { _ => file =>
+      val resultStream = apiApplication.uploadImage(file)
+      buildMonoResponse()(resultStream)
+    })
+
+  lazy val uploadGroupAvatarRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.uploadGroupAvatarEndpoint.serverLogic { _ => file =>
+      val resultStream = apiApplication.uploadGroupAvatar(file)
+      buildMonoResponse()(resultStream)
+    })
+
+  lazy val updateAvatarRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.updateAvatarEndpoint.serverLogic { user => file =>
+      val resultStream = apiApplication.updateAvatar(file, user.id)
+      buildMonoResponse()(resultStream)
     })
 
   lazy val findUsersRoute: Route =

@@ -3,7 +3,7 @@ layui.use(['jquery', 'layer', 'form', 'upload'], function () {
     var layim = parent.parent.layim;
     layui.upload({
         url: '/user/upload/groupAvatar',
-        methos: 'post'
+        method: 'post'
         , title: '上传群头像'
         , ext: 'jpg|png|gif',
         before: function (input) {

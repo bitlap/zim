@@ -44,6 +44,11 @@ trait UserEndpoint extends ApiErrorMapping {
   ]
   type ZimOut[In] = PublicEndpoint[In, ZimError, Source[ByteString, Any], Any with AkkaStreams]
 
+  type ZimFileOut = PartialServerEndpoint[UserSecurity, UserSecurityInfo, MultipartInput, ZimError, Source[
+    ByteString,
+    Any
+  ], Any with AkkaStreams, Future]
+
   val secureEndpoint: PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, Unauthorized, Unit, Any, Future]
 
   //================================================用户API定义（这是用于测试的接口）===============================================================
@@ -177,38 +182,38 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[FriendList].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  // TODO 上传文件 file
-  lazy val uploadImageEndpoint: ZimSecurityOut[Unit] =
+  lazy val uploadImageEndpoint: ZimFileOut =
     secureEndpoint.post
       .in(userResource / "upload" / "image")
+      .in(multipartBody[MultipartInput])
       .name("客户端上传图片")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[UploadResult].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  // TODO 上传文件 file
-  lazy val uploadFileEndpoint: ZimSecurityOut[Unit] =
+  lazy val uploadFileEndpoint: ZimFileOut =
     secureEndpoint.post
       .in(userResource / "upload" / "file")
+      .in(multipartBody[MultipartInput])
       .name("客户端上传文件")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[UploadResult].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  // TODO 上传文件 file
-  lazy val uploadGroupAvatarEndpoint: ZimSecurityOut[Unit] =
+  lazy val uploadGroupAvatarEndpoint: ZimFileOut =
     secureEndpoint.post
       .in(userResource / "upload" / "groupAvatar")
+      .in(multipartBody[MultipartInput])
       .name("上传群组头像")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[UploadResult].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  // TODO 上传文件 avatar
-  lazy val updateAvatarEndpoint: ZimSecurityOut[Unit] =
+  lazy val updateAvatarEndpoint: ZimFileOut =
     secureEndpoint.post
       .in(userResource / "updateAvatar")
-      .name("用户更新头像")
+      .in(multipartBody[MultipartInput])
+      .name("更新用户头像")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[UploadResult].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)

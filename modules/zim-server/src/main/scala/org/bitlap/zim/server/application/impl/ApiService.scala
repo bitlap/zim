@@ -4,7 +4,8 @@ import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
-import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil }
+import org.bitlap.zim.server.util.{ FileUtil, LogUtil, SecurityUtil }
+import org.bitlap.zim.tapir.MultipartInput
 import zio.stream.ZStream
 import zio.{ stream, Has, IO }
 
@@ -246,6 +247,47 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       if (count % PAGE == 0) count / PAGE
       else count / PAGE + 1
     }
+
+  override def uploadFile(multipartInput: MultipartInput): stream.Stream[ZimError, UploadResult] = {
+    if (multipartInput.file.name.isEmpty) {
+      return ZStream.empty
+    }
+    // TODO 虚拟路径，目前为"/"，下同
+    val fileIO = FileUtil
+      .upload(SystemConstant.FILE_PATH, "/", multipartInput.file)
+      .map(src => UploadResult(src = src, name = multipartInput.getFileName))
+    ZStream.fromEffect(fileIO)
+  }
+
+  override def updateAvatar(multipartInput: MultipartInput, mid: Int): stream.Stream[Throwable, UploadResult] = {
+    if (multipartInput.file.name.isEmpty) {
+      return ZStream.empty
+    }
+    val fileIO = FileUtil.upload(SystemConstant.AVATAR_PATH, multipartInput.file).flatMap { src =>
+      userApplication.updateAvatar(mid, src).runHead.as(UploadResult(src = src, name = multipartInput.getFileName))
+    }
+    ZStream.fromEffect(fileIO)
+  }
+
+  override def uploadGroupAvatar(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] = {
+    if (multipartInput.file.name.isEmpty) {
+      return ZStream.empty
+    }
+    val fileIO = FileUtil
+      .upload(SystemConstant.GROUP_AVATAR_PATH, "/", multipartInput.file)
+      .map(src => UploadResult(src = src, name = multipartInput.getFileName))
+    ZStream.fromEffect(fileIO)
+  }
+
+  override def uploadImage(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] = {
+    if (multipartInput.file.name.isEmpty) {
+      return ZStream.empty
+    }
+    val fileIO = FileUtil
+      .upload(SystemConstant.IMAGE_PATH, "/", multipartInput.file)
+      .map(src => UploadResult(src = src, name = multipartInput.getFileName))
+    ZStream.fromEffect(fileIO)
+  }
 }
 
 object ApiService {
