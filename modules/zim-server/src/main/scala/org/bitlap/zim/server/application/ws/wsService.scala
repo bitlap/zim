@@ -177,7 +177,7 @@ object wsService extends ZimServiceConfiguration {
           override def addFriend(uId: Int, message: domain.Message): Task[Unit] =
             uId.synchronized {
               val mine = message.mine
-              val actorRef = actorRefSessions.get(message.to.id);
+              val actorRef = actorRefSessions.get(message.to.id)
               val add = decode[Add](message.msg).getOrElse(null);
               {
                 val addMessageCopy = AddMessage(

@@ -31,6 +31,7 @@ object SecurityUtil {
    */
   def matched(rawPassword: String, password: String): Task[Boolean] =
     (if (rawPassword == null && password == null) RIO.succeed(true)
+     else if (rawPassword == null || password == null) RIO.succeed(false)
      else Hash.verify[HashAlgorithm.SHA256](rawPassword, MessageDigest[String](password), charset = US_ASCII))
       .provideLayer(Hash.live)
 

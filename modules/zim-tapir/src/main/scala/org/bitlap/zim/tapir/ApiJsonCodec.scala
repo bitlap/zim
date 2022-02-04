@@ -46,6 +46,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
         case u: To                 => To.encoder(u)
         case u: ChatHistory        => ChatHistory.encoder(u)
         case u: AddInfo            => AddInfo.encoder(u)
+        case u: UploadResult       => UploadResult.encoder(u)
         case _                     => Json.Null
       }
     }

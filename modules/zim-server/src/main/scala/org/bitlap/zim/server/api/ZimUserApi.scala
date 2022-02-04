@@ -280,8 +280,11 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       },
       get {
         pathPrefix("static" / Remaining) { resource =>
-          getFromResource("static/" + resource)
-        }
+          getFromResource("static/" + resource) // 项目自带的文件 映射到类路径
+        } ~
+          pathPrefix("static" / Remaining) { resource =>
+            getFromFile("./static/" + resource) // 上传的文件 映射到本地目录
+          }
       }
     )
 

@@ -16,7 +16,7 @@ case class Mine(id: Int, username: String, mine: Boolean, avatar: String, conten
 object Mine {
 
   implicit val decoder: Decoder[Mine] = (c: HCursor) =>
-    if (!c.succeeded || !c.downField("id").succeeded || !c.downField("mine").succeeded) null
+    if (!c.succeeded) null
     else
       for {
         id <- c.getOrElse[Int]("id")(0)

@@ -16,8 +16,8 @@ import io.circe.generic.semiauto._
 case class UpdateUserInput(
   id: Int,
   username: String,
-  password: String,
-  oldpwd: String,
+  password: Option[String],
+  oldpwd: Option[String],
   sign: String,
   sex: String
 )

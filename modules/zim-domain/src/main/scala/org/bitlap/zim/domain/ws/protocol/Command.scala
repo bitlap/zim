@@ -1,7 +1,6 @@
 package org.bitlap.zim.domain.ws.protocol
-
 import akka.actor.ActorRef
-import io.circe.jawn
+import io.circe.parser.decode
 import org.bitlap.zim.domain.Message
 
 /**
@@ -21,7 +20,7 @@ case class TransmitMessageProxy(
   originActorRef: Option[ActorRef]
 ) extends Command[String] {
 
-  def getMessage: Message = jawn.decode[Message](msg).getOrElse(null)
+  def getMessage: Message = decode[Message](msg).getOrElse(null)
 
 }
 

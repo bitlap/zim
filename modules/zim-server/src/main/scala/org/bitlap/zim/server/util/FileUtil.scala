@@ -52,13 +52,13 @@ object FileUtil {
     val result = `type` + DateUtil.getDateString + "/"
     if (SystemConstant.IMAGE_PATH.equals(`type`) || SystemConstant.GROUP_AVATAR_PATH.equals(`type`)) {
       UuidUtil.getUuid32.map(_ + name.substring(name.indexOf("."))).map { nn =>
-        copyInputStreamToFile(new FileInputStream(file.body), new File(paths, nn))
+        copyInputStreamToFile(new FileInputStream(file.body), new File("." + paths, nn))
         result + nn
       }
     } else if (SystemConstant.FILE_PATH.equals(`type`)) {
       //如果是文件，则区分目录
       UuidUtil.getUuid32.map { pp =>
-        copyInputStreamToFile(new FileInputStream(file.body), new File(paths + pp, name))
+        copyInputStreamToFile(new FileInputStream(file.body), new File("." + paths + pp, name))
         result + pp + "/" + name
       }
     } else {
@@ -78,7 +78,7 @@ object FileUtil {
       prefix <- UuidUtil.getUuid32
       n = file.fileName.getOrElse(file.name)
       name = prefix + n.substring(n.indexOf("."))
-      _ = copyInputStreamToFile(new FileInputStream(file.body), new File(realpath, name))
+      _ = copyInputStreamToFile(new FileInputStream(file.body), new File("." + realpath, name))
     } yield SystemConstant.AVATAR_PATH + name
 
   def copyInputStreamToFile(inputStream: InputStream, file: File): Unit = {

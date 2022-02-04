@@ -241,7 +241,7 @@ trait UserEndpoint extends ApiErrorMapping {
       .in(userResource / "updateInfo")
       .in(
         jsonBody[UpdateUserInput]
-          .example(UpdateUserInput(1, "userName", "pwd", "oldpwd", "sign", "nan"))
+          .example(UpdateUserInput(1, "userName", Some("pwd"), Some("oldpwd"), "sign", "nan"))
           .description("user info")
       )
       .name("更新信息个人信息")

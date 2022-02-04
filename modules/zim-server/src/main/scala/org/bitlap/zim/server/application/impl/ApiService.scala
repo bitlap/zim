@@ -26,13 +26,13 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def updateInfo(user: UpdateUserInput): stream.Stream[Throwable, Boolean] = {
     def check(): Boolean =
-      user.password == null || user.password.trim.isEmpty || user.oldpwd == null || user.oldpwd.trim.isEmpty
+      user.password == null || user.password.isEmpty || user.oldpwd == null || user.oldpwd.isEmpty
 
     for {
       u <- userApplication.findUserById(user.id)
-      pwdCheck <- ZStream.fromEffect(SecurityUtil.matched(user.oldpwd, u.password))
-      newPwd <- ZStream.fromEffect(SecurityUtil.encrypt(user.password))
       sex = if (user.sex.equals("nan")) 1 else 0
+      pwdCheck <- ZStream.fromEffect(SecurityUtil.matched(user.oldpwd.getOrElse(""), u.password))
+      newPwd <- ZStream.fromEffect(SecurityUtil.encrypt(user.password.getOrElse("")))
       checkAndUpdate <-
         if (check()) {
           userApplication.updateUserInfo(u.copy(sex = sex, sign = user.sign, username = user.username))
@@ -274,7 +274,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       return ZStream.empty
     }
     val fileIO = FileUtil
-      .upload(SystemConstant.GROUP_AVATAR_PATH, "/", multipartInput.file)
+      .upload(SystemConstant.GROUP_AVATAR_PATH, multipartInput.file)
       .map(src => UploadResult(src = src, name = multipartInput.getFileName))
     ZStream.fromEffect(fileIO)
   }
