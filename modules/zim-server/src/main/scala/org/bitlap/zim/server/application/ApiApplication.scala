@@ -93,6 +93,7 @@ trait ApiApplication extends BaseApplication[User] {
    * NOTE: 上传成功就已经更新了。
    *
    * @param multipartInput
+   * @param mid
    * @return
    */
   def updateAvatar(multipartInput: MultipartInput, mid: Int): stream.Stream[Throwable, UploadResult]
