@@ -62,7 +62,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
 
   val mockReceive = model.Receive(
     toid = 1,
-    id = 2,
+    mid = 2,
     username = null,
     avatar = null,
     `type` = "friend",

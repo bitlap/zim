@@ -112,20 +112,17 @@ package object repository {
   private[repository] def queryFindGroupById(id: Long): SQL[GroupList, HasExtractor] =
     sql"SELECT ${g.result.*} FROM ${GroupList as g} WHERE id = ${id}".list().map(rs => GroupList(rs))
 
-  private[repository] def queryFindReceiveById(table: TableDefSQLSyntax, id: Long): SQL[Receive, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => Receive(rs))
+  private[repository] def queryFindReceiveById(id: Long): SQL[Receive, HasExtractor] =
+    sql"SELECT ${r.result.*} FROM ${Receive as r} WHERE id = ${id}".list().map(rs => Receive(rs))
 
-  private[repository] def queryFindFriendGroupById(table: TableDefSQLSyntax, id: Long): SQL[FriendGroup, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => FriendGroup(rs))
+  private[repository] def queryFindFriendGroupById(id: Long): SQL[FriendGroup, HasExtractor] =
+    sql"SELECT ${fg.result.*} FROM ${FriendGroup as fg} WHERE id = ${id}".list().map(rs => FriendGroup(rs))
 
-  private[repository] def queryFindGroupMemberById(table: TableDefSQLSyntax, id: Long): SQL[GroupMember, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => GroupMember(rs))
+  private[repository] def queryFindGroupMemberById(id: Long): SQL[GroupMember, HasExtractor] =
+    sql"SELECT ${gm.result.*} FROM ${GroupMember as gm} WHERE id = ${id}".list().map(rs => GroupMember(rs))
 
-  private[repository] def queryFindFriendGroupFriendById(
-    table: TableDefSQLSyntax,
-    id: Long
-  ): SQL[AddFriend, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => AddFriend(rs))
+  private[repository] def queryFindFriendGroupFriendById(id: Long): SQL[AddFriend, HasExtractor] =
+    sql"SELECT ${af.result.*} FROM ${AddFriend as af} WHERE id = ${id}".list().map(rs => AddFriend(rs))
 
   private[repository] def queryFindAddMessageById(id: Long): SQL[AddMessage, HasExtractor] =
     sql"SELECT ${am.result.*} FROM ${AddMessage as am} WHERE id = ${id}".list().map(rs => AddMessage(rs))
@@ -305,28 +302,25 @@ package object repository {
   /**
    * 保存用户聊天记录
    *
-   * @param table
    * @param receive
    * @return
    */
-  private[repository] def _saveMessage(table: TableDefSQLSyntax, receive: Receive): SQLUpdate =
-    sql"insert into $table(toid,mid,fromid,content,type,timestamp,status) values(${receive.toid},${receive.id},${receive.fromid},${receive.content},${receive.`type`},${receive.timestamp},${receive.status});"
+  private[repository] def _saveMessage(receive: Receive): SQLUpdate =
+    sql"insert into ${Receive.table}(toid,mid,fromid,content,type,timestamp,status) values(${receive.toid},${receive.mid},${receive.fromid},${receive.content},${receive.`type`},${receive.timestamp},${receive.status});"
       .update()
 
   /**
    * 查询消息
    *
-   * @param table
    * @param uid 消息所属用户
    * @param status  历史消息还是离线消息 0代表离线 1表示已读
    * @return
    */
   private[repository] def _findOffLineMessage(
-    table: TableDefSQLSyntax,
     uid: Int,
     status: Int
   ): StreamReadySQL[Receive] =
-    sql"select toid,mid,fromid,content,type,timestamp,status from $table where toid = ${uid} and status = ${status};"
+    sql"select ${r.result.*} from ${Receive as r} where toid = ${uid} and status = ${status};"
       .map(rs => Receive(rs))
       .list()
       .iterator()
@@ -378,7 +372,7 @@ package object repository {
     typ: Option[String]
   ): StreamReadySQL[Int] =
     withSQL {
-      select(count(r.id))
+      select(count(r.mid))
         .from(Receive as r)
         .where(
           sqls.toAndConditionOpt(
@@ -386,11 +380,11 @@ package object repository {
             sqls.toOrConditionOpt(
               sqls.toAndConditionOpt(
                 uid.map(uid => sqls.eq(r.toid, uid)),
-                mid.map(mid => sqls.eq(r.column("mid"), mid))
+                mid.map(mid => sqls.eq(r.mid, mid))
               ),
               sqls.toAndConditionOpt(
                 mid.map(mid => sqls.eq(r.toid, mid)),
-                uid.map(uid => sqls.eq(r.column("mid"), uid))
+                uid.map(uid => sqls.eq(r.mid, uid))
               )
             )
           )
@@ -400,14 +394,14 @@ package object repository {
   /**
    * 置为已读
    *
-   * @param table
    * @param mine
    * @param to
    * @param typ
    * @return
    */
-  private[repository] def _readMessage(table: TableDefSQLSyntax, mine: Int, to: Int, typ: String): SQLUpdate =
-    sql"update $table set status = 1 where status = 0 and mid = ${mine} and toid = ${to} and type = ${typ};".update()
+  private[repository] def _readMessage(mine: Int, to: Int, typ: String): SQLUpdate =
+    sql"update ${Receive.table} set status = 1 where status = 0 and mid = ${mine} and toid = ${to} and type = ${typ};"
+      .update()
 
   //==============================好友分组 SQL实现========================================
 
@@ -419,7 +413,7 @@ package object repository {
    * @return
    */
   private[repository] def _createFriendGroup(table: TableDefSQLSyntax, friendGroup: FriendGroup): SQLUpdate =
-    sql"insert into $table(group_name,uid) values(${friendGroup.groupname},${friendGroup.uid});"
+    sql"insert into $table(group_name,uid) values(${friendGroup.groupName},${friendGroup.uid});"
       .update()
 
   /**

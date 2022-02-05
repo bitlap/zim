@@ -27,7 +27,7 @@ package object ws {
     val mine = message.mine
     val to = message.to
     Receive(
-      id = mine.id,
+      mid = mine.id,
       username = mine.username,
       avatar = mine.avatar,
       `type` = to.`type`,
@@ -61,7 +61,7 @@ package object ws {
   private[ws] def groupMessageHandler(userService: UserApplication)(message: Message): IO[Throwable, Unit] = {
     val gid = message.to.id
     val receive = getReceive(message)
-    var receiveArchive: Receive = receive.copy(id = gid)
+    var receiveArchive: Receive = receive.copy(mid = gid)
     val sending = userService.findGroupById(gid).runHead.flatMap { group =>
       userService
         .findUserByGroupId(gid)

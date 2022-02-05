@@ -17,10 +17,10 @@ private final class TangibleReceiveRepository(databaseName: String) extends Rece
   private implicit lazy val dbName: String = databaseName
 
   override def saveMessage(receive: Receive): stream.Stream[Throwable, Int] =
-    _saveMessage(Receive.table, receive).toUpdateOperation
+    _saveMessage(receive).toUpdateOperation
 
   override def findOffLineMessage(uid: Int, status: Int): stream.Stream[Throwable, Receive] =
-    _findOffLineMessage(Receive.table, uid, status).toStreamOperation
+    _findOffLineMessage(uid, status).toStreamOperation
 
   override def findHistoryMessage(
     uid: Option[Int],
@@ -37,10 +37,10 @@ private final class TangibleReceiveRepository(databaseName: String) extends Rece
     _countHistoryMessage(uid, mid, typ).toStreamOperation
 
   override def readMessage(mine: Int, to: Int, typ: String): stream.Stream[Throwable, Int] =
-    _readMessage(Receive.table, mine, to, typ).toUpdateOperation
+    _readMessage(mine, to, typ).toUpdateOperation
 
   override def findById(id: Long): stream.Stream[Throwable, Receive] =
-    queryFindReceiveById(Receive.table, id).toSQLOperation
+    queryFindReceiveById(id).toSQLOperation
 }
 
 object TangibleReceiveRepository {

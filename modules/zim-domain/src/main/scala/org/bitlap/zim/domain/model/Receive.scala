@@ -8,7 +8,7 @@ import scalikejdbc.{ WrappedResultSet, _ }
  * 收到的消息
  * @see table:t_message
  * @param toid      发送给哪个用户
- * @param id        消息的来源ID（如果是私聊，则是用户id，如果是群聊，则是群组id）
+ * @param mid        消息的来源ID（如果是私聊，则是用户id，如果是群聊，则是群组id）
  * @param username  消息来源用户名
  * @param avatar    消息来源用户头像
  * @param `type`    聊天窗口来源类型，从发送消息传递的to里面获取
@@ -21,7 +21,7 @@ import scalikejdbc.{ WrappedResultSet, _ }
  */
 final case class Receive(
   toid: Int,
-  id: Int,
+  mid: Int,
   username: String,
   avatar: String,
   `type`: String,
@@ -42,19 +42,34 @@ object Receive extends SQLSyntaxSupport[Receive] {
   override val tableName = "t_message"
 
   implicit val decoder: Decoder[Receive] = deriveDecoder[Receive]
-  implicit val encoder: Encoder[Receive] = deriveEncoder[Receive]
+  implicit val encoder: Encoder[Receive] = (a: Receive) =>
+    if (a == null) Json.Null
+    else
+      Json.obj(
+        ("id", Json.fromInt(a.mid)),
+        ("toid", Json.fromInt(a.toid)),
+        ("username", Json.fromString(a.username)),
+        ("avatar", Json.fromString(a.avatar)),
+        ("content", Json.fromString(a.content)),
+        ("cid", Json.fromInt(a.cid)),
+        ("mine", Json.fromBoolean(a.mine)),
+        ("fromid", Json.fromInt(a.fromid)),
+        ("timestamp", Json.fromLong(a.timestamp)),
+        ("status", Json.fromInt(a.status))
+      )
 
-  def apply(rs: WrappedResultSet): Receive = Receive(
-    rs.int("toid"),
-    rs.int("mid"),
-    username = null,
-    avatar = null,
-    `type` = rs.string("type"),
-    content = rs.string("content"),
-    cid = 0,
-    mine = false,
-    fromid = rs.int("fromid"),
-    timestamp = rs.long("timestamp"),
-    status = rs.int("status")
-  )
+  def apply(rs: WrappedResultSet)(implicit r: QuerySQLSyntaxProvider[SQLSyntaxSupport[Receive], Receive]): Receive =
+    Receive(
+      rs.int(r.resultName.toid),
+      rs.int(r.resultName.mid),
+      username = null,
+      avatar = null,
+      `type` = rs.string(r.resultName.`type`),
+      content = rs.string(r.resultName.content),
+      cid = 0,
+      mine = false,
+      fromid = rs.int(r.resultName.fromid),
+      timestamp = rs.long(r.resultName.timestamp),
+      status = rs.int(r.resultName.status)
+    )
 }

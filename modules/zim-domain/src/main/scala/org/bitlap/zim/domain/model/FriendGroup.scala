@@ -1,7 +1,7 @@
 package org.bitlap.zim.domain.model
 
 import io.circe.generic.semiauto._
-import io.circe.{ Decoder, Encoder }
+import io.circe.{ Decoder, Encoder, Json }
 import scalikejdbc.{ WrappedResultSet, _ }
 
 /**
@@ -10,9 +10,9 @@ import scalikejdbc.{ WrappedResultSet, _ }
  * @see table:t_friend_group
  * @param id        分组ID
  * @param uid       用户id，该分组所属的用户ID
- * @param groupname 群组名称
+ * @param groupName 群组名称
  */
-final case class FriendGroup(id: Int, uid: Int, groupname: String)
+final case class FriendGroup(id: Int, uid: Int, groupName: String)
 
 object FriendGroup extends SQLSyntaxSupport[FriendGroup] {
 
@@ -21,7 +21,15 @@ object FriendGroup extends SQLSyntaxSupport[FriendGroup] {
   override def tableName: String = "t_friend_group"
 
   implicit val decoder: Decoder[FriendGroup] = deriveDecoder[FriendGroup]
-  implicit val encoder: Encoder[FriendGroup] = deriveEncoder[FriendGroup]
+  implicit val encoder: Encoder[FriendGroup] = (a: FriendGroup) => {
+    if (a == null) Json.Null
+    else
+      Json.obj(
+        ("id", Json.fromInt(a.id)),
+        ("uid", Json.fromInt(a.id)),
+        ("groupname", Json.fromString(a.groupName))
+      )
+  }
 
   def apply(rs: WrappedResultSet): FriendGroup = FriendGroup(
     rs.int("id"),

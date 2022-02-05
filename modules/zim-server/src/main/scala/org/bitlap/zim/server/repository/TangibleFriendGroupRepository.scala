@@ -23,7 +23,7 @@ private final class TangibleFriendGroupRepository(databaseName: String) extends 
     _findFriendGroupsById(FriendGroup.table, uid).toStreamOperation
 
   override def findById(id: Long): stream.Stream[Throwable, FriendGroup] =
-    queryFindFriendGroupById(FriendGroup.table, id).toSQLOperation
+    queryFindFriendGroupById(id).toSQLOperation
 }
 
 object TangibleFriendGroupRepository {

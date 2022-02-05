@@ -119,7 +119,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
 
   lazy val findMyGroupsRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.findMyGroupsEndpoint.serverLogic { _ => input =>
-      val userIO = apiApplication.findMyGroups( input._2, input._1)
+      val userIO = apiApplication.findMyGroups(input._2, input._1)
       buildPagesResponse(userIO)
     })
 
@@ -326,7 +326,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
                     "static/html/chatlog.html",
                     "${id}" -> id.toString,
                     "${type}" -> `type`,
-                    "${pages}" -> pages.toString
+                    "${pages}" -> pages.getOrElse(1).toString
                   )
                 )
               complete(HttpResponse(OK, entity = resp))

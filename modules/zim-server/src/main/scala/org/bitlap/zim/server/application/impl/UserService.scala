@@ -199,16 +199,16 @@ private final class UserService(
         toUser <- findUserById(mid)
         history <- receiveRepository.findHistoryMessage(Some(user.id), Some(mid), Some(`type`))
         newHistory =
-          if (history.id == mid) {
+          if (history.mid == mid) {
             domain.ChatHistory(
-              history.id,
+              history.mid,
               toUser.username,
               toUser.avatar,
               history.content,
               history.timestamp
             )
           } else {
-            domain.ChatHistory(history.id, user.username, user.avatar, history.content, history.timestamp)
+            domain.ChatHistory(history.mid, user.username, user.avatar, history.content, history.timestamp)
           }
         _ <- LogUtil.infoS(
           s"findHistoryMessage.userHistory user=>$user, mid=>${mid}, type=>${`type`}, toUser=>$toUser, newHistory=>$newHistory"
@@ -219,13 +219,13 @@ private final class UserService(
     def groupHistory(): stream.Stream[Throwable, ChatHistory] =
       //群聊天记录
       for {
-        u <- findUserById(mid)
         history <- receiveRepository.findHistoryMessage(None, Some(mid), Some(`type`))
+        u <- findUserById(history.fromid)
         newHistory =
           if (history.fromid.equals(user.id)) {
             domain.ChatHistory(user.id, user.username, user.avatar, history.content, history.timestamp)
           } else {
-            domain.ChatHistory(history.id, u.username, u.avatar, history.content, history.timestamp)
+            domain.ChatHistory(history.mid, u.username, u.avatar, history.content, history.timestamp)
           }
         _ <- LogUtil.infoS(
           s"findHistoryMessage.groupHistory user=>$user, mid=>$mid, type=>${`type`}, toUser=>$u, newHistory=>$newHistory"
@@ -276,7 +276,7 @@ private final class UserService(
 
   override def findFriendGroupsById(uid: Int): stream.Stream[Throwable, FriendList] = {
     val groupListStream = friendGroupRepository.findFriendGroupsById(uid).map { friendGroup =>
-      FriendList(id = friendGroup.id, groupName = friendGroup.groupname, Nil)
+      FriendList(id = friendGroup.id, groupName = friendGroup.groupName, Nil)
     }
     for {
       groupList <- groupListStream

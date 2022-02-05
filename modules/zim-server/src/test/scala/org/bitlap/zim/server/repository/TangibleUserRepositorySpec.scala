@@ -259,7 +259,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
         .provideLayer(env)
     )
 
-    actual.map(_.groupname) shouldBe Some("1-groupname")
+    actual.map(_.groupName) shouldBe Some("1-groupname")
   }
 
   it should "findFriendGroupsById by uid" in {
@@ -272,7 +272,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
         .provideLayer(env)
     )
 
-    actual.map(_.groupname) shouldBe Chunk("1-groupname", "2-groupname")
+    actual.map(_.groupName) shouldBe Chunk("1-groupname", "2-groupname")
   }
 }
 
