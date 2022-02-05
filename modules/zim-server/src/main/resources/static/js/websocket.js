@@ -41,7 +41,7 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
                 $.ajax({
                     url:"/user/getOffLineMessage",
                     dataType:"JSON",
-                    type:"POST",
+                    type:"GET",
                     success:function(data) {
                         if (data.data == null) {
                             return;
@@ -390,7 +390,7 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
                         , yes: function (index, layero) {
                             var groupElem = layero.find('#LAY_layimGroup');
                             var group_id = groupElem.val(); //群组id
-                            $.post('/user/changeGroup', {'groupId': group_id, 'userId': res.data.id},
+                            $.post('/user/changeGroup', JSON.stringify({'groupId': group_id, 'userId': res.data.id}),
                                 function (data) {
                                     if (0 == data.code) {
                                         layer.msg(data.msg, {time: 1500});
@@ -430,7 +430,7 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
                 closeBtn: 0,
                 icon: 3
             }, function () {
-                $.post('/user/removeFriend', {'friendId': friend_id}, function (res) {
+                $.post('/user/removeFriend', JSON.stringify({'friendId': friend_id}), function (res) {
                     if (0 == res.code) {
                         layer.msg('删除成功!', {icon: 1, time: 1500});
                         layim.removeList({
@@ -471,15 +471,17 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
                 closeBtn: 0,
                 icon: 3
             }, function () {
-                $.post('/user/leaveOutGroup', {
+                $.post('/user/leaveOutGroup', JSON.stringify({
                     groupId: groupId,
                     uid: layim.cache().mine.id
-                }, function (res) {
+                }), function (res) {
                     if (res.code == 0) {
                         layim.removeList({type: 'group', id: groupId});
                         if (res.data == layim.cache().mine.id) {
                             layer.alert("你已解散该群!", {icon: 0, time: 0, title: "删除信息"});
                         }
+                    } else {
+                        layer.alert(res.msg);
                     }
                     layer.close(index);
                 }, "json");

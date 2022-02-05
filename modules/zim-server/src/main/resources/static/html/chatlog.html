@@ -49,10 +49,9 @@
                 var curr = obj.curr;
                 //ajax 加载聊天记录
                 $.ajax({
-                    url: '/user/chatlog',
-                    dataType: "JSON",
+                    url: '/user/chatlog' + '?id=${id}&type=${type}&page=' + curr,
+                    dataType: "GET",
                     type: "POST",
-                    data: {"id":${id}, "type": '${type}', "page": curr},
                     success: function (data) {
                         if (data.data.length != 0) {
                             var html = laytpl(LAY_tpl.value).render({

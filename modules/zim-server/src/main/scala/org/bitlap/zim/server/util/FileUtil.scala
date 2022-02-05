@@ -79,7 +79,7 @@ object FileUtil {
       n = file.fileName.getOrElse(file.name)
       name = prefix + n.substring(n.indexOf("."))
       _ = copyInputStreamToFile(new FileInputStream(file.body), new File("." + realpath, name))
-    } yield SystemConstant.AVATAR_PATH + name
+    } yield realpath + name
 
   def copyInputStreamToFile(inputStream: InputStream, file: File): Unit = {
     if (file.exists) {

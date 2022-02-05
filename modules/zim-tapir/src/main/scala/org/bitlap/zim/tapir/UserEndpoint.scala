@@ -62,45 +62,46 @@ trait UserEndpoint extends ApiErrorMapping {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   //================================================用户API定义（正式接口）这些API目前不是标准的restful api===============================================================
-  lazy val leaveOutGroupEndpoint: ZimSecurityOut[(Int, Int)] =
+  lazy val leaveOutGroupEndpoint: ZimSecurityOut[LeaveOutGroupInput] =
     secureEndpoint.post
-      .in(userResource / "leaveOutGroup" / query[Int]("groupId") / query[Int]("uid"))
+      .in(userResource / "leaveOutGroup")
+      .in(jsonBody[LeaveOutGroupInput])
       .name("退出群")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(schemaType = SchemaType.SInteger()), CodecFormat.Json()))
       .errorOutVariants(errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val removeFriendEndpoint: ZimSecurityOut[Int] =
+  lazy val removeFriendEndpoint: ZimSecurityOut[RemoveFriendInput] =
     secureEndpoint.post
-      .in(userResource / "removeFriend" / query[Int]("friendId"))
+      .in(userResource / "removeFriend")
+      .in(jsonBody[RemoveFriendInput])
       .name("删除好友")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val changeGroupEndpoint: ZimSecurityOut[(Int, Int)] =
+  lazy val changeGroupEndpoint: ZimSecurityOut[ChangeGroupInput] =
     secureEndpoint.post
-      .in(userResource / "changeGroup" / query[Int]("groupId") / query[Int]("userId"))
+      .in(userResource / "changeGroup")
+      .in(jsonBody[ChangeGroupInput])
       .name("移动好友分组")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val refuseFriendEndpoint: ZimSecurityOut[(Int, Int)] =
+  lazy val refuseFriendEndpoint: ZimSecurityOut[RefuseFriendInput] =
     secureEndpoint.post
-      .in(userResource / "refuseFriend" / query[Int]("messageBoxId") / query[Int]("to"))
+      .in(userResource / "refuseFriend")
+      .in(jsonBody[RefuseFriendInput])
       .name("拒绝添加好友")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val agreeFriendEndpoint: ZimSecurityOut[(Int, Int, Int, Int)] =
+  lazy val agreeFriendEndpoint: ZimSecurityOut[AgreeFriendInput] =
     secureEndpoint.post
-      .in(
-        userResource / "agreeFriend" / query[Int]("uid") / query[Int]("from_group") / query[Int]("group") / query[Int](
-          "messageBoxId"
-        )
-      )
+      .in(userResource / "agreeFriend")
+      .in(jsonBody[AgreeFriendInput])
       .name("同意添加好友")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
@@ -143,7 +144,7 @@ trait UserEndpoint extends ApiErrorMapping {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   lazy val chatLogEndpoint: ZimSecurityOut[(Int, String, Int)] =
-    secureEndpoint.post
+    secureEndpoint.get
       .in(userResource / "chatLog" / query[Int]("id") / query[String]("type") / query[Int]("page").default(1))
       .name("获取聊天记录")
       .description(userResourceDescription)
@@ -151,16 +152,17 @@ trait UserEndpoint extends ApiErrorMapping {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   lazy val getOffLineMessageEndpoint: ZimSecurityOut[Unit] =
-    secureEndpoint.post
+    secureEndpoint.get
       .in(userResource / "getOffLineMessage")
       .name("获取离线消息")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[domain.ChatHistory].schemaType), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val updateSignEndpoint: ZimSecurityOut[String] =
+  lazy val updateSignEndpoint: ZimSecurityOut[UpdateSignInput] =
     secureEndpoint.post
-      .in(userResource / "updateSign" / query[String]("sign"))
+      .in(userResource / "updateSign")
+      .in(jsonBody[UpdateSignInput])
       .name("更新签名")
       .description(userResourceDescription)
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
@@ -249,15 +251,6 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  // TODO 跳转主页
-  lazy val indexEndpoint: ZimSecurityOut[Unit] =
-    secureEndpoint.get
-      .in(userResource / "index")
-      .name("跳转主页")
-      .description(userResourceDescription)
-      .out(streamBody(AkkaStreams)(Schema(SchemaType.SString()), CodecFormat.Json()))
-      .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
-
   lazy val findUserEndpoint: ZimSecurityOut[Int] =
     secureEndpoint.get
       .in(userResource / "findUser" / query[Int]("id").example(1).description("user id"))
@@ -308,7 +301,4 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(streamBody(AkkaStreams)(Schema(Schema.derived[User].schemaType), CodecFormat.Json()))
       .errorOut(errorOut)
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
-
-  // 由于schema是严格的，domain 的case class可能必须改成Option
-
 }

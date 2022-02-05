@@ -93,12 +93,12 @@ layui.use(['layim', 'flow'], function(){
                 ,group: parent.layui.layim.cache().friend //获取好友分组数据
                 ,submit: function(group, index){
                     //实际部署时，请开启下述注释，并改成你的接口地址
-                    $.post('/user/agreeFriend', {
+                    $.post('/user/agreeFriend', JSON.stringify({
                         uid: uid //对方用户ID
                         ,from_group: from_group //对方设定的好友分组
                         ,group: group //我设定的好友分组
                         ,messageBoxId: messageBoxId
-                    }, function(res){
+                    }), function(res){
                         if(res.code !== 0){
                             return layer.msg(res.msg);
                         }
@@ -133,10 +133,10 @@ layui.use(['layim', 'flow'], function(){
                 ,messageBoxId = li.data('messageboxid')
                 , uid = li.data('uid')
             layer.confirm('确定拒绝吗？', function(index){
-                $.post('/user/refuseFriend', {
+                $.post('/user/refuseFriend', JSON.stringify({
                     messageBoxId: messageBoxId,
                     to: uid
-                }, function(res){
+                }), function(res){
                     if(res.code !== 0){
                         return layer.msg(res.msg);
                     }
