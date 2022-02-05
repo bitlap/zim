@@ -326,7 +326,7 @@ package object repository {
     uid: Int,
     status: Int
   ): StreamReadySQL[Receive] =
-    sql"select toid,mid as id,fromid,content,type,timestamp,status from $table where toid = ${uid} and status = ${status};"
+    sql"select toid,mid,fromid,content,type,timestamp,status from $table where toid = ${uid} and status = ${status};"
       .map(rs => Receive(rs))
       .list()
       .iterator()

@@ -130,7 +130,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     val usersZio = userApplication
       .findUserByGroupId(id)
       .runCollect
-      .map(f => FriendList(id = 0, groupName = null, list = f.toList))
+      .map(f => FriendList(id = 0, groupName = "", list = f.toList))
     ZStream.fromEffect(usersZio)
   }
 
