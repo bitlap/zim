@@ -1,8 +1,9 @@
 package org.bitlap.zim.server.application
+import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
-import org.bitlap.zim.domain.model.{ Receive, User }
-import org.bitlap.zim.domain.{ FriendAndGroupInfo, FriendList }
-import zio.stream
+import org.bitlap.zim.domain.model._
+import org.bitlap.zim.tapir.MultipartInput
+import zio.{ stream, IO }
 
 /**
  *  直接提供给endpoint使用
@@ -47,5 +48,62 @@ trait ApiApplication extends BaseApplication[User] {
   def refuseFriend(messageBoxId: Int, to: Int, username: String): stream.Stream[Throwable, Boolean]
 
   def agreeFriend(uid: Int, fromGroup: Int, group: Int, messageBoxId: Int, mid: Int): stream.Stream[Throwable, Boolean]
+
+  def chatLogIndex(id: Int, `type`: String, mid: Int): stream.Stream[Throwable, Int]
+
+  /**
+   * 分页接口 内存分页
+   *
+   * TODO 没有使用数据的offset
+   * @param id
+   * @param `type`
+   * @param page
+   * @param mid
+   * @return
+   */
+  def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, List[ChatHistory]]
+
+  def findAddInfo(uid: Int, page: Int): IO[Throwable, ResultPageSet[AddInfo]]
+
+  def findUsers(name: Option[String], sex: Option[Int], page: Int): IO[Throwable, ResultPageSet[User]]
+
+  def findGroups(name: Option[String], page: Int): IO[Throwable, ResultPageSet[GroupList]]
+
+  def findMyGroups(createId: Int, page: Int): IO[Throwable, ResultPageSet[GroupList]]
+
+  /**
+   * 聊天文件上传
+   *
+   * @param multipartInput
+   * @return
+   */
+  def uploadFile(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult]
+
+  /**
+   * 聊天图片上传
+   *
+   * @param multipartInput
+   * @return
+   */
+  def uploadImage(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult]
+
+  /**
+   * 用户资料的头像更新
+   *
+   * NOTE: 上传成功就已经更新了。
+   *
+   * @param multipartInput
+   * @param mid
+   * @return
+   */
+  def updateAvatar(multipartInput: MultipartInput, mid: Int): stream.Stream[Throwable, UploadResult]
+
+  /**
+   * 群组资料的头像上传
+   *
+   * @param multipartInput
+   * @return
+   */
+  def uploadGroupAvatar(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult]
 
 }

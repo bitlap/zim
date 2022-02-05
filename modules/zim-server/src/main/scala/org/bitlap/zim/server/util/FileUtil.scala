@@ -1,10 +1,17 @@
 package org.bitlap.zim.server.util
 import akka.actor.ActorSystem
+import org.bitlap.zim.domain.SystemConstant
+import org.bitlap.zim.domain.ZimError.BusinessException
+import sttp.model.Part
+import sttp.tapir.TapirFile
+import zio.{ IO, ZIO }
 
-import java.io.File
+import java.io.{ File, FileInputStream, FileOutputStream, IOException, InputStream }
 import java.net.URL
 import java.nio.charset.Charset
 import scala.io.Source
+import scala.util.Using
+import org.bitlap.zim.domain.ZimError
 
 /**
  * @author 梦境迷离
@@ -23,6 +30,71 @@ object FileUtil {
   def getFileAndInjectData(file: String, source: String, target: String): String = {
     val f = classOf[ActorSystem].getClassLoader.getResource(file)
     FileUtil.readFile(f).replace(source, target)
+  }
+
+  def getFileAndInjectData(file: String, sourceTargets: (String, String)*): String = {
+    val f = classOf[ActorSystem].getClassLoader.getResource(file)
+    val fileContent = FileUtil.readFile(f)
+    sourceTargets.foldLeft(fileContent)((e, op) => e.replace(op._1, op._2))
+  }
+
+  /**
+   * 文件保存服务器
+   *
+   * @param `type` 文件类型/upload/image 或  /upload/file
+   * @param path   文件绝对路径地址
+   * @param file   二进制文件
+   * @return 文件的相对路径地址
+   */
+  def upload(`type`: String, path: String, file: Part[TapirFile]): ZIO[Any, ZimError, String] = {
+    val name = file.fileName.getOrElse(file.name)
+    val paths = path + `type` + DateUtil.getDateString + "/"
+    val result = `type` + DateUtil.getDateString + "/"
+    if (SystemConstant.IMAGE_PATH.equals(`type`) || SystemConstant.GROUP_AVATAR_PATH.equals(`type`)) {
+      UuidUtil.getUuid32.map(_ + name.substring(name.indexOf("."))).map { nn =>
+        copyInputStreamToFile(new FileInputStream(file.body), new File("." + paths, nn))
+        result + nn
+      }
+    } else if (SystemConstant.FILE_PATH.equals(`type`)) {
+      //如果是文件，则区分目录
+      UuidUtil.getUuid32.map { pp =>
+        copyInputStreamToFile(new FileInputStream(file.body), new File("." + paths + pp, name))
+        result + pp + "/" + name
+      }
+    } else {
+      ZIO.fail(new BusinessException(msg = "文件上传失败"))
+    }
+  }
+
+  /**
+   * 用户更新头像
+   *
+   * @param realpath 服务器绝对路径地址
+   * @param file     文件
+   * @return 相对路径
+   */
+  def upload(realpath: String, file: Part[TapirFile]): IO[Throwable, String] =
+    for {
+      prefix <- UuidUtil.getUuid32
+      n = file.fileName.getOrElse(file.name)
+      name = prefix + n.substring(n.indexOf("."))
+      _ = copyInputStreamToFile(new FileInputStream(file.body), new File("." + realpath, name))
+    } yield realpath + name
+
+  def copyInputStreamToFile(inputStream: InputStream, file: File): Unit = {
+    if (file.exists) {
+      if (file.isDirectory) throw new IOException(s"File $file exists but is a directory")
+      if (!file.canWrite) throw new IOException(s"File $file cannot be written to")
+    } else {
+      val parent = file.getParentFile
+      if (parent != null) if (!parent.mkdirs && !parent.isDirectory) {
+        throw new IOException(s"Directory $parent could not be created")
+      }
+    }
+    Using.resources(inputStream, new FileOutputStream(file)) { (in, out) =>
+      val data = Iterator.continually(in.read()).takeWhile(_ != -1).map(_.toByte).toArray
+      out.write(data)
+    }
   }
 
 }

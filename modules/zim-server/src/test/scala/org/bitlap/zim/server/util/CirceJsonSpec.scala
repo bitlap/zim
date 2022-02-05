@@ -1,6 +1,6 @@
 package org.bitlap.zim.server.util
 
-import io.circe.jawn
+import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
 import org.bitlap.zim.domain.model.{ GroupList, User }
@@ -18,7 +18,7 @@ class CirceJsonSpec extends AnyFlatSpec with Matchers with ApiJsonCodec {
 
   "Message fromJson" should "ok" in {
     val msg = """{"type":"changOnline","mine":"null","to":"null","msg":"online"}"""
-    val msgObj = jawn.decode[Message](msg).getOrElse(null)
+    val msgObj = decode[Message](msg).getOrElse(null)
     msgObj.`type` shouldBe "changOnline"
 
     val objStr = msgObj.asJson.noSpaces
@@ -31,7 +31,7 @@ class CirceJsonSpec extends AnyFlatSpec with Matchers with ApiJsonCodec {
   "Mine fromJson" should "ok" in {
     val msg =
       """{"id": 1,"username": null,"mine": false,"avatar": "aaa","content": ""}""".stripMargin
-    val msgObj = jawn.decode[Mine](msg).getOrElse(null)
+    val msgObj = decode[Mine](msg).getOrElse(null)
     msgObj.id shouldBe 1
 
     // String default is `""`
@@ -54,15 +54,68 @@ class CirceJsonSpec extends AnyFlatSpec with Matchers with ApiJsonCodec {
     val userSecurity = UserSecurityInfo(
       0,
       "12@qqcom.c",
-      "123"
+      "123",
+      "u"
     )
     val json = userSecurity.asJson(UserSecurityInfo.encoder).noSpaces
     println(json)
 
-    val obj = jawn.decode[UserSecurityInfo](json).getOrElse(null)
+    val obj = decode[UserSecurityInfo](json).getOrElse(null)
     println(obj)
 
     json != null shouldBe true
   }
 
+  "Message detail" should "ok" in {
+    val json =
+      """
+        |{
+        |    "type": "addFriend",
+        |    "mine": {
+        |        "id": 107,
+        |        "username": "梦境迷离",
+        |        "password": "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=",
+        |        "sign": "梦境迷离啊",
+        |        "avatar": "/static/image/avatar/5fa385431b7f492987e97d94b6d1b34a.JPG",
+        |        "email": "15605832957@sina.com",
+        |        "createDate": "2002-10-20 00:00:00",
+        |        "sex": 1,
+        |        "status": "online",
+        |        "active": "123"
+        |    },
+        |    "to": {
+        |        "id": "107"
+        |    },
+        |    "msg": "{\"groupId\":\"14\",\"remark\":\"\",\"type\":\"0\"}"
+        |}
+        |""".stripMargin
+    val obj = decode[Message](json).getOrElse(null)
+    println(s"obj1=$obj")
+    assert(obj != null)
+
+    val json2 =
+      """{"type":"addFriend","mine":{"id":107,"username":"梦境迷离","password":"jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=","sign":"梦境迷离啊","avatar":"/static/image/avatar/5fa385431b7f492987e97d94b6d1b34a.JPG","email":"15605832957@sina.com","createDate":"2002-10-20 00:00:00","sex":1,"status":"online","active":"123"},"to":{"id":"107"},"msg":"{\"groupId\":\"14\",\"remark\":\"\",\"type\":\"0\"}"}"""
+    val obj2 = decode[Message](json2).getOrElse(null)
+    println(s"obj2=$obj2")
+    assert(obj2.mine != null)
+
+    val mineJson =
+      """
+        |{
+        |    "id": 107,
+        |    "username": "梦境迷离",
+        |    "password": "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=",
+        |    "sign": "梦境迷离啊",
+        |    "avatar": "/static/image/avatar/5fa385431b7f492987e97d94b6d1b34a.JPG",
+        |    "email": "15605832957@sina.com",
+        |    "createDate": "2002-10-20 00:00:00",
+        |    "sex": 1,
+        |    "status": "online",
+        |    "active": "123"
+        |}
+        |""".stripMargin
+    val mineObj = decode[Mine](mineJson)
+    println(s"mineObj=$mineObj")
+    assert(mineObj != null)
+  }
 }

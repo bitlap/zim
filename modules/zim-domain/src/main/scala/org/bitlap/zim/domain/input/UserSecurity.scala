@@ -35,7 +35,7 @@ object UserSecurity {
           id <- c.getOrElse("id")(0)
           email <- c.downField("email").as[String]
           password <- c.downField("password").as[String]
-          username <- c.downField("username").as[String]
+          username <- c.getOrElse("username")("")
         } yield UserSecurityInfo(id, email, password, username)
     }
 

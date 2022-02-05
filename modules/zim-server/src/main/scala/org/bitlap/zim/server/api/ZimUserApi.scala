@@ -22,6 +22,7 @@ import zio._
 import zio.stream.ZStream
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 
 /**
  * 用户API
@@ -58,6 +59,16 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       ~ changeGroupRoute
       ~ refuseFriendRoute
       ~ agreeFriendRoute
+      ~ chatLogIndexRoute
+      ~ chatLogRoute
+      ~ findAddInfoRoute
+      ~ findUsersRoute
+      ~ findGroupsRoute
+      ~ findMyGroupsRoute
+      ~ uploadFileRoute
+      ~ uploadImageRoute
+      ~ uploadGroupAvatarRoute
+      ~ updateAvatarRoute
   )
 
   lazy val userGetRoute: Route =
@@ -66,39 +77,97 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       buildMonoResponse[User]()(userStream)
     })
 
+  lazy val uploadFileRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.uploadFileEndpoint.serverLogic { _ => file =>
+      val resultStream = apiApplication.uploadFile(file)
+      buildMonoResponse()(resultStream)
+    })
+
+  lazy val uploadImageRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.uploadImageEndpoint.serverLogic { _ => file =>
+      val resultStream = apiApplication.uploadImage(file)
+      buildMonoResponse()(resultStream)
+    })
+
+  lazy val uploadGroupAvatarRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.uploadGroupAvatarEndpoint.serverLogic { _ => file =>
+      val resultStream = apiApplication.uploadGroupAvatar(file)
+      buildMonoResponse()(resultStream)
+    })
+
+  lazy val updateAvatarRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.updateAvatarEndpoint.serverLogic { user => file =>
+      val resultStream = apiApplication.updateAvatar(file, user.id)
+      buildMonoResponse()(resultStream)
+    })
+
+  lazy val findUsersRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.findUsersEndpoint.serverLogic { _ => input =>
+      val userIO = apiApplication.findUsers(
+        input._2,
+        if (input._3.isEmpty) None else Some(Try(input._3.toInt).getOrElse(0)),
+        input._1
+      )
+      buildPagesResponse(userIO)
+    })
+
+  lazy val findGroupsRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.findGroupsEndpoint.serverLogic { _ => input =>
+      val userIO = apiApplication.findGroups(input._2, input._1)
+      buildPagesResponse(userIO)
+    })
+
+  lazy val findMyGroupsRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.findMyGroupsEndpoint.serverLogic { _ => input =>
+      val userIO = apiApplication.findMyGroups( input._2, input._1)
+      buildPagesResponse(userIO)
+    })
+
+  lazy val findAddInfoRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.findAddInfoEndpoint.serverLogic { _ => input =>
+      val userIO = apiApplication.findAddInfo(input._1, input._2)
+      buildPagesResponse(userIO)
+    })
+
+  lazy val chatLogRoute: Route =
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.chatLogEndpoint.serverLogic { user => input =>
+      val userIO = apiApplication.chatLog(input._1, input._2, input._3, user.id)
+      buildFlowResponse(ZStream.fromIterable(unsafeRun(userIO)))
+    })
+
   lazy val agreeFriendRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.agreeFriendEndpoint.serverLogic { user => input =>
-      val userStream = apiApplication.agreeFriend(input._1, input._2, input._3, input._4, user.id)
+      val userStream = apiApplication.agreeFriend(input.uid, input.from_group, input.group, input.messageBoxId, user.id)
       buildBooleanMonoResponse()(userStream)
     })
 
   lazy val refuseFriendRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.refuseFriendEndpoint.serverLogic { user => input =>
-      val userStream = apiApplication.refuseFriend(input._1, input._2, user.username)
+      val userStream = apiApplication.refuseFriend(input.messageBoxId, input.to, user.username)
       buildBooleanMonoResponse()(userStream)
     })
 
   lazy val changeGroupRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.changeGroupEndpoint.serverLogic { user => input =>
-      val userStream = apiApplication.changeGroup(input._1, input._2, user.id)
+      val userStream = apiApplication.changeGroup(input.groupId, input.userId, user.id)
       buildBooleanMonoResponse()(userStream)
     })
 
   lazy val removeFriendRoute: Route =
-    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.removeFriendEndpoint.serverLogic { user => friendId =>
-      val userStream = apiApplication.removeFriend(friendId, user.id)
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.removeFriendEndpoint.serverLogic { user => input =>
+      val userStream = apiApplication.removeFriend(input.friendId, user.id)
       buildBooleanMonoResponse()(userStream)
     })
 
   lazy val leaveOutGroupRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.leaveOutGroupEndpoint.serverLogic { _ => input =>
-      val userStream = apiApplication.leaveOutGroup(input._1, input._2)
+      val userStream = apiApplication.leaveOutGroup(input.groupId, input.uid)
       buildIntMonoResponse()(userStream)
     })
 
   lazy val updateSignRoute: Route =
-    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.updateSignEndpoint.serverLogic { user => sign =>
-      val userStream = apiApplication.updateSign(sign, user.id)
+    AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.updateSignEndpoint.serverLogic { user => input =>
+      val userStream = apiApplication.updateSign(input.sign, user.id)
       buildBooleanMonoResponse()(userStream)
     })
 
@@ -211,11 +280,15 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       },
       get {
         pathPrefix("static" / Remaining) { resource =>
-          getFromResource("static/" + resource)
-        }
+          getFromResource("static/" + resource) // 项目自带的文件 映射到类路径
+        } ~
+          pathPrefix("static" / Remaining) { resource =>
+            getFromFile("./static/" + resource) // 上传的文件 映射到本地目录
+          }
       }
     )
 
+  // TODO 暂时先这样搞
   lazy val indexRoute: Route = get {
     pathPrefix(USER / "index") {
       cookie(Authorization) { user =>
@@ -232,6 +305,33 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
             complete(httpResp)
           case _ => getFromResource("static/html/403.html")
 
+        }
+      }
+    }
+  }
+
+  // TODO 暂时先这样搞
+  lazy val chatLogIndexRoute: Route = get {
+    pathPrefix(USER / "chatLogIndex") {
+      parameters("id".as[Int], "type") { (id, `type`) =>
+        cookie(Authorization) { user =>
+          val checkFuture = authenticate(UserSecurity(user.value))(authorityCacheFunction).map(_.getOrElse(null))
+          onComplete(checkFuture) {
+            case util.Success(u) if u != null =>
+              val pages = unsafeRun(apiApplication.chatLogIndex(id, `type`, u.id).runHead)
+              val resp =
+                HttpEntity(
+                  ContentTypes.`text/html(UTF-8)`,
+                  FileUtil.getFileAndInjectData(
+                    "static/html/chatlog.html",
+                    "${id}" -> id.toString,
+                    "${type}" -> `type`,
+                    "${pages}" -> pages.toString
+                  )
+                )
+              complete(HttpResponse(OK, entity = resp))
+            case _ => getFromResource("static/html/403.html")
+          }
         }
       }
     }

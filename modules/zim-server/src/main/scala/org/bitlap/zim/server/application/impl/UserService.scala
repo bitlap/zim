@@ -29,12 +29,12 @@ import java.time.ZonedDateTime
  */
 private final class UserService(
   userRepository: UserRepository,
-  groupRepository: GroupRepository[GroupList],
+  groupRepository: GroupRepository,
   receiveRepository: ReceiveRepository[Receive],
   friendGroupRepository: FriendGroupRepository[FriendGroup],
   friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend],
   groupMemberRepository: GroupMemberRepository[GroupMember],
-  addMessageRepository: AddMessageRepository[model.AddMessage]
+  addMessageRepository: AddMessageRepository
 ) extends UserApplication {
 
   override def findById(id: Long): stream.Stream[Throwable, User] =
@@ -59,7 +59,7 @@ private final class UserService(
           groupMemberRepository.findGroupMembers(gid).flatMap { uid =>
             // group owner leave
             groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)) *>
-              ZStream.fromEffect(wsService.deleteGroup(master, group.groupname, gid, uid))
+              ZStream.fromEffect(wsService.deleteGroup(master, group.groupName, gid, uid))
           }
         } else ZStream.succeed(1)
     } yield ret
@@ -123,7 +123,7 @@ private final class UserService(
   override def createGroup(groupList: GroupList): stream.Stream[Throwable, Int] =
     groupRepository.createGroupList(groupList).map(_.toInt)
 
-  override def countUnHandMessage(uid: Int, agree: Int): stream.Stream[Throwable, Int] =
+  override def countUnHandMessage(uid: Int, agree: Option[Int]): stream.Stream[Throwable, Int] =
     addMessageRepository.countUnHandMessage(uid, agree)
 
   override def findAddInfo(uid: Int): stream.Stream[Throwable, AddInfo] =
@@ -138,7 +138,7 @@ private final class UserService(
         addMessage.groupId,
         addMessage.`type`,
         addMessage.remark,
-        null,
+        "",
         addMessage.agree,
         addMessage.time,
         user
@@ -149,7 +149,7 @@ private final class UserService(
           ZStream.succeed(addInfo.copy(content = "申请添加你为好友"))
         } else {
           groupRepository.findGroupById(addMessage.groupId).map { group =>
-            addInfo.copy(content = s"申请加入 '${group.groupname}' 群聊中!")
+            addInfo.copy(content = s"申请加入 '${group.groupName}' 群聊中!")
           }
         }
     } yield addInfoCopy
@@ -172,10 +172,10 @@ private final class UserService(
   override def countGroup(groupName: Option[String]): stream.Stream[Throwable, Int] =
     groupRepository.countGroup(groupName)
 
-  override def findGroup(groupName: Option[String]): stream.Stream[Throwable, GroupList] =
-    groupRepository.findGroup(groupName)
+  override def findGroups(groupName: Option[String]): stream.Stream[Throwable, GroupList] =
+    groupRepository.findGroups(groupName)
 
-  override def countUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
+  override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
     userRepository.countUser(username, sex)
 
   override def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, User] =
@@ -276,7 +276,7 @@ private final class UserService(
 
   override def findFriendGroupsById(uid: Int): stream.Stream[Throwable, FriendList] = {
     val groupListStream = friendGroupRepository.findFriendGroupsById(uid).map { friendGroup =>
-      FriendList(id = friendGroup.id, groupname = friendGroup.groupname, Nil)
+      FriendList(id = friendGroup.id, groupName = friendGroup.groupname, Nil)
     }
     for {
       groupList <- groupListStream
@@ -332,12 +332,12 @@ object UserService {
 
   def apply(
     userRepository: UserRepository,
-    groupRepository: GroupRepository[GroupList],
+    groupRepository: GroupRepository,
     receiveRepository: ReceiveRepository[Receive],
     friendGroupRepository: FriendGroupRepository[FriendGroup],
     friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend],
     groupMemberRepository: GroupMemberRepository[GroupMember],
-    addMessageRepository: AddMessageRepository[model.AddMessage]
+    addMessageRepository: AddMessageRepository
   ): UserApplication =
     new UserService(
       userRepository,
@@ -355,11 +355,11 @@ object UserService {
     ZUserRepository with ZGroupRepository with ZReceiveRepository with ZFriendGroupRepository with ZFriendGroupFriendRepository with ZFriendGroupFriendRepository with ZGroupMemberRepository with ZAddMessageRepository,
     ZUserApplication
   ] =
-    ZLayer.fromServices[UserRepository, GroupRepository[GroupList], ReceiveRepository[
+    ZLayer.fromServices[UserRepository, GroupRepository, ReceiveRepository[
       Receive
     ], FriendGroupRepository[FriendGroup], FriendGroupFriendRepository[AddFriend], GroupMemberRepository[
       GroupMember
-    ], AddMessageRepository[model.AddMessage], UserApplication] { (a, b, c, d, e, f, g) =>
+    ], AddMessageRepository, UserApplication] { (a, b, c, d, e, f, g) =>
       UserService(a, b, c, d, e, f, g)
     }
 

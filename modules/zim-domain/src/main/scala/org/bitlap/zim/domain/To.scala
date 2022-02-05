@@ -23,7 +23,7 @@ case class To(
 object To {
 
   implicit val decoder: Decoder[To] = (c: HCursor) =>
-    if (!c.succeeded || !c.downField("id").succeeded) null
+    if (!c.succeeded) null
     else
       for {
         id <- c.getOrElse[Int]("id")(0)

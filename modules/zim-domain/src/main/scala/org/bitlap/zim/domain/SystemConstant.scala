@@ -31,9 +31,9 @@ object SystemConstant {
 
   final val UPLOAD_FAIL: String = "上传失败"
 
-  final val IMAGE_PATH: String = "/upload/image/"
+  final val IMAGE_PATH: String = "/static/upload/image/"
 
-  final val FILE_PATH: String = "/upload/file/"
+  final val FILE_PATH: String = "/static/upload/file/"
 
   final val AVATAR_PATH: String = "/static/image/avatar/"
 

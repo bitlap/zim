@@ -1,6 +1,5 @@
 package org.bitlap.zim.domain.repository
 
-import scalikejdbc.interpolation.SQLSyntax
 import zio.stream
 
 /**

@@ -1,8 +1,8 @@
 package org.bitlap.zim.server.repository
 
-import org.bitlap.zim.domain.model
 import org.bitlap.zim.domain.model.GroupList
 import org.bitlap.zim.domain.repository.GroupRepository
+import scalikejdbc._
 import zio._
 
 import scala.language.implicitConversions
@@ -14,38 +14,41 @@ import scala.language.implicitConversions
  * @since 2021/12/25
  * @version 1.0
  */
-private final class TangibleGroupRepository(databaseName: String) extends GroupRepository[GroupList] {
+private final class TangibleGroupRepository(databaseName: String)
+    extends TangibleBaseRepository(GroupList)
+    with GroupRepository {
 
-  private implicit lazy val dbName: String = databaseName
+  override implicit val dbName: String = databaseName
+  override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("gl")
 
   override def deleteGroup(id: Int): stream.Stream[Throwable, Int] =
-    _deleteGroup(GroupList.table, id).toUpdateOperation
+    _deleteGroup(id).toUpdateOperation
 
   override def countGroup(groupName: Option[String]): stream.Stream[Throwable, Int] =
     _countGroup(groupName).toStreamOperation
 
   override def createGroupList(group: GroupList): stream.Stream[Throwable, Long] =
-    _createGroupList(GroupList.table, group).toUpdateReturnKey
+    _createGroupList(group).toUpdateReturnKey
 
-  override def findGroup(groupName: Option[String]): stream.Stream[Throwable, GroupList] =
-    _findGroup(groupName).toStreamOperation
+  override def findGroups(groupName: Option[String]): stream.Stream[Throwable, GroupList] =
+    _findGroups(groupName).toStreamOperation
 
   override def findGroupById(gid: Int): stream.Stream[Throwable, GroupList] =
-    _findGroupById(GroupList.table, gid).toStreamOperation
+    _findGroupById(gid).toStreamOperation
 
   override def findGroupsById(uid: Int): stream.Stream[Throwable, GroupList] =
-    _findGroupsById(GroupList.table, model.GroupMember.table, uid).toStreamOperation
+    _findGroupsById(uid).toStreamOperation
 
   override def findById(id: Long): stream.Stream[Throwable, GroupList] =
-    queryFindGroupById(GroupList.table, id).toSQLOperation
+    queryFindGroupById(id).toSQLOperation
 }
 
 object TangibleGroupRepository {
 
-  def apply(databaseName: String): GroupRepository[GroupList] =
+  def apply(databaseName: String): GroupRepository =
     new TangibleGroupRepository(databaseName)
 
-  type ZGroupRepository = Has[GroupRepository[GroupList]]
+  type ZGroupRepository = Has[GroupRepository]
 
   def findById(id: Int): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
     stream.ZStream.accessStream(_.get.findById(id))
@@ -60,7 +63,7 @@ object TangibleGroupRepository {
     stream.ZStream.accessStream(_.get.createGroupList(group))
 
   def findGroup(groupName: Option[String]): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
-    stream.ZStream.accessStream(_.get.findGroup(groupName))
+    stream.ZStream.accessStream(_.get.findGroups(groupName))
 
   def findGroupById(gid: Int): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
     stream.ZStream.accessStream(_.get.findGroupById(gid))
@@ -69,7 +72,7 @@ object TangibleGroupRepository {
     stream.ZStream.accessStream(_.get.findGroupsById(uid))
 
   val live: ZLayer[Has[String], Nothing, ZGroupRepository] =
-    ZLayer.fromService[String, GroupRepository[GroupList]](TangibleGroupRepository(_))
+    ZLayer.fromService[String, GroupRepository](TangibleGroupRepository(_))
 
   def make(databaseName: String): ULayer[ZGroupRepository] =
     ZLayer.succeed(databaseName) >>> live

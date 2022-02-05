@@ -4,10 +4,10 @@ import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
-import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil }
-import zio.Has
+import org.bitlap.zim.server.util.{ FileUtil, LogUtil, SecurityUtil }
+import org.bitlap.zim.tapir.MultipartInput
 import zio.stream.ZStream
-import zio.stream
+import zio.{ stream, Has, IO }
 
 import java.time.ZonedDateTime
 
@@ -26,13 +26,13 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def updateInfo(user: UpdateUserInput): stream.Stream[Throwable, Boolean] = {
     def check(): Boolean =
-      user.password == null || user.password.trim.isEmpty || user.oldpwd == null || user.oldpwd.trim.isEmpty
+      user.password == null || user.password.isEmpty || user.oldpwd == null || user.oldpwd.isEmpty
 
     for {
       u <- userApplication.findUserById(user.id)
-      pwdCheck <- ZStream.fromEffect(SecurityUtil.matched(user.oldpwd, u.password))
-      newPwd <- ZStream.fromEffect(SecurityUtil.encrypt(user.password))
       sex = if (user.sex.equals("nan")) 1 else 0
+      pwdCheck <- ZStream.fromEffect(SecurityUtil.matched(user.oldpwd.getOrElse(""), u.password))
+      newPwd <- ZStream.fromEffect(SecurityUtil.encrypt(user.password.getOrElse("")))
       checkAndUpdate <-
         if (check()) {
           userApplication.updateUserInfo(u.copy(sex = sex, sign = user.sign, username = user.username))
@@ -116,7 +116,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def createGroup(groupInput: GroupInput): stream.Stream[Throwable, Int] = {
     val ret = userApplication.createGroup(
-      GroupList(id = 0, createId = groupInput.createId, groupname = groupInput.groupname, avatar = groupInput.avatar)
+      GroupList(id = 0, createId = groupInput.createId, groupName = groupInput.groupname, avatar = groupInput.avatar)
     )
     ret.flatMap(f =>
       if (f > 0) {
@@ -130,7 +130,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     val usersZio = userApplication
       .findUserByGroupId(id)
       .runCollect
-      .map(f => FriendList(id = 0, groupname = null, list = f.toList))
+      .map(f => FriendList(id = 0, groupName = "", list = f.toList))
     ZStream.fromEffect(usersZio)
   }
 
@@ -161,6 +161,133 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     mid: Int
   ): stream.Stream[Throwable, Boolean] =
     userApplication.addFriend(mid, group, uid, fromGroup, messageBoxId)
+
+  override def chatLogIndex(id: Int, `type`: String, mid: Int): stream.Stream[Throwable, Int] =
+    userApplication
+      .countHistoryMessage(mid, id, `type`)
+      .map(pages => if (pages < SystemConstant.SYSTEM_PAGE) pages else pages / SystemConstant.SYSTEM_PAGE + 1)
+
+  override def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, List[ChatHistory]] = {
+    val ret = for {
+      list <- userApplication
+        .findUserById(mid)
+        .flatMap { u =>
+          userApplication.findHistoryMessage(u, id, `type`)
+        }
+        .runCollect
+      pageRet = list
+        .slice(
+          SystemConstant.SYSTEM_PAGE * (page - 1),
+          math.min(SystemConstant.SYSTEM_PAGE * page, list.size)
+        )
+        .toList
+    } yield pageRet
+    ret
+  }
+
+  override def findAddInfo(uid: Int, page: Int): IO[Throwable, ResultPageSet[AddInfo]] =
+    for {
+      list <- userApplication.findAddInfo(uid).runCollect
+      listRet = list.slice(
+        SystemConstant.ADD_MESSAGE_PAGE * (page - 1),
+        math.min(SystemConstant.ADD_MESSAGE_PAGE * page, list.size)
+      )
+      countIO <- userApplication.countUnHandMessage(uid, None).runHead
+      count = countIO.getOrElse(0)
+    } yield {
+      val pages = calculatePages(count, SystemConstant.ADD_MESSAGE_PAGE)
+      ResultPageSet(listRet.toList, pages)
+    }
+
+  override def findUsers(name: Option[String], sex: Option[Int], page: Int): IO[Throwable, ResultPageSet[User]] =
+    for {
+      list <- userApplication.findUsers(name, sex).runCollect
+      listRet = list.slice(
+        SystemConstant.USER_PAGE * (page - 1),
+        math.min(SystemConstant.USER_PAGE * page, list.size)
+      )
+      countIO <- userApplication.countUser(name, sex).runHead
+      count = countIO.getOrElse(0)
+    } yield {
+      val pages = calculatePages(count, SystemConstant.USER_PAGE)
+      ResultPageSet(listRet.toList, pages)
+    }
+
+  override def findGroups(name: Option[String], page: Int): IO[Throwable, ResultPageSet[GroupList]] =
+    for {
+      list <- userApplication.findGroups(name).runCollect
+      listRet = list.slice(
+        SystemConstant.USER_PAGE * (page - 1),
+        math.min(SystemConstant.USER_PAGE * page, list.size)
+      )
+      countIO <- userApplication.countGroup(name).runHead
+      count = countIO.getOrElse(0)
+    } yield {
+      val pages = calculatePages(count, SystemConstant.USER_PAGE)
+      ResultPageSet(listRet.toList, pages)
+    }
+
+  override def findMyGroups(createId: Int, page: Int): IO[Throwable, ResultPageSet[GroupList]] =
+    for {
+      list <- userApplication.findGroupsById(createId).runCollect
+      listFilter = list.filter(x => x.createId.equals(createId))
+      listRet = listFilter.slice(
+        SystemConstant.USER_PAGE * (page - 1),
+        math.min(SystemConstant.USER_PAGE * page, listFilter.size)
+      )
+      count = listRet.size
+    } yield {
+      val pages = calculatePages(count, SystemConstant.USER_PAGE)
+      ResultPageSet(listRet.toList, pages)
+    }
+
+  private def calculatePages(count: Int, PAGE: Int): Int =
+    if (count < PAGE) 1
+    else {
+      if (count % PAGE == 0) count / PAGE
+      else count / PAGE + 1
+    }
+
+  override def uploadFile(multipartInput: MultipartInput): stream.Stream[ZimError, UploadResult] = {
+    if (multipartInput.file.name.isEmpty) {
+      return ZStream.empty
+    }
+    // TODO 虚拟路径，目前为"/"，下同
+    val fileIO = FileUtil
+      .upload(SystemConstant.FILE_PATH, "/", multipartInput.file)
+      .map(src => UploadResult(src = src, name = multipartInput.getFileName))
+    ZStream.fromEffect(fileIO)
+  }
+
+  override def updateAvatar(multipartInput: MultipartInput, mid: Int): stream.Stream[Throwable, UploadResult] = {
+    if (multipartInput.file.name.isEmpty) {
+      return ZStream.empty
+    }
+    val fileIO = FileUtil.upload(SystemConstant.AVATAR_PATH, multipartInput.file).flatMap { src =>
+      userApplication.updateAvatar(mid, src).runHead.as(UploadResult(src = src, name = multipartInput.getFileName))
+    }
+    ZStream.fromEffect(fileIO)
+  }
+
+  override def uploadGroupAvatar(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] = {
+    if (multipartInput.file.name.isEmpty) {
+      return ZStream.empty
+    }
+    val fileIO = FileUtil
+      .upload(SystemConstant.GROUP_AVATAR_PATH, multipartInput.file)
+      .map(src => UploadResult(src = src, name = multipartInput.getFileName))
+    ZStream.fromEffect(fileIO)
+  }
+
+  override def uploadImage(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] = {
+    if (multipartInput.file.name.isEmpty) {
+      return ZStream.empty
+    }
+    val fileIO = FileUtil
+      .upload(SystemConstant.IMAGE_PATH, "/", multipartInput.file)
+      .map(src => UploadResult(src = src, name = multipartInput.getFileName))
+    ZStream.fromEffect(fileIO)
+  }
 }
 
 object ApiService {

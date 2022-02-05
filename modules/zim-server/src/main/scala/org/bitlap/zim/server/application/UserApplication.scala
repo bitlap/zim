@@ -131,7 +131,7 @@ trait UserApplication extends BaseApplication[User] {
    * @param agree 0未处理，1同意，2拒绝
    * @return
    */
-  def countUnHandMessage(uid: Int, agree: Int): stream.Stream[Throwable, Int]
+  def countUnHandMessage(uid: Int, agree: Option[Int]): stream.Stream[Throwable, Int]
 
   /**
    * 查询添加好友、群组信息
@@ -199,7 +199,7 @@ trait UserApplication extends BaseApplication[User] {
    * @param groupName 群组名称
    * @return
    */
-  def findGroup(groupName: Option[String]): stream.Stream[Throwable, GroupList]
+  def findGroups(groupName: Option[String]): stream.Stream[Throwable, GroupList]
 
   /**
    * 根据用户名和性别统计用户
@@ -208,7 +208,7 @@ trait UserApplication extends BaseApplication[User] {
    * @param sex      性别
    * @return
    */
-  def countUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int]
+  def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int]
 
   /**
    * 根据用户名和性别查询用户

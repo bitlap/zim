@@ -1,15 +1,13 @@
 package org.bitlap.zim.server
 
-import eu.timepit.refined.api.Refined
-import org.bitlap.zim.domain.model
-import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup, GroupList, GroupMember, Receive, User }
+import org.bitlap.zim.domain.model._
 import org.bitlap.zim.domain.repository.Condition
-import scalikejdbc.{ SQL, _ }
 import scalikejdbc.streams._
+import scalikejdbc.{ SQL, _ }
 import sqls.count
-import zio.{ stream, Task }
 import zio.interop.reactivestreams._
 import zio.stream.ZStream
+import zio.{ stream, Task }
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
@@ -78,8 +76,8 @@ package object repository {
   ) {
 
     import eu.timepit.refined.refineV
-    import org.bitlap.zim.domain.repository.Condition._
     import org.bitlap.zim.domain.repository.Condition.ConditionValidator._
+    import org.bitlap.zim.domain.repository.Condition._
 
     @inline def like(y: Option[String]): Option[ZCondition] =
       refineV(Condition(self, y.map(sqls.like(sp.column(self), _)).orNull)).toOption
@@ -93,71 +91,75 @@ package object repository {
   }
 
   //==============================表别名定义========================================
-  implicit private[repository] lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
-  private[repository] lazy val g: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
-  private[repository] lazy val r: QuerySQLSyntaxProvider[SQLSyntaxSupport[Receive], Receive] = Receive.syntax("r")
-  private[repository] lazy val fg: QuerySQLSyntaxProvider[SQLSyntaxSupport[FriendGroup], FriendGroup] =
+  implicit private lazy val u: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
+
+  implicit private lazy val g: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
+
+  implicit private lazy val r: QuerySQLSyntaxProvider[SQLSyntaxSupport[Receive], Receive] = Receive.syntax("r")
+
+  implicit private lazy val fg: QuerySQLSyntaxProvider[SQLSyntaxSupport[FriendGroup], FriendGroup] =
     FriendGroup.syntax("fg")
-  private[repository] lazy val af: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddFriend], AddFriend] =
-    AddFriend.syntax("af")
-  private[repository] lazy val gm: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupMember], GroupMember] =
+
+  implicit private lazy val af: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddFriend], AddFriend] = AddFriend.syntax("af")
+
+  implicit private lazy val gm: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupMember], GroupMember] =
     GroupMember.syntax("gm")
-  private[repository] lazy val am: QuerySQLSyntaxProvider[SQLSyntaxSupport[model.AddMessage], model.AddMessage] =
-    model.AddMessage.syntax("am")
+
+  implicit private lazy val am: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddMessage], AddMessage] =
+    AddMessage.syntax("am")
 
   //==============================测试SQL========================================
-  private[repository] def queryFindGroupById(table: TableDefSQLSyntax, id: Long): SQL[GroupList, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => GroupList(rs))
+  private[repository] def queryFindGroupById(id: Long): SQL[GroupList, HasExtractor] =
+    sql"SELECT ${g.result.*} FROM ${GroupList as g} WHERE id = ${id}".list().map(rs => GroupList(rs))
+
   private[repository] def queryFindReceiveById(table: TableDefSQLSyntax, id: Long): SQL[Receive, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => Receive(rs))
+
   private[repository] def queryFindFriendGroupById(table: TableDefSQLSyntax, id: Long): SQL[FriendGroup, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => FriendGroup(rs))
+
   private[repository] def queryFindGroupMemberById(table: TableDefSQLSyntax, id: Long): SQL[GroupMember, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => GroupMember(rs))
+
   private[repository] def queryFindFriendGroupFriendById(
     table: TableDefSQLSyntax,
     id: Long
   ): SQL[AddFriend, HasExtractor] =
     sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => AddFriend(rs))
-  private[repository] def queryFindAddMessageById(
-    table: TableDefSQLSyntax,
-    id: Long
-  ): SQL[model.AddMessage, HasExtractor] =
-    sql"SELECT * FROM ${table} WHERE id = ${id}".list().map(rs => model.AddMessage(rs))
+
+  private[repository] def queryFindAddMessageById(id: Long): SQL[AddMessage, HasExtractor] =
+    sql"SELECT ${am.result.*} FROM ${AddMessage as am} WHERE id = ${id}".list().map(rs => AddMessage(rs))
   //==============================用户 SQL实现========================================
 
   /**
    * 更新用户头像
    *
-   * @param table
    * @param avatar
    * @param uid
    * @return
    */
-  private[repository] def _updateAvatar(table: TableDefSQLSyntax, avatar: String, uid: Int): SQLUpdate =
-    sql"update $table set avatar=${avatar} where id=${uid};".update()
+  private[repository] def _updateAvatar(avatar: String, uid: Int): SQLUpdate =
+    sql"update ${User.table} set avatar=${avatar} where id=${uid};".update()
 
   /**
    * 更新签名
    *
-   * @param table
    * @param sign
    * @param uid
    * @return
    */
-  private[repository] def _updateSign(table: TableDefSQLSyntax, sign: String, uid: Int): SQLUpdate =
-    sql"update $table set sign = ${sign} where id = ${uid};".update()
+  private[repository] def _updateSign(sign: String, uid: Int): SQLUpdate =
+    sql"update ${User.table} set sign = ${sign} where id = ${uid};".update()
 
   /**
    * 更新用户信息
    *
-   * @param table
    * @param id
    * @param user
    * @return
    */
-  private[repository] def _updateUserInfo(table: TableDefSQLSyntax, id: Int, user: User): SQLUpdate =
-    sql"update $table set username= ${user.username}, sex = ${user.sex}, sign = ${user.sign}, password = ${user.password} where id = ${id}; "
+  private[repository] def _updateUserInfo(id: Int, user: User): SQLUpdate =
+    sql"update ${User.table} set username= ${user.username}, sex = ${user.sex}, sign = ${user.sign}, password = ${user.password} where id = ${id}; "
       .update()
 
   /**
@@ -208,12 +210,11 @@ package object repository {
   /**
    * 保存用户信息
    *
-   * @param table
    * @param user
    * @return
    */
-  private[repository] def _saveUser(table: TableDefSQLSyntax, user: User): SQLUpdateWithGeneratedKey =
-    sql"insert into $table(username,password,sign,email,create_date,active) values(${user.username},${user.password},${user.sign},${user.email},${user.createDate},${user.active});"
+  private[repository] def _saveUser(user: User): SQLUpdateWithGeneratedKey =
+    sql"insert into ${User.table}(username,password,sign,email,create_date,active) values(${user.username},${user.password},${user.sign},${user.email},${user.createDate},${user.active});"
       .updateAndReturnGeneratedKey("id")
 
   //==============================群组 SQL实现========================================
@@ -221,12 +222,11 @@ package object repository {
   /**
    * 创建群组
    *
-   * @param table
    * @param groupList
    * @return
    */
-  private[repository] def _createGroupList(table: TableDefSQLSyntax, groupList: GroupList): SQLUpdateWithGeneratedKey =
-    sql"insert into $table(group_name,avatar,create_id) values(${groupList.groupname},${groupList.avatar},${groupList.createId});"
+  private[repository] def _createGroupList(groupList: GroupList): SQLUpdateWithGeneratedKey =
+    sql"insert into ${GroupList.table}(group_name,avatar,create_id) values(${groupList.groupName},${groupList.avatar},${groupList.createId});"
       .updateAndReturnGeneratedKey("id")
 
   /**
@@ -236,8 +236,8 @@ package object repository {
    * @param groupList
    * @return
    */
-  private[repository] def _deleteGroup(table: TableDefSQLSyntax, id: Int): SQLUpdate =
-    sql"delete from $table where id = ${id};".executeUpdate()
+  private[repository] def _deleteGroup(id: Int): SQLUpdate =
+    sql"delete from ${GroupList.table} where id = ${id};".executeUpdate()
 
   /**
    * 根据群名模糊统计
@@ -262,7 +262,7 @@ package object repository {
    * @param groupName
    * @return
    */
-  private[repository] def _findGroup(groupName: Option[String]): StreamReadySQL[GroupList] =
+  private[repository] def _findGroups(groupName: Option[String]): StreamReadySQL[GroupList] =
     withSQL {
       select
         .from(GroupList as g)
@@ -277,12 +277,11 @@ package object repository {
   /**
    * 根据群id查询群信息
    *
-   * @param table
    * @param gid
    * @return
    */
-  private[repository] def _findGroupById(table: TableDefSQLSyntax, gid: Int): StreamReadySQL[GroupList] =
-    sql"select id,group_name,avatar,create_id from $table where id = ${gid};"
+  private[repository] def _findGroupById(gid: Int): StreamReadySQL[GroupList] =
+    sql"select ${g.result.*} from ${GroupList as g} where id = ${gid};"
       .map(rs => GroupList(rs))
       .list()
       .iterator()
@@ -290,17 +289,13 @@ package object repository {
   /**
    * 根据用户id查询用户所在的群组列表，不管是自己创建的还是别人创建的
    *
-   * @param groupTable
-   * @param groupMemberTable
    * @param uid
    * @return
    */
   private[repository] def _findGroupsById(
-    groupTable: TableDefSQLSyntax,
-    groupMemberTable: TableDefSQLSyntax,
     uid: Int
   ): StreamReadySQL[GroupList] =
-    sql"select id,group_name,avatar,create_id from $groupTable where id in(select distinct gid from $groupMemberTable where uid = ${uid});"
+    sql"select ${g.result.*} from ${GroupList as g} where id in(select distinct ${gm.gid} from ${GroupMember as gm} where uid = ${uid});"
       .map(rs => GroupList(rs))
       .list()
       .iterator()
@@ -331,7 +326,7 @@ package object repository {
     uid: Int,
     status: Int
   ): StreamReadySQL[Receive] =
-    sql"select toid,mid as id,fromid,content,type,timestamp,status from $table where toid = ${uid} and status = ${status};"
+    sql"select toid,mid,fromid,content,type,timestamp,status from $table where toid = ${uid} and status = ${status};"
       .map(rs => Receive(rs))
       .list()
       .iterator()
@@ -539,26 +534,6 @@ package object repository {
       .update()
 
   //==============================申请消息 SQL实现==============================================
-
-  /**
-   * 统计未处理的消息
-   *
-   * @param table
-   * @param uid
-   * @param agree
-   * @return
-   */
-  private[repository] def _countUnHandMessage(uid: Int, agree: Int): StreamReadySQL[Int] =
-    withSQL {
-      import org.bitlap.zim.domain.model
-      select(count(am.id))
-        .from(model.AddMessage as am)
-        .where(
-          sqls.eq(am.toUid, uid) and
-            sqls.eq(am.agree, agree)
-        )
-    }.toList().map(rs => rs.int(1)).iterator()
-
   /**
    * 查询添加好友、群组信息
    *
@@ -566,36 +541,33 @@ package object repository {
    * @param uid
    * @return
    */
-  private[repository] def _findAddInfo(uid: Int): StreamReadySQL[model.AddMessage] =
+  private[repository] def _findAddInfo(uid: Int): StreamReadySQL[AddMessage] =
     withSQL {
-      import org.bitlap.zim.domain.model
       select
-        .from(model.AddMessage as am)
+        .from(AddMessage as am)
         .where
         .eq(am.toUid, uid)
         .orderBy(am.time)
         .desc
-    }.map(rs => model.AddMessage(rs)).list().iterator()
+    }.map(rs => AddMessage(rs)).list().iterator()
 
   /**
    * 更新好友、群组信息请求
    *
-   * @param table
    * @param addMessage 添加好友、群组信息对象
    * @return
    */
-  private[repository] def _updateAddMessage(table: TableDefSQLSyntax, addMessage: model.AddMessage): SQLUpdate =
-    sql"update ${table} set agree = ${addMessage.agree} where id = ${addMessage.id}".update()
+  private[repository] def _updateAddMessage(addMessage: AddMessage): SQLUpdate =
+    sql"update ${AddMessage.table} set agree = ${addMessage.agree} where id = ${addMessage.id}".update()
 
   /**
    * 添加好友、群组信息请求
    * ON DUPLICATE KEY UPDATE 首先这个语法的目的是为了解决重复性，当数据库中存在某个记录时，执行这条语句会更新它，而不存在这条记录时，会插入它。
    *
-   * @param table
    * @param addMessage 添加好友、群组信息对象
    * @return
    */
-  private[repository] def _saveAddMessage(table: TableDefSQLSyntax, addMessage: model.AddMessage): SQLUpdate =
-    sql"insert into ${table}(from_uid,to_uid,group_id,remark,agree,type,time) values(${addMessage.fromUid},${addMessage.toUid},${addMessage.groupId},${addMessage.remark},${addMessage.agree},${addMessage.`type`},${addMessage.time}) ON DUPLICATE KEY UPDATE remark=${addMessage.remark},time=${addMessage.time},agree=${addMessage.agree};"
+  private[repository] def _saveAddMessage(addMessage: AddMessage): SQLUpdate =
+    sql"insert into ${AddMessage.table}(from_uid,to_uid,group_id,remark,agree,type,time) values(${addMessage.fromUid},${addMessage.toUid},${addMessage.groupId},${addMessage.remark},${addMessage.agree},${addMessage.`type`},${addMessage.time}) ON DUPLICATE KEY UPDATE remark=${addMessage.remark},time=${addMessage.time},agree=${addMessage.agree};"
       .update()
 }

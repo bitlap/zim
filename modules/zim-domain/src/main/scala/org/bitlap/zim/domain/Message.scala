@@ -21,13 +21,20 @@ object Message {
     else
       for {
         typ <- c.downField("type").as[String]
-        mine <-
-          if (c.downField("mine").succeeded && c.downField("mine").values.nonEmpty) c.downField("mine").as[Mine]
-          else Right(null)
+        mine <- {
+          if (checkJsonValue(c, "mine")) {
+            c.downField("mine").as[Mine]
+          } else {
+            Right(null)
+          }
+        }
         to <-
-          if (c.downField("to").succeeded && c.downField("to").values.nonEmpty) c.downField("to").as[To]
-          else Right(null)
-        msg <- c.downField("msg").as[String]
+          if (checkJsonValue(c, "to")) {
+            c.downField("to").as[To]
+          } else {
+            Right(null)
+          }
+        msg <- c.getOrElse("msg")("{}")
       } yield Message(`type` = typ, mine = mine, to = to, msg = msg)
 
   implicit val encoder: Encoder[Message] = (a: Message) =>
@@ -40,4 +47,7 @@ object Message {
         ("msg", Json.fromString(a.msg))
       )
 
+  @inline private def checkJsonValue(c: HCursor, field: String): Boolean =
+    c.downField(field).succeeded && c.downField(field).as[Json].isRight &&
+      c.downField(field).as[Json].getOrElse(Json.fromString("null")) != Json.fromString("null")
 }
