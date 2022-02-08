@@ -21,10 +21,6 @@ private final class TangibleGroupMemberRepository(databaseName: String)
 
   override def addGroupMember(groupMember: GroupMember): stream.Stream[Throwable, Int] =
     _addGroupMember(groupMember).toUpdateOperation
-
-  override def findById(id: Long): stream.Stream[Throwable, GroupMember] =
-    queryFindGroupMemberById(id).toSQLOperation
-
 }
 
 object TangibleGroupMemberRepository {

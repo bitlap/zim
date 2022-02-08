@@ -38,9 +38,6 @@ private final class TangibleGroupRepository(databaseName: String)
 
   override def findGroupsById(uid: Int): stream.Stream[Throwable, GroupList] =
     _findGroupsById(uid).toStreamOperation
-
-  override def findById(id: Long): stream.Stream[Throwable, GroupList] =
-    queryFindGroupById(id).toSQLOperation
 }
 
 object TangibleGroupRepository {

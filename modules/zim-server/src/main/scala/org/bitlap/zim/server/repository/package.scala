@@ -109,23 +109,8 @@ package object repository {
     AddMessage.syntax("am")
 
   //==============================测试SQL========================================
-  private[repository] def queryFindGroupById(id: Long): SQL[GroupList, HasExtractor] =
-    sql"SELECT ${g.result.*} FROM ${GroupList as g} WHERE id = ${id}".list().map(rs => GroupList(rs))
-
   private[repository] def queryFindReceiveById(id: Long): SQL[Receive, HasExtractor] =
     sql"SELECT ${r.result.*} FROM ${Receive as r} WHERE id = ${id}".list().map(rs => Receive(rs))
-
-  private[repository] def queryFindFriendGroupById(id: Long): SQL[FriendGroup, HasExtractor] =
-    sql"SELECT ${fg.result.*} FROM ${FriendGroup as fg} WHERE id = ${id}".list().map(rs => FriendGroup(rs))
-
-  private[repository] def queryFindGroupMemberById(id: Long): SQL[GroupMember, HasExtractor] =
-    sql"SELECT ${gm.result.*} FROM ${GroupMember as gm} WHERE id = ${id}".list().map(rs => GroupMember(rs))
-
-  private[repository] def queryFindFriendGroupFriendById(id: Long): SQL[AddFriend, HasExtractor] =
-    sql"SELECT ${af.result.*} FROM ${AddFriend as af} WHERE id = ${id}".list().map(rs => AddFriend(rs))
-
-  private[repository] def queryFindAddMessageById(id: Long): SQL[AddMessage, HasExtractor] =
-    sql"SELECT ${am.result.*} FROM ${AddMessage as am} WHERE id = ${id}".list().map(rs => AddMessage(rs))
   //==============================用户 SQL实现========================================
 
   /**

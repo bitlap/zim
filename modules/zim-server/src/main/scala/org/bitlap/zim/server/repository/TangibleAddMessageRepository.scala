@@ -25,10 +25,6 @@ private final class TangibleAddMessageRepository(databaseName: String)
 
   override def saveAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int] =
     _saveAddMessage(addMessage).toUpdateOperation
-
-  override def findById(id: Long): stream.Stream[Throwable, AddMessage] =
-    queryFindAddMessageById(id).toSQLOperation
-
 }
 
 object TangibleAddMessageRepository {

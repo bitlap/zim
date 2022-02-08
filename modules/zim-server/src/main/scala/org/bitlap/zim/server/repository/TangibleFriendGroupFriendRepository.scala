@@ -32,10 +32,6 @@ private final class TangibleFriendGroupFriendRepository(databaseName: String)
 
   override def addFriend(from: AddFriend, to: AddFriend): stream.Stream[Throwable, Int] =
     _addFriend(from, to).toUpdateOperation
-
-  override def findById(id: Long): stream.Stream[Throwable, AddFriend] =
-    queryFindFriendGroupFriendById(id).toSQLOperation
-
 }
 
 object TangibleFriendGroupFriendRepository {
