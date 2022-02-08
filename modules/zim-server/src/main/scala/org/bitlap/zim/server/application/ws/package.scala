@@ -1,15 +1,16 @@
 package org.bitlap.zim.server.application
 
 import io.circe.syntax.EncoderOps
+import org.bitlap.zim.cache.zioRedisService
 import org.bitlap.zim.domain.model.{ Receive, User }
 import org.bitlap.zim.domain.ws.protocol.{ protocol, AddRefuseMessage }
 import org.bitlap.zim.domain.{ Message, SystemConstant }
 import org.bitlap.zim.server.application.ws.wsService.WsService.actorRefSessions
-import org.bitlap.zim.server.util.DateUtil
 import zio.actors.{ ActorRef => _ }
-import zio.{ IO, ZIO }
-import org.bitlap.zim.cache.zioRedisService
 import zio.stream.ZStream
+import zio.{ IO, ZIO }
+
+import java.time.ZonedDateTime
 
 /**
  * @author 梦境迷离
@@ -35,7 +36,7 @@ package object ws {
       cid = 0,
       mine = false,
       fromid = mine.id,
-      timestamp = DateUtil.getLongDateTime,
+      timestamp = ZonedDateTime.now().toInstant.toEpochMilli,
       status = 0,
       toid = to.id
     )

@@ -48,8 +48,8 @@ object FileUtil {
    */
   def upload(`type`: String, path: String, file: Part[TapirFile]): ZIO[Any, ZimError, String] = {
     val name = file.fileName.getOrElse(file.name)
-    val paths = path + `type` + DateUtil.getDateString + "/"
-    val result = `type` + DateUtil.getDateString + "/"
+    val paths = path + `type` + DateUtil.getDateString() + "/"
+    val result = `type` + DateUtil.getDateString() + "/"
     if (SystemConstant.IMAGE_PATH.equals(`type`) || SystemConstant.GROUP_AVATAR_PATH.equals(`type`)) {
       UuidUtil.getUuid32.map(_ + name.substring(name.indexOf("."))).map { nn =>
         copyInputStreamToFile(new FileInputStream(file.body), new File("." + paths, nn))
