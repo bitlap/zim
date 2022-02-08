@@ -61,6 +61,31 @@ class TangibleAddMessageRepositorySpec extends TangibleAddMessageRepositoryConfi
     )
     actual.map(u => u.id -> u.agree) shouldBe Some(addMessage.id -> 2)
   }
+
+  it should "countUnHandMessage by to_uid" in {
+    val actual = unsafeRun(
+      (for {
+        _ <- TangibleAddMessageRepository.saveAddMessage(addMessage)
+        _ <- TangibleAddMessageRepository.countUnHandMessage(2, None)
+        msg <- TangibleAddMessageRepository.findById(1)
+      } yield msg).runHead
+        .provideLayer(env)
+    )
+    actual.map(u => u.id -> u.agree) shouldBe Some(addMessage.id -> 0)
+  }
+
+  it should "countUnHandMessage by to_uid and agree" in {
+    val actual = unsafeRun(
+      (for {
+        _ <- TangibleAddMessageRepository.saveAddMessage(addMessage)
+        _ <- TangibleAddMessageRepository.saveAddMessage(addMessage.copy(agree = 1))
+        _ <- TangibleAddMessageRepository.saveAddMessage(addMessage.copy(agree = 1))
+        ret <- TangibleAddMessageRepository.countUnHandMessage(2, Some(1))
+      } yield ret).runHead
+        .provideLayer(env)
+    )
+    actual shouldBe Some(1)
+  }
 }
 
 object TangibleAddMessageRepositorySpec {
