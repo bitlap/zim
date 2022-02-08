@@ -1,4 +1,5 @@
 package org.bitlap.zim.domain.repository
+import org.bitlap.zim.domain.model.FriendGroup
 import zio.stream
 
 /**
@@ -8,9 +9,9 @@ import zio.stream
  * @since 2021/12/31
  * @version 1.0
  */
-trait FriendGroupRepository[T] extends BaseRepository[T] {
+trait FriendGroupRepository extends BaseRepository[FriendGroup] {
 
-  def createFriendGroup(friend: T): stream.Stream[Throwable, Int]
+  def createFriendGroup(friend: FriendGroup): stream.Stream[Throwable, Int]
 
-  def findFriendGroupsById(uid: Int): stream.Stream[Throwable, T]
+  def findFriendGroupsById(uid: Int): stream.Stream[Throwable, FriendGroup]
 }

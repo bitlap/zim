@@ -1,7 +1,6 @@
 package org.bitlap.zim.server.configuration
 
-import org.bitlap.zim.domain.model
-import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup, GroupList, GroupMember, Receive, User }
+import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.domain.repository.{
   AddMessageRepository,
   FriendGroupFriendRepository,
@@ -62,15 +61,15 @@ final class InfrastructureConfiguration {
     mysqlConfigurationProperties.databaseName
   )
 
-  lazy val friendGroupRepository: FriendGroupRepository[FriendGroup] = TangibleFriendGroupRepository(
+  lazy val friendGroupRepository: FriendGroupRepository = TangibleFriendGroupRepository(
     mysqlConfigurationProperties.databaseName
   )
 
-  lazy val friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend] = TangibleFriendGroupFriendRepository(
+  lazy val friendGroupFriendRepository: FriendGroupFriendRepository = TangibleFriendGroupFriendRepository(
     mysqlConfigurationProperties.databaseName
   )
 
-  lazy val groupMemberRepository: GroupMemberRepository[GroupMember] = TangibleGroupMemberRepository(
+  lazy val groupMemberRepository: GroupMemberRepository = TangibleGroupMemberRepository(
     mysqlConfigurationProperties.databaseName
   )
   lazy val addMessageRepository: AddMessageRepository = TangibleAddMessageRepository(
@@ -107,10 +106,10 @@ object InfrastructureConfiguration {
   val receiveRepository: URIO[ZInfrastructureConfiguration, ReceiveRepository[Receive]] =
     ZIO.access(_.get.receiveRepository)
 
-  val friendGroupFriendRepository: URIO[ZInfrastructureConfiguration, FriendGroupFriendRepository[AddFriend]] =
+  val friendGroupFriendRepository: URIO[ZInfrastructureConfiguration, FriendGroupFriendRepository] =
     ZIO.access(_.get.friendGroupFriendRepository)
 
-  val groupMemberRepository: URIO[ZInfrastructureConfiguration, GroupMemberRepository[GroupMember]] =
+  val groupMemberRepository: URIO[ZInfrastructureConfiguration, GroupMemberRepository] =
     ZIO.access(_.get.groupMemberRepository)
 
   val addMessageRepository: URIO[ZInfrastructureConfiguration, AddMessageRepository] =

@@ -408,23 +408,21 @@ package object repository {
   /**
    * 创建好友分组记录
    *
-   * @param table
    * @param friendGroup 好友分组
    * @return
    */
-  private[repository] def _createFriendGroup(table: TableDefSQLSyntax, friendGroup: FriendGroup): SQLUpdate =
-    sql"insert into $table(group_name,uid) values(${friendGroup.groupName},${friendGroup.uid});"
+  private[repository] def _createFriendGroup(friendGroup: FriendGroup): SQLUpdate =
+    sql"insert into ${FriendGroup.table}(group_name,uid) values(${friendGroup.groupName},${friendGroup.uid});"
       .update()
 
   /**
    * 根据ID查询该用户的好友分组的列表
    *
-   * @param table
    * @param uid 用户ID
    * @return
    */
-  private[repository] def _findFriendGroupsById(table: TableDefSQLSyntax, uid: Int): StreamReadySQL[FriendGroup] =
-    sql"select id, uid, group_name  from ${table} where uid = ${uid};"
+  private[repository] def _findFriendGroupsById(uid: Int): StreamReadySQL[FriendGroup] =
+    sql"select ${fg.result.*} from ${FriendGroup as fg} where uid = ${uid};"
       .map(rs => FriendGroup(rs))
       .list()
       .iterator()
@@ -434,47 +432,36 @@ package object repository {
   /**
    * 删除好友
    *
-   * @param friendGroupFriendTable
-   * @param friendGroupTable
    * @param friendId
    * @param uId
    * @return
    */
-  private[repository] def _removeFriend(
-    friendGroupFriendTable: TableDefSQLSyntax,
-    friendGroupTable: TableDefSQLSyntax,
-    friendId: Int,
-    uId: Int
-  ) =
-    sql"delete from $friendGroupFriendTable where fgid in (select id from $friendGroupTable where uid in (${friendId}, ${uId})) and uid in(${friendId}, ${uId});"
+  private[repository] def _removeFriend(friendId: Int, uId: Int) =
+    sql"delete from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid in (${friendId}, ${uId})) and uid in(${friendId}, ${uId});"
       .executeUpdate()
 
   /**
    * 移动好友分组
    *
-   * @param friendGroupFriendTable
    * @param groupId
    * @param originRecordId
    * @return
    */
-  private[repository] def _changeGroup(friendGroupFriendTable: TableDefSQLSyntax, groupId: Int, originRecordId: Int) =
-    sql"update $friendGroupFriendTable set fgid = ${groupId} where id = ${originRecordId};"
+  private[repository] def _changeGroup(groupId: Int, originRecordId: Int) =
+    sql"update ${AddFriend.table} set fgid = ${groupId} where id = ${originRecordId};"
       .executeUpdate()
 
   /**
    * 查询我的好友的分组
    *
-   * @param friendGroupFriendTable
    * @param uId 被移动的好友id
    * @param mId 我的id
    */
   private[repository] def _findUserGroup(
-    friendGroupFriendTable: TableDefSQLSyntax,
-    friendGroupTable: TableDefSQLSyntax,
     uId: Int,
     mId: Int
   ): StreamReadySQL[Int] =
-    sql"select id from $friendGroupFriendTable where fgid in (select id from $friendGroupTable where uid = ${mId}) and uid = ${uId}"
+    sql"select id from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid = ${mId}) and uid = ${uId}"
       .list()
       .map(rs => rs.int(1))
       .iterator()
@@ -482,13 +469,12 @@ package object repository {
   /**
    * 添加好友操作
    *
-   * @param table
    * @param from
    * @param to
    * @return
    */
-  private[repository] def _addFriend(table: TableDefSQLSyntax, from: AddFriend, to: AddFriend): SQLUpdate =
-    sql"insert into $table(fgid,uid) values(${from.fgid},${to.uid}),(${to.fgid}, ${from.uid});"
+  private[repository] def _addFriend(from: AddFriend, to: AddFriend): SQLUpdate =
+    sql"insert into ${AddFriend.table}(fgid,uid) values(${from.fgid},${to.uid}),(${to.fgid}, ${from.uid});"
       .update()
 
   //==============================群组成员 SQL实现==============================================
@@ -496,22 +482,20 @@ package object repository {
   /**
    * 退出群
    *
-   * @param table
    * @param groupMember 群成员对象
    * @return
    */
-  private[repository] def _leaveOutGroup(table: TableDefSQLSyntax, groupMember: GroupMember): SQLUpdate =
-    sql"delete from $table where gid = ${groupMember.gid} and uid = ${groupMember.uid};".update()
+  private[repository] def _leaveOutGroup(groupMember: GroupMember): SQLUpdate =
+    sql"delete from ${GroupMember.table} where gid = ${groupMember.gid} and uid = ${groupMember.uid};".update()
 
   /**
    * 查询用户编号
    *
-   * @param table
    * @param gid
    * @return
    */
-  private[repository] def _findGroupMembers(table: TableDefSQLSyntax, gid: Int): StreamReadySQL[Int] =
-    sql" select uid from $table where gid = ${gid};"
+  private[repository] def _findGroupMembers(gid: Int): StreamReadySQL[Int] =
+    sql" select uid from ${GroupMember.table} where gid = ${gid};"
       .list()
       .map(rs => rs.int(1))
       .iterator()
@@ -519,12 +503,11 @@ package object repository {
   /**
    * 添加群成员
    *
-   * @param table
    * @param groupMember 群成员对象
    * @return
    */
-  private[repository] def _addGroupMember(table: TableDefSQLSyntax, groupMember: GroupMember): SQLUpdate =
-    sql"insert into $table(gid,uid) values(${groupMember.gid},${groupMember.uid});"
+  private[repository] def _addGroupMember(groupMember: GroupMember): SQLUpdate =
+    sql"insert into ${GroupMember.table}(gid,uid) values(${groupMember.gid},${groupMember.uid});"
       .update()
 
   //==============================申请消息 SQL实现==============================================

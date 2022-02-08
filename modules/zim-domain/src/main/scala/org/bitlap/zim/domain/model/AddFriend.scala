@@ -12,7 +12,7 @@ import scalikejdbc.{ WrappedResultSet, _ }
  */
 final case class AddFriend(uid: Int, fgid: Int)
 
-object AddFriend extends SQLSyntaxSupport[AddFriend] {
+object AddFriend extends BaseModel[AddFriend] {
 
   override lazy val columns: collection.Seq[String] = autoColumns[AddFriend]()
 
@@ -21,8 +21,6 @@ object AddFriend extends SQLSyntaxSupport[AddFriend] {
   implicit val decoder: Decoder[AddFriend] = deriveDecoder[AddFriend]
   implicit val encoder: Encoder[AddFriend] = deriveEncoder[AddFriend]
 
-  def apply(rs: WrappedResultSet): AddFriend = AddFriend(
-    rs.int("uid"),
-    rs.int("fgid")
-  )
+  override def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[AddFriend]): AddFriend =
+    autoConstruct[AddFriend](rs, sp)
 }

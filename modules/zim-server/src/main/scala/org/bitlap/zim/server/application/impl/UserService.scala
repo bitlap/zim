@@ -31,9 +31,9 @@ private final class UserService(
   userRepository: UserRepository,
   groupRepository: GroupRepository,
   receiveRepository: ReceiveRepository[Receive],
-  friendGroupRepository: FriendGroupRepository[FriendGroup],
-  friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend],
-  groupMemberRepository: GroupMemberRepository[GroupMember],
+  friendGroupRepository: FriendGroupRepository,
+  friendGroupFriendRepository: FriendGroupFriendRepository,
+  groupMemberRepository: GroupMemberRepository,
   addMessageRepository: AddMessageRepository
 ) extends UserApplication {
 
@@ -334,9 +334,9 @@ object UserService {
     userRepository: UserRepository,
     groupRepository: GroupRepository,
     receiveRepository: ReceiveRepository[Receive],
-    friendGroupRepository: FriendGroupRepository[FriendGroup],
-    friendGroupFriendRepository: FriendGroupFriendRepository[AddFriend],
-    groupMemberRepository: GroupMemberRepository[GroupMember],
+    friendGroupRepository: FriendGroupRepository,
+    friendGroupFriendRepository: FriendGroupFriendRepository,
+    groupMemberRepository: GroupMemberRepository,
     addMessageRepository: AddMessageRepository
   ): UserApplication =
     new UserService(
@@ -357,10 +357,9 @@ object UserService {
   ] =
     ZLayer.fromServices[UserRepository, GroupRepository, ReceiveRepository[
       Receive
-    ], FriendGroupRepository[FriendGroup], FriendGroupFriendRepository[AddFriend], GroupMemberRepository[
-      GroupMember
-    ], AddMessageRepository, UserApplication] { (a, b, c, d, e, f, g) =>
-      UserService(a, b, c, d, e, f, g)
+    ], FriendGroupRepository, FriendGroupFriendRepository, GroupMemberRepository, AddMessageRepository, UserApplication] {
+      (a, b, c, d, e, f, g) =>
+        UserService(a, b, c, d, e, f, g)
     }
 
 }

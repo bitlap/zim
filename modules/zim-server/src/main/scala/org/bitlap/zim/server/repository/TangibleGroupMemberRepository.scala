@@ -2,32 +2,37 @@ package org.bitlap.zim.server.repository
 
 import org.bitlap.zim.domain.model.GroupMember
 import org.bitlap.zim.domain.repository.GroupMemberRepository
+import scalikejdbc._
 import zio._
 import zio.stream.ZStream
+private final class TangibleGroupMemberRepository(databaseName: String)
+    extends TangibleBaseRepository(GroupMember)
+    with GroupMemberRepository {
 
-private final class TangibleGroupMemberRepository(databaseName: String) extends GroupMemberRepository[GroupMember] {
-
-  private implicit lazy val dbName: String = databaseName
+  override implicit val dbName: String = databaseName
+  override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupMember], GroupMember] =
+    GroupMember.syntax("gm")
 
   override def leaveOutGroup(groupMember: GroupMember): stream.Stream[Throwable, Int] =
-    _leaveOutGroup(GroupMember.table, groupMember).toUpdateOperation
+    _leaveOutGroup(groupMember).toUpdateOperation
 
   override def findGroupMembers(gid: Int): stream.Stream[Throwable, Int] =
-    _findGroupMembers(GroupMember.table, gid).toStreamOperation
+    _findGroupMembers(gid).toStreamOperation
 
   override def addGroupMember(groupMember: GroupMember): stream.Stream[Throwable, Int] =
-    _addGroupMember(GroupMember.table, groupMember).toUpdateOperation
+    _addGroupMember(groupMember).toUpdateOperation
 
   override def findById(id: Long): stream.Stream[Throwable, GroupMember] =
     queryFindGroupMemberById(id).toSQLOperation
+
 }
 
 object TangibleGroupMemberRepository {
 
-  def apply(databaseName: String): GroupMemberRepository[GroupMember] =
+  def apply(databaseName: String): GroupMemberRepository =
     new TangibleGroupMemberRepository(databaseName)
 
-  type ZGroupMemberRepository = Has[GroupMemberRepository[GroupMember]]
+  type ZGroupMemberRepository = Has[GroupMemberRepository]
 
   def findById(id: Int): stream.ZStream[ZGroupMemberRepository, Throwable, GroupMember] =
     stream.ZStream.accessStream(_.get.findById(id))
@@ -42,7 +47,7 @@ object TangibleGroupMemberRepository {
     stream.ZStream.accessStream(_.get.addGroupMember(groupMember))
 
   val live: ZLayer[Has[String], Nothing, ZGroupMemberRepository] =
-    ZLayer.fromService[String, GroupMemberRepository[GroupMember]](TangibleGroupMemberRepository(_))
+    ZLayer.fromService[String, GroupMemberRepository](TangibleGroupMemberRepository(_))
 
   def make(databaseName: String): ULayer[ZGroupMemberRepository] =
     ZLayer.succeed(databaseName) >>> live

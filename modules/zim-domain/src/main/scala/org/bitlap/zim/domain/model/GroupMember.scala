@@ -13,17 +13,16 @@ import scalikejdbc.{ WrappedResultSet, _ }
  */
 final case class GroupMember(gid: Int, uid: Int)
 
-object GroupMember extends SQLSyntaxSupport[GroupMember] {
+object GroupMember extends BaseModel[GroupMember] {
 
   override lazy val columns: collection.Seq[String] = autoColumns[GroupMember]()
+
+  override def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[GroupMember]): GroupMember =
+    autoConstruct[GroupMember](rs, sp)
 
   override def tableName: String = "t_group_members"
 
   implicit val decoder: Decoder[GroupMember] = deriveDecoder[GroupMember]
   implicit val encoder: Encoder[GroupMember] = deriveEncoder[GroupMember]
 
-  def apply(rs: WrappedResultSet): GroupMember = GroupMember(
-    rs.int("gid"),
-    rs.int("uid")
-  )
 }

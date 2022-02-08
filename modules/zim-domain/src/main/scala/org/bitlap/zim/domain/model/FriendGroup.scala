@@ -14,9 +14,12 @@ import scalikejdbc.{ WrappedResultSet, _ }
  */
 final case class FriendGroup(id: Int, uid: Int, groupName: String)
 
-object FriendGroup extends SQLSyntaxSupport[FriendGroup] {
+object FriendGroup extends BaseModel[FriendGroup] {
 
   override lazy val columns: collection.Seq[String] = autoColumns[FriendGroup]()
+
+  override def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[FriendGroup]): FriendGroup =
+    autoConstruct[FriendGroup](rs, sp)
 
   override def tableName: String = "t_friend_group"
 
@@ -30,10 +33,4 @@ object FriendGroup extends SQLSyntaxSupport[FriendGroup] {
         ("groupname", Json.fromString(a.groupName))
       )
   }
-
-  def apply(rs: WrappedResultSet): FriendGroup = FriendGroup(
-    rs.int("id"),
-    rs.int("uid"),
-    rs.string("group_name")
-  )
 }
