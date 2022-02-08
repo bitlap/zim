@@ -20,8 +20,8 @@ private final class TangibleAddMessageRepository(databaseName: String)
   override def findAddInfo(uid: Int): stream.Stream[Throwable, AddMessage] =
     _findAddInfo(uid).toStreamOperation
 
-  override def updateAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int] =
-    _updateAddMessage(addMessage).toUpdateOperation
+  override def updateAgree(id: Int, agree: Int): stream.Stream[Throwable, Int] =
+    _updateAgree(id, agree).toUpdateOperation
 
   override def saveAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int] =
     _saveAddMessage(addMessage).toUpdateOperation
@@ -43,8 +43,8 @@ object TangibleAddMessageRepository {
   def findAddInfo(uid: Int): ZStream[ZAddMessageRepository, Throwable, AddMessage] =
     stream.ZStream.accessStream(_.get.findAddInfo(uid))
 
-  def updateAddMessage(addMessage: AddMessage): ZStream[ZAddMessageRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.updateAddMessage(addMessage))
+  def updateAgree(id: Int, agree: Int): ZStream[ZAddMessageRepository, Throwable, Int] =
+    stream.ZStream.accessStream(_.get.updateAgree(id, agree))
 
   def saveAddMessage(addMessage: AddMessage): ZStream[ZAddMessageRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.saveAddMessage(addMessage))

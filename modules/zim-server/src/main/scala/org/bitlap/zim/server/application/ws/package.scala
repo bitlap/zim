@@ -108,7 +108,7 @@ package object ws {
   private[ws] def refuseAddFriendHandler(
     userService: UserApplication
   )(messageBoxId: Int, username: String, to: Int): IO[Throwable, Boolean] =
-    userService.updateAddMessage(messageBoxId, 2).runHead.flatMap { r =>
+    userService.updateAgree(messageBoxId, 2).runHead.flatMap { r =>
       r.fold(ZIO.effect(false)) { ret =>
         val actor = actorRefSessions.get(to)
         if (actor != null) {

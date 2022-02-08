@@ -13,7 +13,7 @@ trait AddMessageRepository extends BaseRepository[AddMessage] {
 
   def findAddInfo(uid: Int): stream.Stream[Throwable, AddMessage]
 
-  def updateAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int]
+  def updateAgree(id: Int, agree: Int): stream.Stream[Throwable, Int]
 
   def saveAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int]
 }

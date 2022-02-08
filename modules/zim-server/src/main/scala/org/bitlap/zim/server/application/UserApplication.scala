@@ -148,7 +148,7 @@ trait UserApplication extends BaseApplication[User] {
    * @param agree        0未处理，1同意，2拒绝
    * @return Boolean
    */
-  def updateAddMessage(messageBoxId: Int, agree: Int): stream.Stream[Throwable, Boolean]
+  def updateAgree(messageBoxId: Int, agree: Int): stream.Stream[Throwable, Boolean]
 
   /**
    * 拒绝添加好友

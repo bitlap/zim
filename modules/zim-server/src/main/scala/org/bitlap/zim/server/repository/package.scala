@@ -516,11 +516,12 @@ package object repository {
   /**
    * 更新好友、群组信息请求
    *
-   * @param addMessage 添加好友、群组信息对象
+   * @param id 消息盒子id
+   * @param agree 0未处理，1同意，2拒绝
    * @return
    */
-  private[repository] def _updateAddMessage(addMessage: AddMessage): SQLUpdate =
-    sql"update ${AddMessage.table} set agree = ${addMessage.agree} where id = ${addMessage.id}".update()
+  private[repository] def _updateAgree(id: Int, agree: Int): SQLUpdate =
+    sql"update ${AddMessage.table} set agree = ${agree} where id = ${id}".update()
 
   /**
    * 添加好友、群组信息请求

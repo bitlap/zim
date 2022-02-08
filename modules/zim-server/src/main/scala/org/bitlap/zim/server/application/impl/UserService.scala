@@ -1,9 +1,9 @@
 package org.bitlap.zim.server.application.impl
 
 import org.bitlap.zim.domain
-import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup, GroupList, GroupMember, Receive, User }
-import org.bitlap.zim.domain.repository._
 import org.bitlap.zim.domain._
+import org.bitlap.zim.domain.model._
+import org.bitlap.zim.domain.repository._
 import org.bitlap.zim.server.application.UserApplication
 import org.bitlap.zim.server.application.ws.wsService
 import org.bitlap.zim.server.configuration.InfrastructureConfiguration
@@ -15,8 +15,8 @@ import org.bitlap.zim.server.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.server.repository.TangibleReceiveRepository.ZReceiveRepository
 import org.bitlap.zim.server.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil, UuidUtil }
-import zio.{ stream, Has, URLayer, ZLayer }
 import zio.stream.ZStream
+import zio.{ stream, Has, URLayer, ZLayer }
 
 import java.time.ZonedDateTime
 
@@ -72,7 +72,7 @@ private final class UserService(
       //自己加自己的群，默认同意
       upRet <-
         if (group != null) {
-          updateAddMessage(messageBoxId, 1)
+          updateAgree(messageBoxId, 1)
         } else ZStream.succeed(false)
       _ <- LogUtil.infoS(
         s"addGroupMember gid=>$gid, uid=>$uid, group=>$group, messageBoxId=>$messageBoxId, upRet=>$upRet"
@@ -114,7 +114,7 @@ private final class UserService(
     val to = AddFriend(tid, tgid)
     friendGroupFriendRepository
       .addFriend(from, to)
-      .flatMap(c => if (c > 0) updateAddMessage(messageBoxId, 1) else ZStream.succeed(false))
+      .flatMap(c => if (c > 0) updateAgree(messageBoxId, 1) else ZStream.succeed(false))
   }
 
   override def createFriendGroup(groupname: String, uid: Int): stream.Stream[Throwable, Int] =
@@ -154,8 +154,8 @@ private final class UserService(
         }
     } yield addInfoCopy
 
-  override def updateAddMessage(messageBoxId: Int, agree: Int): stream.Stream[Throwable, Boolean] =
-    addMessageRepository.updateAddMessage(model.AddMessage(agree = agree, id = messageBoxId)).map(_ == 1)
+  override def updateAgree(messageBoxId: Int, agree: Int): stream.Stream[Throwable, Boolean] =
+    addMessageRepository.updateAgree(agree, messageBoxId).map(_ == 1)
 
   override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): stream.Stream[Throwable, Boolean] =
     ZStream.fromEffect(wsService.refuseAddFriend(messageBoxId, username, to))
@@ -166,7 +166,7 @@ private final class UserService(
   override def readGroupMessage(gId: Int, to: Int): stream.Stream[Throwable, Boolean] =
     receiveRepository.readMessage(gId, to, SystemConstant.GROUP_TYPE).map(_ == 1)
 
-  override def saveAddMessage(addMessage: model.AddMessage): stream.Stream[Throwable, Int] =
+  override def saveAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int] =
     addMessageRepository.saveAddMessage(addMessage)
 
   override def countGroup(groupName: Option[String]): stream.Stream[Throwable, Int] =

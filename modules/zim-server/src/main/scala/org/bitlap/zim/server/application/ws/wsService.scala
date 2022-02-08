@@ -103,7 +103,7 @@ object wsService extends ZimServiceConfiguration {
             refuse.messageBoxId.synchronized {
               val actor = actorRefSessions.get(refuse.toUid)
               for {
-                _ <- userService.updateAddMessage(refuse.messageBoxId, 2).runHead
+                _ <- userService.updateAgree(refuse.messageBoxId, 2).runHead
                 r <- {
                   val result = Map("type" -> "refuseAddGroup", "username" -> refuse.mine.username)
                   sendMessage(result.asJson.noSpaces, actor)
