@@ -38,10 +38,10 @@ private final class TangibleUserRepository(databaseName: String)
     _updateUserInfo(id, user).toUpdateOperation
 
   override def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Int] =
-    _updateUserStatus(model.User.table, status, uid).toUpdateOperation
+    _updateUserStatus(status, uid).toUpdateOperation
 
   override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
-    _activeUser(model.User.table, activeCode).toUpdateOperation
+    _activeUser(activeCode).toUpdateOperation
 
   override def findUserByGroupId(gid: Int): stream.Stream[Throwable, model.User] =
     _findUserByGroupId(gid).toStreamOperation

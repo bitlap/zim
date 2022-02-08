@@ -1,7 +1,7 @@
 package org.bitlap.zim.server
 
 import org.bitlap.zim.domain.model
-import org.bitlap.zim.domain.model.{ GroupList, User }
+import org.bitlap.zim.domain.model.{ AddMessage, GroupList, User }
 import org.bitlap.zim.server.configuration.properties.MysqlConfigurationProperties
 import org.scalatest.BeforeAndAfter
 import org.scalatest.flatspec.AnyFlatSpec
@@ -37,6 +37,17 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
       validationQuery = h2ConfigurationProperties.validationQuery,
       driverName = h2ConfigurationProperties.driverName
     )
+  )
+
+  val mockAddMessage = AddMessage(
+    id = 1,
+    fromUid = 1,
+    toUid = 2,
+    groupId = 3,
+    remark = "remark",
+    agree = 0,
+    `type` = 0,
+    time = ZonedDateTime.now()
   )
 
   val mockUser =

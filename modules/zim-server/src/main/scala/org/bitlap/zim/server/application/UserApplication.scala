@@ -80,10 +80,11 @@ trait UserApplication extends BaseApplication[User] {
   /**
    * 更新用户状态
    *
-   * @param user 个人信息
+   * @param status 用户状态
+   * @param uid 用户ID
    * @return
    */
-  def updateUserStatus(user: User): stream.Stream[Throwable, Boolean]
+  def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Boolean]
 
   /**
    * 移动好友分组

@@ -147,23 +147,21 @@ package object repository {
   /**
    * 更新用户状态
    *
-   * @param table
-   * @param sign
+   * @param status
    * @param uid
    * @return
    */
-  private[repository] def _updateUserStatus(table: TableDefSQLSyntax, status: String, uid: Int): SQLUpdate =
-    sql"update $table set status = ${status} where id = ${uid};".update()
+  private[repository] def _updateUserStatus(status: String, uid: Int): SQLUpdate =
+    sql"update ${User.table} set status = ${status} where id = ${uid};".update()
 
   /**
    * 激活用户账号
    *
-   * @param table
    * @param activeCode
    * @return
    */
-  private[repository] def _activeUser(table: TableDefSQLSyntax, activeCode: String): SQLUpdate =
-    sql"update $table set status = 'offline' where active = ${activeCode};".update()
+  private[repository] def _activeUser(activeCode: String): SQLUpdate =
+    sql"update ${User.table} set status = 'offline' where active = ${activeCode};".update()
 
   /**
    * 根据群组ID查询群里用户的信息

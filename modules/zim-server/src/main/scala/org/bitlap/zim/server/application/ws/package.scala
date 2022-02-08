@@ -164,6 +164,6 @@ package object ws {
       } yield notify
 
       ret.runCollect
-    } *> userService.updateUserStatus(User(uId, status)).runHead.map(_.getOrElse(false))
+    } *> userService.updateUserStatus(status, uId).runHead.map(_.getOrElse(false))
   }
 }

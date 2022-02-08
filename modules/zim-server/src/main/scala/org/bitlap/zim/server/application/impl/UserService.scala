@@ -87,7 +87,7 @@ private final class UserService(
     groupMemberRepository.addGroupMember(new GroupMember(gid, uid)).map(_ == 1)
 
   override def removeFriend(friendId: Int, uId: Int): stream.Stream[Throwable, Boolean] =
-    friendGroupFriendRepository.removeFriend(friendId, uId).map(_ == 1)
+    friendGroupFriendRepository.removeFriend(friendId, uId).map(_ > 0)
 
   override def updateAvatar(userId: Int, avatar: String): stream.Stream[Throwable, Boolean] =
     userRepository.updateAvatar(avatar, userId).map(_ == 1)
@@ -95,8 +95,8 @@ private final class UserService(
   override def updateUserInfo(user: User): stream.Stream[Throwable, Boolean] =
     userRepository.updateUserInfo(user.id, user).map(_ == 1)
 
-  override def updateUserStatus(user: User): stream.Stream[Throwable, Boolean] =
-    userRepository.updateUserStatus(user.status, user.id).map(_ == 1)
+  override def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Boolean] =
+    userRepository.updateUserStatus(status, uid).map(_ == 1)
 
   override def changeGroup(groupId: Int, uId: Int, mId: Int): stream.Stream[Throwable, Boolean] =
     friendGroupFriendRepository.findUserGroup(uId, mId).flatMap { originRecordId =>
