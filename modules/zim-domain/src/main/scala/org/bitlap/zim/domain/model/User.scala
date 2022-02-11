@@ -25,7 +25,7 @@ final case class User(
   id: Int,
   username: String,
   password: String,
-  sign: String,
+  sign: String, //TODO use `Option[String]`
   avatar: String,
   email: String,
   createDate: ZonedDateTime,

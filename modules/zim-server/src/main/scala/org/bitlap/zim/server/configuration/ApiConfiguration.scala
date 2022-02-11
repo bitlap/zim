@@ -4,8 +4,8 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import org.bitlap.zim.server.api.{ ActuatorApi, OpenApi, WsApi, ZimUserApi }
-import org.bitlap.zim.server.configuration.AkkaHttpConfiguration.ZMaterializer
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
+import org.bitlap.zim.server.ZMaterializer
 import zio._
 
 /**

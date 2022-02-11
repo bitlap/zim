@@ -40,7 +40,7 @@ private final class UserService(
   override def findById(id: Long): stream.Stream[Throwable, User] =
     for {
       user <- userRepository.findById(id)
-      _ <- LogUtil.infoS(s"findById $id")
+      _ <- LogUtil.infoS(s"findById id=$id user=$user")
     } yield user
 
   override def leaveOutGroup(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =

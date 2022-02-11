@@ -8,7 +8,8 @@ import org.bitlap.zim.server.util.{ FileUtil, LogUtil, SecurityUtil }
 import org.bitlap.zim.tapir.MultipartInput
 import zio.stream.ZStream
 import zio.{ stream, Has, IO }
-
+import org.bitlap.zim.server.application.impl.UserService.ZUserApplication
+import zio.{ TaskLayer, ULayer, URLayer, ZLayer }
 import java.time.ZonedDateTime
 
 /**
@@ -295,5 +296,12 @@ object ApiService {
   type ZApiApplication = Has[ApiApplication]
 
   def apply(userApplication: UserApplication): ApiApplication = new ApiService(userApplication)
+
+  val live: URLayer[ZUserApplication, ZApiApplication] =
+    ZLayer.fromService[UserApplication, ApiApplication](ApiService(_))
+
+  def make(
+    userApplicationLayer: TaskLayer[ZUserApplication]
+  ): TaskLayer[ZApiApplication] = userApplicationLayer >>> live
 
 }

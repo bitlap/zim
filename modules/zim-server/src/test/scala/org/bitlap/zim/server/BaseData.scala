@@ -55,7 +55,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
       1,
       "zhangsan",
       "123456",
-      null,
+      "",
       "/static/image/avatar/avatar(3).jpg",
       "dreamylost@outlook.com",
       ZonedDateTime.now(),

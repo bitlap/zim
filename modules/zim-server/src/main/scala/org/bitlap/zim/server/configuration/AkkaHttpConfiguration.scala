@@ -10,6 +10,7 @@ import akka.util.ByteString
 import org.bitlap.zim.server.api.OpenApi
 import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
 import zio._
+import org.bitlap.zim.server.ZMaterializer
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -75,7 +76,6 @@ object AkkaHttpConfiguration {
     new AkkaHttpConfiguration(actorSystem)
 
   type ZAkkaHttpConfiguration = Has[AkkaHttpConfiguration]
-  type ZMaterializer = Has[Materializer]
 
   def httpServer(route: Route): RIO[ZAkkaHttpConfiguration with ZAkkaActorSystemConfiguration, Unit] =
     ZIO.accessM(_.get.httpServer(route))

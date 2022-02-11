@@ -1,14 +1,13 @@
 package org.bitlap.zim.server.configuration
 
-import org.bitlap.zim.cache.zioRedisService.ZRedisCacheService
-import org.bitlap.zim.cache.ZioRedisLive
 import org.bitlap.zim.server.application.ws.wsService.{ WsService, ZWsService }
 import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
-import org.bitlap.zim.server.configuration.AkkaHttpConfiguration.{ ZAkkaHttpConfiguration, ZMaterializer }
+import org.bitlap.zim.server.configuration.AkkaHttpConfiguration.ZAkkaHttpConfiguration
 import org.bitlap.zim.server.configuration.ApiConfiguration.ZApiConfiguration
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.server.configuration.ZioActorSystemConfiguration.ZZioActorSystemConfiguration
-import zio.{ Layer, TaskLayer, ULayer }
+import org.bitlap.zim.server.ZMaterializer
+import zio.{ TaskLayer, ULayer }
 
 /**
  * global configuration to collect all service or system layer
@@ -19,14 +18,14 @@ import zio.{ Layer, TaskLayer, ULayer }
  */
 trait ZimServiceConfiguration {
 
-  private lazy val akkaActorSystemLayer: TaskLayer[ZAkkaActorSystemConfiguration] =
+  protected lazy val akkaActorSystemLayer: TaskLayer[ZAkkaActorSystemConfiguration] =
     InfrastructureConfiguration.live >>>
       AkkaActorSystemConfiguration.live
 
-  private lazy val akkaHttpConfigurationLayer: TaskLayer[ZAkkaHttpConfiguration] =
+  protected lazy val akkaHttpConfigurationLayer: TaskLayer[ZAkkaHttpConfiguration] =
     akkaActorSystemLayer >>> AkkaHttpConfiguration.live
 
-  private lazy val materializerLayer: TaskLayer[ZMaterializer] =
+  protected lazy val materializerLayer: TaskLayer[ZMaterializer] =
     akkaActorSystemLayer >>>
       AkkaHttpConfiguration.materializerLive
 
@@ -34,7 +33,7 @@ trait ZimServiceConfiguration {
     InfrastructureConfiguration.live >>>
       ApplicationConfiguration.live
 
-  private lazy val apiConfigurationLayer: TaskLayer[ZApiConfiguration] =
+  protected lazy val apiConfigurationLayer: TaskLayer[ZApiConfiguration] =
     (applicationConfigurationLayer ++
       akkaHttpConfigurationLayer ++
       materializerLayer) >>>
