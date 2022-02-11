@@ -175,7 +175,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   lazy val getMembersRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.getMembersEndpoint.serverLogic { _ => id =>
       val userStream = apiApplication.getMembers(id)
-      buildFlowResponse(userStream)
+      buildMonoResponse()(userStream)
     })
 
   lazy val createGroupRoute: Route =
@@ -314,7 +314,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   // TODO 暂时先这样搞
   lazy val chatLogIndexRoute: Route = get {
     pathPrefix(USER / "chatLogIndex") {
-      parameters("id".as[Int], "type") { (id, `type`) =>
+      parameters("id".as[Int], "type".as[String].withDefault("friend")) { (id, `type`) =>
         cookie(Authorization) { user =>
           val checkFuture = authenticate(UserSecurity(user.value))(authorityCacheFunction).map(_.getOrElse(null))
           onComplete(checkFuture) {

@@ -15,6 +15,7 @@ import sttp.tapir.{ Schema, SchemaType }
 import zio._
 import zio.interop.reactivestreams.streamToPublisher
 import zio.stream.ZStream
+import org.bitlap.zim.domain.model.Receive
 
 import scala.concurrent.Future
 
@@ -47,6 +48,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
         case u: ChatHistory        => ChatHistory.encoder(u)
         case u: AddInfo            => AddInfo.encoder(u)
         case u: UploadResult       => UploadResult.encoder(u)
+        case u: Receive            => Receive.encoder(u)
         case _                     => Json.Null
       }
     }

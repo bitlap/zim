@@ -451,7 +451,7 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
             var friend_id = othis.parent().attr('data-id').substring(12);
             var friends = layim.cache().friend;
             var friend = getFriend(friends, friend_id);
-            var params = escape("id=" + friend.id + "&username=" + friend.username + "&sign=" + friend.sign + "&avatar=" + friend.avatar + "&email=" + friend.email + "&sex=" + friend.sex);
+            var params = escape(escape("id=" + friend.id + "&username=" + friend.username + "&sign=" + friend.sign + "&avatar=" + friend.avatar + "&email=" + friend.email + "&sex=" + friend.sex));
             layer.open({
                 type: 2,
                 title: "好友信息",
@@ -481,7 +481,7 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
                             layer.alert("你已解散该群!", {icon: 0, time: 0, title: "删除信息"});
                         }
                     } else {
-                        layer.alert(res.msg);
+                        layer.msg(res.msg, {time: 2000});
                     }
                     layer.close(index);
                 }, "json");

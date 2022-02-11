@@ -3,13 +3,13 @@ package org.bitlap.zim.server.application.impl
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
+import org.bitlap.zim.server.application.impl.UserService.ZUserApplication
 import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
 import org.bitlap.zim.server.util.{ FileUtil, LogUtil, SecurityUtil }
 import org.bitlap.zim.tapir.MultipartInput
 import zio.stream.ZStream
-import zio.{ stream, Has, IO }
-import org.bitlap.zim.server.application.impl.UserService.ZUserApplication
-import zio.{ TaskLayer, ULayer, URLayer, ZLayer }
+import zio.{ stream, Has, IO, TaskLayer, URLayer, ZLayer }
+
 import java.time.ZonedDateTime
 
 /**
@@ -110,7 +110,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
   override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
     userApplication
       .activeUser(activeCode)
-      .map(i => if (i == 1) 1 else 0)
+      .map(i => if (i > 1) 1 else 0)
 
   override def createUserGroup(friendGroup: FriendGroupInput): stream.Stream[Throwable, Int] =
     userApplication.createFriendGroup(friendGroup.groupname, friendGroup.uid)
@@ -139,10 +139,12 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     userApplication.findUserById(mid).flatMap(user => userApplication.updateSing(user.copy(sign = sign)))
 
   override def leaveOutGroup(groupId: Int, mid: Int): stream.Stream[Throwable, Int] = {
-    val masterId = userApplication.findGroupById(groupId).map(_.createId)
-    userApplication.leaveOutGroup(groupId, mid).flatMap { ret =>
-      if (ret) masterId else ZStream.succeed(-1)
-    }
+    val masterIdStream = userApplication.findGroupById(groupId).map(_.createId)
+    for {
+      masterId <- masterIdStream
+      status <- userApplication.leaveOutGroup(groupId, mid)
+      _ <- LogUtil.infoS(s"leaveOutGroup groupId=>$groupId, mid=>$mid, masterId=$masterId, status=>$status")
+    } yield if (status) masterId else -1
   }
 
   override def removeFriend(friendId: Int, mid: Int): stream.Stream[Throwable, Boolean] =

@@ -49,10 +49,10 @@ private final class UserService(
       ret <-
         if (group == null) ZStream.succeed(false)
         else {
-          if (group.createId.equals(uid)) groupRepository.deleteGroup(gid).map(_ == 1)
-          else groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)).map(_ == 1)
+          if (group.createId.equals(uid)) groupRepository.deleteGroup(gid).map(_ > 0)
+          else groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)).map(_ > 0)
         }
-      _ <- LogUtil.infoS(s"leaveOutGroup gid=>$gid, uid=>$uid, group=>$group")
+      _ <- LogUtil.infoS(s"leaveOutGroup gid=>$gid, uid=>$uid, group=>$group ret=>$ret")
       master <- findUserById(group.createId)
       _ <-
         if (ret && group.createId.equals(uid)) {
@@ -84,7 +84,7 @@ private final class UserService(
     } yield ret
 
   override def addGroupMember(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
-    groupMemberRepository.addGroupMember(new GroupMember(gid, uid)).map(_ == 1)
+    groupMemberRepository.addGroupMember(GroupMember(gid, uid)).map(_ == 1)
 
   override def removeFriend(friendId: Int, uId: Int): stream.Stream[Throwable, Boolean] =
     friendGroupFriendRepository.removeFriend(friendId, uId).map(_ > 0)
@@ -155,7 +155,7 @@ private final class UserService(
     } yield addInfoCopy
 
   override def updateAgree(messageBoxId: Int, agree: Int): stream.Stream[Throwable, Boolean] =
-    addMessageRepository.updateAgree(agree, messageBoxId).map(_ == 1)
+    addMessageRepository.updateAgree(messageBoxId, agree).map(_ == 1)
 
   override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): stream.Stream[Throwable, Boolean] =
     ZStream.fromEffect(wsService.refuseAddFriend(messageBoxId, username, to))
