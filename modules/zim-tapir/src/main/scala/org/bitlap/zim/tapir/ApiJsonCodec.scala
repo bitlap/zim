@@ -143,8 +143,9 @@ trait ApiJsonCodec extends BootstrapRuntime {
    */
   def buildMonoResponse[T <: Product](
     returnError: PartialFunction[T, String] = {
-      { case tt: T @unchecked =>
-        null
+      {
+        case tt: T @unchecked => null
+        case t if t == null   => null
       }: PartialFunction[T, String]
     }
   ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {

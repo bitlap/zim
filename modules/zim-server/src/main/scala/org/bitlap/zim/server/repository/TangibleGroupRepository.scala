@@ -19,7 +19,7 @@ private final class TangibleGroupRepository(databaseName: String)
     with GroupRepository {
 
   override implicit val dbName: String = databaseName
-  override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("gl")
+  override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
 
   override def deleteGroup(id: Int): stream.Stream[Throwable, Int] =
     _deleteGroup(id).toUpdateOperation

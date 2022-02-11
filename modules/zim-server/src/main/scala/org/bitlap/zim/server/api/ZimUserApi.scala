@@ -1,14 +1,14 @@
 package org.bitlap.zim.server.api
 
-import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
+import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.server.Directive.addDirectiveApply
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
+import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
 import org.bitlap.zim.server.api.ZimUserEndpoint._
 import org.bitlap.zim.server.application.ApiApplication
 import org.bitlap.zim.server.application.impl.ApiService.ZApiApplication
@@ -20,6 +20,7 @@ import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
 import zio.stream.ZStream
+import org.bitlap.zim.server.ZMaterializer
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
@@ -344,10 +345,15 @@ object ZimUserApi {
 
   type ZZimUserApi = Has[ZimUserApi]
 
-  val route: ZIO[ZZimUserApi, Nothing, Route] =
+  val route: URIO[ZZimUserApi, Route] =
     ZIO.access[ZZimUserApi](_.get.route)
 
-  val live: ZLayer[ZApiApplication with Has[Materializer], Nothing, ZZimUserApi] =
+  val live: ZLayer[ZApiApplication with ZMaterializer, Nothing, ZZimUserApi] =
     ZLayer.fromServices[ApiApplication, Materializer, ZimUserApi]((app, mat) => ZimUserApi(app)(mat))
+
+  def make(
+    apiApplicationLayer: TaskLayer[ZApiApplication],
+    materializerLayer: TaskLayer[ZMaterializer]
+  ): TaskLayer[ZZimUserApi] = apiApplicationLayer ++ materializerLayer >>> live
 
 }
