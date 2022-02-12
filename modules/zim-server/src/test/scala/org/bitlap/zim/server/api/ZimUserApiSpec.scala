@@ -44,7 +44,7 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
   "getOne" should "OK for GET" in {
     val user = unsafeRun(TangibleUserRepository.saveUser(mockUser).provideLayer(userLayer).runHead)
     println(s"user => $user")
-    Get("/user/getOne?id=1") ~> getRoute(_.userGetRoute) ~> check {
+    Get(s"/user/getOne?id=${user.getOrElse(1L)}") ~> getRoute(_.userGetRoute) ~> check {
       responseAs[String] shouldEqual """{"data":{"id":1,"username":"zhangsan","password":"123456","sign":"","avatar":"/static/image/avatar/avatar(3).jpg","email":"dreamylost@outlook.com","createDate":"2022-02-11 00:00:00","sex":1,"status":"nonactivated","active":"1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d"},"msg":"操作成功","code":0}"""
     }
   }
