@@ -15,11 +15,7 @@ import java.util.Locale
 class DateUtilSpec extends AnyFlatSpec with Matchers {
 
   "getDateString" should "ok" in {
-    val fromPattern: DateTimeFormatter = DateTimeFormatter
-      .ofPattern("yyyy-MM-dd HH:mm:ss")
-      .withLocale(Locale.CHINA)
-      .withZone(ZoneId.of("UTC+8"))
-    val dateString = DateUtil.getDateString(ZonedDateTime.parse("2020-02-21 00:00:00", fromPattern))
+    val dateString = DateUtil.getDateString(ZonedDateTime.parse("2020-02-21 00:00:00", DateHelper.fromPattern))
     dateString shouldBe "2020-02-21"
   }
 }
