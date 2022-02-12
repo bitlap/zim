@@ -17,6 +17,6 @@ object DateHelper {
     .withZone(ZoneId.of("Asia/Shanghai"))
 
   def getConstantTime: ZonedDateTime =
-    ZonedDateTime.parse("2022-02-11 00:00:00", fromPattern)
+    ZonedDateTime.parse("2022-02-11 08:00:00", fromPattern)
 
 }
