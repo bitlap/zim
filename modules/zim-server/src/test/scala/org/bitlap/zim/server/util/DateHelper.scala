@@ -14,9 +14,9 @@ object DateHelper {
   val fromPattern: DateTimeFormatter = DateTimeFormatter
     .ofPattern("yyyy-MM-dd HH:mm:ss")
     .withLocale(Locale.CHINA)
-    .withZone(ZoneId.of("UTC+8"))
+    .withZone(ZoneId.of("Asia/Shanghai"))
 
   def getConstantTime: ZonedDateTime =
-    ZonedDateTime.parse("2022-02-11 00:00:00", fromPattern)
+    ZonedDateTime.parse("2022-02-11 08:00:00", fromPattern)
 
 }
