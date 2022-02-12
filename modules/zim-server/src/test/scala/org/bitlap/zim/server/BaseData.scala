@@ -3,13 +3,12 @@ package org.bitlap.zim.server
 import org.bitlap.zim.domain.model
 import org.bitlap.zim.domain.model.{ AddMessage, GroupList, User }
 import org.bitlap.zim.server.configuration.properties.MysqlConfigurationProperties
+import org.bitlap.zim.server.util.DateHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc._
 import zio.BootstrapRuntime
-
-import java.time.ZonedDateTime
 
 /**
  * @author 梦境迷离
@@ -47,7 +46,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
     remark = "remark",
     agree = 0,
     `type` = 0,
-    time = ZonedDateTime.now()
+    time = DateHelper.getConstantTime
   )
 
   val mockUser =
@@ -58,7 +57,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
       "",
       "/static/image/avatar/avatar(3).jpg",
       "dreamylost@outlook.com",
-      ZonedDateTime.now(),
+      DateHelper.getConstantTime,
       1,
       "online",
       "1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d"
