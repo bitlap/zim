@@ -38,19 +38,19 @@ trait ApiErrorMapping extends ApiJsonCodec {
   implicit def customExceptionHandler: ExceptionHandler = ExceptionHandler {
     case e: Unauthorized =>
       extractUri { uri =>
-        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.getCause}")
+        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.toString}")
         getFromResource("static/html/403.html")
       }
     case e: BusinessException =>
       extractUri { uri =>
-        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.getCause}")
+        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.toString}")
         val result = ResultSet(code = e.code, msg = if (e.msg != null) e.msg else SystemConstant.ERROR_MESSAGE)
         val resp = HttpEntity(ContentTypes.`application/json`, result.asJson.noSpaces)
         complete(HttpResponse(InternalServerError, entity = resp))
       }
     case e: Exception =>
       extractUri { uri =>
-        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.getCause}")
+        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.toString}")
         val resp = HttpEntity(
           ContentTypes.`application/json`,
           ResultSet(code = SystemConstant.ERROR, msg = SystemConstant.ERROR_MESSAGE).asJson.noSpaces

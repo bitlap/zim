@@ -61,7 +61,7 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
         actorSystem.log.info(
           s"""
              |Server online at http://${infoConf.interface}:${infoConf.port}/${OpenApi().openapi}
-             |Websocket Server online at http://localhost:9000/api/v1.0/wsDocs
+             |Websocket Server online at http://${infoConf.interface}:${infoConf.port}/api/v1.0/wsDocs
              |""".stripMargin
         )
       )

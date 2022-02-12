@@ -131,9 +131,8 @@ trait ApiJsonCodec extends BootstrapRuntime {
       resp = ResultSet[List[T]](data = list.toList).asJson.noSpaces
       r <- ZStream(resp).map(body => ByteString(body)).toPublisher
     } yield r
-    val value = unsafeRun(resp)
     Future.successful(
-      Right(Source.fromPublisher(value))
+      Right(Source.fromPublisher(unsafeRun(resp)))
     )
   }
 
@@ -160,9 +159,8 @@ trait ApiJsonCodec extends BootstrapRuntime {
       ).asJson.noSpaces
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r
-    val value = unsafeRun(resp)
     Future.successful(
-      Right(Source.fromPublisher(value))
+      Right(Source.fromPublisher(unsafeRun(resp)))
     )
   }
 
@@ -177,9 +175,8 @@ trait ApiJsonCodec extends BootstrapRuntime {
                 else ResultSet(data = resp)).asJson.noSpaces
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r
-    val value = unsafeRun(resp)
     Future.successful(
-      Right(Source.fromPublisher(value))
+      Right(Source.fromPublisher(unsafeRun(resp)))
     )
   }
 
@@ -194,9 +191,8 @@ trait ApiJsonCodec extends BootstrapRuntime {
                 else ResultSet(data = resp)).asJson.noSpaces
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r
-    val value = unsafeRun(resp)
     Future.successful(
-      Right(Source.fromPublisher(value))
+      Right(Source.fromPublisher(unsafeRun(resp)))
     )
   }
 
@@ -207,9 +203,8 @@ trait ApiJsonCodec extends BootstrapRuntime {
         resp <- respIO
         r <- ZStream.succeed(resp.asJson.noSpaces).map(body => ByteString(body)).toPublisher
       } yield r
-      val value = unsafeRun(resp)
       Future.successful(
-        Right(Source.fromPublisher(value))
+        Right(Source.fromPublisher(unsafeRun(resp)))
       )
     }
 

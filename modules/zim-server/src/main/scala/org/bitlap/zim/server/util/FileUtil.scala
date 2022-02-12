@@ -1,17 +1,14 @@
 package org.bitlap.zim.server.util
-import akka.actor.ActorSystem
-import org.bitlap.zim.domain.SystemConstant
 import org.bitlap.zim.domain.ZimError.BusinessException
+import org.bitlap.zim.domain.{ SystemConstant, ZimError }
 import sttp.model.Part
 import sttp.tapir.TapirFile
 import zio.{ IO, ZIO }
 
 import java.io.{ File, FileInputStream, FileOutputStream, IOException, InputStream }
-import java.net.URL
 import java.nio.charset.Charset
 import scala.io.Source
 import scala.util.Using
-import org.bitlap.zim.domain.ZimError
 
 /**
  * @author 梦境迷离
@@ -20,21 +17,19 @@ import org.bitlap.zim.domain.ZimError
  */
 object FileUtil {
 
-  def readFile(file: URL): String = {
-    val input = Source.fromFile(new File(file.getFile))
+  def readFile(file: InputStream): String = {
+    val input = Source.fromInputStream(file)
     val fileContent = new StringBuilder
     input.getLines().foreach(f => fileContent.append(new String(f.getBytes(), Charset.forName("utf8"))).append("\n"))
     fileContent.toString()
   }
 
-  def getFileAndInjectData(file: String, source: String, target: String): String = {
-    val f = classOf[ActorSystem].getClassLoader.getResource(file)
-    FileUtil.readFile(f).replace(source, target)
-  }
+  def getFileAndInjectData(file: String, source: String, target: String): String =
+    // 从jar中读取只能使用 getResourceAsStream
+    FileUtil.readFile(this.getClass.getClassLoader.getResourceAsStream(file)).replace(source, target)
 
   def getFileAndInjectData(file: String, sourceTargets: (String, String)*): String = {
-    val f = classOf[ActorSystem].getClassLoader.getResource(file)
-    val fileContent = FileUtil.readFile(f)
+    val fileContent = FileUtil.readFile(this.getClass.getClassLoader.getResourceAsStream(file))
     sourceTargets.foldLeft(fileContent)((e, op) => e.replace(op._1, op._2))
   }
 

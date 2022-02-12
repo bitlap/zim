@@ -9,7 +9,6 @@ import sbt.{ url, Def, Developer, ScmInfo }
 object Information {
 
   val value: Seq[Def.Setting[_]] = Seq(
-    name := "zim",
     organization := "org.bitlap",
     description := "zim is a functional-style, asynchronous and streaming IM based on scala and zio",
     homepage := Some(url(s"https://github.com/bitlap/zim")),

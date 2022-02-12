@@ -16,4 +16,5 @@ modules/zim-server/src/test/resources/application-test.conf
 # upload file into this folder
 static/
 logs/
+deploy-dev.sh
 

@@ -1,14 +1,15 @@
 package org.bitlap.zim.server.api
 
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
 import akka.http.scaladsl.model.StatusCodes.OK
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
 import akka.http.scaladsl.server.Directive.addDirectiveApply
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
-import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
+import org.bitlap.zim.server.ZMaterializer
 import org.bitlap.zim.server.api.ZimUserEndpoint._
 import org.bitlap.zim.server.application.ApiApplication
 import org.bitlap.zim.server.application.impl.ApiService.ZApiApplication
@@ -20,7 +21,6 @@ import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
 import zio.stream.ZStream
-import org.bitlap.zim.server.ZMaterializer
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
@@ -250,7 +250,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
                 value = input.toCookieValue,
                 maxAge = Some(30 * 60 * 7L),
                 httpOnly = true,
-                secure = true
+                secure = false
               ),
               s
             )
@@ -300,7 +300,11 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
             val resp =
               HttpEntity(
                 ContentTypes.`text/html(UTF-8)`,
-                FileUtil.getFileAndInjectData("static/html/index.html", "${uid}", s"${u.id}")
+                FileUtil.getFileAndInjectData(
+                  "static/html/index.html",
+                  "${uid}",
+                  s"${u.id}"
+                )
               )
             val httpResp = HttpResponse(OK, entity = resp) /*.addAttribute(AttributeKey("uid"), u.id)*/
             complete(httpResp)
