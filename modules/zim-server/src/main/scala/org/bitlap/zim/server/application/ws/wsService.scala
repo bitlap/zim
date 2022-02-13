@@ -136,7 +136,7 @@ object wsService extends ZimServiceConfiguration {
             uId.synchronized {
               //对方是否在线，在线则处理，不在线则不处理
               val actor = actorRefSessions.get(friendId);
-              env.userApplication.findUserById(uId).runHead.flatMap(u => {
+              env.userApplication.findUserById(uId).runHead.flatMap { u =>
                 {
                   val result = Map(
                     "type" -> protocol.delFriend.stringify,
@@ -146,7 +146,7 @@ object wsService extends ZimServiceConfiguration {
                   sendMessage(result.asJson.noSpaces, actor)
 
                 }.when(actor != null && u.isDefined)
-              })
+              }
             }
 
           override def addGroup(uId: Int, message: domain.Message): Task[Unit] =

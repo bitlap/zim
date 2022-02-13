@@ -110,7 +110,7 @@ private final class UserService(
     tgid: Int,
     messageBoxId: Int
   ): stream.Stream[Throwable, Boolean] = {
-    if(mid == tid){
+    if (mid == tid) {
       return ZStream.succeed(false)
     }
     val from = AddFriend(mid, mgid)
