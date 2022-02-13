@@ -305,8 +305,8 @@ private final class UserService(
         createDate = ZonedDateTime.now(),
         password = pwd.value
       )
-      _ <- userRepository.saveUser(userCopy).runHead
-      _ <- createFriendGroup(SystemConstant.DEFAULT_GROUP_NAME, userCopy.id).runHead
+      id <- userRepository.saveUser(userCopy).runHead
+      _ <- createFriendGroup(SystemConstant.DEFAULT_GROUP_NAME, id.map(_.toInt).getOrElse(0)).runHead
       // 通过infra层访问配置
       zimConf <- InfrastructureConfiguration.zimConfigurationProperties
       mailConf <- InfrastructureConfiguration.mailConfigurationProperties
