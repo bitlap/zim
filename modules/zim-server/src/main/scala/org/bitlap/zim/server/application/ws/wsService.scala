@@ -136,14 +136,17 @@ object wsService extends ZimServiceConfiguration {
             uId.synchronized {
               //对方是否在线，在线则处理，不在线则不处理
               val actor = actorRefSessions.get(friendId);
-              {
-                val result = Map(
-                  "type" -> protocol.delFriend.stringify,
-                  "uId" -> s"$uId"
-                )
-                sendMessage(result.asJson.noSpaces, actor)
+              env.userApplication.findUserById(uId).runHead.flatMap(u => {
+                {
+                  val result = Map(
+                    "type" -> protocol.delFriend.stringify,
+                    "uId" -> s"$uId",
+                    "username" -> u.map(_.username).getOrElse("undefined")
+                  )
+                  sendMessage(result.asJson.noSpaces, actor)
 
-              }.when(actor != null)
+                }.when(actor != null && u.isDefined)
+              })
             }
 
           override def addGroup(uId: Int, message: domain.Message): Task[Unit] =

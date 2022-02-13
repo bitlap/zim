@@ -93,6 +93,7 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
                 case "checkOnline": {
                     var style;
                     var str;
+                    console.log("状态变更:" + JSON.stringify(json))
                     if (json.status === "在线") {
                         style = "color:#00EE00;";
                         str = "online";
@@ -244,7 +245,7 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
         socket.send(JSON.stringify({
             type: "changOnline",
             mine: parent.layui.layim.cache().mine,
-            to: null,
+            to: "null",
             msg: data
         }));
     });
@@ -294,8 +295,8 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
         //请求未处理的消息
         socket.send(JSON.stringify({
             type: "unHandMessage",
-            mine: null,
-            to: null
+            mine: "null",
+            to: "null"
         }));
     });
 
@@ -325,7 +326,7 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
         if ("friend" == type) {
             socket.send(JSON.stringify({
                 type: "checkOnline",
-                mine: null,
+                mine: "null",
                 to: res.data
             }));
             var data = '{"type":"readOfflineMessage","to":{"id":'+parent.layui.layim.cache().mine.id+'},"mine":{"id":'+res.data.id+'}}'
