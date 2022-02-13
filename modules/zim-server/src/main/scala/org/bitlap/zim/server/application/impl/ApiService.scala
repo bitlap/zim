@@ -110,7 +110,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
   override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
     userApplication
       .activeUser(activeCode)
-      .map(i => if (i > 1) 1 else 0)
+      .map(i => if (i > 0) 1 else 0)
 
   override def createUserGroup(friendGroup: FriendGroupInput): stream.Stream[Throwable, Int] =
     userApplication.createFriendGroup(friendGroup.groupname, friendGroup.uid)

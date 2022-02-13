@@ -194,9 +194,9 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.activeUserEndpoint.serverLogic { activeCode =>
       val resultStream = apiApplication.activeUser(activeCode)
       val str = unsafeRun(resultStream.runHead)
-      val ret = buildIntMonoResponse()(ZStream.succeed(0))
+      val ret = buildIntMonoResponse()(ZStream.succeed(str.getOrElse(0)))
       ret.map {
-        case Right(s)    => Right(Tuple2(Uri.unsafeParse(s"/#tologin?status=$str"), s))
+        case Right(s)    => Right(Tuple2(Uri.unsafeParse(s"/#tologin?status=${str.getOrElse(0)}"), s))
         case Left(value) => Left(value.msg)
       }
     })
