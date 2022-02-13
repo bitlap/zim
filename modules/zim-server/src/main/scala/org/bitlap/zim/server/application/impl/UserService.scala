@@ -310,11 +310,12 @@ private final class UserService(
       // 通过infra层访问配置
       zimConf <- InfrastructureConfiguration.zimConfigurationProperties
       mailConf <- InfrastructureConfiguration.mailConfigurationProperties
+      host = if (zimConf.port == 80) zimConf.webHost else s"${zimConf.webHost}:${zimConf.port}"
       _ <- MailService
         .sendHtmlMail(
           userCopy.email,
           SystemConstant.SUBJECT,
-          s"${userCopy.username} 请确定这是你本人注册的账号, http://${zimConf.interface}:${zimConf.port}/user/active/" + activeCode
+          s"${userCopy.username} 请确定这是你本人注册的账号, http://$host/user/active/" + activeCode
         )
         .provideLayer(MailService.make(mailConf))
       _ <- LogUtil.info(

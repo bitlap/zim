@@ -31,7 +31,7 @@ lazy val assemblySettings = Seq(
     case "application.conf"                              => MergeStrategy.concat
     case x if x.endsWith(".txt") || x.endsWith(".proto") => MergeStrategy.first
     case x if x.endsWith("module-info.class")            => MergeStrategy.first
-    case x if x.endsWith(".properties")            => MergeStrategy.deduplicate
+    case x if x.endsWith(".properties")                  => MergeStrategy.deduplicate
     case x =>
       val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
       oldStrategy(x)

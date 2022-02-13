@@ -15,10 +15,12 @@ infrastructure {
 }
 
 application {
+
     name = "Zim-Application"
     server {
       port = 9000
       interface = "localhost"
+      webHost = "im.dreamylost.cn"
     }
 
     redis = {

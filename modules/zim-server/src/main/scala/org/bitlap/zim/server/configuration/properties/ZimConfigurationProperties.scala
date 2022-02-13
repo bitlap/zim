@@ -14,7 +14,8 @@ import zio.UIO
 final case class ZimConfigurationProperties(
   name: String,
   interface: String,
-  port: Int
+  port: Int,
+  webHost: String
 )
 
 object ZimConfigurationProperties {
@@ -32,7 +33,8 @@ object ZimConfigurationProperties {
     ZimConfigurationProperties(
       name = config.getString("name"),
       interface = config.getString("server.interface"),
-      port = config.getInt("server.port")
+      port = config.getInt("server.port"),
+      webHost = config.getString("server.webHost")
     )
 
 }
