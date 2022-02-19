@@ -3,7 +3,6 @@ package org.bitlap.zim.server
 import org.bitlap.zim.server.configuration.{ AkkaHttpConfiguration, ApiConfiguration, ZimServiceConfiguration }
 import org.bitlap.zim.server.util.LogUtil
 import zio._
-import zio.logging.Logging
 
 /**
  * main方法
@@ -13,7 +12,7 @@ import zio.logging.Logging
  */
 object ZimServer extends ZimServiceConfiguration with zio.App {
 
-  private val program: URIO[Logging, ExitCode] =
+  override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     (for {
       routes <- ApiConfiguration.routes
       _ <- AkkaHttpConfiguration.httpServer(routes)
@@ -23,8 +22,5 @@ object ZimServer extends ZimServiceConfiguration with zio.App {
         e => LogUtil.error(s"error => $e") as ExitCode.failure,
         _ => UIO.effectTotal(ExitCode.success)
       )
-
-  override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
-    program.provideLayer(LogUtil.loggingLayer)
 
 }
