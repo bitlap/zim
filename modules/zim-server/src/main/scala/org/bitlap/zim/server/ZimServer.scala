@@ -3,7 +3,7 @@ package org.bitlap.zim.server
 import org.bitlap.zim.server.configuration.{ AkkaHttpConfiguration, ApiConfiguration, ZimServiceConfiguration }
 import org.bitlap.zim.server.util.LogUtil
 import zio._
-import zio.logging.{ log, Logging }
+import zio.logging.Logging
 
 /**
  * main方法
@@ -20,7 +20,7 @@ object ZimServer extends ZimServiceConfiguration with zio.App {
     } yield ())
       .provideLayer(ZimEnv)
       .foldM(
-        e => log.throwable("", e) as ExitCode.failure,
+        e => LogUtil.error(s"error => $e") as ExitCode.failure,
         _ => UIO.effectTotal(ExitCode.success)
       )
 

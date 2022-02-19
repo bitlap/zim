@@ -37,7 +37,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       checkAndUpdate <-
         if (check()) {
           userApplication.updateUserInfo(u.copy(sex = sex, sign = user.sign, username = user.username))
-        } else if (pwdCheck) {
+        } else if (!pwdCheck) {
           ZStream.succeed(false)
         } else {
           userApplication

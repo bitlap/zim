@@ -23,11 +23,13 @@ trait CookieAuthority {
   type AuthorityFunction = (String, String) => IO[Throwable, (Boolean, Option[UserSecurityInfo])]
 
   /**
-   * 鉴权，目前写死，后续使用Redis缓存用户信息，没有再查库
+   * 鉴权，使用Redis缓存用户信息，没有再查库
    * @param token
    * @return
    */
-  def authenticate(token: UserSecurity)(auth: AuthorityFunction): Future[Either[Unauthorized, UserSecurityInfo]] =
+  def authenticate(
+    token: UserSecurity
+  )(authorityFunction: AuthorityFunction): Future[Either[Unauthorized, UserSecurityInfo]] =
     Future {
       val tk = if (token.cookie.trim.contains(" ")) token.cookie.trim.split(" ")(1) else token.cookie
       val secret: String = Try(new String(Base64.getDecoder.decode(tk))).getOrElse(null)
@@ -37,7 +39,7 @@ trait CookieAuthority {
         val usernamePassword = secret.split(":")
         val email = usernamePassword(0)
         val passwd = usernamePassword(1)
-        val ret = auth(email, passwd)
+        val ret = authorityFunction(email, passwd)
         val (check, user) = zioRuntime.unsafeRun(ret)
         if (!check) {
           Left(Unauthorized())

@@ -12,7 +12,7 @@ sealed trait Command[+T]
  * proxy
  * @param uId
  * @param  msg Now, default type is `String`, we use toJson to convert anything, should fix it in the future.
- * @param originActorRef
+ * @param originActorRef The message comes from user, who send message to server flow by akka.
  */
 case class TransmitMessageProxy(
   uId: Int,
@@ -27,9 +27,9 @@ case class TransmitMessageProxy(
 /**
  * 在线用户
  */
-case class OnlineUserMessage() extends Command[Unit]
+case class OnlineUserMessage(description: Option[String]) extends Command[Unit]
 
 /**
  * 用户状态变更
  */
-case class UserStatusChange(uId: Int, typ: String) extends Command[Unit]
+case class UserStatusChangeMessage(uId: Int, typ: String, description: Option[String] = None) extends Command[Unit]

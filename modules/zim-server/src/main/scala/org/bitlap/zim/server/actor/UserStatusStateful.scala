@@ -1,7 +1,8 @@
 package org.bitlap.zim.server.actor
-import org.bitlap.zim.domain.ws.protocol.{ Command, UserStatusChange }
+import org.bitlap.zim.domain.ws.protocol.{ Command, UserStatusChangeMessage }
 import org.bitlap.zim.server.application.ws.wsService
-import zio.UIO
+import org.bitlap.zim.server.util.LogUtil
+import zio.{ UIO, ZIO }
 import zio.actors.Actor.Stateful
 import zio.actors.Context
 
@@ -17,11 +18,14 @@ object UserStatusStateful {
 
     override def receive[A](state: Unit, msg: Command[A], context: Context): UIO[(Unit, A)] = {
       val taskIO = msg match {
-        case _ @UserStatusChange(uId, typ) =>
+        case _ @UserStatusChangeMessage(uId, typ, _) =>
           wsService.changeOnline(uId, typ)
         case _ => UIO.effectTotal(false)
       }
-      taskIO.orDie.as((), "".asInstanceOf[A])
+      taskIO.foldM(
+        e => LogUtil.error(s"UserStatusStateful $e").as(() -> "".asInstanceOf[A]),
+        _ => ZIO.succeed(() -> "".asInstanceOf[A])
+      )
     }
   }
 }

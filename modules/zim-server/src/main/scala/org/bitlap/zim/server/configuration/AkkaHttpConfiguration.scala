@@ -7,10 +7,13 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ServerSettings
 import akka.stream.Materializer
 import akka.util.ByteString
+import org.bitlap.zim.domain.ws.protocol.OnlineUserMessage
+import org.bitlap.zim.server.ZMaterializer
 import org.bitlap.zim.server.api.OpenApi
 import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
+import org.bitlap.zim.server.util.LogUtil
 import zio._
-import org.bitlap.zim.server.ZMaterializer
+import zio.clock.Clock
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -65,9 +68,21 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
              |""".stripMargin
         )
       )
+      _ <- scheduleTask
       _ <- server.join
     } yield ()
 
+  def scheduleTask: Task[Unit] = {
+    val task = ZioActorSystemConfiguration.scheduleActor
+      .flatMap(f => f ! OnlineUserMessage(Some("scheduleTask"))) repeat Schedule.secondOfMinute(0)
+
+    task
+      .foldM(
+        e => LogUtil.error(s"error => $e").unit,
+        _ => UIO.unit
+      )
+      .provideLayer(Clock.live)
+  }
 }
 
 object AkkaHttpConfiguration {

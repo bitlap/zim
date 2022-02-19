@@ -19,7 +19,7 @@ import java.time.ZonedDateTime
  */
 package object ws {
 
-  private[ws] final val DEFAULT_VALUE: Unit = ()
+  @inline private[ws] final val DEFAULT_VALUE: Unit = ()
 
   /**
    * 封装返回消息格式

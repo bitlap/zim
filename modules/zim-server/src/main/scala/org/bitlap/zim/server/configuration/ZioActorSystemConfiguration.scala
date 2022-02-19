@@ -28,7 +28,7 @@ object ZioActorSystemConfiguration {
     } yield actorSystem
   }
 
-  lazy val jobActor: ZIO[Any, Throwable, ActorRef[protocol.Command]] =
+  lazy val scheduleActor: ZIO[Any, Throwable, ActorRef[protocol.Command]] =
     actorSystem
       .flatMap(_.make(Constants.SCHEDULE_JOB_ACTOR, zio.actors.Supervisor.none, (), ScheduleStateful.stateful))
       .provideLayer(Clock.live ++ InfrastructureConfiguration.live)
