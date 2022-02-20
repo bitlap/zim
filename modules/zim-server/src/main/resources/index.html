@@ -107,20 +107,20 @@
         }
 
         //编写函数,在按键升起时触发,监测cookie中是否存在该用户名的key,如果有,则把value赋值给密码框
-        $("#email").keyup(function () {
-            var email = $("#email").val();
-            if (email !== "") {
-                var mima = $.cookie($.base64.encode(email).replace("=",""));
-                if (mima != null) {
-                    var mima = $.base64.decode(mima+"=")
-                    $("#password").val(mima);
-                    $("#loginkeeping").attr("checked", true);
-                    // console.log(email)
-                    // console.log(mima)
-                }
-            }
-
-        })
+        // $("#email").keyup(function () {
+        //     var email = $("#email").val();
+        //     if (email !== "") {
+        //         var mima = $.cookie($.base64.encode(email).replace("=",""));
+        //         if (mima != null) {
+        //             var mima = $.base64.decode(mima+"=")
+        //             $("#password").val(mima);
+        //             $("#loginkeeping").attr("checked", true);
+        //             // console.log(email)
+        //             // console.log(mima)
+        //         }
+        //     }
+        //
+        // })
 
         //监测邮件
         $("#emailsignup").blur(function () {
@@ -202,14 +202,14 @@
         });
         //登陆
         form.on('submit(login)', function (data) {
-            var check = document.getElementById("loginkeeping").checked;
+            // var check = document.getElementById("loginkeeping").checked;
             var d = {'email': $("#email").val(), 'password': $("#password").val()};
             //loading层
             var index = layer.load(1, {
                 shade: [0.6, '#fff'] //0.1透明度的白色背景
             });
             $.ajax({
-                url: "user/login?check=" + check,
+                url: "user/login",
                 dataType: "JSON",
                 contentType: "application/json",
                 type: "POST",

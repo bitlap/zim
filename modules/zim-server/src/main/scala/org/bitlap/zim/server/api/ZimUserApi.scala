@@ -238,8 +238,8 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
     ZimUserEndpoint.loginEndpoint.serverLogic { input =>
       val resultStream = apiApplication.login(input)
       val ret = buildMonoResponse[User] {
-        case user: User if user == null                       => SystemConstant.LOGIN_ERROR
         case user: User if user.status.equals("nonactivated") => SystemConstant.NON_ACTIVE
+        case user if user == null                       => SystemConstant.LOGIN_ERROR
         case _                                                => null
       }(resultStream)
       ret.map {
