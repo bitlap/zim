@@ -16,6 +16,7 @@ import org.bitlap.zim.server.actor.akka.WsMessageForwardBehavior
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.server.configuration.{ AkkaActorSystemConfiguration, ZimServiceConfiguration }
 import org.bitlap.zim.server.util.LogUtil
+import org.bitlap.zim.server.zioRuntime
 import org.reactivestreams.Publisher
 import zio.actors.akka.AkkaTypedActor
 import zio.{ Has, Task, ZIO, ZLayer }
@@ -67,9 +68,7 @@ object wsService extends ZimServiceConfiguration {
       def getConnections: Task[Int]
     }
 
-    // akka actor -> zio actor
-    final lazy val actorRefSessions: ConcurrentHashMap[Integer, ActorRef] =
-      new ConcurrentHashMap[Integer, ActorRef]
+    final lazy val actorRefSessions: ConcurrentHashMap[Integer, ActorRef] = new ConcurrentHashMap[Integer, ActorRef]
 
     lazy val live: ZLayer[ZApplicationConfiguration, Nothing, ZWsService] =
       ZLayer.fromService { env =>
@@ -90,16 +89,13 @@ object wsService extends ZimServiceConfiguration {
 
           override def agreeAddGroup(msg: domain.Message): Task[Unit] = {
             val agree = decode[AddRefuseMessage](msg.msg).getOrElse(null)
-            if (agree == null) ZIO.effect(DEFAULT_VALUE)
-            else
-              agree.messageBoxId.synchronized {
-                agreeAddGroupHandler(userService)(agree)
-              }
+            agree.messageBoxId.synchronized {
+              agreeAddGroupHandler(userService)(agree)
+            }.unless(agree == null)
           }
 
           override def refuseAddGroup(msg: domain.Message): Task[Unit] = {
             val refuse = decode[AddRefuseMessage](msg.msg).getOrElse(null)
-            if (refuse == null) return Task.unit
             refuse.messageBoxId.synchronized {
               val actor = actorRefSessions.get(refuse.toUid)
               for {
@@ -109,7 +105,7 @@ object wsService extends ZimServiceConfiguration {
                   sendMessage(result.asJson.noSpaces, actor)
                 }.unless(actor == null)
               } yield r
-            }
+            }.unless(refuse == null)
           }
 
           override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean] =
@@ -135,7 +131,7 @@ object wsService extends ZimServiceConfiguration {
           override def removeFriend(uId: Int, friendId: Int): Task[Unit] =
             uId.synchronized {
               //对方是否在线，在线则处理，不在线则不处理
-              val actor = actorRefSessions.get(friendId);
+              val actor = actorRefSessions.get(friendId)
               env.userApplication.findUserById(uId).runHead.flatMap { u =>
                 {
                   val result = Map(
@@ -362,8 +358,6 @@ object wsService extends ZimServiceConfiguration {
       _ = wsConnections.put(uId, actorRef)
     } yield Flow.fromSinkAndSource(in, Source.fromPublisher(publisher))
   }
-
-  lazy val zioRuntime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
 
   /**
    * close websocket

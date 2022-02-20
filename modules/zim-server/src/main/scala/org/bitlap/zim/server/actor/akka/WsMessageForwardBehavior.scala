@@ -7,6 +7,7 @@ import org.bitlap.zim.domain.ws.protocol.{ protocol, Command, TransmitMessagePro
 import org.bitlap.zim.server.application.ws.wsService
 import org.bitlap.zim.server.util.LogUtil
 import zio.{ UIO, ZIO }
+import org.bitlap.zim.server.zioRuntime
 
 /**
  * akka typed actor
@@ -15,8 +16,6 @@ import zio.{ UIO, ZIO }
  * @version 1.0,2022/1/16
  */
 object WsMessageForwardBehavior {
-
-  lazy val zioRuntime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
 
   def apply(): Behavior[Command[_]] =
     Behaviors.receiveMessage {
@@ -45,7 +44,7 @@ object WsMessageForwardBehavior {
             }
           case protocol.delFriend => wsService.removeFriend(tm.uId, tm.getMessage.to.id)
           case _ =>
-            UIO.effectTotal(())
+            UIO.unit
         }
         zioRuntime.unsafeRun(zio)
         Behaviors.same

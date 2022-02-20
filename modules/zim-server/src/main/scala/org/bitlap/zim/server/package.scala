@@ -9,4 +9,7 @@ import zio.Has
 package object server {
 
   type ZMaterializer = Has[Materializer]
+
+  lazy val zioRuntime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
+
 }

@@ -2,7 +2,7 @@ package org.bitlap.zim.server.application
 
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.cache.zioRedisService
-import org.bitlap.zim.domain.model.{ Receive, User }
+import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.domain.ws.protocol.{ protocol, AddRefuseMessage }
 import org.bitlap.zim.domain.{ Message, SystemConstant }
 import org.bitlap.zim.server.application.ws.wsService.WsService.actorRefSessions
@@ -18,8 +18,6 @@ import java.time.ZonedDateTime
  * @version 1.0
  */
 package object ws {
-
-  @inline private[ws] final val DEFAULT_VALUE: Unit = ()
 
   /**
    * 封装返回消息格式
@@ -43,18 +41,18 @@ package object ws {
   }
 
   private[ws] def friendMessageHandler(userService: UserApplication)(message: Message): IO[Throwable, Unit] = {
-    val gid = message.to.id
+    val uid = message.to.id
     val receive = getReceive(message)
-    userService.findUserById(gid).runHead.flatMap { us =>
+    userService.findUserById(uid).runHead.flatMap { us =>
       {
-        val msg = if (actorRefSessions.containsKey(gid)) {
-          val actorRef = actorRefSessions.get(gid)
+        val msg = if (actorRefSessions.containsKey(uid)) {
+          val actorRef = actorRefSessions.get(uid)
           val tmpReceiveArchive = receive.copy(status = 1)
           wsService.sendMessage(tmpReceiveArchive.asJson.noSpaces, actorRef)
           tmpReceiveArchive
         } else receive
         // 由于都返回了stream，使用时都转成非stream
-        userService.saveMessage(msg).runHead.as(DEFAULT_VALUE)
+        userService.saveMessage(msg).runHead.unit
       }.unless(us.isEmpty)
     }
   }
@@ -78,17 +76,17 @@ package object ws {
         .unless(group.isEmpty)
     }
 
-    sending *> userService.saveMessage(receiveArchive).runHead.as(DEFAULT_VALUE)
+    sending *> userService.saveMessage(receiveArchive).runHead.unit
   }
 
   private[ws] def agreeAddGroupHandler(
     userService: UserApplication
   )(agree: AddRefuseMessage): IO[Throwable, Unit] =
     userService.addGroupMember(agree.groupId, agree.toUid, agree.messageBoxId).runHead.map { f =>
-      if (!f.fold(false)(t => t)) {
-        ZIO.effect(DEFAULT_VALUE)
-      } else {
-        userService.findGroupById(agree.groupId).runHead.flatMap { groupList =>
+      userService
+        .findGroupById(agree.groupId)
+        .runHead
+        .flatMap { groupList =>
           // 通知加群成功
           val actor = actorRefSessions.get(agree.toUid);
           {
@@ -102,7 +100,7 @@ package object ws {
           }
             .when(groupList.isDefined && actor != null)
         }
-      }
+        .unless(!f.getOrElse(false))
     }
 
   private[ws] def refuseAddFriendHandler(
@@ -133,7 +131,8 @@ package object ws {
             userService.readFriendMessage(message.mine.id, message.to.id).runHead
           }
         } when (c > 0)
-      } map (_ => DEFAULT_VALUE)
+      }
+      .unit
 
   private[ws] def changeOnlineHandler(
     userService: UserApplication
@@ -155,8 +154,7 @@ package object ws {
             val msg = Map(
               "id" -> s"$uId", //对好友而言，好友的好友就是我
               "type" -> protocol.checkOnline.stringify,
-              "status" -> (if (isOnline) SystemConstant.status.ONLINE_DESC
-                           else SystemConstant.status.HIDE_DESC)
+              "status" -> (if (isOnline) SystemConstant.status.ONLINE_DESC else SystemConstant.status.HIDE_DESC)
             )
             ZStream.fromEffect(wsService.sendMessage(msg.asJson.noSpaces, actorRef))
           }.when(fu && actorRef != null)

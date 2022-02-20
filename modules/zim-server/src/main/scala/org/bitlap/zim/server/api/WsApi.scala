@@ -10,6 +10,7 @@ import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import org.bitlap.zim.server.zioRuntime
 
 /**
  * @author 梦境迷离
@@ -18,11 +19,9 @@ import scala.concurrent.Future
  */
 final class WsApi()(implicit materializer: Materializer) {
 
-  private lazy val runTime: zio.Runtime[zio.ZEnv] = wsService.zioRuntime
-
   lazy val route: Route = AkkaHttpServerInterpreter().toRoute(WsEndpoint.wsEndpoint.serverLogic[Future] { uid =>
     val ret: Right[Nothing, Flow[Message, String, NotUsed]] =
-      Right(runTime.unsafeRun(wsService.openConnection(uid)))
+      Right(zioRuntime.unsafeRun(wsService.openConnection(uid)))
     val either = ret.withLeft[Unit]
     Future.apply(either)
   })
