@@ -9,4 +9,4 @@ package org.bitlap.zim.domain
  * @since 2022年1月1日
  * @author 梦境迷离
  */
-case class ResultPageSet[T](override val data: List[T] = Nil, pages: Int) extends ResultSet(data)
+final case class ResultPageSet[T](override val data: List[T] = Nil, pages: Int) extends ResultSet(data)

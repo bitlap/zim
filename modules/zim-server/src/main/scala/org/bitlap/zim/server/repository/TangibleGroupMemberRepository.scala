@@ -5,6 +5,7 @@ import org.bitlap.zim.domain.repository.GroupMemberRepository
 import scalikejdbc._
 import zio._
 import zio.stream.ZStream
+
 private final class TangibleGroupMemberRepository(databaseName: String)
     extends TangibleBaseRepository(GroupMember)
     with GroupMemberRepository {

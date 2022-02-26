@@ -8,7 +8,7 @@ import io.circe.generic.semiauto.deriveDecoder
  * @param uid    创建人
  * @param groupname 分组名称
  */
-case class FriendGroupInput(uid: Int, groupname: String)
+final case class FriendGroupInput(uid: Int, groupname: String)
 
 object FriendGroupInput {
 

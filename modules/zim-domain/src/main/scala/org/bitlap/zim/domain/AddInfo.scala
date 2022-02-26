@@ -21,7 +21,7 @@ import java.time.ZonedDateTime
  * @param time       时间
  * @param user       消息发送者
  */
-case class AddInfo(
+final case class AddInfo(
   id: Int,
   uid: Int,
   content: String,

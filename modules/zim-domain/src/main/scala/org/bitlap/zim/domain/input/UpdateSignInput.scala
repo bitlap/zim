@@ -7,7 +7,7 @@ import io.circe.generic.semiauto.deriveDecoder
  * @since 2022/2/5
  * @version 1.0
  */
-case class UpdateSignInput(sign: String)
+final case class UpdateSignInput(sign: String)
 
 object UpdateSignInput {
 

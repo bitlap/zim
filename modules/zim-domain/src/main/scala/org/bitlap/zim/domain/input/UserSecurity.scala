@@ -11,7 +11,7 @@ import java.util.Base64
  * cookie
  * @param cookie token 目前是邮箱+密码
  */
-case class UserSecurity(cookie: String)
+final case class UserSecurity(cookie: String)
 
 object UserSecurity {
 

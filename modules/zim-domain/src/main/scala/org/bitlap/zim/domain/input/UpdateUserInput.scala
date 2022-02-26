@@ -13,7 +13,7 @@ import io.circe.generic.semiauto._
  * @param sign     签名
  * @param sex      性别
  */
-case class UpdateUserInput(
+final case class UpdateUserInput(
   id: Int,
   username: String,
   password: Option[String],

@@ -25,27 +25,27 @@ sealed trait protocol {
 
 object protocol {
 
-  case object readOfflineMessage extends protocol
+  final case object readOfflineMessage extends protocol
 
-  case object message extends protocol
+  final case object message extends protocol
 
-  case object checkOnline extends protocol
+  final case object checkOnline extends protocol
 
-  case object addGroup extends protocol
+  final case object addGroup extends protocol
 
-  case object changOnline extends protocol
+  final case object changOnline extends protocol
 
-  case object addFriend extends protocol
+  final case object addFriend extends protocol
 
-  case object agreeAddFriend extends protocol
+  final case object agreeAddFriend extends protocol
 
-  case object agreeAddGroup extends protocol
+  final case object agreeAddGroup extends protocol
 
-  case object refuseAddGroup extends protocol
+  final case object refuseAddGroup extends protocol
 
-  case object unHandMessage extends protocol
+  final case object unHandMessage extends protocol
 
-  case object delFriend extends protocol
+  final case object delFriend extends protocol
 
   @inline final def unStringify(`type`: String): protocol = {
     val mapping = Map(

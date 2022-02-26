@@ -10,7 +10,7 @@ import io.circe.{ Decoder, Encoder }
  * @param remark  附言
  * @param `type`  类型，好友或群组
  */
-case class Add(groupId: Int, remark: String, `type`: Int)
+final case class Add(groupId: Int, remark: String, `type`: Int)
 
 object Add {
 

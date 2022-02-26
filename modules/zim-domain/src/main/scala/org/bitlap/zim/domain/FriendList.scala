@@ -16,7 +16,7 @@ import org.bitlap.zim.domain.model.User
  * @param groupName 列表名称
  * @param list      用户列表
  */
-case class FriendList(override val id: Int, override val groupName: String, list: List[User])
+final case class FriendList(override val id: Int, override val groupName: String, list: List[User])
     extends Group(id, groupName)
 
 object FriendList {

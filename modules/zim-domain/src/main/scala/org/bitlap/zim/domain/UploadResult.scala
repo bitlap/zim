@@ -8,7 +8,7 @@ import io.circe.{ Decoder, Encoder }
  * @since 2022/1/1
  * @version 1.0
  */
-case class UploadResult(src: String, name: String)
+final case class UploadResult(src: String, name: String)
 
 object UploadResult {
 

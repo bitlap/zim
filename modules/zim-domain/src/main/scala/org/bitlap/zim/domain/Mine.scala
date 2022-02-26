@@ -11,7 +11,7 @@ import io.circe.{ Decoder, Encoder, HCursor, Json }
  * @param avatar   我的头像
  * @param content  消息内容
  */
-case class Mine(id: Int, username: String, mine: Boolean, avatar: String, content: String)
+final case class Mine(id: Int, username: String, mine: Boolean, avatar: String, content: String)
 
 object Mine {
 

@@ -57,7 +57,7 @@ object FileUtil {
         result + pp + "/" + name
       }
     } else {
-      ZIO.fail(new BusinessException(msg = "文件上传失败"))
+      ZIO.fail(BusinessException(msg = "文件上传失败"))
     }
   }
 

@@ -9,7 +9,7 @@ import io.circe.generic.semiauto.deriveDecoder
  * @param avatar    头像
  * @param createId  创建人 creator Id
  */
-case class GroupInput(groupname: String, avatar: String, createId: Int)
+final case class GroupInput(groupname: String, avatar: String, createId: Int)
 
 object GroupInput {
 

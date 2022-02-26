@@ -11,7 +11,7 @@ import org.bitlap.zim.domain.model.{ GroupList, User }
  * @param friend 好友列表
  * @param group  群组信息列表
  */
-case class FriendAndGroupInfo(
+final case class FriendAndGroupInfo(
   mine: User,
   friend: List[FriendList],
   group: List[GroupList]

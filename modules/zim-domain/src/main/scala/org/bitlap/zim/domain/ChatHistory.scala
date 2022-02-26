@@ -12,7 +12,7 @@ import io.circe.generic.semiauto._
  * @param content   消息内容
  * @param timestamp 时间
  */
-case class ChatHistory(
+final case class ChatHistory(
   id: Int,
   username: String,
   avatar: String,

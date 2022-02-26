@@ -12,7 +12,6 @@ import zio.{ stream, Has, ULayer, ZLayer }
  * @since 2021/12/31
  * @version 1.0
  */
-
 private final class TangibleFriendGroupRepository(databaseName: String)
     extends TangibleBaseRepository(FriendGroup)
     with FriendGroupRepository {

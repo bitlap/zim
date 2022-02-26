@@ -7,7 +7,7 @@ import io.circe.generic.semiauto.deriveDecoder
  * 校验注册邮件 输入
  * @param email
  */
-case class ExistEmailInput(email: String)
+final case class ExistEmailInput(email: String)
 
 object ExistEmailInput {
 

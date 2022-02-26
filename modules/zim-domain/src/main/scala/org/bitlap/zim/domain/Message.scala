@@ -12,7 +12,7 @@ import io.circe.{ Decoder, Encoder, HCursor, Json }
  * @param to     对方信息
  * @param msg    额外的信息
  */
-case class Message(`type`: String, mine: Mine, to: To, msg: String)
+final case class Message(`type`: String, mine: Mine, to: To, msg: String)
 
 object Message {
 

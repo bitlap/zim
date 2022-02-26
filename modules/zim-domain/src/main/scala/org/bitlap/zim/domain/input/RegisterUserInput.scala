@@ -11,7 +11,7 @@ import io.circe.generic.semiauto.deriveEncoder
  * @param email 邮箱
  * @param password 密码
  */
-case class RegisterUserInput(
+final case class RegisterUserInput(
   username: String,
   password: String,
   email: String

@@ -19,7 +19,7 @@ object ZimServer extends ZimServiceConfiguration with zio.App {
     } yield ())
       .provideLayer(ZimEnv)
       .foldM(
-        e => LogUtil.error(s"error => $e") as ExitCode.failure,
+        e => LogUtil.error(s"error => $e").exitCode,
         _ => UIO.effectTotal(ExitCode.success)
       )
 
