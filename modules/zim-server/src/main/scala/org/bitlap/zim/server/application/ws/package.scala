@@ -1,7 +1,7 @@
 package org.bitlap.zim.server.application
 
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.cache.zioRedisService
+import org.bitlap.zim.cache.ZioRedisService
 import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.domain.ws.protocol.{ protocol, AddRefuseMessage }
 import org.bitlap.zim.domain.{ Message, SystemConstant }
@@ -139,13 +139,13 @@ package object ws {
   )(uId: Int, status: String): IO[Throwable, Boolean] = {
     val isOnline = SystemConstant.status.ONLINE.equals(status)
     val beforeChange =
-      if (isOnline) zioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
-      else zioRedisService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
+      if (isOnline) ZioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
+      else ZioRedisService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
     // 向我的所有在线好友发送广播消息，告知我的状态变更，否则只能再次打聊天开窗口时变更,todo 异步发送
     beforeChange *> {
       val ret = for {
         fs <- userService.findFriendGroupsById(uId)
-        users <- ZStream.fromEffect(zioRedisService.getSets(SystemConstant.ONLINE_USER))
+        users <- ZStream.fromEffect(ZioRedisService.getSets(SystemConstant.ONLINE_USER))
         u <- ZStream.fromIterable(fs.list)
         notify <- {
           val fu = users.contains(u.id.toString)

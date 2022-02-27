@@ -7,7 +7,7 @@ import akka.stream.{ CompletionStrategy, Materializer, OverflowStrategy }
 import akka.{ Done, NotUsed }
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.cache.zioRedisService
+import org.bitlap.zim.cache.ZioRedisService
 import org.bitlap.zim.domain
 import org.bitlap.zim.domain.model.{ AddMessage, User }
 import org.bitlap.zim.domain.ws.protocol._
@@ -20,7 +20,7 @@ import org.bitlap.zim.server.zioRuntime
 import org.reactivestreams.Publisher
 import zio.actors.akka.AkkaTypedActor
 import zio.{ Has, Task, ZIO, ZLayer }
-
+import org.bitlap.zim.cache.ZioRedisService._
 import java.time.ZonedDateTime
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.mutable
@@ -209,7 +209,7 @@ object wsService extends ZimServiceConfiguration {
             message.to.id.synchronized {
               val result = mutable.HashMap[String, String]()
               result.put("type", protocol.checkOnline.stringify)
-              zioRedisService.getSets(SystemConstant.ONLINE_USER).map { uids =>
+              ZioRedisService.getSets(SystemConstant.ONLINE_USER).map { uids =>
                 if (uids.contains(message.to.id.toString))
                   result.put("status", SystemConstant.status.ONLINE_DESC)
                 else result.put("status", SystemConstant.status.HIDE_DESC)
@@ -292,11 +292,11 @@ object wsService extends ZimServiceConfiguration {
     for {
       _ <-
         if (status == SystemConstant.status.ONLINE) {
-          zioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
+          ZioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
         } else {
-          zioRedisService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
+          ZioRedisService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
         }
-      _ <- zioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
+      _ <- ZioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
       msg = IMMessage(
         `type` = protocol.changOnline.stringify,
         mine = null,
