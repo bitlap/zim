@@ -1,12 +1,11 @@
 package org.bitlap.zim.server.configuration
 
-import org.bitlap.zim.server.application.ws.wsService.{ WsService, ZWsService }
+import org.bitlap.zim.server.ZMaterializer
 import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
 import org.bitlap.zim.server.configuration.AkkaHttpConfiguration.ZAkkaHttpConfiguration
 import org.bitlap.zim.server.configuration.ApiConfiguration.ZApiConfiguration
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.server.configuration.ZioActorSystemConfiguration.ZZioActorSystemConfiguration
-import org.bitlap.zim.server.ZMaterializer
 import zio.{ TaskLayer, ULayer }
 
 /**
@@ -41,10 +40,6 @@ trait ZimServiceConfiguration {
 
   val ZimEnv: TaskLayer[ZApiConfiguration with ZAkkaActorSystemConfiguration with ZAkkaHttpConfiguration] =
     apiConfigurationLayer ++ akkaActorSystemLayer ++ akkaHttpConfigurationLayer
-
-  // 非最佳实践
-  protected lazy val wsLayer: ULayer[ZWsService] =
-    applicationConfigurationLayer >>> WsService.live
 
   protected lazy val zioActorSystemLayer: TaskLayer[ZZioActorSystemConfiguration] =
     InfrastructureConfiguration.live >>> ZioActorSystemConfiguration.live

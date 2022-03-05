@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import akka.stream.scaladsl.Flow
 import org.bitlap.zim.tapir.WsEndpoint
-import org.bitlap.zim.server.application.ws.wsService
+import org.bitlap.zim.server.application.ws.WsService
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -21,7 +21,7 @@ final class WsApi()(implicit materializer: Materializer) {
 
   lazy val route: Route = AkkaHttpServerInterpreter().toRoute(WsEndpoint.wsEndpoint.serverLogic[Future] { uid =>
     val ret: Right[Nothing, Flow[Message, String, NotUsed]] =
-      Right(zioRuntime.unsafeRun(wsService.openConnection(uid)))
+      Right(zioRuntime.unsafeRun(WsService.openConnection(uid)))
     val either = ret.withLeft[Unit]
     Future.apply(either)
   })

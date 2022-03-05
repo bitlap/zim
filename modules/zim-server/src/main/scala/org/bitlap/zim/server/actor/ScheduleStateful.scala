@@ -1,7 +1,7 @@
 package org.bitlap.zim.server.actor
 
 import org.bitlap.zim.domain.ws.protocol.{ Command, OnlineUserMessage }
-import org.bitlap.zim.server.application.ws.wsService
+import org.bitlap.zim.server.application.ws.WsService
 import org.bitlap.zim.server.util.LogUtil
 import zio.actors.Actor.Stateful
 import zio.actors.Context
@@ -20,7 +20,7 @@ object ScheduleStateful {
     override def receive[A](state: Unit, msg: Command[A], context: Context): UIO[(Unit, A)] = {
       val taskIO = msg match {
         case OnlineUserMessage(descr) =>
-          wsService.getConnections.flatMap { i =>
+          WsService.getConnections.flatMap { i =>
             LogUtil.debug(s"${descr.getOrElse("receive")} Total online user => $i")
           }
         case _ => UIO.unit

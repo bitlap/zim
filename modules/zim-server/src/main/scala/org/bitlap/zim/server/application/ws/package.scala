@@ -5,7 +5,6 @@ import org.bitlap.zim.cache.ZioRedisService
 import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.domain.ws.protocol.{ protocol, AddRefuseMessage }
 import org.bitlap.zim.domain.{ Message, SystemConstant }
-import org.bitlap.zim.server.application.ws.wsService.WsService.actorRefSessions
 import zio.actors.{ ActorRef => _ }
 import zio.stream.ZStream
 import zio.{ IO, ZIO }
@@ -45,10 +44,10 @@ package object ws {
     val receive = getReceive(message)
     userService.findUserById(uid).runHead.flatMap { us =>
       {
-        val msg = if (actorRefSessions.containsKey(uid)) {
-          val actorRef = actorRefSessions.get(uid)
+        val msg = if (WsService.actorRefSessions.containsKey(uid)) {
+          val actorRef = WsService.actorRefSessions.get(uid)
           val tmpReceiveArchive = receive.copy(status = 1)
-          wsService.sendMessage(tmpReceiveArchive.asJson.noSpaces, actorRef)
+          WsService.sendMessage(tmpReceiveArchive.asJson.noSpaces, actorRef)
           tmpReceiveArchive
         } else receive
         // 由于都返回了stream，使用时都转成非stream
@@ -68,10 +67,10 @@ package object ws {
         .foreach { user =>
           {
             //是否在线
-            val actorRef = actorRefSessions.get(user.id)
+            val actorRef = WsService.actorRefSessions.get(user.id)
             receiveArchive = receiveArchive.copy(status = 1)
-            wsService.sendMessage(receiveArchive.asJson.noSpaces, actorRef)
-          }.when(actorRefSessions.containsKey(user.id))
+            WsService.sendMessage(receiveArchive.asJson.noSpaces, actorRef)
+          }.when(WsService.actorRefSessions.containsKey(user.id))
         }
         .unless(group.isEmpty)
     }
@@ -88,7 +87,7 @@ package object ws {
         .runHead
         .flatMap { groupList =>
           // 通知加群成功
-          val actor = actorRefSessions.get(agree.toUid);
+          val actor = WsService.actorRefSessions.get(agree.toUid);
           {
             val message = Message(
               `type` = protocol.agreeAddGroup.stringify,
@@ -96,7 +95,7 @@ package object ws {
               to = null,
               msg = groupList.fold("")(g => g.asJson.noSpaces)
             )
-            wsService.sendMessage(message.asJson.noSpaces, actor)
+            WsService.sendMessage(message.asJson.noSpaces, actor)
           }
             .when(groupList.isDefined && actor != null)
         }
@@ -108,10 +107,10 @@ package object ws {
   )(messageBoxId: Int, username: String, to: Int): IO[Throwable, Boolean] =
     userService.updateAgree(messageBoxId, 2).runHead.flatMap { r =>
       r.fold(ZIO.effect(false)) { ret =>
-        val actor = actorRefSessions.get(to)
+        val actor = WsService.actorRefSessions.get(to)
         if (actor != null) {
           val result = Map("type" -> "refuseAddFriend", "username" -> username)
-          wsService.sendMessage(result.asJson.noSpaces, actor).as(ret)
+          WsService.sendMessage(result.asJson.noSpaces, actor).as(ret)
         } else ZIO.effect(ret)
       }
     }
@@ -149,14 +148,14 @@ package object ws {
         u <- ZStream.fromIterable(fs.list)
         notify <- {
           val fu = users.contains(u.id.toString)
-          val actorRef = actorRefSessions.get(u.id);
+          val actorRef = WsService.actorRefSessions.get(u.id);
           {
             val msg = Map(
               "id" -> s"$uId", //对好友而言，好友的好友就是我
               "type" -> protocol.checkOnline.stringify,
               "status" -> (if (isOnline) SystemConstant.status.ONLINE_DESC else SystemConstant.status.HIDE_DESC)
             )
-            ZStream.fromEffect(wsService.sendMessage(msg.asJson.noSpaces, actorRef))
+            ZStream.fromEffect(WsService.sendMessage(msg.asJson.noSpaces, actorRef))
           }.when(fu && actorRef != null)
         }
       } yield notify
