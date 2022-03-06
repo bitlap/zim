@@ -28,18 +28,22 @@ object Dependencies {
     val `akka-http-session` = "0.6.1"
   }
 
-  lazy val redis = "dev.zio" %% "zio-redis" % "0.0.0+348-001f9912-SNAPSHOT" // 实验性质的
+  lazy val redis = "dev.zio" %% "zio-redis" % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
   lazy val config = "com.typesafe" % "config" % Version.config
-  lazy val `zio-schema` = "dev.zio" %% "zio-schema" % Version.`zio-schema`
   lazy val `schema-derivation` = "dev.zio" %% "zio-schema-derivation" % Version.`zio-schema`
   lazy val zio = "dev.zio" %% "zio" % Version.zio
   lazy val `zio-interop-reactivestreams` =
     "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
+  lazy val `akka-actor` = "com.typesafe.akka" %% "akka-actor-typed" % Version.akka
+
   lazy val `zio-actors` = Seq(
     "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
     "dev.zio" %% "zio-actors" % Version.`zio-actors`
   )
-  lazy val `akka-actor` = "com.typesafe.akka" %% "akka-actor-typed" % Version.akka
+  lazy val `zio-schema` = Seq(
+    "dev.zio" %% "zio-schema" % Version.`zio-schema`,
+    "dev.zio" %% "zio-schema-protobuf" % Version.`zio-schema`
+  )
 
   lazy val zioDeps = Seq(
     zio,
@@ -102,10 +106,9 @@ object Dependencies {
     "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc % Compile,
     "dev.zio" %% "zio-streams" % Version.zio % Compile,
     "eu.timepit" %% "refined" % Version.refined,
-    `zio-schema`,
     `schema-derivation`,
     `akka-actor`
-  ) ++ circeDeps
+  ) ++ circeDeps ++ `zio-schema`
 
-  lazy val cacheDeps = Seq(config, redis, `zio-schema`, zio)
+  lazy val cacheDeps = Seq(config, redis, zio) ++ `zio-schema`
 }

@@ -15,41 +15,38 @@
  */
 
 package org.bitlap.zim.cache
-import org.bitlap.zim.cache.zioRedisService.RedisCacheService.Service
-import org.bitlap.zim.cache.zioRedisService.ZRedisCacheService
 import zio.duration.Duration
-import zio.redis.{ RedisError, RedisExecutor }
+import zio.redis.{ Redis, RedisError }
 import zio.schema.Schema
-import zio.{ redis, Chunk, IO, URLayer, ZLayer }
+import zio.{ redis, Chunk, Has, ULayer, ZIO, ZLayer }
 
 import java.util.concurrent.TimeUnit
 
 /**
  * @author 梦境迷离
- * @version 1.0,2022/1/17
+ * @see https://zio.dev/version-1.x/datatypes/contextual/#module-pattern-20
+ * @version 2.0,2022/1/17
  */
-object ZioRedisLive {
+case class ZioRedisLive(private val rs: Redis) extends ZioRedisService {
 
-  lazy val live: URLayer[RedisExecutor, ZRedisCacheService] =
-    ZLayer.fromFunction { env =>
-      new Service {
+  private lazy val redisLayer: ULayer[Has[Redis]] = ZLayer.succeed(rs)
 
-        override def getSets(k: String): IO[RedisError, Chunk[String]] =
-          redis.sMembers(k).returning[String].orDie.provide(env)
+  override def getSets(k: String): ZIO[ZRedisCacheService, RedisError, Chunk[String]] =
+    redis.sMembers(k).returning[String].orDie.provideLayer(redisLayer)
 
-        override def removeSetValue(k: String, v: String): IO[RedisError, Long] =
-          redis.sRem(k, v).orDie.provide(env)
+  override def removeSetValue(k: String, m: String): ZIO[ZRedisCacheService, RedisError, Long] =
+    redis.sRem(k, m).orDie.provideLayer(redisLayer)
 
-        override def setSet(k: String, v: String): IO[RedisError, Long] =
-          redis.sAdd(k, v).orDie.provide(env)
+  override def setSet(k: String, m: String): ZIO[ZRedisCacheService, RedisError, Long] =
+    redis.sAdd(k, m).orDie.provideLayer(redisLayer)
 
-        override def set[T: Schema](key: String, value: T): IO[RedisError, Boolean] =
-          redis.set[String, T](key, value, expireTime = Some(Duration(30, TimeUnit.MINUTES))).provide(env)
+  override def set[T: Schema](key: String, value: T): ZIO[ZRedisCacheService, RedisError, Boolean] =
+    redis.set[String, T](key, value, expireTime = Some(Duration(30, TimeUnit.MINUTES))).provideLayer(redisLayer)
 
-        override def get[T: Schema](key: String): IO[RedisError, Option[T]] = redis.get(key).returning[T].provide(env)
+  override def get[T: Schema](key: String): ZIO[ZRedisCacheService, RedisError, Option[T]] =
+    redis.get(key).returning[T].provideLayer(redisLayer)
 
-        override def exists(key: String): IO[RedisError, Long] = redis.exists(key).provide(env)
-      }
-    }
+  override def exists(key: String): ZIO[ZRedisCacheService, RedisError, Long] =
+    redis.exists(key).provideLayer(redisLayer)
 
 }

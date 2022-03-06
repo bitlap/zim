@@ -21,7 +21,7 @@ import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.domain.repository._
 import org.bitlap.zim.server.application.UserApplication
-import org.bitlap.zim.server.application.ws.wsService
+import org.bitlap.zim.server.application.ws.WsService
 import org.bitlap.zim.server.configuration.InfrastructureConfiguration
 import org.bitlap.zim.server.repository.TangibleAddMessageRepository.ZAddMessageRepository
 import org.bitlap.zim.server.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
@@ -75,7 +75,7 @@ private final class UserService(
           groupMemberRepository.findGroupMembers(gid).flatMap { uid =>
             // group owner leave
             groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)) *>
-              ZStream.fromEffect(wsService.deleteGroup(master, group.groupName, gid, uid))
+              ZStream.fromEffect(WsService.deleteGroup(master, group.groupName, gid, uid))
           }
         } else ZStream.succeed(1)
     } yield ret
@@ -177,7 +177,7 @@ private final class UserService(
     addMessageRepository.updateAgree(messageBoxId, agree).map(_ == 1)
 
   override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): stream.Stream[Throwable, Boolean] =
-    ZStream.fromEffect(wsService.refuseAddFriend(messageBoxId, username, to))
+    ZStream.fromEffect(WsService.refuseAddFriend(messageBoxId, username, to))
 
   override def readFriendMessage(mine: Int, to: Int): stream.Stream[Throwable, Boolean] =
     receiveRepository.readMessage(mine, to, SystemConstant.FRIEND_TYPE).map(_ == 1)

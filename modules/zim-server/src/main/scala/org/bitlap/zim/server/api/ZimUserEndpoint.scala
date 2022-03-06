@@ -19,7 +19,7 @@ package org.bitlap.zim.server.api
 import io.circe.jawn
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.auth.CookieAuthority
-import org.bitlap.zim.cache.zioRedisService
+import org.bitlap.zim.cache.ZioRedisService
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.ZimError.Unauthorized
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
@@ -45,7 +45,7 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
 
   def authorityCacheFunction(email: String, passwd: String): IO[Throwable, (Boolean, Option[UserSecurityInfo])] =
     for {
-      userSecurityInfo <- zioRedisService
+      userSecurityInfo <- ZioRedisService
         .get[String](email)
         .map(_.map(s => jawn.decode[UserSecurityInfo](s).getOrElse(null)))
       user <-
@@ -61,7 +61,7 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
         s"verifyUserAuth email=>$email passwd=>$passwd userSecurityInfo=>$userSecurityInfo user=>$user check=>$check"
       )
       _ <-
-        if (check && user.isDefined) zioRedisService.set[String](email, user.get.asJson.noSpaces)
+        if (check && user.isDefined) ZioRedisService.set[String](email, user.get.asJson.noSpaces)
         else ZIO.succeed(false)
     } yield check -> user
 
