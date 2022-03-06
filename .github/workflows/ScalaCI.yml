@@ -26,9 +26,12 @@ jobs:
       - name: Build
         run: sbt compile
 
-      - name: Code Style 
+      - name: Code Style
         run: sbt scalafmtCheckAll
-        
+
+      - name: Checking headers
+        run: sbt headerCheck
+
       - name: Run Test
         run: sbt coverage test coverageReport # test in scala2.13.x java 8
 

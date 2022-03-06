@@ -1,6 +1,8 @@
 import sbt.Keys._
 import sbt.{ url, Def, Developer, ScmInfo }
-
+import sbt.URL
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerCreateAll
+import sbt.Compile
 /**
  * @author 梦境迷离
  * @since 2022/1/15
@@ -9,10 +11,13 @@ import sbt.{ url, Def, Developer, ScmInfo }
 object Information {
 
   val value: Seq[Def.Setting[_]] = Seq(
+    Compile / compile  :=  (Compile / compile).dependsOn(Compile / headerCreateAll).value,
     organization := "org.bitlap",
-    description := "zim is a functional-style, asynchronous and streaming IM based on scala and zio",
+    organizationName := "bitlap",
+    startYear := Some(2021),
+      description := "zim is a functional-style, asynchronous and streaming IM based on scala and zio",
     homepage := Some(url(s"https://github.com/bitlap/zim")),
-    licenses := List("APACHE LICENSE 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+    licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
     developers := List(
       Developer(
         "jxnu-liguobin",
