@@ -30,7 +30,7 @@ jobs:
         run: sbt scalafmtCheckAll
 
       - name: Checking headers
-        run: sbt headerCheck
+        run: sbt headerCheckAll
 
       - name: Run Test
         run: sbt coverage test coverageReport # test in scala2.13.x java 8
