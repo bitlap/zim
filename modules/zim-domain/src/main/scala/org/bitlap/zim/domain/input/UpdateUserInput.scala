@@ -18,6 +18,7 @@ package org.bitlap.zim.domain.input
 
 import io.circe.Decoder
 import io.circe.generic.semiauto._
+import io.circe.Encoder
 
 /**
  * 用户信息提交 输入
@@ -40,4 +41,7 @@ final case class UpdateUserInput(
 object UpdateUserInput {
 
   implicit val decoder: Decoder[UpdateUserInput] = deriveDecoder[UpdateUserInput]
+
+  implicit val encoder: Encoder[UpdateUserInput] = deriveEncoder[UpdateUserInput]
+
 }

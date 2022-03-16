@@ -30,6 +30,8 @@ import org.bitlap.zim.server.application.impl.ApiService
 import org.bitlap.zim.server.configuration.ZimServiceConfiguration
 import org.bitlap.zim.server.repository.TangibleUserRepository
 import zio.{ TaskLayer, ZIO }
+import akka.http.scaladsl.model.headers.Cookie
+import org.bitlap.zim.domain.input.UpdateUserInput
 
 import scala.concurrent.duration._
 
@@ -43,6 +45,8 @@ import scala.concurrent.duration._
 class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with ScalatestRouteTest {
 
   implicit val timeout = RouteTestTimeout(5.seconds.dilated)
+  val authorityHeaders = Seq(Cookie("Authorization", "ZHJlYW15bG9zdEBvdXRsb29rLmNvbToxMjM0NTY="))
+  val pwdUser = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
 
   val api: TaskLayer[ZZimUserApi] = ZimUserApi.make(ApiService.make(userApplicationLayer), materializerLayer)
 
@@ -58,10 +62,10 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
   }
 
   "getOne" should "OK for GET" in {
-    val user = unsafeRun(TangibleUserRepository.saveUser(mockUser).provideLayer(userLayer).runHead)
+    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
     println(s"user => $user")
     Get(s"/user/getOne?id=${user.getOrElse(1L)}") ~> getRoute(_.userGetRoute) ~> check {
-      responseAs[String] shouldEqual """{"data":{"id":1,"username":"zhangsan","password":"123456","sign":"","avatar":"/static/image/avatar/avatar(3).jpg","email":"dreamylost@outlook.com","createDate":"2022-02-11 00:00:00","sex":1,"status":"nonactivated","active":"1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d"},"msg":"操作成功","code":0}"""
+      responseAs[String] shouldEqual """{"data":{"id":1,"username":"zhangsan","password":"jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=","sign":"","avatar":"/static/image/avatar/avatar(3).jpg","email":"dreamylost@outlook.com","createDate":"2022-02-11 00:00:00","sex":1,"status":"nonactivated","active":"1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d"},"msg":"操作成功","code":0}"""
     }
   }
 
@@ -77,4 +81,37 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     }
   }
 
+  "init user" should "OK" in {
+    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    Post(s"/user/init/${user.getOrElse(1L)}").withHeaders(authorityHeaders) ~> getRoute(_.initRoute) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual
+        """{"data":{"mine":{"id":1,"username":"zhangsan","password":"jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=","sign":"","avatar":"/static/image/avatar/avatar(3).jpg","email":"dreamylost@outlook.com","createDate":"2022-02-11 00:00:00","sex":1,"status":"online","active":"1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d"},"friend":[],"group":[]},"msg":"操作成功","code":0}"""
+    }
+  }
+
+  "active user" should "OK" in {
+    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    println(s"user => $user")
+    Get(s"/user/active/1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d") ~> getRoute(
+      _.activeRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":1,"msg":"操作成功","code":0}"""
+    }
+  }
+
+  "updateInfo user" should "OK" in {
+    implicit val m: ToEntityMarshaller[UpdateUserInput] = Marshaller.withFixedContentType(`application/json`) { f =>
+      HttpEntity(`application/json`, f.asJson.noSpaces)
+    }
+    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    println(s"user => $user")
+    Post(s"/user/updateInfo", UpdateUserInput(1, "lisi", None, None, "", "")).withHeaders(authorityHeaders) ~> getRoute(
+      _.updateInfoRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":true,"msg":"操作成功","code":0}"""
+    }
+  }
 }
