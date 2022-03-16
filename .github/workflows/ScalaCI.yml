@@ -1,4 +1,4 @@
-name: Build
+name: CI
 
 on:
   push:
@@ -10,14 +10,10 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        redis-version: [ 4, 5, 6 ]
         java-version: [ 8, 11 ]
-
-
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
@@ -34,6 +30,19 @@ jobs:
       - name: Checking headers
         run: sbt headerCheckAll
 
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        redis-version: [ 4, 5, 6 ]
+        java-version: [ 8, 11 ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java-version }}
+
       - name: Start Redis
         uses: supercharge/redis-github-action@1.4.0
         with:
@@ -46,4 +55,4 @@ jobs:
         run: sbt coverageAggregate
 
       - name: Upload test coverage report
-        run: bash <(curl -s https://codecov.io/bash)
+        run: bash <(curl -s https://codecov.io/bash)    
