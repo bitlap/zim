@@ -35,8 +35,12 @@ import org.bitlap.zim.domain.input.UpdateUserInput
 import org.bitlap.zim.domain.input.UpdateSignInput
 import org.bitlap.zim.domain.input.GroupInput
 import org.bitlap.zim.server.repository._
+import org.bitlap.zim.domain.model.GroupMember
 
 import scala.concurrent.duration._
+import org.bitlap.zim.server.application.UserApplication
+import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.model.GroupList
 
 /**
  * 测试akka-http route
@@ -56,6 +60,18 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
   def getRoute(zapi: ZimUserApi => Route): Route = {
     val s = ZIO.serviceWith[ZimUserApi](api => ZIO.effect(zapi(api))).provideLayer(api)
     unsafeRun(s)
+  }
+
+  def createRegisterUser(user: User = mockUser): Option[Boolean] =
+    unsafeRun(ZIO.serviceWith[UserApplication](_.saveUser(user).runHead).provideLayer(userApplicationLayer))
+
+  def createGroup(uid: Int = 1, gid: Int = 1): Option[Boolean] = {
+    unsafeRun(
+      ZIO
+        .serviceWith[UserApplication](_.createGroup(GroupList(0, "梦境迷离", "", uid)).runHead)
+        .provideLayer(userApplicationLayer)
+    )
+    unsafeRun(ZIO.serviceWith[UserApplication](_.addGroupMember(gid, uid).runHead).provideLayer(userApplicationLayer))
   }
 
   "getOne" should "OK for GET empty data" in {
@@ -94,6 +110,7 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
   }
 
   "active user" should "OK" in {
+    // 使用repository直接创建一个用户记录
     val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
     println(s"user => $user")
     Get(s"/user/active/1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d") ~> getRoute(
@@ -108,7 +125,8 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     implicit val m: ToEntityMarshaller[UpdateUserInput] = Marshaller.withFixedContentType(`application/json`) { f =>
       HttpEntity(`application/json`, f.asJson.noSpaces)
     }
-    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    // 使用service模拟注册创建一个完成的用户记录
+    val user = createRegisterUser()
     println(s"user => $user")
     Post(s"/user/updateInfo", UpdateUserInput(1, "lisi", None, None, "", "")).withHeaders(authorityHeaders) ~> getRoute(
       _.updateInfoRoute
@@ -122,7 +140,7 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     implicit val m: ToEntityMarshaller[UpdateSignInput] = Marshaller.withFixedContentType(`application/json`) { f =>
       HttpEntity(`application/json`, f.asJson.noSpaces)
     }
-    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    val user = createRegisterUser()
     println(s"user => $user")
     Post(s"/user/updateSign", UpdateSignInput("梦境迷离")).withHeaders(authorityHeaders) ~> getRoute(
       _.updateSignRoute
@@ -132,13 +150,14 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     }
   }
 
-  "createGroup user and find groupMember" should "OK" in {
+  "createGroup and find groupMember" should "OK" in {
     implicit val m: ToEntityMarshaller[GroupInput] = Marshaller.withFixedContentType(`application/json`) { f =>
       HttpEntity(`application/json`, f.asJson.noSpaces)
     }
     val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
     println(s"user => $user")
-    Post(s"/user/createGroup", GroupInput("梦境迷离", "", 1)).withHeaders(authorityHeaders) ~> getRoute(
+    Post(s"/user/createGroup", GroupInput("梦境迷离", "", user.getOrElse(1L).toInt))
+      .withHeaders(authorityHeaders) ~> getRoute(
       _.createGroupRoute
     ) ~> check {
       println(s"result => ${responseAs[String]}")
@@ -146,7 +165,63 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
 
       val groupMember =
         unsafeRun(TangibleGroupMemberRepository.findGroupMembers(1).provideLayer(groupMemberLayer).runHead)
-      groupMember.getOrElse(0) shouldEqual 1
+      groupMember.getOrElse(0) shouldEqual user.getOrElse(1L).toInt
+
+      val leave = unsafeRun(
+        TangibleGroupMemberRepository
+          .leaveOutGroup(GroupMember(1, user.getOrElse(1L).toInt))
+          .provideLayer(groupMemberLayer)
+          .runHead
+      )
+      leave shouldEqual Some(1)
     }
   }
+
+  "getMembers is nonEmpty" should "OK" in {
+    // 使用service的saveUser会导致激活码每次都是随机的无法用于测试校验，所以直接用repository创建
+    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    println(s"user => $user")
+    createGroup()
+    Get(s"/user/getMembers?id=1")
+      .withHeaders(authorityHeaders) ~> getRoute(
+      _.getMembersRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":{"id":0,"groupname":"","list":[{"id":1,"username":"zhangsan","password":"jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=","sign":"","avatar":"/static/image/avatar/avatar(3).jpg","email":"dreamylost@outlook.com","createDate":"2022-02-11 00:00:00","sex":1,"status":"nonactivated","active":"1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d"}]},"msg":"操作成功","code":0}"""
+    }
+  }
+
+  "getOffLineMessage is empty" should "OK" in {
+    val user = createRegisterUser()
+    println(s"user => $user")
+    Get(s"/user/getOffLineMessage").withHeaders(authorityHeaders) ~> getRoute(
+      _.getOffLineMessageRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":[],"msg":"操作成功","code":0}"""
+    }
+  }
+
+  "getMembers is empty" should "OK" in {
+    val user = createRegisterUser()
+    println(s"user => $user")
+    Get(s"/user/getMembers?id=1").withHeaders(authorityHeaders) ~> getRoute(
+      _.getMembersRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":{"id":0,"groupname":"","list":[]},"msg":"操作成功","code":0}"""
+    }
+  }
+
+  "findMyGroups is empty" should "OK" in {
+    val user = createRegisterUser()
+    println(s"user => $user")
+    Get(s"/user/findMyGroups?createId=1").withHeaders(authorityHeaders) ~> getRoute(
+      _.findMyGroupsRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":[],"msg":"操作成功","code":0,"pages":1}"""
+    }
+  }
+
 }
