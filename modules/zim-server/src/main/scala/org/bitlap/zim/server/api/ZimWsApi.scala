@@ -33,7 +33,7 @@ import org.bitlap.zim.server.zioRuntime
  * @since 2022/1/16
  * @version 1.0
  */
-final class WsApi()(implicit materializer: Materializer) {
+final class ZimWsApi()(implicit materializer: Materializer) {
 
   lazy val route: Route = AkkaHttpServerInterpreter().toRoute(WsEndpoint.wsEndpoint.serverLogic[Future] { uid =>
     val ret: Right[Nothing, Flow[Message, String, NotUsed]] =
@@ -44,8 +44,8 @@ final class WsApi()(implicit materializer: Materializer) {
 
 }
 
-object WsApi {
+object ZimWsApi {
 
-  def apply()(implicit materializer: Materializer): WsApi = new WsApi()
+  def apply()(implicit materializer: Materializer): ZimWsApi = new ZimWsApi()
 
 }

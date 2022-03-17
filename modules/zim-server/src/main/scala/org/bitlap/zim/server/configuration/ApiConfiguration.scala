@@ -19,7 +19,7 @@ package org.bitlap.zim.server.configuration
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
-import org.bitlap.zim.server.api.{ ActuatorApi, OpenApi, WsApi, ZimUserApi }
+import org.bitlap.zim.server.api.{ ZimActuatorApi, ZimOpenApi, ZimUserApi, ZimWsApi }
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.server.ZMaterializer
 import zio._
@@ -35,11 +35,11 @@ final class ApiConfiguration(applicationConfiguration: ApplicationConfiguration)
 
   val zimUserApi: ZimUserApi = ZimUserApi(applicationConfiguration.apiApplication)
 
-  val zimActuatorApi: ActuatorApi = ActuatorApi()
+  val zimActuatorApi: ZimActuatorApi = ZimActuatorApi()
 
-  val zimOpenApi: OpenApi = OpenApi()
+  val zimOpenApi: ZimOpenApi = ZimOpenApi()
 
-  val wsApi: WsApi = WsApi()
+  val wsApi: ZimWsApi = ZimWsApi()
 
 }
 

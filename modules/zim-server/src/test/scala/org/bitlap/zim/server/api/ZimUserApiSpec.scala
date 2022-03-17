@@ -32,6 +32,9 @@ import org.bitlap.zim.server.repository.TangibleUserRepository
 import zio.{ TaskLayer, ZIO }
 import akka.http.scaladsl.model.headers.Cookie
 import org.bitlap.zim.domain.input.UpdateUserInput
+import org.bitlap.zim.domain.input.UpdateSignInput
+import org.bitlap.zim.domain.input.GroupInput
+import org.bitlap.zim.server.repository._
 
 import scala.concurrent.duration._
 
@@ -112,6 +115,38 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     ) ~> check {
       println(s"result => ${responseAs[String]}")
       responseAs[String] shouldEqual """{"data":true,"msg":"操作成功","code":0}"""
+    }
+  }
+
+  "updateSign user" should "OK" in {
+    implicit val m: ToEntityMarshaller[UpdateSignInput] = Marshaller.withFixedContentType(`application/json`) { f =>
+      HttpEntity(`application/json`, f.asJson.noSpaces)
+    }
+    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    println(s"user => $user")
+    Post(s"/user/updateSign", UpdateSignInput("梦境迷离")).withHeaders(authorityHeaders) ~> getRoute(
+      _.updateSignRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":true,"msg":"操作成功","code":0}"""
+    }
+  }
+
+  "createGroup user and find groupMember" should "OK" in {
+    implicit val m: ToEntityMarshaller[GroupInput] = Marshaller.withFixedContentType(`application/json`) { f =>
+      HttpEntity(`application/json`, f.asJson.noSpaces)
+    }
+    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    println(s"user => $user")
+    Post(s"/user/createGroup", GroupInput("梦境迷离", "", 1)).withHeaders(authorityHeaders) ~> getRoute(
+      _.createGroupRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":1,"msg":"操作成功","code":0}"""
+
+      val groupMember =
+        unsafeRun(TangibleGroupMemberRepository.findGroupMembers(1).provideLayer(groupMemberLayer).runHead)
+      groupMember.getOrElse(0) shouldEqual 1
     }
   }
 }

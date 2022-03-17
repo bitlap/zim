@@ -32,7 +32,7 @@ import scala.concurrent.Future
  * @since 2021/12/25
  * @version 2.0
  */
-final class ActuatorApi {
+final class ZimActuatorApi {
 
   // https://doc.akka.io/docs/akka-http/current/routing-dsl/directives/debugging-directives/logRequestResult.html
   lazy val route: Route = DebuggingDirectives.logRequestResult("actuator-logger") {
@@ -43,6 +43,6 @@ final class ActuatorApi {
 
 }
 
-object ActuatorApi {
-  def apply(): ActuatorApi = new ActuatorApi()
+object ZimActuatorApi {
+  def apply(): ZimActuatorApi = new ZimActuatorApi()
 }

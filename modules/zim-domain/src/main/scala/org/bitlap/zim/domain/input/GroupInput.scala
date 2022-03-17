@@ -17,6 +17,8 @@
 package org.bitlap.zim.domain.input
 import io.circe.Decoder
 import io.circe.generic.semiauto.deriveDecoder
+import io.circe.Encoder
+import io.circe.generic.semiauto.deriveEncoder
 
 /**
  * 群组 输入
@@ -30,5 +32,7 @@ final case class GroupInput(groupname: String, avatar: String, createId: Int)
 object GroupInput {
 
   implicit val decoder: Decoder[GroupInput] = deriveDecoder[GroupInput]
+
+  implicit val encoder: Encoder[GroupInput] = deriveEncoder[GroupInput]
 
 }

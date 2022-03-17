@@ -18,6 +18,9 @@ package org.bitlap.zim.domain.input
 import io.circe.Decoder
 import io.circe.generic.semiauto.deriveDecoder
 
+import io.circe.Encoder
+import io.circe.generic.semiauto.deriveEncoder
+
 /**
  * @author 梦境迷离
  * @since 2022/2/5
@@ -28,5 +31,7 @@ final case class UpdateSignInput(sign: String)
 object UpdateSignInput {
 
   implicit val decoder: Decoder[UpdateSignInput] = deriveDecoder[UpdateSignInput]
+
+  implicit val encoder: Encoder[UpdateSignInput] = deriveEncoder[UpdateSignInput]
 
 }

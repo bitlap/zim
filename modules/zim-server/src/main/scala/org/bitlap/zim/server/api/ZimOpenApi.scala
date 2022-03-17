@@ -37,7 +37,7 @@ import scala.concurrent.Future
  * @since 2021/12/25
  * @version 2.0
  */
-final class OpenApi {
+final class ZimOpenApi {
 
   private lazy val info: ZimBuildInfo.type = ZimBuildInfo
   private lazy val contextPath = "docs"
@@ -88,7 +88,7 @@ final class OpenApi {
 
 }
 
-object OpenApi {
+object ZimOpenApi {
 
-  def apply(): OpenApi = new OpenApi()
+  def apply(): ZimOpenApi = new ZimOpenApi()
 }

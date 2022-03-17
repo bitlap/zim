@@ -25,7 +25,7 @@ import akka.stream.Materializer
 import akka.util.ByteString
 import org.bitlap.zim.domain.ws.protocol.OnlineUserMessage
 import org.bitlap.zim.server.ZMaterializer
-import org.bitlap.zim.server.api.OpenApi
+import org.bitlap.zim.server.api.ZimOpenApi
 import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
 import org.bitlap.zim.server.util.LogUtil
 import zio._
@@ -79,7 +79,7 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
       _ <- UIO(
         actorSystem.log.info(
           s"""
-             |Server online at http://${infoConf.interface}:${infoConf.port}/${OpenApi().openapi}
+             |Server online at http://${infoConf.interface}:${infoConf.port}/${ZimOpenApi().openapi}
              |Websocket Server online at http://${infoConf.interface}:${infoConf.port}/api/v1.0/wsDocs
              |""".stripMargin
         )
