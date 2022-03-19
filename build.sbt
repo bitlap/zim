@@ -53,7 +53,10 @@ lazy val zim = (project in file("."))
   .configure(configurationNoPublish)
 
 lazy val `zim-server` = (project in file("modules/zim-server"))
-  .settings(libraryDependencies ++= Dependencies.serverDeps)
+  .settings(
+    libraryDependencies ++= Dependencies.serverDeps,
+    Compile / scalacOptions ++= List("-Ymacro-annotations")
+  )
   .settings(assembly / mainClass := Some("org.bitlap.zim.server.ZimServer"))
   .configure(configurationNoPublish)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
