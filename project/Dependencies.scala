@@ -26,6 +26,7 @@ object Dependencies {
     val refined = "0.9.28"
     val `zio-schema` = "0.1.8"
     val `akka-http-session` = "0.6.1"
+    val `smt-cacheable` = "0.4.0-SNAPSHOT"
   }
 
   lazy val redis = "dev.zio" %% "zio-redis" % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
@@ -43,6 +44,10 @@ object Dependencies {
   lazy val `zio-schema` = Seq(
     "dev.zio" %% "zio-schema" % Version.`zio-schema`,
     "dev.zio" %% "zio-schema-protobuf" % Version.`zio-schema`
+  )
+
+  lazy val smtDeps = Seq(
+    "org.bitlap" %% "smt-cacheable" % Version.`smt-cacheable`
   )
 
   lazy val zioDeps = Seq(
@@ -96,7 +101,8 @@ object Dependencies {
   )
 
   lazy val serverDeps: Seq[ModuleID] =
-    domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps ++ `zio-actors` ++ `tapir-async-doc`
+    domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++
+      tapirDeps ++ `zio-actors` ++ `tapir-async-doc` ++ smtDeps
 
   lazy val tapirApiDeps: Seq[ModuleID] = Seq(zio, `zio-interop-reactivestreams`) ++ akkaDeps ++ tapirDeps ++ domainDeps
 
