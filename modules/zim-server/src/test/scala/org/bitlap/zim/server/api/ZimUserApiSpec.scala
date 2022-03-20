@@ -51,7 +51,7 @@ import org.bitlap.zim.domain.model.GroupList
  */
 class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with ScalatestRouteTest {
 
-  implicit val timeout = RouteTestTimeout(5.seconds.dilated)
+  implicit val timeout = RouteTestTimeout(15.seconds.dilated)
   val authorityHeaders = Seq(Cookie("Authorization", "ZHJlYW15bG9zdEBvdXRsb29rLmNvbToxMjM0NTY="))
   val pwdUser = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
 
