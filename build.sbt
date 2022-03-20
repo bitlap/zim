@@ -25,7 +25,8 @@ Global / onLoad := {
 ThisBuild / resolvers ++= Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("public"),
-  Resolver.sonatypeRepo("snapshots")
+  Resolver.sonatypeRepo("snapshots"),
+  "New snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 )
 
 lazy val assemblySettings = Seq(
