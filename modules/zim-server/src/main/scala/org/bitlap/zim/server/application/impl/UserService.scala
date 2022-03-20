@@ -35,7 +35,7 @@ import zio.stream.ZStream
 import zio.{ stream, Has, URLayer, ZLayer }
 
 import java.time.ZonedDateTime
-
+import org.bitlap.cacheable.cacheable
 /**
  * 用户服务
  *
@@ -52,8 +52,6 @@ private final class UserService(
   groupMemberRepository: GroupMemberRepository,
   addMessageRepository: AddMessageRepository
 ) extends UserApplication {
-
-  import org.bitlap.cacheable.cacheable
 
   override def findById(id: Long): stream.Stream[Throwable, User] =
     for {
