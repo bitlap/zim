@@ -53,6 +53,8 @@ private final class UserService(
   addMessageRepository: AddMessageRepository
 ) extends UserApplication {
 
+  import org.bitlap.cacheable.cacheable
+
   override def findById(id: Long): stream.Stream[Throwable, User] =
     for {
       user <- userRepository.findById(id)
@@ -80,6 +82,7 @@ private final class UserService(
         } else ZStream.succeed(1)
     } yield ret
 
+  @cacheable
   override def findGroupById(gid: Int): stream.Stream[Throwable, GroupList] = groupRepository.findGroupById(gid)
 
   override def addGroupMember(gid: Int, uid: Int, messageBoxId: Int): stream.Stream[Throwable, Boolean] =
