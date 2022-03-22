@@ -168,9 +168,11 @@ final class UserApplicationSpec extends TestApplication {
 
   "UserApplication" should "updateAvatar ok" in {
     val stream = (for {
-      _ <- ZIO.serviceWith[UserApplication](_.saveUser(mockUser).runHead)
-      _ <- ZIO.serviceWith[UserApplication](_.updateAvatar(1, "sss").runHead)
-      user <- ZIO.serviceWith[UserApplication](_.findUserById(mockUser.id).runHead)
+      _ <- ZIO.serviceWith[UserApplication](_.saveUser(mockUser.copy(username = "hello")).runHead)
+      user <- ZIO.serviceWith[UserApplication](_.findUsers(Some("hello"), None).runHead)
+      uid = user.map(_.id).getOrElse(1)
+      _ <- ZIO.serviceWith[UserApplication](_.updateAvatar(uid, "sss").runHead)
+      user <- ZIO.serviceWith[UserApplication](_.findUserById(uid).runHead)
     } yield user.map(_.avatar)).provideLayer(userApplicationLayer)
     val ret = unsafeRun(stream)
     ret shouldBe Some("sss")
@@ -178,9 +180,11 @@ final class UserApplicationSpec extends TestApplication {
 
   "UserApplication" should "updateUserInfo sign ok" in {
     val stream = (for {
-      _ <- ZIO.serviceWith[UserApplication](_.saveUser(mockUser).runHead)
-      _ <- ZIO.serviceWith[UserApplication](_.updateUserInfo(mockUser.copy(sign = "梦境迷离")).runHead)
-      user <- ZIO.serviceWith[UserApplication](_.findUserById(mockUser.id).runHead)
+      _ <- ZIO.serviceWith[UserApplication](_.saveUser(mockUser.copy(username = "world")).runHead)
+      user <- ZIO.serviceWith[UserApplication](_.findUsers(Some("world"), None).runHead)
+      uid = user.map(_.id).getOrElse(1)
+      _ <- ZIO.serviceWith[UserApplication](_.updateUserInfo(mockUser.copy(id = uid, sign = "梦境迷离")).runHead)
+      user <- ZIO.serviceWith[UserApplication](_.findUserById(uid).runHead)
     } yield user.map(_.sign)).provideLayer(userApplicationLayer)
     val ret = unsafeRun(stream)
     ret shouldBe Some("梦境迷离")
@@ -188,9 +192,11 @@ final class UserApplicationSpec extends TestApplication {
 
   "UserApplication" should "updateUserStatus ok" in {
     val stream = (for {
-      _ <- ZIO.serviceWith[UserApplication](_.saveUser(mockUser).runHead)
-      _ <- ZIO.serviceWith[UserApplication](_.updateUserStatus("offline", 1).runHead)
-      user <- ZIO.serviceWith[UserApplication](_.findUserById(mockUser.id).runHead)
+      _ <- ZIO.serviceWith[UserApplication](_.saveUser(mockUser.copy(username = "helloworld")).runHead)
+      user <- ZIO.serviceWith[UserApplication](_.findUsers(Some("helloworld"), None).runHead)
+      uid = user.map(_.id).getOrElse(1)
+      _ <- ZIO.serviceWith[UserApplication](_.updateUserStatus("offline", uid).runHead)
+      user <- ZIO.serviceWith[UserApplication](_.findUserById(uid).runHead)
     } yield user.map(_.status)).provideLayer(userApplicationLayer)
     val ret = unsafeRun(stream)
     ret shouldBe Some("offline")

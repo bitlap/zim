@@ -47,7 +47,8 @@ object Dependencies {
   )
 
   lazy val smtDeps = Seq(
-    "org.bitlap" %% "smt-cacheable" % Version.`smt-cacheable`
+    "org.bitlap" %% "smt-cacheable-core" % Version.`smt-cacheable`,
+    "org.bitlap" %% "smt-cacheable-caffeine" % Version.`smt-cacheable`
   )
 
   lazy val zioDeps = Seq(

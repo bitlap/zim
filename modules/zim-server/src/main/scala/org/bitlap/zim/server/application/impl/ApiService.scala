@@ -152,7 +152,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
   }
 
   override def updateSign(sign: String, mid: Int): stream.Stream[Throwable, Boolean] =
-    userApplication.findUserById(mid).flatMap(user => userApplication.updateSing(user.copy(sign = sign)))
+    userApplication.findUserById(mid).flatMap(user => userApplication.updateSign(user.copy(sign = sign)))
 
   override def leaveOutGroup(groupId: Int, mid: Int): stream.Stream[Throwable, Int] = {
     val masterIdStream = userApplication.findGroupById(groupId).map(_.createId)

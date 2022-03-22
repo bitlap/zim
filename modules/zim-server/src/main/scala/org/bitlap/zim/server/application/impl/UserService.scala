@@ -16,6 +16,7 @@
 
 package org.bitlap.zim.server.application.impl
 
+import org.bitlap.cacheable.core.{ cacheEvict, cacheable }
 import org.bitlap.zim.domain
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
@@ -35,7 +36,6 @@ import zio.stream.ZStream
 import zio.{ stream, Has, URLayer, ZLayer }
 
 import java.time.ZonedDateTime
-import org.bitlap.cacheable.cacheable
 
 /**
  * 用户服务
@@ -54,12 +54,14 @@ private final class UserService(
   addMessageRepository: AddMessageRepository
 ) extends UserApplication {
 
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
   override def findById(id: Long): stream.Stream[Throwable, User] =
     for {
       user <- userRepository.findById(id)
       _ <- LogUtil.infoS(s"findById id=$id user=$user")
     } yield user
 
+  @cacheEvict(values = List("findUserById", "findGroupsById", "findUserByGroupId", "findGroupById", "findUsers"))
   override def leaveOutGroup(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
     for {
       group <- groupRepository.findGroupById(gid)
@@ -84,6 +86,7 @@ private final class UserService(
   @cacheable
   override def findGroupById(gid: Int): stream.Stream[Throwable, GroupList] = groupRepository.findGroupById(gid)
 
+  @cacheEvict(values = List("findUserByGroupId", "findGroupsById", "findUsers"))
   override def addGroupMember(gid: Int, uid: Int, messageBoxId: Int): stream.Stream[Throwable, Boolean] =
     for {
       group <- groupRepository.findGroupById(gid)
@@ -101,18 +104,23 @@ private final class UserService(
         } else ZStream.succeed(true)
     } yield ret
 
+  @cacheEvict(values = List("findGroupsById", "findUserByGroupId"))
   override def addGroupMember(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
     groupMemberRepository.addGroupMember(GroupMember(gid, uid)).map(_ == 1)
 
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId"))
   override def removeFriend(friendId: Int, uId: Int): stream.Stream[Throwable, Boolean] =
     friendGroupFriendRepository.removeFriend(friendId, uId).map(_ > 0)
 
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
   override def updateAvatar(userId: Int, avatar: String): stream.Stream[Throwable, Boolean] =
     userRepository.updateAvatar(avatar, userId).map(_ == 1)
 
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
   override def updateUserInfo(user: User): stream.Stream[Throwable, Boolean] =
     userRepository.updateUserInfo(user.id, user).map(_ == 1)
 
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
   override def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Boolean] =
     userRepository.updateUserStatus(status, uid).map(_ == 1)
 
@@ -121,6 +129,7 @@ private final class UserService(
       friendGroupFriendRepository.changeGroup(groupId, originRecordId).map(_ == 1)
     }
 
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId"))
   override def addFriend(
     mid: Int,
     mgid: Int,
@@ -138,9 +147,11 @@ private final class UserService(
       .flatMap(c => if (c > 0) updateAgree(messageBoxId, 1) else ZStream.succeed(false))
   }
 
+  @cacheEvict(values = List("findFriendGroupsById"))
   override def createFriendGroup(groupname: String, uid: Int): stream.Stream[Throwable, Int] =
     friendGroupRepository.createFriendGroup(FriendGroup(0, uid, groupname))
 
+  @cacheEvict(values = List("findGroupsById"))
   override def createGroup(groupList: GroupList): stream.Stream[Throwable, Int] =
     groupRepository.createGroupList(groupList).map(_.toInt)
 
@@ -206,7 +217,7 @@ private final class UserService(
     `type` match {
       case SystemConstant.FRIEND_TYPE => receiveRepository.countHistoryMessage(Some(uid), Some(mid), Some(`type`))
       case SystemConstant.GROUP_TYPE  => receiveRepository.countHistoryMessage(None, Some(mid), Some(`type`))
-      case _                          => ZStream.empty
+      case _                          => ZStream.succeed(0)
     }
 
   override def findHistoryMessage(
@@ -265,10 +276,12 @@ private final class UserService(
   override def saveMessage(receive: Receive): stream.Stream[Throwable, Int] =
     receiveRepository.saveMessage(receive)
 
-  override def updateSing(user: User): stream.Stream[Throwable, Boolean] =
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
+  override def updateSign(user: User): stream.Stream[Throwable, Boolean] =
     if (user == null || user.sign == null) ZStream.succeed(false)
     else userRepository.updateSign(user.sign, user.id).map(_ == 1)
 
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
   override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
     if (activeCode == null || "".equals(activeCode)) ZStream.succeed(0)
     else userRepository.activeUser(activeCode)
@@ -287,14 +300,16 @@ private final class UserService(
         SecurityUtil
           .matched(user.password, u.password)
       )
-      ret <- if (u == null || !isMath) ZStream.empty else ZStream.succeed(u)
+      ret <- if (u == null || !isMath) ZStream.fromEffect(null) else ZStream.succeed(u)
       _ <- LogUtil.infoS(s"matchUser user=>$user, u=>$u, isMath=>$isMath, ret=>$ret")
     } yield ret
   }
 
+  @cacheable
   override def findUserByGroupId(gid: Int): stream.Stream[Throwable, User] =
     userRepository.findUserByGroupId(gid)
 
+  @cacheable
   override def findFriendGroupsById(uid: Int): stream.Stream[Throwable, FriendList] = {
     val groupListStream = friendGroupRepository.findFriendGroupsById(uid).map { friendGroup =>
       FriendList(id = friendGroup.id, groupName = friendGroup.groupName, Nil)
@@ -306,12 +321,15 @@ private final class UserService(
     } yield groupList.copy(list = users.toList)
   }
 
+  @cacheable
   override def findUserById(id: Int): stream.Stream[Throwable, User] =
     userRepository.findById(id)
 
+  @cacheable
   override def findGroupsById(id: Int): stream.Stream[Throwable, GroupList] =
     groupRepository.findGroupsById(id)
 
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
   override def saveUser(user: User): stream.Stream[Throwable, Boolean] = {
     if (user == null || user.username == null || user.password == null || user.email == null) {
       return ZStream.succeed(false)
