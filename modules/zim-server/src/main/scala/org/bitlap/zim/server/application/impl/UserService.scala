@@ -54,14 +54,14 @@ private final class UserService(
   addMessageRepository: AddMessageRepository
 ) extends UserApplication {
 
-  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId"))
   override def findById(id: Long): stream.Stream[Throwable, User] =
     for {
       user <- userRepository.findById(id)
       _ <- LogUtil.infoS(s"findById id=$id user=$user")
     } yield user
 
-  @cacheEvict(values = List("findUserById", "findGroupsById", "findUserByGroupId", "findGroupById", "findUsers"))
+  @cacheEvict(values = List("findUserById", "findGroupsById", "findUserByGroupId", "findGroupById"))
   override def leaveOutGroup(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
     for {
       group <- groupRepository.findGroupById(gid)
@@ -86,22 +86,19 @@ private final class UserService(
   @cacheable
   override def findGroupById(gid: Int): stream.Stream[Throwable, GroupList] = groupRepository.findGroupById(gid)
 
-  @cacheEvict(values = List("findUserByGroupId", "findGroupsById", "findUsers"))
+  @cacheEvict(values = List("findUserByGroupId", "findGroupsById"))
   override def addGroupMember(gid: Int, uid: Int, messageBoxId: Int): stream.Stream[Throwable, Boolean] =
     for {
       group <- groupRepository.findGroupById(gid)
       //自己加自己的群，默认同意
-      upRet <-
-        if (group != null) {
-          updateAgree(messageBoxId, 1)
-        } else ZStream.succeed(false)
+      upRet <- updateAgree(messageBoxId, 1).when(group != null)
       _ <- LogUtil.infoS(
         s"addGroupMember gid=>$gid, uid=>$uid, group=>$group, messageBoxId=>$messageBoxId, upRet=>$upRet"
       )
-      ret <-
-        if (upRet && group.createId != uid) {
-          groupMemberRepository.addGroupMember(GroupMember(gid, uid)).map(_ == 1)
-        } else ZStream.succeed(true)
+      ret <- groupMemberRepository
+        .addGroupMember(GroupMember(gid, uid))
+        .map(_ == 1)
+        .when(upRet && group.createId != uid)
     } yield ret
 
   @cacheEvict(values = List("findGroupsById", "findUserByGroupId"))
@@ -112,18 +109,19 @@ private final class UserService(
   override def removeFriend(friendId: Int, uId: Int): stream.Stream[Throwable, Boolean] =
     friendGroupFriendRepository.removeFriend(friendId, uId).map(_ > 0)
 
-  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId"))
   override def updateAvatar(userId: Int, avatar: String): stream.Stream[Throwable, Boolean] =
     userRepository.updateAvatar(avatar, userId).map(_ == 1)
 
-  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId"))
   override def updateUserInfo(user: User): stream.Stream[Throwable, Boolean] =
     userRepository.updateUserInfo(user.id, user).map(_ == 1)
 
-  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId"))
   override def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Boolean] =
     userRepository.updateUserStatus(status, uid).map(_ == 1)
 
+  @cacheEvict(values = List("findUserByGroupId", "findGroupsById"))
   override def changeGroup(groupId: Int, uId: Int, mId: Int): stream.Stream[Throwable, Boolean] =
     friendGroupFriendRepository.findUserGroup(uId, mId).flatMap { originRecordId =>
       friendGroupFriendRepository.changeGroup(groupId, originRecordId).map(_ == 1)
@@ -276,12 +274,12 @@ private final class UserService(
   override def saveMessage(receive: Receive): stream.Stream[Throwable, Int] =
     receiveRepository.saveMessage(receive)
 
-  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId"))
   override def updateSign(user: User): stream.Stream[Throwable, Boolean] =
     if (user == null || user.sign == null) ZStream.succeed(false)
     else userRepository.updateSign(user.sign, user.id).map(_ == 1)
 
-  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId"))
   override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
     if (activeCode == null || "".equals(activeCode)) ZStream.succeed(0)
     else userRepository.activeUser(activeCode)
@@ -300,8 +298,8 @@ private final class UserService(
         SecurityUtil
           .matched(user.password, u.password)
       )
-      ret <- if (u == null || !isMath) ZStream.fromEffect(null) else ZStream.succeed(u)
-      _ <- LogUtil.infoS(s"matchUser user=>$user, u=>$u, isMath=>$isMath, ret=>$ret")
+      _ <- LogUtil.infoS(s"matchUser user=>$user, u=>$u, isMath=>$isMath")
+      ret <- ZStream.succeed(u).when(u != null && isMath)
     } yield ret
   }
 
@@ -329,7 +327,7 @@ private final class UserService(
   override def findGroupsById(id: Int): stream.Stream[Throwable, GroupList] =
     groupRepository.findGroupsById(id)
 
-  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId", "findUsers"))
+  @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId"))
   override def saveUser(user: User): stream.Stream[Throwable, Boolean] = {
     if (user == null || user.username == null || user.password == null || user.email == null) {
       return ZStream.succeed(false)
@@ -358,7 +356,7 @@ private final class UserService(
         )
         .provideLayer(MailService.make(mailConf))
       _ <- LogUtil.info(
-        s"saveUser user=>$user, activeCode=>$activeCode, userCopy=>$userCopy, zimConf=>$zimConf, mailConf=>$mailConf"
+        s"saveUser uid=$id, user=>$user, activeCode=>$activeCode, userCopy=>$userCopy, zimConf=>$zimConf, mailConf=>$mailConf"
       )
     } yield true
     ZStream.fromEffect(zioRet)
