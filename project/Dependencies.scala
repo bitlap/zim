@@ -26,7 +26,7 @@ object Dependencies {
     val refined = "0.9.28"
     val `zio-schema` = "0.1.8"
     val `akka-http-session` = "0.6.1"
-    val `smt-cacheable` = "0.4.0-SNAPSHOT"
+    val `smt-cacheable` = "0.4.1"
   }
 
   lazy val redis = "dev.zio" %% "zio-redis" % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
@@ -47,7 +47,6 @@ object Dependencies {
   )
 
   lazy val smtDeps = Seq(
-    "org.bitlap" %% "smt-cacheable-core" % Version.`smt-cacheable`,
     "org.bitlap" %% "smt-cacheable-caffeine" % Version.`smt-cacheable`
   )
 
