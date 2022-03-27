@@ -19,7 +19,7 @@ object Dependencies {
     val config = "1.4.1"
     val mysql = "8.0.28"
     val `zio-interop-reactiveStreams` = "1.3.9"
-    val `simple-java-mail` = "6.7.6"
+    val `simple-java-mail` = "7.1.1"
     val h2 = "2.1.210"
     val scalaTest = "3.2.11"
     val `zio-actors` = "0.0.9"
