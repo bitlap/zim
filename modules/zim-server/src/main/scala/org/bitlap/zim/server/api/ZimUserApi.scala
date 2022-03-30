@@ -149,7 +149,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   lazy val chatLogRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.chatLogEndpoint.serverLogic { user => input =>
       val userIO = apiApplication.chatLog(input._1, input._2, input._3, user.id)
-      buildFlowResponse(ZStream.fromIterable(unsafeRun(userIO)))
+      buildPagesResponse(userIO)
     })
 
   lazy val agreeFriendRoute: Route =

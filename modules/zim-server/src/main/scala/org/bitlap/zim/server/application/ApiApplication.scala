@@ -78,7 +78,7 @@ trait ApiApplication extends BaseApplication[User] {
    * @param mid
    * @return
    */
-  def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, List[ChatHistory]]
+  def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, ResultPageSet[ChatHistory]]
 
   def findAddInfo(uid: Int, page: Int): IO[Throwable, ResultPageSet[AddInfo]]
 

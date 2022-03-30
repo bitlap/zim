@@ -66,4 +66,5 @@ object Message {
   @inline private def checkJsonValue(c: HCursor, field: String): Boolean =
     c.downField(field).succeeded && c.downField(field).as[Json].isRight &&
       c.downField(field).as[Json].getOrElse(Json.fromString("null")) != Json.fromString("null")
+
 }

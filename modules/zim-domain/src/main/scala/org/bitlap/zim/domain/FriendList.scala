@@ -20,6 +20,7 @@ import io.circe.generic.semiauto._
 import io.circe.syntax.EncoderOps
 import io.circe.{ Decoder, Encoder, Json }
 import org.bitlap.zim.domain.model.User
+import zio.schema.{ DeriveSchema, Schema }
 
 /**
  * 好友列表
@@ -47,5 +48,6 @@ object FriendList {
         ("list", a.list.asJson)
       )
   }
+  implicit val schema: Schema[FriendList] = DeriveSchema.gen[FriendList]
 
 }

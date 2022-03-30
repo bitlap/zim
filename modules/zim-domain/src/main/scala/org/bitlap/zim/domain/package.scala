@@ -17,6 +17,7 @@
 package org.bitlap.zim
 
 import io.circe.{ Decoder, Encoder }
+import zio.schema.Schema
 
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -39,5 +40,11 @@ package object domain {
       if (str == null) ZonedDateTime.now() else ZonedDateTime.parse(str)
     }
   }
+
+  // 定义自己的schema 用以描述日期序列化
+  implicit val zonedDateTimeSchema: Schema[ZonedDateTime] = Schema[String].transformOrFail(
+    f => Right(if (f == null) ZonedDateTime.now() else ZonedDateTime.parse(f)),
+    g => Right(if (g == null) "" else g.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+  )
 
 }

@@ -54,5 +54,4 @@ object AddInfo {
 
   implicit val decoder: Decoder[AddInfo] = deriveDecoder[AddInfo]
   implicit val encoder: Encoder[AddInfo] = deriveEncoder[AddInfo]
-
 }

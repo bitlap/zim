@@ -19,6 +19,7 @@ package org.bitlap.zim.domain.model
 import io.circe._
 import io.circe.generic.semiauto._
 import scalikejdbc.{ WrappedResultSet, _ }
+import zio.schema.{ DeriveSchema, Schema }
 
 import java.time.ZonedDateTime
 
@@ -80,4 +81,6 @@ object User extends BaseModel[User] {
     status = "",
     active = ""
   )
+
+  implicit val schema: Schema[User] = DeriveSchema.gen[User]
 }

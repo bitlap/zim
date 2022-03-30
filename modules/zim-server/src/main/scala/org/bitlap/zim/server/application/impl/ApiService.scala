@@ -186,8 +186,8 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       .countHistoryMessage(mid, id, `type`)
       .map(pages => if (pages < SystemConstant.SYSTEM_PAGE) pages else pages / SystemConstant.SYSTEM_PAGE + 1)
 
-  override def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, List[ChatHistory]] = {
-    val ret = for {
+  override def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, ResultPageSet[ChatHistory]] =
+    for {
       list <- userApplication
         .findUserById(mid)
         .flatMap { u =>
@@ -199,10 +199,10 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
           SystemConstant.SYSTEM_PAGE * (page - 1),
           math.min(SystemConstant.SYSTEM_PAGE * page, list.size)
         )
-        .toList
-    } yield pageRet
-    ret
-  }
+    } yield {
+      val pages = calculatePages(list.size, SystemConstant.SYSTEM_PAGE)
+      ResultPageSet(pageRet.toList, pages)
+    }
 
   override def findAddInfo(uid: Int, page: Int): IO[Throwable, ResultPageSet[AddInfo]] =
     for {
@@ -211,10 +211,8 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         SystemConstant.ADD_MESSAGE_PAGE * (page - 1),
         math.min(SystemConstant.ADD_MESSAGE_PAGE * page, list.size)
       )
-      countIO <- userApplication.countUnHandMessage(uid, None).runHead
-      count = countIO.getOrElse(0)
     } yield {
-      val pages = calculatePages(count, SystemConstant.ADD_MESSAGE_PAGE)
+      val pages = calculatePages(list.size, SystemConstant.ADD_MESSAGE_PAGE)
       ResultPageSet(listRet.toList, pages)
     }
 
@@ -225,10 +223,8 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         SystemConstant.USER_PAGE * (page - 1),
         math.min(SystemConstant.USER_PAGE * page, list.size)
       )
-      countIO <- userApplication.countUser(name, sex).runHead
-      count = countIO.getOrElse(0)
     } yield {
-      val pages = calculatePages(count, SystemConstant.USER_PAGE)
+      val pages = calculatePages(list.size, SystemConstant.USER_PAGE)
       ResultPageSet(listRet.toList, pages)
     }
 
@@ -239,10 +235,8 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         SystemConstant.USER_PAGE * (page - 1),
         math.min(SystemConstant.USER_PAGE * page, list.size)
       )
-      countIO <- userApplication.countGroup(name).runHead
-      count = countIO.getOrElse(0)
     } yield {
-      val pages = calculatePages(count, SystemConstant.USER_PAGE)
+      val pages = calculatePages(list.size, SystemConstant.USER_PAGE)
       ResultPageSet(listRet.toList, pages)
     }
 
@@ -254,9 +248,8 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         SystemConstant.USER_PAGE * (page - 1),
         math.min(SystemConstant.USER_PAGE * page, listFilter.size)
       )
-      count = listRet.size
     } yield {
-      val pages = calculatePages(count, SystemConstant.USER_PAGE)
+      val pages = calculatePages(listFilter.size, SystemConstant.USER_PAGE)
       ResultPageSet(listRet.toList, pages)
     }
 
