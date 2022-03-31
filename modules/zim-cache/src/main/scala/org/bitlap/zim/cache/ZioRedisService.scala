@@ -84,34 +84,36 @@ trait ZioRedisService {
 
 object ZioRedisService {
 
-  implicit val zioRedisLayer: Layer[RedisError.IOError, ZRedisCacheService] = ZioRedisConfiguration.redisLayer
+  val zioRedisLayer: Layer[RedisError.IOError, ZRedisCacheService] = ZioRedisConfiguration.redisLayer
 
   // use it by ZioRedisService.xxx()
-  def getSets(k: String)(implicit layer: Layer[RedisError.IOError, ZRedisCacheService]): IO[RedisError, Chunk[String]] =
+  def getSets(k: String)(implicit
+    layer: Layer[RedisError.IOError, ZRedisCacheService] = zioRedisLayer
+  ): IO[RedisError, Chunk[String]] =
     ZIO.serviceWith[ZioRedisService](_.getSets(k)).provideLayer(layer)
 
   def removeSetValue(k: String, m: String)(implicit
-    layer: Layer[RedisError.IOError, ZRedisCacheService]
+    layer: Layer[RedisError.IOError, ZRedisCacheService] = zioRedisLayer
   ): IO[RedisError, Long] =
     ZIO.serviceWith[ZioRedisService](_.removeSetValue(k, m)).provideLayer(layer)
 
   def setSet(k: String, m: String)(implicit
-    layer: Layer[RedisError.IOError, ZRedisCacheService]
+    layer: Layer[RedisError.IOError, ZRedisCacheService] = zioRedisLayer
   ): IO[RedisError, Long] =
     ZIO.serviceWith[ZioRedisService](_.setSet(k, m)).provideLayer(layer)
 
   def set[T: Schema](key: String, value: T)(implicit
-    layer: Layer[RedisError.IOError, ZRedisCacheService]
+    layer: Layer[RedisError.IOError, ZRedisCacheService] = zioRedisLayer
   ): IO[RedisError, Boolean] =
     ZIO.serviceWith[ZioRedisService](_.set[T](key, value)).provideLayer(layer)
 
   def get[T: Schema](key: String)(implicit
-    layer: Layer[RedisError.IOError, ZRedisCacheService]
+    layer: Layer[RedisError.IOError, ZRedisCacheService] = zioRedisLayer
   ): IO[RedisError, Option[T]] =
-    ZIO.serviceWith[ZioRedisService](_.get(key)).provideLayer(layer)
+    ZIO.serviceWith[ZioRedisService](_.get[T](key)).provideLayer(layer)
 
   def exists(key: String)(implicit
-    layer: Layer[RedisError.IOError, ZRedisCacheService]
+    layer: Layer[RedisError.IOError, ZRedisCacheService] = zioRedisLayer
   ): IO[RedisError, Long] =
     ZIO.serviceWith[ZioRedisService](_.exists(key)).provideLayer(layer)
 }

@@ -22,8 +22,6 @@ import org.bitlap.zim.domain.repository.UserRepository
 import scalikejdbc._
 import zio._
 
-import scala.language.{ implicitConversions, postfixOps }
-
 /**
  * 用户的操作实现
  *

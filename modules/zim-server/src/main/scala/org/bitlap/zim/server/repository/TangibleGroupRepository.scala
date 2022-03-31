@@ -21,8 +21,6 @@ import org.bitlap.zim.domain.repository.GroupRepository
 import scalikejdbc._
 import zio._
 
-import scala.language.implicitConversions
-
 /**
  * 群组的操作实现
  *

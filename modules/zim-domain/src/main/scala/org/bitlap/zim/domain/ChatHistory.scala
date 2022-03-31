@@ -40,5 +40,4 @@ object ChatHistory {
 
   implicit val decoder: Decoder[ChatHistory] = deriveDecoder[ChatHistory]
   implicit val encoder: Encoder[ChatHistory] = deriveEncoder[ChatHistory]
-
 }

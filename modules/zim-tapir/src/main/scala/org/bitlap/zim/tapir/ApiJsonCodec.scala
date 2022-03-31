@@ -33,6 +33,7 @@ import zio.interop.reactivestreams.streamToPublisher
 import zio.stream.ZStream
 import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
+import org.reactivestreams.Publisher
 
 import scala.concurrent.Future
 
@@ -144,11 +145,12 @@ trait ApiJsonCodec extends BootstrapRuntime {
    */
   def buildFlowResponse[T <: Product]
     : stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
-    val resp = for {
+    val resp = (for {
       list <- respStream.runCollect
       resp = ResultSet[List[T]](data = list.toList).asJson.noSpaces
       r <- ZStream(resp).map(body => ByteString(body)).toPublisher
-    } yield r
+    } yield r).catchSome(catchStreamError)
+
     Future.successful(
       Right(Source.fromPublisher(unsafeRun(resp)))
     )
@@ -161,22 +163,17 @@ trait ApiJsonCodec extends BootstrapRuntime {
    * @return
    */
   def buildMonoResponse[T <: Product](
-    returnError: PartialFunction[T, String] = {
-      {
-        case tt: T @unchecked => null
-        case t if t == null   => null
-      }: PartialFunction[T, String]
-    }
+    returnError: Boolean = false
   ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
-    val resp = for {
+    val resp = (for {
       ret <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
       result = (
-        if (returnError(ret) != null)
-          ResultSet[T](data = null.asInstanceOf[T], code = SystemConstant.ERROR, msg = returnError(ret))
+        if (ret == null && returnError)
+          ResultSet[T](data = null.asInstanceOf[T], code = SystemConstant.ERROR, msg = SystemConstant.ERROR_MESSAGE)
         else ResultSet[T](data = ret)
       ).asJson.noSpaces
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
-    } yield r
+    } yield r).catchSome(catchStreamError)
     Future.successful(
       Right(Source.fromPublisher(unsafeRun(resp)))
     )
@@ -187,12 +184,12 @@ trait ApiJsonCodec extends BootstrapRuntime {
     code: Int = SystemConstant.ERROR,
     msg: String = SystemConstant.ERROR_MESSAGE
   ): stream.Stream[Throwable, Int] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
-    val resp = for {
+    val resp = (for {
       resp <- respStream.runHead.map(_.getOrElse(0))
       result = (if (resp < 1 && returnError) ResultSet(data = resp, code = code, msg = msg)
                 else ResultSet(data = resp)).asJson.noSpaces
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
-    } yield r
+    } yield r).catchSome(catchStreamError)
     Future.successful(
       Right(Source.fromPublisher(unsafeRun(resp)))
     )
@@ -203,12 +200,12 @@ trait ApiJsonCodec extends BootstrapRuntime {
     code: Int = SystemConstant.ERROR,
     msg: String = SystemConstant.ERROR_MESSAGE
   ): stream.Stream[Throwable, Boolean] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
-    val resp = for {
+    val resp = (for {
       resp <- respStream.runHead.map(_.getOrElse(false))
       result = (if (!resp && returnError) ResultSet(data = resp, code = code, msg = msg)
                 else ResultSet(data = resp)).asJson.noSpaces
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
-    } yield r
+    } yield r).catchSome(catchStreamError)
     Future.successful(
       Right(Source.fromPublisher(unsafeRun(resp)))
     )
@@ -217,14 +214,22 @@ trait ApiJsonCodec extends BootstrapRuntime {
   def buildPagesResponse[T <: Product]
     : IO[Throwable, ResultPageSet[T]] => Future[Either[ZimError, Source[ByteString, Any]]] =
     respIO => {
-      val resp = for {
+      val resp: ZIO[Any, Throwable, Publisher[ByteString]] = (for {
         resp <- respIO
         r <- ZStream.succeed(resp.asJson.noSpaces).map(body => ByteString(body)).toPublisher
-      } yield r
+      } yield r).catchSome(catchStreamError)
       Future.successful(
         Right(Source.fromPublisher(unsafeRun(resp)))
       )
     }
+
+  @inline private def catchStreamError: PartialFunction[Throwable, ZIO[Any, Throwable, Publisher[ByteString]]] = {
+    case BusinessException(ec, em) =>
+      ZStream
+        .succeed(ResultSet(code = ec, msg = em).asJson.noSpaces)
+        .map(body => ByteString(body))
+        .toPublisher
+  }: PartialFunction[Throwable, ZIO[Any, Throwable, Publisher[ByteString]]]
 
 }
 

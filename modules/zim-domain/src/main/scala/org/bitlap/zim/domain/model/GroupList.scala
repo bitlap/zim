@@ -15,11 +15,11 @@
  */
 
 package org.bitlap.zim.domain.model
-
 import io.circe._
 import io.circe.generic.semiauto._
 import org.bitlap.zim.domain.Group
 import scalikejdbc.{ WrappedResultSet, _ }
+import zio.schema.{ DeriveSchema, Schema }
 
 /**
  * 群组信息
@@ -57,5 +57,7 @@ object GroupList extends BaseModel[GroupList] {
   }
 
   override def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[GroupList]): GroupList = autoConstruct(rs, sp)
+
+  implicit val groupListSchema: Schema[GroupList] = DeriveSchema.gen[GroupList]
 
 }

@@ -275,7 +275,7 @@ trait UserApplication extends BaseApplication[User] {
    * @param user
    * @return
    */
-  def updateSing(user: User): stream.Stream[Throwable, Boolean]
+  def updateSign(user: User): stream.Stream[Throwable, Boolean]
 
   /**
    * 激活码激活用户

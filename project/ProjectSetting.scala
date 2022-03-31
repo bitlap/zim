@@ -11,13 +11,12 @@ object ProjectSetting {
   lazy val scala212 = "2.12.15"
   lazy val scala213 = "2.13.8"
 
-  lazy val supportedScalaVersions = List(scala212,scala213)
+  lazy val supportedScalaVersions = List(scala212, scala213)
 
   def extraOptions(scalaVersion: String, optimize: Boolean): List[String] =
     CrossVersion.partialVersion(scalaVersion) match {
       case Some((2, 13)) =>
-        /** List("-Wunused:imports") ++ * */
-        optimizerOptions(optimize)
+        List("-Wunused:imports") ++ optimizerOptions(optimize)
       case Some((2, 12)) =>
         List(
           "-opt-warnings",

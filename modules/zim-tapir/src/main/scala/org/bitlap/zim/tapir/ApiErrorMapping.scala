@@ -54,11 +54,6 @@ trait ApiErrorMapping extends ApiJsonCodec {
         Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.toString}")
         getFromResource("static/html/403.html")
       }
-    case e: BusinessException =>
-      extractUri { uri =>
-        Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.toString}")
-        getFromResource("static/html/500.html")
-      }
     case e: Exception =>
       extractUri { uri =>
         Logger.root.error(s"Request to $uri could not be handled normally cause by ${e.toString}")

@@ -24,13 +24,16 @@ jobs:
       - name: Build
         run: sbt compile
 
-      - name: Code Style
-        run: sbt scalafmtCheckAll
+      - name: Checking Code Style
+        run: sbt check
+
+      - name: Checking Scalafix
+        run: sbt fix
 
       - name: Checking headers
         run: sbt headerCheckAll
 
-  ci:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -55,4 +58,11 @@ jobs:
         run: sbt coverageAggregate
 
       - name: Upload test coverage report
-        run: bash <(curl -s https://codecov.io/bash)    
+        run: bash <(curl -s https://codecov.io/bash)
+  
+  ci:
+    runs-on: ubuntu-20.04
+    needs: [ build, test ]
+    steps:
+      - name: Aggregate outcomes
+        run: echo "build succeeded"          

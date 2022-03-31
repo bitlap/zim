@@ -166,33 +166,46 @@ final class UserApplicationSpec extends TestApplication {
     ret shouldBe Some(2) -> Some(true)
   }
 
-  "UserApplication" should "updateAvatar ok" in {
-    val stream = (for {
-      _ <- ZIO.serviceWith[UserApplication](_.saveUser(mockUser).runHead)
-      _ <- ZIO.serviceWith[UserApplication](_.updateAvatar(1, "sss").runHead)
-      user <- ZIO.serviceWith[UserApplication](_.findUserById(mockUser.id).runHead)
-    } yield user.map(_.avatar)).provideLayer(userApplicationLayer)
-    val ret = unsafeRun(stream)
-    ret shouldBe Some("sss")
-  }
+  "UserApplication" should "updateUserInfo, sign, avatar, should success" in {
+    val saveUser = ZIO
+      .serviceWith[UserApplication](_.saveUser(mockUser.copy(username = "world")).runHead)
+      .provideLayer(userApplicationLayer)
+    val user = unsafeRun(saveUser)
 
-  "UserApplication" should "updateUserInfo sign ok" in {
-    val stream = (for {
-      _ <- ZIO.serviceWith[UserApplication](_.saveUser(mockUser).runHead)
-      _ <- ZIO.serviceWith[UserApplication](_.updateUserInfo(mockUser.copy(sign = "梦境迷离")).runHead)
-      user <- ZIO.serviceWith[UserApplication](_.findUserById(mockUser.id).runHead)
+    println("saveUser:" + user)
+
+    val stream1 = (for {
+      findU <- ZIO.serviceWith[UserApplication](_.findUserById(1).runHead)
+      uid = findU.map(_.id).getOrElse(1)
+      _ <- ZIO.serviceWith[UserApplication](_.updateUserInfo(mockUser.copy(id = uid, sign = "梦境迷离")).runHead)
+      user <- ZIO.serviceWith[UserApplication](_.findUserById(uid).runHead)
     } yield user.map(_.sign)).provideLayer(userApplicationLayer)
-    val ret = unsafeRun(stream)
-    ret shouldBe Some("梦境迷离")
+
+    val stream2 = (for {
+      findU <- ZIO.serviceWith[UserApplication](_.findUserById(1).runHead)
+      uid = findU.map(_.id).getOrElse(1)
+      _ <- ZIO.serviceWith[UserApplication](_.updateUserStatus("offline", uid).runHead)
+      user <- ZIO.serviceWith[UserApplication](_.findUserById(uid).runHead)
+    } yield user.map(_.status)).provideLayer(userApplicationLayer)
+
+    val stream3 = (for {
+      findU <- ZIO.serviceWith[UserApplication](_.findUserById(1).runHead)
+      uid = findU.map(_.id).getOrElse(1)
+      _ <- ZIO.serviceWith[UserApplication](_.updateAvatar(uid, "sss").runHead)
+      user <- ZIO.serviceWith[UserApplication](_.findUserById(uid).runHead)
+    } yield user.map(_.avatar)).provideLayer(userApplicationLayer)
+
+    val stream = for {
+      ret1 <- stream1
+      ret2 <- stream2
+      ret3 <- stream3
+    } yield Tuple3(ret1, ret2, ret3)
+
+    val Tuple3(ret1, ret2, ret3) = unsafeRun(stream)
+    ret1 shouldBe Some("梦境迷离")
+    ret2 shouldBe Some("offline")
+    ret3 shouldBe Some("sss")
+
   }
 
-  "UserApplication" should "updateUserStatus ok" in {
-    val stream = (for {
-      _ <- ZIO.serviceWith[UserApplication](_.saveUser(mockUser).runHead)
-      _ <- ZIO.serviceWith[UserApplication](_.updateUserStatus("offline", 1).runHead)
-      user <- ZIO.serviceWith[UserApplication](_.findUserById(mockUser.id).runHead)
-    } yield user.map(_.status)).provideLayer(userApplicationLayer)
-    val ret = unsafeRun(stream)
-    ret shouldBe Some("offline")
-  }
 }

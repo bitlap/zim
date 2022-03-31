@@ -23,7 +23,7 @@ import akka.http.scaladsl.server._
 import akka.http.scaladsl.testkit.{ RouteTestTimeout, ScalatestRouteTest }
 import akka.testkit.TestDuration
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.domain.input.RegisterUserInput
+import org.bitlap.zim.domain.input.{ ExistEmailInput, GroupInput, RegisterUserInput, UpdateSignInput, UpdateUserInput }
 import org.bitlap.zim.server.api.ZimUserApi.ZZimUserApi
 import org.bitlap.zim.server.application.TestApplication
 import org.bitlap.zim.server.application.impl.ApiService
@@ -31,9 +31,6 @@ import org.bitlap.zim.server.configuration.ZimServiceConfiguration
 import org.bitlap.zim.server.repository.TangibleUserRepository
 import zio.{ TaskLayer, ZIO }
 import akka.http.scaladsl.model.headers.Cookie
-import org.bitlap.zim.domain.input.UpdateUserInput
-import org.bitlap.zim.domain.input.UpdateSignInput
-import org.bitlap.zim.domain.input.GroupInput
 import org.bitlap.zim.server.repository._
 import org.bitlap.zim.domain.model.GroupMember
 
@@ -51,7 +48,7 @@ import org.bitlap.zim.domain.model.GroupList
  */
 class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with ScalatestRouteTest {
 
-  implicit val timeout = RouteTestTimeout(5.seconds.dilated)
+  implicit val timeout = RouteTestTimeout(15.seconds.dilated)
   val authorityHeaders = Seq(Cookie("Authorization", "ZHJlYW15bG9zdEBvdXRsb29rLmNvbToxMjM0NTY="))
   val pwdUser = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
 
@@ -100,6 +97,24 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     }
   }
 
+  "register failed" should "OK for POST" in {
+    implicit val m: ToEntityMarshaller[RegisterUserInput] = Marshaller.withFixedContentType(`application/json`) { f =>
+      HttpEntity(`application/json`, f.asJson.noSpaces)
+    }
+
+    Post("/user/register", RegisterUserInput("username", "", "")) ~> getRoute(
+      _.registerRoute
+    ) ~> check {
+      responseAs[String] shouldEqual """{"data":null,"msg":"参数错误","code":1}"""
+    }
+
+    Post("/user/register", RegisterUserInput("username", "password", "")) ~> getRoute(
+      _.registerRoute
+    ) ~> check {
+      responseAs[String] shouldEqual """{"data":null,"msg":"邮箱格式不正确","code":1}"""
+    }
+  }
+
   "init user" should "OK" in {
     val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
     Post(s"/user/init/${user.getOrElse(1L)}").withHeaders(authorityHeaders) ~> getRoute(_.initRoute) ~> check {
@@ -118,6 +133,18 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     ) ~> check {
       println(s"result => ${responseAs[String]}")
       responseAs[String] shouldEqual """{"data":1,"msg":"操作成功","code":0}"""
+    }
+  }
+
+  "active user failed" should "OK" in {
+    // 使用repository直接创建一个用户记录
+    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    println(s"user => $user")
+    Get(s"/user/active/11") ~> getRoute(
+      _.activeRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":0,"msg":"操作失败","code":1}"""
     }
   }
 
@@ -221,6 +248,67 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     ) ~> check {
       println(s"result => ${responseAs[String]}")
       responseAs[String] shouldEqual """{"data":[],"msg":"操作成功","code":0,"pages":1}"""
+    }
+  }
+
+  "existEmail exist" should "OK" in {
+    implicit val m: ToEntityMarshaller[ExistEmailInput] = Marshaller.withFixedContentType(`application/json`) { f =>
+      HttpEntity(`application/json`, f.asJson.noSpaces)
+    }
+    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    println(s"user => $user")
+    Post(s"/user/existEmail", ExistEmailInput("dreamylost@outlook.com")) ~> getRoute(_.existEmailRoute) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual
+        """{"data":true,"msg":"操作成功","code":0}"""
+    }
+  }
+
+  "existEmail not exist" should "OK" in {
+    implicit val m: ToEntityMarshaller[ExistEmailInput] = Marshaller.withFixedContentType(`application/json`) { f =>
+      HttpEntity(`application/json`, f.asJson.noSpaces)
+    }
+    val user = unsafeRun(TangibleUserRepository.saveUser(pwdUser).provideLayer(userLayer).runHead)
+    println(s"user => $user")
+    Post(s"/user/existEmail", ExistEmailInput("2233@outlook.com")) ~> getRoute(_.existEmailRoute) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual
+        """{"data":false,"msg":"操作失败","code":1}"""
+    }
+
+    Post(s"/user/existEmail", ExistEmailInput("")) ~> getRoute(_.existEmailRoute) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual
+        """{"data":null,"msg":"参数错误","code":1}"""
+    }
+  }
+
+  "updateInfo user oldPwd failed" should "OK" in {
+    implicit val m: ToEntityMarshaller[UpdateUserInput] = Marshaller.withFixedContentType(`application/json`) { f =>
+      HttpEntity(`application/json`, f.asJson.noSpaces)
+    }
+    // 使用service模拟注册创建一个完成的用户记录
+    val user = createRegisterUser()
+    println(s"user => $user")
+    Post(s"/user/updateInfo", UpdateUserInput(1, "lisi", Some(""), Some(""), "", ""))
+      .withHeaders(authorityHeaders) ~> getRoute(
+      _.updateInfoRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":null,"msg":"旧密码不正确","code":1}"""
+    }
+
+    Post(s"/user/updateInfo", UpdateUserInput(1, "lisi", None, Some(""), "", ""))
+      .withHeaders(authorityHeaders) ~> getRoute(
+      _.updateInfoRoute
+    ) ~> check {
+      println(s"result => ${responseAs[String]}")
+      responseAs[String] shouldEqual """{"data":true,"msg":"操作成功","code":0}"""
+
+      val userNew =
+        unsafeRun(TangibleUserRepository.findUsers(Some("lisi"), None).provideLayer(userLayer).runHead)
+
+      userNew.isDefined shouldBe true
     }
   }
 

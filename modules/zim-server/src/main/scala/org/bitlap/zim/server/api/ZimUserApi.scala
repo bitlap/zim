@@ -149,7 +149,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   lazy val chatLogRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.chatLogEndpoint.serverLogic { user => input =>
       val userIO = apiApplication.chatLog(input._1, input._2, input._3, user.id)
-      buildFlowResponse(ZStream.fromIterable(unsafeRun(userIO)))
+      buildPagesResponse(userIO)
     })
 
   lazy val agreeFriendRoute: Route =
@@ -208,8 +208,11 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
 
   lazy val activeRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.activeUserEndpoint.serverLogic { activeCode =>
+      // FIXME 这里用了unsafeRun，只能只讲try stream exception
       val resultStream = apiApplication.activeUser(activeCode)
-      val str = unsafeRun(resultStream.runHead)
+      val str =
+        try unsafeRun(resultStream.runHead)
+        catch { case _: Throwable => Some(0) }
       val ret = buildIntMonoResponse()(ZStream.succeed(str.getOrElse(0)))
       ret.map {
         case Right(s)    => Right(Tuple2(Uri.unsafeParse(s"/#tologin?status=${str.getOrElse(0)}"), s))
@@ -253,11 +256,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
   lazy val loginRoute: Route = AkkaHttpServerInterpreter().toRoute(
     ZimUserEndpoint.loginEndpoint.serverLogic { input =>
       val resultStream = apiApplication.login(input)
-      val ret = buildMonoResponse[User] {
-        case user: User if user.status.equals("nonactivated") => SystemConstant.NON_ACTIVE
-        case user if user == null                             => SystemConstant.LOGIN_ERROR
-        case _                                                => null
-      }(resultStream)
+      val ret = buildMonoResponse[User](true)(resultStream)
       ret.map {
         case Right(s) =>
           Right(

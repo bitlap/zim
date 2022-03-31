@@ -19,6 +19,7 @@ package org.bitlap.zim.domain
 import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 import org.bitlap.zim.domain.model.{ GroupList, User }
+import zio.schema.{ DeriveSchema, Schema }
 
 /**
  * 好友和群组整个信息集
@@ -37,5 +38,6 @@ object FriendAndGroupInfo {
 
   implicit val decoder: Decoder[FriendAndGroupInfo] = deriveDecoder[FriendAndGroupInfo]
   implicit val encoder: Encoder[FriendAndGroupInfo] = deriveEncoder[FriendAndGroupInfo]
+  implicit val schema: Schema[FriendAndGroupInfo] = DeriveSchema.gen[FriendAndGroupInfo]
 
 }

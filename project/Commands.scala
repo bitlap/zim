@@ -7,14 +7,17 @@ import sbt.Command
  */
 object Commands {
 
-  val FmtSbtCommand = Command.command("fmt")(state => "scalafmtSbt" :: "scalafmt" :: "test:scalafmt" :: state)
+  val FmtSbtCommand = Command.command("fmt")(state => "scalafmtSbt" :: "scalafmtAll" :: state)
+
+  val FIXSbtCommand = Command.command("fix")(state => "scalafixEnable" :: "scalafixAll RemoveUnused" :: state)
 
   val FmtSbtCheckCommand =
-    Command.command("check")(state => "scalafmtSbtCheck" :: "scalafmtCheck" :: "test:scalafmtCheck" :: state)
+    Command.command("check")(state => "scalafmtSbtCheck" :: "scalafmtCheckAll" :: state)
 
   val value = Seq(
     FmtSbtCommand,
-    FmtSbtCheckCommand
+    FmtSbtCheckCommand,
+    FIXSbtCommand
   )
 
 }
