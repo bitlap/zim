@@ -35,7 +35,6 @@ import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
 import org.reactivestreams.Publisher
 
-import java.lang.Exception
 import scala.concurrent.Future
 
 /**
@@ -228,11 +227,6 @@ trait ApiJsonCodec extends BootstrapRuntime {
     case BusinessException(ec, em) =>
       ZStream
         .succeed(ResultSet(code = ec, msg = em).asJson.noSpaces)
-        .map(body => ByteString(body))
-        .toPublisher
-    case e: Exception =>
-      ZStream
-        .succeed(ResultSet(msg = e.getLocalizedMessage).asJson.noSpaces)
         .map(body => ByteString(body))
         .toPublisher
   }: PartialFunction[Throwable, ZIO[Any, Throwable, Publisher[ByteString]]]
