@@ -39,6 +39,8 @@ object SystemConstant {
 
   final val ERROR_MESSAGE: String = "操作失败"
 
+  final val PARAM_ERROR: String = "参数错误"
+
   final val IMAGE_PATH: String = "/static/upload/image/"
 
   final val FILE_PATH: String = "/static/upload/file/"

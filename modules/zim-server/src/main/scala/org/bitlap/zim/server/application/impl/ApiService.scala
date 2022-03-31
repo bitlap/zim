@@ -16,6 +16,7 @@
 
 package org.bitlap.zim.server.application.impl
 
+import org.bitlap.zim.domain.ZimError.BusinessException
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
@@ -37,13 +38,14 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def findById(id: Long): stream.Stream[Throwable, User] = userApplication.findById(id)
 
-  override def existEmail(email: String): stream.Stream[Throwable, Boolean] = userApplication.existEmail(email)
+  override def existEmail(email: String): stream.Stream[Throwable, Boolean] =
+    if (email.isEmpty) ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+    else userApplication.existEmail(email)
 
   override def findUserById(id: Int): stream.Stream[Throwable, User] = userApplication.findUserById(id)
 
   override def updateInfo(user: UpdateUserInput): stream.Stream[Throwable, Boolean] = {
-    def check(): Boolean =
-      user.password == null || user.password.isEmpty || user.oldpwd == null || user.oldpwd.isEmpty
+    def check(): Boolean = user.password.isEmpty || user.oldpwd.isEmpty
 
     for {
       u <- userApplication.findUserById(user.id)
@@ -54,7 +56,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         if (check()) {
           userApplication.updateUserInfo(u.copy(sex = sex, sign = user.sign, username = user.username))
         } else if (!pwdCheck) {
-          ZStream.succeed(false)
+          ZStream.fail(BusinessException(msg = "旧密码不正确"))
         } else {
           userApplication
             .updateUserInfo(
@@ -71,7 +73,9 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
   }
 
   override def login(user: UserSecurity.UserSecurityInfo): stream.Stream[Throwable, User] =
-    userApplication.matchUser(User(user.id, user.email, user.password))
+    if (user.email.isEmpty) {
+      ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+    } else userApplication.matchUser(User(user.id, user.email, user.password))
 
   override def init(userId: Int): stream.Stream[Throwable, FriendAndGroupInfo] = {
     val ret = for {
@@ -107,7 +111,15 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     }
   }
 
-  override def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean] =
+  override def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean] = {
+    if (user.username.isEmpty || user.password.isEmpty) {
+      return ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+    }
+
+    val validEmail = ApiService.EMAIL_REGEX.matches(user.email)
+    if (!validEmail) {
+      return ZStream.fail(BusinessException(msg = "邮箱格式不正确"))
+    }
     userApplication.saveUser(
       User(
         id = 0,
@@ -122,6 +134,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         active = null
       )
     )
+  }
 
   override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
     userApplication
@@ -137,8 +150,11 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     )
     ret.flatMap(f =>
       if (f > 0) {
-        userApplication.addGroupMember(f, groupInput.createId).map(b => if (b) f else -1)
-      } else ZStream.succeed(-1)
+        for {
+          s <- userApplication.addGroupMember(f, groupInput.createId)
+          ret <- if (s) ZStream.succeed(f) else ZStream.fail(BusinessException())
+        } yield ret
+      } else ZStream.fail(BusinessException())
     )
 
   }
@@ -253,7 +269,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       ResultPageSet(listRet.toList, pages)
     }
 
-  private def calculatePages(count: Int, PAGE: Int): Int =
+  @inline private def calculatePages(count: Int, PAGE: Int): Int =
     if (count < PAGE) 1
     else {
       if (count % PAGE == 0) count / PAGE
@@ -262,7 +278,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def uploadFile(multipartInput: MultipartInput): stream.Stream[ZimError, UploadResult] = {
     if (multipartInput.file.name.isEmpty) {
-      return ZStream.empty
+      return ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     }
     // TODO 虚拟路径，目前为"/"，下同
     val fileIO = FileUtil
@@ -273,7 +289,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def updateAvatar(multipartInput: MultipartInput, mid: Int): stream.Stream[Throwable, UploadResult] = {
     if (multipartInput.file.name.isEmpty) {
-      return ZStream.empty
+      return ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     }
     val fileIO = FileUtil.upload(SystemConstant.AVATAR_PATH, multipartInput.file).flatMap { src =>
       userApplication.updateAvatar(mid, src).runHead.as(UploadResult(src = src, name = multipartInput.getFileName))
@@ -283,7 +299,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def uploadGroupAvatar(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] = {
     if (multipartInput.file.name.isEmpty) {
-      return ZStream.empty
+      return ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     }
     val fileIO = FileUtil
       .upload(SystemConstant.GROUP_AVATAR_PATH, multipartInput.file)
@@ -293,7 +309,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 
   override def uploadImage(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] = {
     if (multipartInput.file.name.isEmpty) {
-      return ZStream.empty
+      return ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     }
     val fileIO = FileUtil
       .upload(SystemConstant.IMAGE_PATH, "/", multipartInput.file)
@@ -303,6 +319,8 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
 }
 
 object ApiService {
+
+  private[impl] val EMAIL_REGEX = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$".r
 
   type ZApiApplication = Has[ApiApplication]
 
