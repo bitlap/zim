@@ -54,7 +54,7 @@ final case class User(
 object User extends BaseModel[User] {
 
   // 日期格式化
-  import org.bitlap.zim.domain._
+  import org.bitlap.zim.domain._ // scalafix:ok
 
   // for dsl query
   // see https://groups.google.com/g/scalikejdbc-users-group/c/h2bUE7xgS5o

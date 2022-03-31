@@ -28,8 +28,6 @@ import org.bitlap.zim.server.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.server.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.domain.model._
 
-import scala.language.postfixOps
-
 /**
  * t_user、t_group_members、t_friend_group_friends、t_friend_group 表操作的单测
  *

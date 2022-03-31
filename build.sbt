@@ -41,17 +41,23 @@ lazy val assemblySettings = Seq(
   }
 )
 
-lazy val configurationNoPublish: Project => Project =
+lazy val commonConfiguration: Project => Project =
   _.settings(Information.value)
     .settings(ProjectSetting.value)
     .settings(ProjectSetting.noPublish)
     .settings(commands ++= Commands.value)
     .settings(assemblySettings)
+    .settings(
+      semanticdbEnabled := true, // enable SemanticDB
+      semanticdbVersion := scalafixSemanticdb.revision,
+      Compile / scalacOptions ++= List("-Wunused:imports"),
+      scalafixOnCompile := true
+    )
 
 lazy val zim = (project in file("."))
   .settings(name := "zim")
   .aggregate(`zim-server`, `zim-domain`, `zim-cache`, `zim-tapir`, `zim-auth`)
-  .configure(configurationNoPublish)
+  .configure(commonConfiguration)
 
 lazy val `zim-server` = (project in file("modules/zim-server"))
   .settings(
@@ -59,29 +65,29 @@ lazy val `zim-server` = (project in file("modules/zim-server"))
     Compile / scalacOptions ++= List("-Ymacro-annotations")
   )
   .settings(assembly / mainClass := Some("org.bitlap.zim.server.ZimServer"))
-  .configure(configurationNoPublish)
+  .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
   .dependsOn(`zim-domain`, `zim-cache`, `zim-tapir`, `zim-auth`)
 
 lazy val `zim-domain` = (project in file("modules/zim-domain"))
   .settings(BuildInfoSettings.value)
   .settings(libraryDependencies ++= Dependencies.domainDeps)
-  .configure(configurationNoPublish)
+  .configure(commonConfiguration)
   .enablePlugins(GitVersioning, BuildInfoPlugin, ScalafmtPlugin, HeaderPlugin)
 
 lazy val `zim-cache` = (project in file("modules/zim-cache"))
   .settings(libraryDependencies ++= Dependencies.cacheDeps)
-  .configure(configurationNoPublish)
+  .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
 
 lazy val `zim-tapir` = (project in file("modules/zim-tapir"))
   .settings(libraryDependencies ++= Dependencies.tapirApiDeps)
-  .configure(configurationNoPublish)
+  .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
   .dependsOn(`zim-domain`)
 
 lazy val `zim-auth` = (project in file("modules/zim-auth"))
   .settings(libraryDependencies ++= Dependencies.domainDeps)
-  .configure(configurationNoPublish)
+  .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
   .dependsOn(`zim-domain`)

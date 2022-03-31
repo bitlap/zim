@@ -21,8 +21,6 @@ import scalikejdbc._
 import zio._
 import zio.stream.ZStream
 
-import scala.language.{ implicitConversions, postfixOps }
-
 private final class TangibleAddMessageRepository(databaseName: String)
     extends TangibleBaseRepository(AddMessage)
     with AddMessageRepository {

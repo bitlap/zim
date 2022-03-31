@@ -26,7 +26,6 @@ import zio.stream.ZStream
 import zio.{ stream, Task }
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.language.implicitConversions
 
 /**
  * 用户操作SQL
