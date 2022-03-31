@@ -50,7 +50,6 @@ lazy val commonConfiguration: Project => Project =
     .settings(
       semanticdbEnabled := true, // enable SemanticDB
       semanticdbVersion := scalafixSemanticdb.revision,
-      Compile / scalacOptions ++= List("-Wunused:imports"),
       scalafixOnCompile := true
     )
 
