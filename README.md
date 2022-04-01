@@ -5,6 +5,8 @@
 
 [在线预览地址](http://im.dreamylost.cn:8989)
 
+**如果感兴趣可以watch一下，如果对你有帮助可以点个star，欢迎贡献。**
+
 ## 模块
 
 - `zim-auth` zim 的登录鉴权，目前由 cookie 实现并对外提供“鉴权缓存”函数，具体实现由`zim-server`完成。
