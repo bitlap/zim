@@ -19,7 +19,8 @@ package org.bitlap.zim.server.application
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.cache.ZioRedisService
 import org.bitlap.zim.domain.model.Receive
-import org.bitlap.zim.domain.ws.protocol.{ protocol, AddRefuseMessage }
+import org.bitlap.zim.domain.ws.RefuseOrAgreeMessage
+import org.bitlap.zim.domain.ws.protocol.Protocol
 import org.bitlap.zim.domain.{ Message, SystemConstant }
 import zio.actors.{ ActorRef => _ }
 import zio.stream.ZStream
@@ -96,7 +97,7 @@ package object ws {
 
   private[ws] def agreeAddGroupHandler(
     userService: UserApplication
-  )(agree: AddRefuseMessage): IO[Throwable, Unit] =
+  )(agree: RefuseOrAgreeMessage): IO[Throwable, Unit] =
     userService.addGroupMember(agree.groupId, agree.toUid, agree.messageBoxId).runHead.map { f =>
       userService
         .findGroupById(agree.groupId)
@@ -106,7 +107,7 @@ package object ws {
           val actor = WsService.actorRefSessions.get(agree.toUid);
           {
             val message = Message(
-              `type` = protocol.agreeAddGroup.stringify,
+              `type` = Protocol.agreeAddGroup.stringify,
               mine = agree.mine,
               to = null,
               msg = groupList.fold("")(g => g.asJson.noSpaces)
@@ -168,7 +169,7 @@ package object ws {
           {
             val msg = Map(
               "id" -> s"$uId", //对好友而言，好友的好友就是我
-              "type" -> protocol.checkOnline.stringify,
+              "type" -> Protocol.checkOnline.stringify,
               "status" -> (if (isOnline) SystemConstant.status.ONLINE_DESC else SystemConstant.status.HIDE_DESC)
             )
             ZStream.fromEffect(WsService.sendMessage(msg.asJson.noSpaces, actorRef))

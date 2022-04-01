@@ -26,10 +26,15 @@ import org.bitlap.zim.cache.ZioRedisService
 import org.bitlap.zim.domain
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.domain.ws.protocol._
+import org.bitlap.zim.domain.ws._
 import org.bitlap.zim.domain.{ SystemConstant, Message => IMMessage }
 import org.bitlap.zim.server.actor.akka.WsMessageForwardBehavior
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
-import org.bitlap.zim.server.configuration.{ AkkaActorSystemConfiguration, ZimServiceConfiguration }
+import org.bitlap.zim.server.configuration.{
+  AkkaActorSystemConfiguration,
+  ZimServiceConfiguration,
+  ZioActorSystemConfiguration
+}
 import org.bitlap.zim.server.zioRuntime
 import org.reactivestreams.Publisher
 import zio._
@@ -139,7 +144,7 @@ object WsService extends ZimServiceConfiguration {
         }
       _ <- ZioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
       msg = IMMessage(
-        `type` = protocol.changOnline.stringify,
+        `type` = Protocol.changOnline.stringify,
         mine = null,
         to = null,
         msg =
@@ -208,9 +213,13 @@ object WsService extends ZimServiceConfiguration {
   def closeConnection(id: Int): Unit =
     wsConnections.asScala.get(id).foreach { ar =>
       wsConnections.remove(id)
-      zioRuntime.unsafeRunAsync(changeStatus(id, SystemConstant.status.HIDE))(ex => ex.unit)
+      zioRuntime.unsafeRunAsync {
+        changeStatus(id, SystemConstant.status.HIDE) andThen userStatusChangeByServer(id, SystemConstant.status.HIDE)
+      }(ex => ex.unit)
       // Status(Done)
       ar ! Status.Success(Done)
     }
 
+  def userStatusChangeByServer(uId: Int, status: String): ZIO[Any, Throwable, Unit] =
+    ZioActorSystemConfiguration.userStatusActor.flatMap(actor => actor ! UserStatusChangeMessage(uId, status))
 }

@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.domain.ws.protocol
+package org.bitlap.zim.domain.ws
 
 import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 import io.circe.{ Decoder, Encoder }
-import org.bitlap.zim.domain.Mine
 
 /**
- * 同意添加群
+ * 添加群的信息
  */
-final case class AddRefuseMessage(toUid: Int, groupId: Int, messageBoxId: Int, mine: Mine)
+final case class Group(groupId: Int, remark: String)
 
-object AddRefuseMessage {
+object Group {
 
-  implicit val decoder: Decoder[AddRefuseMessage] = deriveDecoder[AddRefuseMessage]
-  implicit val encoder: Encoder[AddRefuseMessage] = deriveEncoder[AddRefuseMessage]
+  implicit val decoder: Decoder[Group] = deriveDecoder[Group]
+  implicit val encoder: Encoder[Group] = deriveEncoder[Group]
 
 }

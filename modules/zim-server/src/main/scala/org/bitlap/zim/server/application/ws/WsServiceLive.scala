@@ -22,7 +22,8 @@ import io.circe.syntax.EncoderOps
 import org.bitlap.zim.cache.ZioRedisService
 import org.bitlap.zim.domain
 import org.bitlap.zim.domain.model.{ AddMessage, User }
-import org.bitlap.zim.domain.ws.protocol._
+import org.bitlap.zim.domain.ws._
+import org.bitlap.zim.domain.ws.protocol.Protocol
 import org.bitlap.zim.domain.{ Add, SystemConstant }
 import org.bitlap.zim.server.application.UserApplication
 import org.bitlap.zim.server.configuration.ApplicationConfiguration
@@ -53,14 +54,14 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
     }
 
   override def agreeAddGroup(msg: domain.Message): Task[Unit] = {
-    val agree = decode[AddRefuseMessage](msg.msg).getOrElse(null)
+    val agree = decode[RefuseOrAgreeMessage](msg.msg).getOrElse(null)
     agree.messageBoxId.synchronized {
       agreeAddGroupHandler(userService)(agree)
     }.unless(agree == null)
   }
 
   override def refuseAddGroup(msg: domain.Message): Task[Unit] = {
-    val refuse = decode[AddRefuseMessage](msg.msg).getOrElse(null)
+    val refuse = decode[RefuseOrAgreeMessage](msg.msg).getOrElse(null)
     refuse.messageBoxId.synchronized {
       val actor = WsService.actorRefSessions.get(refuse.toUid)
       for {
@@ -100,7 +101,7 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
       app.userApplication.findUserById(uId).runHead.flatMap { u =>
         {
           val result = Map(
-            "type" -> protocol.delFriend.stringify,
+            "type" -> Protocol.delFriend.stringify,
             "uId" -> s"$uId",
             "username" -> u.map(_.username).getOrElse("undefined")
           )
@@ -131,7 +132,7 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
         val actorRef = WsService.actorRefSessions.get(message.to.id);
         {
           val result = Map(
-            "type" -> protocol.addGroup.stringify
+            "type" -> Protocol.addGroup.stringify
           )
           sendMessage(result.asJson.noSpaces, actorRef)
         }.when(actorRef != null)
@@ -155,51 +156,41 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
         userService.saveAddMessage(addMessageCopy).runHead
       }.when(add != null) *>
         sendMessage(
-          Map("type" -> protocol.addFriend.stringify).asJson.noSpaces,
+          Map("type" -> Protocol.addFriend.stringify).asJson.noSpaces,
           actorRef = actorRef
         ).when(actorRef != null)
     }
 
   override def countUnHandMessage(uId: Int): Task[Map[String, String]] =
-    uId.synchronized {
-      userService.countUnHandMessage(uId, Some(0)).runHead.map { count =>
-        Map(
-          "type" -> protocol.unHandMessage.stringify,
-          "count" -> s"${count.getOrElse(0)}"
-        )
-      }
+    userService.countUnHandMessage(uId, Some(0)).runHead.map { count =>
+      Map(
+        "type" -> Protocol.unHandMessage.stringify,
+        "count" -> s"${count.getOrElse(0)}"
+      )
     }
 
-  override def checkOnline(message: domain.Message): Task[Map[String, String]] =
-    message.to.id.synchronized {
-      val result = mutable.HashMap[String, String]()
-      result.put("type", protocol.checkOnline.stringify)
-      ZioRedisService.getSets(SystemConstant.ONLINE_USER).map { uids =>
-        if (uids.contains(message.to.id.toString))
-          result.put("status", SystemConstant.status.ONLINE_DESC)
-        else result.put("status", SystemConstant.status.HIDE_DESC)
-        result.toMap
-      }
+  override def checkOnline(message: domain.Message): Task[Map[String, String]] = {
+    val result = mutable.HashMap[String, String]()
+    result.put("type", Protocol.checkOnline.stringify)
+    ZioRedisService.getSets(SystemConstant.ONLINE_USER).map { uids =>
+      if (uids.contains(message.to.id.toString))
+        result.put("status", SystemConstant.status.ONLINE_DESC)
+      else result.put("status", SystemConstant.status.HIDE_DESC)
+      result.toMap
     }
+  }
 
   override def sendMessage(message: String, actorRef: ActorRef): Task[Unit] =
-    this.synchronized {
-
-      LogUtil
-        .info(s"sendMessage message=>$message actorRef=>${actorRef.path}")
-        .as(actorRef ! message)
-        .when(actorRef != null)
-    }
+    LogUtil
+      .info(s"sendMessage message=>$message actorRef=>${actorRef.path}")
+      .as(actorRef ! message)
+      .when(actorRef != null)
 
   override def changeOnline(uId: Int, status: String): Task[Boolean] =
-    uId.synchronized {
-      changeOnlineHandler(userService)(uId, status)
-    }
+    changeOnlineHandler(userService)(uId, status)
 
   override def readOfflineMessage(message: domain.Message): Task[Unit] =
-    message.mine.id.synchronized {
-      readOfflineMessageHandler(userService)(message)
-    }
+    readOfflineMessageHandler(userService)(message)
 
   override def getConnections: Task[Int] = ZIO.effect(WsService.actorRefSessions.size())
 

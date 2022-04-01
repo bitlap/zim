@@ -17,7 +17,7 @@
 package org.bitlap.zim.server.configuration
 
 import org.bitlap.zim.domain.ws.protocol
-import org.bitlap.zim.domain.ws.protocol.Constants
+import org.bitlap.zim.domain.ws.Constants
 import org.bitlap.zim.server.actor.{ ScheduleStateful, UserStatusStateful }
 import org.bitlap.zim.server.configuration.InfrastructureConfiguration.ZInfrastructureConfiguration
 import zio.actors._
