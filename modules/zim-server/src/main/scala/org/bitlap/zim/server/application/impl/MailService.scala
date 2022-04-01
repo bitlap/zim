@@ -18,16 +18,14 @@ package org.bitlap.zim.server.application.impl
 
 import org.bitlap.zim.server.configuration.properties.MailConfigurationProperties
 import org.bitlap.zim.server.configuration.properties.MailConfigurationProperties.ZMailConfigurationProperties
-import org.bitlap.zim.server.util.ImplicitUtil._
-import org.bitlap.zim.server.util.LogUtil
 import org.simplejavamail.api.mailer.Mailer
 import org.simplejavamail.config.ConfigLoader
 import org.simplejavamail.email.EmailBuilder
 import org.simplejavamail.mailer.MailerBuilder
 import zio.{ Has, UIO, ULayer, URIO, URLayer, ZIO, ZLayer }
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.jdk.FutureConverters.CompletionStageOps
 
 /**
  * 邮件发送服务
@@ -55,13 +53,12 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
       .appendTextHTML(content)
       .buildEmail()
 
-    val future = mailer.sendMail(email, true).getFuture.asScala()
+    val future = mailer.sendMail(email, true).asScala
 
     ZIO
       .fromFuture(_ => future)
-      .catchAllCause { e =>
-        LogUtil.error(e.map(_.getLocalizedMessage).prettyPrint)
-      } // catch all exception
+      .catchAll(_ => ZIO.unit)
+    // catch all exception
   }
 }
 
