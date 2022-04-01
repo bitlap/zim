@@ -29,7 +29,7 @@ object SystemConstant {
 
   final val NOT_LOGIN: String = "未登陆"
 
-  final val NON_ACTIVE = "用户未激活"
+  final val NON_ACTIVE: String = "用户未激活"
 
   final val REGISTER_FAIL: String = "注册失败"
 
@@ -68,10 +68,10 @@ object SystemConstant {
   final val FRIEND_TYPE: String = "friend"
 
   object status {
-    val ONLINE = "online"
-    val HIDE = "hide"
-    val ONLINE_DESC = "在线"
-    val HIDE_DESC = "离线"
+    val ONLINE: String = "online"
+    val HIDE: String = "hide"
+    val ONLINE_DESC: String = "在线"
+    val HIDE_DESC: String = "离线"
   }
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.domain.ws.protocol
+package org.bitlap.zim.domain.ws
 
 /**
  * @author 梦境迷离
