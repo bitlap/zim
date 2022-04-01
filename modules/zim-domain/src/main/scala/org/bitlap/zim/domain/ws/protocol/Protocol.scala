@@ -24,7 +24,7 @@ package org.bitlap.zim.domain.ws.protocol
  */
 sealed trait Protocol {
   self =>
-  
+
   @inline final def stringify: String = self match {
     case Protocol.readOfflineMessage => "readOfflineMessage"
     case Protocol.message            => "message"
