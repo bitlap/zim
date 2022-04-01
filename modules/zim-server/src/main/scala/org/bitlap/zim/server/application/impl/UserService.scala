@@ -289,20 +289,20 @@ private final class UserService(
   override def matchUser(user: User): stream.Stream[Throwable, User] =
     for {
       u <- userRepository.matchUser(user.email) //FIXME 前端加密传输
+      isMath <- ZStream.fromEffect(
+        SecurityUtil
+          .matched(user.password, Option(u).map(_.password).getOrElse(""))
+      )
       ret <-
-        if (u == null) {
+        if (!isMath) {
           ZStream.fail(BusinessException(msg = SystemConstant.LOGIN_ERROR))
         } else if (user.status.equals("nonactivated")) {
           ZStream.fail(BusinessException(msg = SystemConstant.NON_ACTIVE))
         } else {
           ZStream.succeed(u)
         }
-      isMath <- ZStream.fromEffect(
-        SecurityUtil
-          .matched(user.password, u.password)
-      )
       _ <- LogUtil.infoS(s"matchUser user=>$user, u=>$u, isMath=>$isMath")
-    } yield if (isMath) ret else null
+    } yield ret
 
   @cacheable
   override def findUserByGroupId(gid: Int): stream.Stream[Throwable, User] =
