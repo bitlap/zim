@@ -43,7 +43,8 @@
 
 ## 详细介绍和博客
 
-前往 >>> [bitlap官网(https://bitlap.org/zh-CN/lab/zim)
+前往 >>> [bitlap官网](https://bitlap.org/zh-CN/lab/zim)
+
 前往 >>>  [csdn 博客](https://blog.csdn.net/qq_34446485/category_11720549.html?spm=1001.2014.3001.5482)
 
 - [x] 如何快速开始
