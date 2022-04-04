@@ -19,7 +19,7 @@ application {
     name = "Zim-Application"
     server {
       port = 9000
-      interface = "localhost"
+      interface = "0.0.0.0"
       webHost = "im.dreamylost.cn"
     }
 
