@@ -30,7 +30,7 @@ import zio.schema.codec.ProtobufCodec
 class SchemaSpec extends AnyFlatSpec with Matchers with ApiJsonCodec {
 
   "Schema" should "ok" in {
-    // TODO 直接使用存Redis会有错误 209 变成 3104751
+    // FIXME 直接使用存Redis会有错误 209 变成 3104751 zio-schema-protobuf 
     val userSecurityInfo =
       UserSecurityInfo(209, "dreamylost@qq.com", "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=", "顶顶顶顶")
     val chunkByte = ProtobufCodec.encode(UserSecurityInfo.userSecuritySchema)(userSecurityInfo)

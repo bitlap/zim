@@ -304,7 +304,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       }
     )
 
-  // TODO 暂时先这样搞
+  // FIXME 暂时先这样搞
   lazy val indexRoute: Route = get {
     pathPrefix(USER / "index") {
       cookie(Authorization) { user =>
@@ -330,26 +330,35 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
     }
   }
 
-  // TODO 暂时先这样搞
+  // FIXME 暂时先这样搞
   lazy val chatLogIndexRoute: Route = get {
     pathPrefix(USER / "chatLogIndex") {
-      parameters("id".as[Int], "type".as[String].withDefault("friend")) { (id, `type`) =>
+      parameters("id".as[Int], "type".as[String].withDefault(SystemConstant.FRIEND_TYPE)) { (id, `type`) =>
         cookie(Authorization) { user =>
           val checkFuture = authenticate(UserSecurity(user.value))(authorityCacheFunction).map(_.getOrElse(null))
           onComplete(checkFuture) {
             case util.Success(u) if u != null =>
-              val pages = unsafeRun(apiApplication.chatLogIndex(id, `type`, u.id).runHead)
-              val resp =
-                HttpEntity(
-                  ContentTypes.`text/html(UTF-8)`,
-                  FileUtil.getFileAndInjectData(
-                    "static/html/chatlog.html",
-                    "${id}" -> id.toString,
-                    "${type}" -> `type`,
-                    "${pages}" -> pages.getOrElse(1).toString
+              try {
+                val typ =
+                  if (`type` != SystemConstant.GROUP_TYPE && `type` != SystemConstant.FRIEND_TYPE)
+                    SystemConstant.FRIEND_TYPE
+                  else `type`
+                val pages = unsafeRun(apiApplication.chatLogIndex(id, `type`, u.id).runHead)
+                val resp =
+                  HttpEntity(
+                    ContentTypes.`text/html(UTF-8)`,
+                    FileUtil.getFileAndInjectData(
+                      "static/html/chatlog.html",
+                      "${id}" -> id.toString,
+                      "${type}" -> typ,
+                      "${pages}" -> pages.getOrElse(1).toString
+                    )
                   )
-                )
-              complete(HttpResponse(OK, entity = resp))
+                complete(HttpResponse(OK, entity = resp))
+              } catch {
+                case _: Exception =>
+                  getFromResource("static/html/404.html")
+              }
             case _ => getFromResource("static/html/403.html")
           }
         }
