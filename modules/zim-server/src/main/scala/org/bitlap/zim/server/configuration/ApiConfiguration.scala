@@ -37,7 +37,7 @@ final class ApiConfiguration(applicationConfiguration: ApplicationConfiguration)
 
   val zimActuatorApi: ZimActuatorApi = ZimActuatorApi()
 
-  val zimOpenApi: ZimOpenApi = ZimOpenApi()
+  val zimOpenApi: ZimOpenApi = ZimOpenApi.zimOpenApiInstance
 
   val wsApi: ZimWsApi = ZimWsApi()
 
