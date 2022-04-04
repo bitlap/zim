@@ -93,7 +93,12 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     Post("/user/register", RegisterUserInput("username", "password", "dreamylost@outlook.com")) ~> getRoute(
       _.registerRoute
     ) ~> check {
+      val user = unsafeRun(TangibleUserRepository.findUsers(Some("username"), None).provideLayer(userLayer).runHead)
+      println(s"user => $user")
+      val fgroup =
+        unsafeRun(TangibleFriendGroupRepository.findFriendGroupsById(1).provideLayer(friendGroupLayer).runHead)
       responseAs[String] shouldEqual """{"data":true,"msg":"操作成功","code":0}"""
+      fgroup.map(_.groupName) shouldBe Some("我的好友")
     }
   }
 
