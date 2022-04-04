@@ -343,7 +343,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
                   if (`type` != SystemConstant.GROUP_TYPE && `type` != SystemConstant.FRIEND_TYPE)
                     SystemConstant.FRIEND_TYPE
                   else `type`
-                val pages = unsafeRun(apiApplication.chatLogIndex(id, `type`, u.id).runHead)
+                val pages = unsafeRun(apiApplication.chatLogIndex(u.id, `type`, id).runHead)
                 val resp =
                   HttpEntity(
                     ContentTypes.`text/html(UTF-8)`,

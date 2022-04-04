@@ -15,6 +15,7 @@
  */
 
 package org.bitlap.zim.server.application.ws
+import akka.actor.typed.DispatcherSelector
 import akka.actor.typed.scaladsl.adapter._
 import akka.actor.{ ActorRef, Status }
 import akka.http.scaladsl.model.ws.{ Message, TextMessage }
@@ -88,6 +89,8 @@ object WsService extends ZimServiceConfiguration {
 
   final lazy val actorRefSessions: ConcurrentHashMap[Integer, ActorRef] = new ConcurrentHashMap[Integer, ActorRef]
 
+  private val customDispatcher = DispatcherSelector.fromConfig("custom-dispatcher")
+
   // 非最佳实践，为了使用unsafeRun，不能把environment传递到最外层，这里直接provideLayer
   def sendMessage(message: domain.Message): Task[Unit] =
     ZIO.serviceWith[WsService](_.sendMessage(message)).provideLayer(wsLayer)
@@ -152,7 +155,11 @@ object WsService extends ZimServiceConfiguration {
           else SystemConstant.status.HIDE
       ).asJson.noSpaces
       akkaSystem <- AkkaActorSystemConfiguration.make
-      akkaTypedActor = akkaSystem.spawn(WsMessageForwardBehavior.apply(), Constants.WS_MESSAGE_FORWARD_ACTOR)
+      akkaTypedActor = akkaSystem.spawn(
+        WsMessageForwardBehavior.apply(),
+        Constants.WS_MESSAGE_FORWARD_ACTOR,
+        customDispatcher
+      )
       akkaActor <- AkkaTypedActor.make(akkaTypedActor)
       _ <- akkaActor ! TransmitMessageProxy(uId, msg, None)
     } yield ()
@@ -214,9 +221,10 @@ object WsService extends ZimServiceConfiguration {
     wsConnections.asScala.get(id).foreach { ar =>
       wsConnections.remove(id)
       zioRuntime.unsafeRunAsync {
-        changeStatus(id, SystemConstant.status.HIDE) andThen userStatusChangeByServer(id, SystemConstant.status.HIDE)
+        changeStatus(id, SystemConstant.status.HIDE)
+          .flatMap(_ => userStatusChangeByServer(id, SystemConstant.status.HIDE))
       }(ex => ex.unit)
-      // Status(Done)
+
       ar ! Status.Success(Done)
     }
 

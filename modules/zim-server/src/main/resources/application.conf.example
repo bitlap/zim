@@ -41,6 +41,8 @@ application {
 }
 
 akka {
+  akka.http.server.idle-timeout = 5 s
+  akka.http.client.idle-timeout = 5 s
   actor.default-dispatcher.fork-join-executor.parallelism-max = 64
   http.server.websocket.periodic-keep-alive-max-idle = 3 second
   http.server.websocket.periodic-keep-alive-mode = pong
@@ -52,4 +54,11 @@ akka {
   logging-filter = "akka.event.slf4j.Slf4jLoggingFilter"
   akka.http.server.parsing.max-method-length = 4k
 }
-
+custom-dispatcher {
+  type = Dispatcher
+  executor = "thread-pool-executor"
+  thread-pool-executor {
+    fixed-pool-size = 32
+  }
+  throughput = 10
+}
