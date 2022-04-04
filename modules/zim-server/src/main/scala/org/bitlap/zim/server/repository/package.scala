@@ -342,18 +342,26 @@ package object repository {
         .where(
           sqls.toAndConditionOpt(
             typ.map(ty => sqls.eq(r.`type`, ty)),
-            sqls.toOrConditionOpt(
-              sqls.toAndConditionOpt(
-                uid.map(uid => sqls.eq(r.column("mid"), uid)),
-                mid.map(mid => sqls.eq(r.toid, mid))
-              ),
-              sqls.toAndConditionOpt(
-                mid.map(mid => sqls.eq(r.column("mid"), mid)),
-                uid.map(uid => sqls.eq(r.toid, uid))
+            if (uid.isDefined && mid.isDefined) {
+              sqls.toOrConditionOpt(
+                sqls.toAndConditionOpt(
+                  uid.map(uid => sqls.eq(r.toid, uid)),
+                  mid.map(mid => sqls.eq(r.mid, mid))
+                ),
+                sqls.toAndConditionOpt(
+                  mid.map(mid => sqls.eq(r.toid, mid)),
+                  uid.map(uid => sqls.eq(r.mid, uid))
+                )
               )
-            )
+            } else None,
+            if (uid.isEmpty || mid.isEmpty)
+              sqls.toAndConditionOpt(
+                mid.map(mid => sqls.eq(r.mid, mid))
+              )
+            else None
           )
         )
+        .orderBy(r.timestamp)
     }.toList().map(rs => Receive(rs)).iterator()
 
   /**
@@ -375,20 +383,18 @@ package object repository {
         .where(
           sqls.toAndConditionOpt(
             typ.map(ty => sqls.eq(r.`type`, ty)),
-            sqls.toOrConditionOpt(
-              if (uid.isDefined && mid.isDefined) {
+            if (uid.isDefined && mid.isDefined) {
+              sqls.toOrConditionOpt(
                 sqls.toAndConditionOpt(
                   uid.map(uid => sqls.eq(r.toid, uid)),
                   mid.map(mid => sqls.eq(r.mid, mid))
-                )
-              } else None,
-              if (uid.isDefined && mid.isDefined) {
+                ),
                 sqls.toAndConditionOpt(
                   mid.map(mid => sqls.eq(r.toid, mid)),
                   uid.map(uid => sqls.eq(r.mid, uid))
                 )
-              } else None
-            ),
+              )
+            } else None,
             if (uid.isEmpty || mid.isEmpty)
               sqls.toAndConditionOpt(
                 mid.map(mid => sqls.eq(r.mid, mid))
