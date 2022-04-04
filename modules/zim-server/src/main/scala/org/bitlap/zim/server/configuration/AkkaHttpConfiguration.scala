@@ -79,7 +79,7 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
       _ <- UIO(
         actorSystem.log.info(
           s"""
-             |Server online at http://${infoConf.interface}:${infoConf.port}/${ZimOpenApi().openapi}
+             |Server online at http://${infoConf.webHost}:${infoConf.port}/${ZimOpenApi().openapi}
              |Websocket Server online at http://${infoConf.interface}:${infoConf.port}/api/v1.0/wsDocs
              |""".stripMargin
         )
