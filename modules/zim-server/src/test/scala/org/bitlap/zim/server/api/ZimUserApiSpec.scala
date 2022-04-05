@@ -236,7 +236,9 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
 
   "getMembers is empty" should "OK" in {
     val user = createRegisterUser()
-    println(s"user => $user")
+    val leave =
+      unsafeRun(TangibleGroupMemberRepository.leaveOutGroup(GroupMember(1, 1)).provideLayer(groupMemberLayer).runHead)
+    println(s"user => $user, leave => $leave")
     Get(s"/user/getMembers?id=1").withHeaders(authorityHeaders) ~> getRoute(
       _.getMembersRoute
     ) ~> check {
