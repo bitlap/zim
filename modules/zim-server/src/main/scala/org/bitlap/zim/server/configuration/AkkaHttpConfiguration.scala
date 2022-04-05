@@ -80,7 +80,7 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
         actorSystem.log.info(
           s"""
              |Server online at http://${infoConf.webHost}:${infoConf.port}/${ZimOpenApi.zimOpenApiInstance.openapi}
-             |Websocket Server online at http://${infoConf.interface}:${infoConf.port}/api/v1.0/wsDocs
+             |Websocket Server online at http://${infoConf.webHost}:${infoConf.port}/api/v1.0/wsDocs
              |""".stripMargin
         )
       )
