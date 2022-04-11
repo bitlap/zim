@@ -135,16 +135,16 @@ private final class UserService(
     tid: Int,
     tgid: Int,
     messageBoxId: Int
-  ): stream.Stream[Throwable, Boolean] = {
+  ): stream.Stream[Throwable, Boolean] =
     if (mid == tid) {
-      return ZStream.succeed(false)
+      ZStream.succeed(false)
+    } else {
+      val from = AddFriend(mid, mgid)
+      val to = AddFriend(tid, tgid)
+      friendGroupFriendRepository
+        .addFriend(from, to)
+        .flatMap(c => if (c > 0) updateAgree(messageBoxId, 1) else ZStream.fail(BusinessException()))
     }
-    val from = AddFriend(mid, mgid)
-    val to = AddFriend(tid, tgid)
-    friendGroupFriendRepository
-      .addFriend(from, to)
-      .flatMap(c => if (c > 0) updateAgree(messageBoxId, 1) else ZStream.fail(BusinessException()))
-  }
 
   @cacheEvict(values = List("findFriendGroupsById"))
   override def createFriendGroup(groupname: String, uid: Int): stream.Stream[Throwable, Int] =
@@ -309,16 +309,14 @@ private final class UserService(
     userRepository.findUserByGroupId(gid)
 
   @cacheable
-  override def findFriendGroupsById(uid: Int): stream.Stream[Throwable, FriendList] = {
-    val groupListStream = friendGroupRepository.findFriendGroupsById(uid).map { friendGroup =>
-      FriendList(id = friendGroup.id, groupName = friendGroup.groupName, Nil)
-    }
+  override def findFriendGroupsById(uid: Int): stream.Stream[Throwable, FriendList] =
     for {
-      groupList <- groupListStream
+      groupList <- friendGroupRepository.findFriendGroupsById(uid).map { friendGroup =>
+        FriendList(id = friendGroup.id, groupName = friendGroup.groupName, Nil)
+      }
       users <- ZStream.fromEffect(userRepository.findUsersByFriendGroupIds(groupList.id).runCollect)
       _ <- LogUtil.infoS(s"findFriendGroupsById uid=>$uid, groupList=>$groupList, users=>$users")
     } yield groupList.copy(list = users.toList)
-  }
 
   @cacheable
   override def findUserById(id: Int): stream.Stream[Throwable, User] =
@@ -329,36 +327,36 @@ private final class UserService(
     groupRepository.findGroupsById(id)
 
   @cacheEvict(values = List("findUserById", "findFriendGroupsById", "findUserByGroupId"))
-  override def saveUser(user: User): stream.Stream[Throwable, Boolean] = {
+  override def saveUser(user: User): stream.Stream[Throwable, Boolean] =
     // TODO createFriendGroup不用返回Stream会好看点
-    val zioRet = for {
-      activeCode <- UuidUtil.getUuid64
-      pwd <- SecurityUtil.encrypt(user.password)
-      userCopy = user.copy(
-        sign = "",
-        active = activeCode,
-        createDate = ZonedDateTime.now(),
-        password = pwd.value
-      )
-      id <- userRepository.saveUser(userCopy).runHead
-      _ <- createFriendGroup(SystemConstant.DEFAULT_GROUP_NAME, id.map(_.toInt).getOrElse(0)).runHead
-      // 通过infra层访问配置
-      zimConf <- InfrastructureConfiguration.zimConfigurationProperties
-      mailConf <- InfrastructureConfiguration.mailConfigurationProperties
-      host = if (zimConf.port == 80) zimConf.webHost else s"${zimConf.webHost}:${zimConf.port}"
-      _ <- MailService
-        .sendHtmlMail(
-          userCopy.email,
-          SystemConstant.SUBJECT,
-          s"${userCopy.username} 请确定这是你本人注册的账号, http://$host/user/active/" + activeCode
+    ZStream.fromEffect {
+      for {
+        activeCode <- UuidUtil.getUuid64
+        pwd <- SecurityUtil.encrypt(user.password)
+        userCopy = user.copy(
+          sign = "",
+          active = activeCode,
+          createDate = ZonedDateTime.now(),
+          password = pwd.value
         )
-        .provideLayer(MailService.make(mailConf))
-      _ <- LogUtil.info(
-        s"saveUser uid=$id, user=>$user, activeCode=>$activeCode, userCopy=>$userCopy, zimConf=>$zimConf, mailConf=>$mailConf"
-      )
-    } yield true
-    ZStream.fromEffect(zioRet)
-  }
+        id <- userRepository.saveUser(userCopy).runHead
+        _ <- createFriendGroup(SystemConstant.DEFAULT_GROUP_NAME, id.map(_.toInt).getOrElse(0)).runHead
+        // 通过infra层访问配置
+        zimConf <- InfrastructureConfiguration.zimConfigurationProperties
+        mailConf <- InfrastructureConfiguration.mailConfigurationProperties
+        host = if (zimConf.port == 80) zimConf.webHost else s"${zimConf.webHost}:${zimConf.port}"
+        _ <- MailService
+          .sendHtmlMail(
+            userCopy.email,
+            SystemConstant.SUBJECT,
+            s"${userCopy.username} 请确定这是你本人注册的账号, http://$host/user/active/" + activeCode
+          )
+          .provideLayer(MailService.make(mailConf))
+        _ <- LogUtil.info(
+          s"saveUser uid=$id, user=>$user, activeCode=>$activeCode, userCopy=>$userCopy, zimConf=>$zimConf, mailConf=>$mailConf"
+        )
+      } yield true
+    }
 
 }
 

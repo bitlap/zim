@@ -82,7 +82,7 @@ object TangibleGroupRepository {
   def findGroupsById(uid: Int): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
     stream.ZStream.accessStream(_.get.findGroupsById(uid))
 
-  val live: ZLayer[Has[String], Nothing, ZGroupRepository] =
+  val live: URLayer[Has[String], ZGroupRepository] =
     ZLayer.fromService[String, GroupRepository](TangibleGroupRepository(_))
 
   def make(databaseName: String): ULayer[ZGroupRepository] =

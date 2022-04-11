@@ -25,10 +25,10 @@ jobs:
         run: sbt compile
 
       - name: Checking Code Style
-        run: sbt check
+        run: sbt scalafmtCheckAll
 
       - name: Checking Scalafix
-        run: sbt fix
+        run: sbt scalafixAll
 
       - name: Checking headers
         run: sbt headerCheckAll

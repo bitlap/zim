@@ -77,24 +77,24 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     } else userApplication.matchUser(User(user.id, user.email, user.password))
 
-  override def init(userId: Int): stream.Stream[Throwable, FriendAndGroupInfo] = {
-    val ret = for {
-      user <- userApplication.findUserById(userId).runHead
-      _ <- LogUtil.info(s"init user=>$user")
-      friends <- userApplication.findFriendGroupsById(userId).runCollect
-      _ <- LogUtil.info(s"init friends=>$friends")
-      groups <- userApplication.findGroupsById(userId).runCollect
-      _ <- LogUtil.info(s"init groups=>$groups")
-      resp = FriendAndGroupInfo(
-        // 怎么区分主动刷新？这样如果主动刷新会将隐式重置为在线
-        mine = user.fold[User](null)(u => u.copy(status = SystemConstant.status.ONLINE)),
-        friend = friends.toList,
-        group = groups.toList
-      )
-      _ <- LogUtil.info(s"init ret=>$resp")
-    } yield resp
-    ZStream.fromEffect(ret)
-  }
+  override def init(userId: Int): stream.Stream[Throwable, FriendAndGroupInfo] =
+    ZStream.fromEffect {
+      for {
+        user <- userApplication.findUserById(userId).runHead
+        _ <- LogUtil.info(s"init user=>$user")
+        friends <- userApplication.findFriendGroupsById(userId).runCollect
+        _ <- LogUtil.info(s"init friends=>$friends")
+        groups <- userApplication.findGroupsById(userId).runCollect
+        _ <- LogUtil.info(s"init groups=>$groups")
+        resp = FriendAndGroupInfo(
+          // 怎么区分主动刷新？这样如果主动刷新会将隐式重置为在线
+          mine = user.fold[User](null)(u => u.copy(status = SystemConstant.status.ONLINE)),
+          friend = friends.toList,
+          group = groups.toList
+        )
+        _ <- LogUtil.info(s"init ret=>$resp")
+      } yield resp
+    }
 
   override def getOffLineMessage(mid: Int): stream.Stream[Throwable, Receive] = {
     val groupReceives = for {
@@ -111,30 +111,27 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     }
   }
 
-  override def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean] = {
+  override def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean] =
     if (user.username.isEmpty || user.password.isEmpty) {
-      return ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
-    }
-
-    val validEmail = ApiService.EMAIL_REGEX.matches(user.email)
-    if (!validEmail) {
-      return ZStream.fail(BusinessException(msg = "邮箱格式不正确"))
-    }
-    userApplication.saveUser(
-      User(
-        id = 0,
-        username = user.username,
-        password = user.password,
-        sign = null,
-        avatar = null,
-        email = user.email,
-        createDate = ZonedDateTime.now(),
-        sex = 0,
-        status = null,
-        active = null
+      ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+    } else if (!ApiService.EMAIL_REGEX.matches(user.email)) {
+      ZStream.fail(BusinessException(msg = "邮箱格式不正确"))
+    } else {
+      userApplication.saveUser(
+        User(
+          id = 0,
+          username = user.username,
+          password = user.password,
+          sign = null,
+          avatar = null,
+          email = user.email,
+          createDate = ZonedDateTime.now(),
+          sex = 0,
+          status = null,
+          active = null
+        )
       )
-    )
-  }
+    }
 
   override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
     userApplication
@@ -144,40 +141,37 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
   override def createUserGroup(friendGroup: FriendGroupInput): stream.Stream[Throwable, Int] =
     userApplication.createFriendGroup(friendGroup.groupname, friendGroup.uid)
 
-  override def createGroup(groupInput: GroupInput): stream.Stream[Throwable, Int] = {
-    val ret = userApplication.createGroup(
-      GroupList(id = 0, createId = groupInput.createId, groupName = groupInput.groupname, avatar = groupInput.avatar)
-    )
-    ret.flatMap(f =>
-      if (f > 0) {
-        for {
-          s <- userApplication.addGroupMember(f, groupInput.createId)
-          ret <- if (s) ZStream.succeed(f) else ZStream.fail(BusinessException())
-        } yield ret
-      } else ZStream.fail(BusinessException())
-    )
+  override def createGroup(groupInput: GroupInput): stream.Stream[Throwable, Int] =
+    userApplication
+      .createGroup(
+        GroupList(id = 0, createId = groupInput.createId, groupName = groupInput.groupname, avatar = groupInput.avatar)
+      )
+      .flatMap(f =>
+        if (f > 0) {
+          for {
+            s <- userApplication.addGroupMember(f, groupInput.createId)
+            ret <- if (s) ZStream.succeed(f) else ZStream.fail(BusinessException())
+          } yield ret
+        } else ZStream.fail(BusinessException())
+      )
 
-  }
-
-  override def getMembers(id: Int): stream.Stream[Throwable, FriendList] = {
-    val usersZio = userApplication
-      .findUserByGroupId(id)
-      .runCollect
-      .map(f => FriendList(id = 0, groupName = "", list = f.toList))
-    ZStream.fromEffect(usersZio)
-  }
+  override def getMembers(id: Int): stream.Stream[Throwable, FriendList] =
+    ZStream.fromEffect {
+      userApplication
+        .findUserByGroupId(id)
+        .runCollect
+        .map(f => FriendList(id = 0, groupName = "", list = f.toList))
+    }
 
   override def updateSign(sign: String, mid: Int): stream.Stream[Throwable, Boolean] =
     userApplication.findUserById(mid).flatMap(user => userApplication.updateSign(user.copy(sign = sign)))
 
-  override def leaveOutGroup(groupId: Int, mid: Int): stream.Stream[Throwable, Int] = {
-    val masterIdStream = userApplication.findGroupById(groupId).map(_.createId)
+  override def leaveOutGroup(groupId: Int, mid: Int): stream.Stream[Throwable, Int] =
     for {
-      masterId <- masterIdStream
+      masterId <- userApplication.findGroupById(groupId).map(_.createId)
       status <- userApplication.leaveOutGroup(groupId, mid)
       _ <- LogUtil.infoS(s"leaveOutGroup groupId=>$groupId, mid=>$mid, masterId=$masterId, status=>$status")
     } yield if (status) masterId else -1
-  }
 
   override def removeFriend(friendId: Int, mid: Int): stream.Stream[Throwable, Boolean] =
     userApplication.removeFriend(friendId, mid)
@@ -276,46 +270,46 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       else count / PAGE + 1
     }
 
-  override def uploadFile(multipartInput: MultipartInput): stream.Stream[ZimError, UploadResult] = {
+  override def uploadFile(multipartInput: MultipartInput): stream.Stream[ZimError, UploadResult] =
     if (multipartInput.file.name.isEmpty) {
-      return ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+      ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+    } else {
+      // TODO 虚拟路径，目前为"/"，下同
+      val fileIO = FileUtil
+        .upload(SystemConstant.FILE_PATH, "/", multipartInput.file)
+        .map(src => UploadResult(src = src, name = multipartInput.getFileName))
+      ZStream.fromEffect(fileIO)
     }
-    // TODO 虚拟路径，目前为"/"，下同
-    val fileIO = FileUtil
-      .upload(SystemConstant.FILE_PATH, "/", multipartInput.file)
-      .map(src => UploadResult(src = src, name = multipartInput.getFileName))
-    ZStream.fromEffect(fileIO)
-  }
 
-  override def updateAvatar(multipartInput: MultipartInput, mid: Int): stream.Stream[Throwable, UploadResult] = {
+  override def updateAvatar(multipartInput: MultipartInput, mid: Int): stream.Stream[Throwable, UploadResult] =
     if (multipartInput.file.name.isEmpty) {
-      return ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+      ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+    } else {
+      val fileIO = FileUtil.upload(SystemConstant.AVATAR_PATH, multipartInput.file).flatMap { src =>
+        userApplication.updateAvatar(mid, src).runHead.as(UploadResult(src = src, name = multipartInput.getFileName))
+      }
+      ZStream.fromEffect(fileIO)
     }
-    val fileIO = FileUtil.upload(SystemConstant.AVATAR_PATH, multipartInput.file).flatMap { src =>
-      userApplication.updateAvatar(mid, src).runHead.as(UploadResult(src = src, name = multipartInput.getFileName))
-    }
-    ZStream.fromEffect(fileIO)
-  }
 
-  override def uploadGroupAvatar(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] = {
+  override def uploadGroupAvatar(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] =
     if (multipartInput.file.name.isEmpty) {
-      return ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+      ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+    } else {
+      val fileIO = FileUtil
+        .upload(SystemConstant.GROUP_AVATAR_PATH, multipartInput.file)
+        .map(src => UploadResult(src = src, name = multipartInput.getFileName))
+      ZStream.fromEffect(fileIO)
     }
-    val fileIO = FileUtil
-      .upload(SystemConstant.GROUP_AVATAR_PATH, multipartInput.file)
-      .map(src => UploadResult(src = src, name = multipartInput.getFileName))
-    ZStream.fromEffect(fileIO)
-  }
 
-  override def uploadImage(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] = {
+  override def uploadImage(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] =
     if (multipartInput.file.name.isEmpty) {
-      return ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+      ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+    } else {
+      val fileIO = FileUtil
+        .upload(SystemConstant.IMAGE_PATH, "/", multipartInput.file)
+        .map(src => UploadResult(src = src, name = multipartInput.getFileName))
+      ZStream.fromEffect(fileIO)
     }
-    val fileIO = FileUtil
-      .upload(SystemConstant.IMAGE_PATH, "/", multipartInput.file)
-      .map(src => UploadResult(src = src, name = multipartInput.getFileName))
-    ZStream.fromEffect(fileIO)
-  }
 }
 
 object ApiService {

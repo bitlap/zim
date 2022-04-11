@@ -92,7 +92,7 @@ object TangibleReceiveRepository {
   def findById(id: Int): stream.ZStream[ZReceiveRepository, Throwable, Receive] =
     stream.ZStream.accessStream(_.get.findById(id))
 
-  val live: ZLayer[Has[String], Nothing, ZReceiveRepository] =
+  val live: URLayer[Has[String], ZReceiveRepository] =
     ZLayer.fromService[String, ReceiveRepository[Receive]](TangibleReceiveRepository(_))
 
   def make(databaseName: String): ULayer[ZReceiveRepository] =

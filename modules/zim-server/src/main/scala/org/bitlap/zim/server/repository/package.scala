@@ -125,7 +125,7 @@ package object repository {
 
   //==============================测试SQL========================================
   private[repository] def queryFindReceiveById(id: Long): SQL[Receive, HasExtractor] =
-    sql"SELECT ${r.result.*} FROM ${Receive as r} WHERE id = ${id}".list().map(rs => Receive(rs))
+    sql"SELECT ${r.result.*} FROM ${Receive as r} WHERE id = $id".list().map(rs => Receive(rs))
   //==============================用户 SQL实现========================================
 
   /**
@@ -136,7 +136,7 @@ package object repository {
    * @return
    */
   private[repository] def _updateAvatar(avatar: String, uid: Int): SQLUpdate =
-    sql"update ${User.table} set avatar=${avatar} where id=${uid};".update()
+    sql"update ${User.table} set avatar=$avatar where id=$uid;".update()
 
   /**
    * 更新签名
@@ -146,7 +146,7 @@ package object repository {
    * @return
    */
   private[repository] def _updateSign(sign: String, uid: Int): SQLUpdate =
-    sql"update ${User.table} set sign = ${sign} where id = ${uid};".update()
+    sql"update ${User.table} set sign = $sign where id = $uid;".update()
 
   /**
    * 更新用户信息
@@ -167,7 +167,7 @@ package object repository {
    * @return
    */
   private[repository] def _updateUserStatus(status: String, uid: Int): SQLUpdate =
-    sql"update ${User.table} set status = ${status} where id = ${uid};".update()
+    sql"update ${User.table} set status = $status where id = $uid;".update()
 
   /**
    * 激活用户账号
@@ -176,7 +176,7 @@ package object repository {
    * @return
    */
   private[repository] def _activeUser(activeCode: String): SQLUpdate =
-    sql"update ${User.table} set status = 'offline' where active = ${activeCode};".update()
+    sql"update ${User.table} set status = 'offline' where active = $activeCode;".update()
 
   /**
    * 根据群组ID查询群里用户的信息
@@ -185,7 +185,7 @@ package object repository {
    * @return
    */
   private[repository] def _findUserByGroupId(gid: Int): StreamReadySQL[User] =
-    sql"select ${u.result.*} from ${User as u} where id in(select ${gm.uid} from ${GroupMember as gm} where gid = ${gid});"
+    sql"select ${u.result.*} from ${User as u} where id in(select ${gm.uid} from ${GroupMember as gm} where gid = $gid);"
       .map(User(_))
       .list()
       .iterator()
@@ -197,7 +197,7 @@ package object repository {
    * @return
    */
   private[repository] def _findUsersByFriendGroupIds(fgid: Int): StreamReadySQL[User] =
-    sql"select ${u.result.*} from ${User as u} where id in (select ${af.uid} from ${AddFriend as af} where fgid = ${fgid});"
+    sql"select ${u.result.*} from ${User as u} where id in (select ${af.uid} from ${AddFriend as af} where fgid = $fgid);"
       .map(User(_))
       .list()
       .iterator()
@@ -232,7 +232,7 @@ package object repository {
    * @return
    */
   private[repository] def _deleteGroup(id: Int): SQLUpdate =
-    sql"delete from ${GroupList.table} where id = ${id};".executeUpdate()
+    sql"delete from ${GroupList.table} where id = $id;".executeUpdate()
 
   /**
    * 根据群名模糊统计
@@ -276,7 +276,7 @@ package object repository {
    * @return
    */
   private[repository] def _findGroupById(gid: Int): StreamReadySQL[GroupList] =
-    sql"select ${g.result.*} from ${GroupList as g} where id = ${gid};"
+    sql"select ${g.result.*} from ${GroupList as g} where id = $gid;"
       .map(rs => GroupList(rs))
       .list()
       .iterator()
@@ -290,7 +290,7 @@ package object repository {
   private[repository] def _findGroupsById(
     uid: Int
   ): StreamReadySQL[GroupList] =
-    sql"select ${g.result.*} from ${GroupList as g} where id in(select distinct ${gm.gid} from ${GroupMember as gm} where uid = ${uid});"
+    sql"select ${g.result.*} from ${GroupList as g} where id in(select distinct ${gm.gid} from ${GroupMember as gm} where uid = $uid);"
       .map(rs => GroupList(rs))
       .list()
       .iterator()
@@ -318,7 +318,7 @@ package object repository {
     uid: Int,
     status: Int
   ): StreamReadySQL[Receive] =
-    sql"select ${r.result.*} from ${Receive as r} where toid = ${uid} and status = ${status};"
+    sql"select ${r.result.*} from ${Receive as r} where toid = $uid and status = $status;"
       .map(rs => Receive(rs))
       .list()
       .iterator()
@@ -414,7 +414,7 @@ package object repository {
    * @return
    */
   private[repository] def _readMessage(mine: Int, to: Int, typ: String): SQLUpdate =
-    sql"update ${Receive.table} set status = 1 where status = 0 and mid = ${mine} and toid = ${to} and type = ${typ};"
+    sql"update ${Receive.table} set status = 1 where status = 0 and mid = $mine and toid = $to and type = $typ;"
       .update()
 
   //==============================好友分组 SQL实现========================================
@@ -436,7 +436,7 @@ package object repository {
    * @return
    */
   private[repository] def _findFriendGroupsById(uid: Int): StreamReadySQL[FriendGroup] =
-    sql"select ${fg.result.*} from ${FriendGroup as fg} where uid = ${uid};"
+    sql"select ${fg.result.*} from ${FriendGroup as fg} where uid = $uid;"
       .map(rs => FriendGroup(rs))
       .list()
       .iterator()
@@ -451,7 +451,7 @@ package object repository {
    * @return
    */
   private[repository] def _removeFriend(friendId: Int, uId: Int) =
-    sql"delete from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid in (${friendId}, ${uId})) and uid in(${friendId}, ${uId});"
+    sql"delete from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid in ($friendId, $uId)) and uid in($friendId, $uId);"
       .executeUpdate()
 
   /**
@@ -462,7 +462,7 @@ package object repository {
    * @return
    */
   private[repository] def _changeGroup(groupId: Int, originRecordId: Int) =
-    sql"update ${AddFriend.table} set fgid = ${groupId} where id = ${originRecordId};"
+    sql"update ${AddFriend.table} set fgid = $groupId where id = $originRecordId;"
       .executeUpdate()
 
   /**
@@ -475,7 +475,7 @@ package object repository {
     uId: Int,
     mId: Int
   ): StreamReadySQL[Int] =
-    sql"select id from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid = ${mId}) and uid = ${uId}"
+    sql"select id from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid = $mId) and uid = $uId"
       .list()
       .map(rs => rs.int(1))
       .iterator()
@@ -509,7 +509,7 @@ package object repository {
    * @return
    */
   private[repository] def _findGroupMembers(gid: Int): StreamReadySQL[Int] =
-    sql" select uid from ${GroupMember.table} where gid = ${gid};"
+    sql" select uid from ${GroupMember.table} where gid = $gid;"
       .list()
       .map(rs => rs.int(1))
       .iterator()
@@ -550,7 +550,7 @@ package object repository {
    * @return
    */
   private[repository] def _updateAgree(id: Int, agree: Int): SQLUpdate =
-    sql"update ${AddMessage.table} set agree = ${agree} where id = ${id}".update()
+    sql"update ${AddMessage.table} set agree = $agree where id = $id".update()
 
   /**
    * 添加好友、群组信息请求

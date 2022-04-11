@@ -16,10 +16,8 @@
 
 package org.bitlap.zim.server.configuration
 
-import org.bitlap.zim.domain.ws.protocol
-import org.bitlap.zim.domain.ws.Constants
+import org.bitlap.zim.domain.ws.{ protocol, Constants }
 import org.bitlap.zim.server.actor.{ ScheduleStateful, UserStatusStateful }
-import org.bitlap.zim.server.configuration.InfrastructureConfiguration.ZInfrastructureConfiguration
 import zio.actors._
 import zio.clock.Clock
 import zio.{ UIO, _ }
@@ -38,11 +36,7 @@ object ZioActorSystemConfiguration {
   /**
    * create a zio actorSystem
    */
-  private lazy val actorSystem: RIO[ZInfrastructureConfiguration, ActorSystem] = {
-    for {
-      actorSystem <- ActorSystem("zioActorSystem")
-    } yield actorSystem
-  }
+  private lazy val actorSystem: Task[ActorSystem] = ActorSystem("zioActorSystem")
 
   lazy val scheduleActor: ZIO[Any, Throwable, ActorRef[protocol.Command]] =
     actorSystem
@@ -56,7 +50,7 @@ object ZioActorSystemConfiguration {
       )
       .provideLayer(Clock.live ++ InfrastructureConfiguration.live)
 
-  val live: RLayer[ZInfrastructureConfiguration, ZZioActorSystemConfiguration] = ZLayer
+  val live: TaskLayer[ZZioActorSystemConfiguration] = ZLayer
     .fromAcquireRelease(actorSystem)(actorSystem => UIO.succeed(actorSystem.shutdown).ignore)
 
 }

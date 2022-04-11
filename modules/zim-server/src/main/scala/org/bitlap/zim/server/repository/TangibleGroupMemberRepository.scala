@@ -59,7 +59,7 @@ object TangibleGroupMemberRepository {
   def addGroupMember(groupMember: GroupMember): ZStream[ZGroupMemberRepository, Throwable, Int] =
     stream.ZStream.accessStream(_.get.addGroupMember(groupMember))
 
-  val live: ZLayer[Has[String], Nothing, ZGroupMemberRepository] =
+  val live: URLayer[Has[String], ZGroupMemberRepository] =
     ZLayer.fromService[String, GroupMemberRepository](TangibleGroupMemberRepository(_))
 
   def make(databaseName: String): ULayer[ZGroupMemberRepository] =

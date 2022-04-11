@@ -19,7 +19,7 @@ package org.bitlap.zim.server.repository
 import org.bitlap.zim.domain.model.FriendGroup
 import org.bitlap.zim.domain.repository.FriendGroupRepository
 import scalikejdbc._
-import zio.{ stream, Has, ULayer, ZLayer }
+import zio.{ stream, Has, ULayer, URLayer, ZLayer }
 
 /**
  * 好友分组操作实现
@@ -59,7 +59,7 @@ object TangibleFriendGroupRepository {
   def findFriendGroupsById(uid: Int): stream.ZStream[ZFriendGroupRepository, Throwable, FriendGroup] =
     stream.ZStream.accessStream(_.get.findFriendGroupsById(uid))
 
-  val live: ZLayer[Has[String], Nothing, ZFriendGroupRepository] =
+  val live: URLayer[Has[String], ZFriendGroupRepository] =
     ZLayer.fromService[String, FriendGroupRepository](TangibleFriendGroupRepository(_))
 
   def make(databaseName: String): ULayer[ZFriendGroupRepository] =
