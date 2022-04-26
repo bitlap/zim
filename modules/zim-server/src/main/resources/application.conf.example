@@ -20,7 +20,7 @@ application {
     server {
       port = 9000
       interface = "0.0.0.0"
-      webHost = "im.dreamylost.cn"
+      webHost = "im.dreamylost.cn" # 根据需要，可能需要修改
     }
 
     redis = {
