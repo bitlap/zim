@@ -25,7 +25,6 @@ import org.bitlap.zim.server.zioRuntime
 import org.bitlap.zim.tapir.WsEndpoint
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
@@ -36,10 +35,10 @@ import scala.concurrent.Future
 final class ZimWsApi()(implicit materializer: Materializer) {
 
   lazy val route: Route = AkkaHttpServerInterpreter().toRoute(WsEndpoint.wsEndpoint.serverLogic[Future] { uid =>
-    val ret: Right[Nothing, Flow[Message, String, NotUsed]] =
-      Right(zioRuntime.unsafeRun(WsService.openConnection(uid)))
-    val either = ret.withLeft[Unit]
-    Future.apply(either)
+    val ret: Either[Unit, Flow[Message, String, NotUsed]] =
+      try Right(zioRuntime.unsafeRun(WsService.openConnection(uid)))
+      catch { case _: Exception => Left(()) }
+    Future.successful(ret)
   })
 
 }

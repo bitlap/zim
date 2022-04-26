@@ -29,6 +29,7 @@ import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import sttp.tapir.swagger.SwaggerUI
 
 import scala.concurrent.Future
+import akka.http.scaladsl.server.Directives._
 
 /**
  * Open API
@@ -44,7 +45,6 @@ final class ZimOpenApi {
   private lazy val wsContextPath = "wsDocs"
   lazy val openapi: String = s"${ApiEndpoint.apiResource}/${ApiEndpoint.apiVersion}/$contextPath"
 
-  import akka.http.scaladsl.server.Directives._
   // 需要鉴权的不支持
   private lazy val endpoints: Seq[AnyEndpoint] = Seq(
     ActuatorEndpoint.healthEndpoint,
@@ -54,6 +54,7 @@ final class ZimOpenApi {
     ZimUserEndpoint.registerEndpoint,
     ZimUserEndpoint.activeUserEndpoint
   )
+
   private lazy val openApiYaml: String = OpenAPIDocsInterpreter()
     .toOpenAPI(
       endpoints,
@@ -90,7 +91,7 @@ final class ZimOpenApi {
 
 object ZimOpenApi {
 
-  lazy val zimOpenApiInstance = ZimOpenApi()
+  lazy val zimOpenApiInstance: ZimOpenApi = ZimOpenApi()
 
   def apply(): ZimOpenApi = new ZimOpenApi()
 }
