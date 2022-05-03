@@ -208,7 +208,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
 
   lazy val activeRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.activeUserEndpoint.serverLogic { activeCode =>
-      // FIXME 这里用了unsafeRun，只能只讲try stream exception
+      // FIXME 这里用了unsafeRun，只能try stream exception
       val resultStream = apiApplication.activeUser(activeCode)
       val str =
         try unsafeRun(resultStream.runHead)
@@ -232,7 +232,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
       buildFlowResponse(resultStream)
     })
 
-  // 超高阶函数
+  // 二阶高阶函数
   // user是一阶入参 表示登录用户
   // uid是二阶入参 表示接口的参数
   lazy val findUserByIdRoute: Route =

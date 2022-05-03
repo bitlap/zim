@@ -19,6 +19,7 @@ package org.bitlap.zim.server
 import org.bitlap.zim.server.configuration.{ AkkaHttpConfiguration, ApiConfiguration, ZimServiceConfiguration }
 import org.bitlap.zim.server.util.LogUtil
 import zio._
+import zio.console.putStrLn
 
 /**
  * main方法
@@ -31,9 +32,22 @@ object ZimServer extends ZimServiceConfiguration with zio.App {
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     (for {
       routes <- ApiConfiguration.routes
+      _ <- putStrLn("""
+                      |                                 ____
+                      |                ,--,           ,'  , `.
+                      |        ,----,,--.'|        ,-+-,.' _ |
+                      |      .'   .`||  |,      ,-+-. ;   , ||
+                      |   .'   .'  .'`--'_     ,--.'|'   |  ||
+                      | ,---, '   ./ ,' ,'|   |   |  ,', |  |,
+                      | ;   | .'  /  '  | |   |   | /  | |--'
+                      | `---' /  ;--,|  | :   |   : |  | ,
+                      |   /  /  / .`|'  : |__ |   : |  |/
+                      | ./__;     .' |  | '.'||   | |`-'
+                      | ;   |  .'    ;  :    ;|   ;/
+                      | `---'        |  ,   / '---'""".stripMargin)
       _ <- AkkaHttpConfiguration.httpServer(routes)
     } yield ())
-      .provideLayer(ZimEnv)
+      .provideLayer(ZimEnv ++ zio.console.Console.live)
       .foldM(
         e => LogUtil.error(s"error => $e").exitCode,
         _ => UIO.effectTotal(ExitCode.success)
