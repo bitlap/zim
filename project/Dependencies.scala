@@ -23,7 +23,7 @@ object Dependencies {
     val h2 = "2.1.212"
     val scalaTest = "3.2.12"
     val `zio-actors` = "0.0.9"
-    val refined = "0.9.28"
+    val refined = "0.9.29"
     val `zio-schema` = "0.1.9"
     val `akka-http-session` = "0.6.1"
     val `smt-cacheable` = "0.5.2"
