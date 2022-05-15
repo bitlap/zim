@@ -26,7 +26,7 @@ object Dependencies {
     val refined = "0.9.29"
     val `zio-schema` = "0.1.9"
     val `akka-http-session` = "0.6.1"
-    val `smt-cacheable` = "0.5.2"
+    val `smt-cacheable` = "0.5.3"
   }
 
   lazy val redis = "dev.zio" %% "zio-redis" % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
