@@ -1,3 +1,4 @@
+import ProjectSetting.optimizerOptions
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
 import sbt.Keys._
 import sbt.{ CrossVersion, Def, _ }
@@ -8,34 +9,9 @@ import sbt.{ CrossVersion, Def, _ }
  */
 object ProjectSetting {
 
-  lazy val scala212 = "2.12.15"
   lazy val scala213 = "2.13.8"
 
-  lazy val supportedScalaVersions = List(scala212, scala213)
-
-  def extraOptions(scalaVersion: String, optimize: Boolean): List[String] =
-    CrossVersion.partialVersion(scalaVersion) match {
-      case Some((2, 13)) =>
-        List("-Wunused:imports") ++ optimizerOptions(optimize)
-      case Some((2, 12)) =>
-        List(
-          "-opt-warnings",
-          "-Ywarn-extra-implicit",
-          "-Ywarn-unused:_,imports",
-          "-Ywarn-unused:imports",
-          "-Ypartial-unification",
-          "-Yno-adapted-args",
-          "-Ywarn-inaccessible",
-          "-Ywarn-infer-any",
-          "-Ywarn-nullary-override",
-          "-Ywarn-nullary-unit",
-          "-Xfuture",
-          "-Xsource:2.13",
-          "-Xmax-classfile-name",
-          "242"
-        ) ++ std2xOptions ++ optimizerOptions(optimize)
-      case _ => Nil
-    }
+  def extraOptions(optimize: Boolean): List[String] = List("-Wunused:imports") ++ optimizerOptions(optimize)
 
   def optimizerOptions(optimize: Boolean): List[String] =
     if (optimize) List("-opt:l:inline", "-opt-inline-from:zio.internal.**") else Nil
@@ -55,7 +31,7 @@ object ProjectSetting {
 
   val value: Seq[Def.Setting[_]] = Seq(
     scalaVersion             := scala213,
-    scalacOptions            := (stdOptions ++ extraOptions(scalaVersion.value, !isSnapshot.value)),
+    scalacOptions            := (stdOptions ++ extraOptions(!isSnapshot.value)),
     testFrameworks           := Seq(new TestFramework("zio.test.sbt.ZTestFramework"), TestFrameworks.ScalaTest),
     autoAPIMappings          := true,
     version                  := (ThisBuild / version).value,

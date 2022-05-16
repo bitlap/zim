@@ -9,11 +9,12 @@
 
 ## 模块
 
-- `zim-auth` zim 的登录鉴权，目前由 cookie 实现并对外提供“鉴权缓存”函数，具体实现由`zim-server`完成。
-- `zim-cache` zim 的缓存，目前由 zio-redis 实现。
+- `zim-auth` 登录鉴权，目前由 cookie 实现并对外提供“鉴权缓存”函数，具体实现由`zim-server`完成。
+- `zim-cache` 缓存，目前由 zio-redis 实现。
 - `zim-domain` 所有领域对象，包括数据库、http、websocket 等，还包括 circe 和 scalikejdbc 所需的隐式对象。
-- `zim-server` zim 服务端的主要实现，包括 zio 依赖管理、领域对象的 crud 实现、基于 akka-http 的 api 实现、基于 tapir 的 api 具体实现。
-- `zim-tapir` zim api 的端点描述定义，具体实现由`zim-server`完成。
+- `zim-server` Server端的主要实现，包括 zio 依赖管理、基于 akka-http 的 route 实现、基于 tapir 的 API 具体实现。
+- `zim-infrastructure` 配置和基础设施，包括系统配置和领域对象的 CRUD 实现。
+- `zim-tapir` Tapir API 描述定义，具体实现由`zim-server`完成。
 
 ## 环境
 
