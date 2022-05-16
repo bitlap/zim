@@ -16,16 +16,16 @@
 
 package org.bitlap.zim.domain
 
-/**
- * 系统常量
+/** 系统常量
  *
- * @since 2021年12月25日
- * @author 梦境迷离
+ *  @since 2021年12月25日
+ *  @author
+ *    梦境迷离
  */
 object SystemConstant {
 
   final val SUCCESS: Int = 0
-  final val ERROR: Int = 1
+  final val ERROR: Int   = 1
 
   final val NOT_LOGIN: String = "未登陆"
 
@@ -51,10 +51,10 @@ object SystemConstant {
 
   final val DEFAULT_GROUP_NAME: String = "我的好友"
 
-  //电子邮件相关
+  // 电子邮件相关
   final val SUBJECT: String = "zim 即时通讯系统邮箱激活邮件"
 
-  //Redis Key相关
+  // Redis Key相关
   final val ONLINE_USER: String = "ONLINE_USER"
 
   final val SYSTEM_PAGE: Int = 6
@@ -68,10 +68,10 @@ object SystemConstant {
   final val FRIEND_TYPE: String = "friend"
 
   object status {
-    val ONLINE: String = "online"
-    val HIDE: String = "hide"
+    val ONLINE: String      = "online"
+    val HIDE: String        = "hide"
     val ONLINE_DESC: String = "在线"
-    val HIDE_DESC: String = "离线"
+    val HIDE_DESC: String   = "离线"
   }
 
 }

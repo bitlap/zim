@@ -20,8 +20,7 @@ import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 import io.circe.{ Decoder, Encoder }
 import org.bitlap.zim.domain.Mine
 
-/**
- * 同意或拒绝添加群的信息
+/** 同意或拒绝添加群的信息
  */
 final case class RefuseOrAgreeMessage(toUid: Int, groupId: Int, messageBoxId: Int, mine: Mine)
 

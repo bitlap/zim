@@ -15,25 +15,26 @@
  */
 
 package org.bitlap.zim.server.repository
+import org.bitlap.zim.infrastructure.repository._
 
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.server.BaseData
-import org.bitlap.zim.server.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
+import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
 import org.bitlap.zim.server.repository.TangibleUserRepositorySpec.TangibleUserRepositoryConfigurationSpec
 import scalikejdbc._
 import zio.{ Chunk, ULayer, ZLayer }
-import org.bitlap.zim.server.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
-import org.bitlap.zim.server.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
-import org.bitlap.zim.server.repository.TangibleGroupRepository.ZGroupRepository
-import org.bitlap.zim.server.repository.TangibleUserRepository.ZUserRepository
+import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
+import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
+import org.bitlap.zim.infrastructure.repository.TangibleGroupRepository.ZGroupRepository
+import org.bitlap.zim.infrastructure.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.domain.model._
 
-/**
- * t_user、t_group_members、t_friend_group_friends、t_friend_group 表操作的单测
+/** t_user、t_group_members、t_friend_group_friends、t_friend_group 表操作的单测
  *
- * @author 梦境迷离
- * @since 2022/1/2
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2022/1/2
+ *  @version 1.0
  */
 final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurationSpec {
 
@@ -46,7 +47,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
     // w h e n
     val actual: Option[User] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
+        id     <- TangibleUserRepository.saveUser(mockUser)
         dbUser <- TangibleUserRepository.findById(id.toInt)
       } yield dbUser).runHead
         .provideLayer(env)
@@ -59,7 +60,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "find users" in {
     val dbUsers = unsafeRun(
       (for {
-        _ <- TangibleUserRepository.saveUser(mockUser)
+        _       <- TangibleUserRepository.saveUser(mockUser)
         dbUsers <- TangibleUserRepository.findUsers(None, None)
       } yield dbUsers).runCollect
         .provideLayer(env)
@@ -71,7 +72,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "matchUser by email" in {
     val actual: Option[User] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
+        id     <- TangibleUserRepository.saveUser(mockUser)
         dbUser <- TangibleUserRepository.matchUser(mockUser.email)
       } yield dbUser).runHead
         .provideLayer(env)
@@ -82,7 +83,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "activeUser by active" in {
     val actual: Option[Int] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
+        id    <- TangibleUserRepository.saveUser(mockUser)
         dbRet <- TangibleUserRepository.activeUser(mockUser.active)
       } yield dbRet).runHead
         .provideLayer(env)
@@ -93,7 +94,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "findUser by username" in {
     val actual: Option[User] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
+        id      <- TangibleUserRepository.saveUser(mockUser)
         dbUser1 <- TangibleUserRepository.findUsers(Some("zhangsan"), None)
       } yield dbUser1).runHead
         .provideLayer(env)
@@ -104,7 +105,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "updateAvatar by uid" in {
     val actual: Option[Int] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
+        id      <- TangibleUserRepository.saveUser(mockUser)
         dbUser1 <- TangibleUserRepository.updateAvatar("2", id.toInt)
       } yield dbUser1).runHead
         .provideLayer(env)
@@ -115,7 +116,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "updateSign by uid" in {
     val actual: Option[Int] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
+        id      <- TangibleUserRepository.saveUser(mockUser)
         dbUser1 <- TangibleUserRepository.updateSign("1", id.toInt)
       } yield dbUser1).runHead
         .provideLayer(env)
@@ -126,8 +127,8 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "updateUserStatus by uid" in {
     val actual: Option[User] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
-        _ <- TangibleUserRepository.updateUserStatus("hide", id.toInt)
+        id     <- TangibleUserRepository.saveUser(mockUser)
+        _      <- TangibleUserRepository.updateUserStatus("hide", id.toInt)
         dbUser <- TangibleUserRepository.findById(id.toInt)
       } yield dbUser).runHead
         .provideLayer(env)
@@ -138,8 +139,8 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "updateUserInfo by uid" in {
     val actual: Option[User] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
-        _ <- TangibleUserRepository.updateUserInfo(id.toInt, mockUser.copy(username = "lisi"))
+        id     <- TangibleUserRepository.saveUser(mockUser)
+        _      <- TangibleUserRepository.updateUserInfo(id.toInt, mockUser.copy(username = "lisi"))
         dbUser <- TangibleUserRepository.findById(id.toInt)
       } yield dbUser).runHead
         .provideLayer(env)
@@ -150,7 +151,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "countUser by uid" in {
     val actual: Option[Int] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
+        id    <- TangibleUserRepository.saveUser(mockUser)
         dbRet <- TangibleUserRepository.countUser(None, Some(mockUser.sex))
       } yield dbRet).runHead
         .provideLayer(env)
@@ -161,7 +162,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "findUser by username and sex" in {
     val actual: Chunk[(User, User)] = unsafeRun(
       (for {
-        _ <- TangibleUserRepository.saveUser(mockUser)
+        _       <- TangibleUserRepository.saveUser(mockUser)
         dbUser1 <- TangibleUserRepository.findUsers(Some("zhangsan"), None)
         dbUser2 <- TangibleUserRepository.findUsers(Some("zhangsan"), Some(1))
       } yield dbUser1 -> dbUser2).runCollect
@@ -174,9 +175,9 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "findUserByGroupId by gid" in {
     val actual: Chunk[User] = unsafeRun(
       (for {
-        id <- TangibleUserRepository.saveUser(mockUser)
-        gid <- TangibleGroupRepository.createGroupList(mockGroupList)
-        _ <- TangibleGroupMemberRepository.addGroupMember(GroupMember(gid.toInt, id.toInt))
+        id      <- TangibleUserRepository.saveUser(mockUser)
+        gid     <- TangibleGroupRepository.createGroupList(mockGroupList)
+        _       <- TangibleGroupMemberRepository.addGroupMember(GroupMember(gid.toInt, id.toInt))
         dbUser2 <- TangibleUserRepository.findUserByGroupId(gid.toInt)
       } yield dbUser2).runCollect
         .provideLayer(env)
@@ -188,10 +189,10 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "findUsersByFriendGroupIds by fgid" in {
     val actual: Chunk[User] = unsafeRun(
       (for {
-        id1 <- TangibleUserRepository.saveUser(mockUser)
-        id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
-        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 11), AddFriend(id2.toInt, 22))
-        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id2.toInt, 11), AddFriend(id1.toInt, 22))
+        id1     <- TangibleUserRepository.saveUser(mockUser)
+        id2     <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
+        _       <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 11), AddFriend(id2.toInt, 22))
+        _       <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id2.toInt, 11), AddFriend(id1.toInt, 22))
         dbUser2 <- TangibleUserRepository.findUsersByFriendGroupIds(22)
       } yield dbUser2).runCollect
         .provideLayer(env)
@@ -205,7 +206,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
       (for {
         id1 <- TangibleUserRepository.saveUser(mockUser)
         id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
-        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 11), AddFriend(id2.toInt, 22))
+        _   <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 11), AddFriend(id2.toInt, 22))
         ret <- TangibleFriendGroupFriendRepository.findById(1)
       } yield ret).runHead
         .provideLayer(env)
@@ -219,9 +220,9 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
       (for {
         id1 <- TangibleUserRepository.saveUser(mockUser)
         id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
-        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(1, id1.toInt, "groupname"))
-        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(2, id2.toInt, "groupname"))
-        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 1), AddFriend(id2.toInt, 2))
+        _   <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(1, id1.toInt, "groupname"))
+        _   <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(2, id2.toInt, "groupname"))
+        _   <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 1), AddFriend(id2.toInt, 2))
         ret <- TangibleFriendGroupFriendRepository.findUserGroup(id1.toInt, id2.toInt)
       } yield ret).runHead
         .provideLayer(env)
@@ -235,9 +236,9 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
       (for {
         id1 <- TangibleUserRepository.saveUser(mockUser)
         id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
-        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(1, id1.toInt, "groupname"))
-        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(2, id2.toInt, "groupname"))
-        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 1), AddFriend(id2.toInt, 2))
+        _   <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(1, id1.toInt, "groupname"))
+        _   <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(2, id2.toInt, "groupname"))
+        _   <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(id1.toInt, 1), AddFriend(id2.toInt, 2))
         ret <- TangibleFriendGroupFriendRepository.removeFriend(id1.toInt, id2.toInt)
       } yield ret).runHead
         .provideLayer(env)
@@ -251,11 +252,11 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
       (for {
         id1 <- TangibleUserRepository.saveUser(mockUser)
         id2 <- TangibleUserRepository.saveUser(mockUser.copy(username = "myname"))
-        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, id1.toInt, "1-groupname"))
-        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, id1.toInt, "1-groupname"))
-        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, id2.toInt, "2-groupname"))
-        _ <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(1, 1), AddFriend(2, 3))
-        id <- TangibleFriendGroupFriendRepository.findUserGroup(1, 2)
+        _   <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, id1.toInt, "1-groupname"))
+        _   <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, id1.toInt, "1-groupname"))
+        _   <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, id2.toInt, "2-groupname"))
+        _   <- TangibleFriendGroupFriendRepository.addFriend(AddFriend(1, 1), AddFriend(2, 3))
+        id  <- TangibleFriendGroupFriendRepository.findUserGroup(1, 2)
         ret <- TangibleFriendGroupFriendRepository.changeGroup(2, id)
       } yield ret).runHead
         .provideLayer(env)
@@ -267,7 +268,7 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "find FriendGroup by id" in {
     val actual: Option[FriendGroup] = unsafeRun(
       (for {
-        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, 1, "1-groupname"))
+        _     <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, 1, "1-groupname"))
         group <- TangibleFriendGroupRepository.findById(1)
       } yield group).runHead
         .provideLayer(env)
@@ -279,8 +280,8 @@ final class TangibleUserRepositorySpec extends TangibleUserRepositoryConfigurati
   it should "findFriendGroupsById by uid" in {
     val actual: Chunk[FriendGroup] = unsafeRun(
       (for {
-        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, 1, "1-groupname"))
-        _ <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, 1, "2-groupname"))
+        _     <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, 1, "1-groupname"))
+        _     <- TangibleFriendGroupRepository.createFriendGroup(FriendGroup(0, 1, "2-groupname"))
         group <- TangibleFriendGroupRepository.findFriendGroupsById(1)
       } yield group).runCollect
         .provideLayer(env)
@@ -376,7 +377,11 @@ object TangibleUserRepositorySpec {
     val env: ZLayer[
       Any,
       Throwable,
-      ZFriendGroupRepository with ZFriendGroupFriendRepository with ZUserRepository with ZGroupMemberRepository with ZGroupRepository
+      ZFriendGroupRepository
+        with ZFriendGroupFriendRepository
+        with ZUserRepository
+        with ZGroupMemberRepository
+        with ZGroupRepository
     ] =
       friendGroupLayer ++ friendGroupMemberLayer ++ userLayer ++ groupMemberLayer ++ groupLayer
 

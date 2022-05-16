@@ -19,8 +19,7 @@ package org.bitlap.zim.domain.ws
 import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 import io.circe.{ Decoder, Encoder }
 
-/**
- * 添加群的信息
+/** 添加群的信息
  */
 final case class Group(groupId: Int, remark: String)
 

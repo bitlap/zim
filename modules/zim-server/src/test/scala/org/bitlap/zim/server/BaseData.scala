@@ -18,7 +18,7 @@ package org.bitlap.zim.server
 
 import org.bitlap.zim.domain.model
 import org.bitlap.zim.domain.model.{ AddMessage, GroupList, User }
-import org.bitlap.zim.server.configuration.properties.MysqlConfigurationProperties
+import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
 import org.bitlap.zim.server.util.DateHelper
 import org.scalatest.BeforeAndAfter
 import org.scalatest.flatspec.AnyFlatSpec
@@ -26,10 +26,10 @@ import org.scalatest.matchers.should.Matchers
 import scalikejdbc._
 import zio.BootstrapRuntime
 
-/**
- * @author 梦境迷离
- * @since 2022/1/2
- * @version 1.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/1/2
+ *  @version 1.0
  */
 trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with BootstrapRuntime {
 

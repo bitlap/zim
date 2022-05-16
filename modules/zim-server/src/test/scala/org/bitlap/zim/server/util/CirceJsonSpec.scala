@@ -25,15 +25,15 @@ import org.bitlap.zim.tapir.ApiJsonCodec
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-/**
- * @author 梦境迷离
- * @since 2022/1/16
- * @version 1.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/1/16
+ *  @version 1.0
  */
 class CirceJsonSpec extends AnyFlatSpec with Matchers with ApiJsonCodec {
 
   "Message fromJson" should "ok" in {
-    val msg = """{"type":"changOnline","mine":"null","to":"null","msg":"online"}"""
+    val msg    = """{"type":"changOnline","mine":"null","to":"null","msg":"online"}"""
     val msgObj = decode[Message](msg).getOrElse(null)
     msgObj.`type` shouldBe "changOnline"
 

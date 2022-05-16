@@ -19,14 +19,18 @@ package org.bitlap.zim.domain
 import io.circe.syntax.EncoderOps
 import io.circe.{ Decoder, Encoder, HCursor, Json }
 
-/**
- * 消息
+/** 消息
  *
- * @see table:t_message
- * @param `type` 随便定义，用于在服务端区分消息类型
- * @param mine   我的信息
- * @param to     对方信息
- * @param msg    额外的信息
+ *  @see
+ *    table:t_message
+ *  @param `type`
+ *    随便定义，用于在服务端区分消息类型
+ *  @param mine
+ *    我的信息
+ *  @param to
+ *    对方信息
+ *  @param msg
+ *    额外的信息
  */
 final case class Message(`type`: String, mine: Mine, to: To, msg: String)
 
@@ -65,6 +69,6 @@ object Message {
 
   @inline private def checkJsonValue(c: HCursor, field: String): Boolean =
     c.downField(field).succeeded && c.downField(field).as[Json].isRight &&
-      c.downField(field).as[Json].getOrElse(Json.fromString("null")) != Json.fromString("null")
+    c.downField(field).as[Json].getOrElse(Json.fromString("null")) != Json.fromString("null")
 
 }

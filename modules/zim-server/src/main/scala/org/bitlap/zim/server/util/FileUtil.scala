@@ -26,15 +26,15 @@ import java.nio.charset.Charset
 import scala.io.Source
 import scala.util.Using
 
-/**
- * @author 梦境迷离
- * @since 2022/1/23
- * @version 1.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/1/23
+ *  @version 1.0
  */
 object FileUtil {
 
   def readFile(file: InputStream): String = {
-    val input = Source.fromInputStream(file)
+    val input       = Source.fromInputStream(file)
     val fileContent = new StringBuilder
     input.getLines().foreach(f => fileContent.append(new String(f.getBytes(), Charset.forName("utf8"))).append("\n"))
     fileContent.toString()
@@ -49,17 +49,20 @@ object FileUtil {
     sourceTargets.foldLeft(fileContent)((e, op) => e.replace(op._1, op._2))
   }
 
-  /**
-   * 文件保存服务器
+  /** 文件保存服务器
    *
-   * @param `type` 文件类型/upload/image 或  /upload/file
-   * @param path   文件绝对路径地址
-   * @param file   二进制文件
-   * @return 文件的相对路径地址
+   *  @param `type`
+   *    文件类型/upload/image 或 /upload/file
+   *  @param path
+   *    文件绝对路径地址
+   *  @param file
+   *    二进制文件
+   *  @return
+   *    文件的相对路径地址
    */
   def upload(`type`: String, path: String, file: Part[TapirFile]): ZIO[Any, ZimError, String] = {
-    val name = file.fileName.getOrElse(file.name)
-    val paths = path + `type` + DateUtil.getDateString() + "/"
+    val name   = file.fileName.getOrElse(file.name)
+    val paths  = path + `type` + DateUtil.getDateString() + "/"
     val result = `type` + DateUtil.getDateString() + "/"
     if (SystemConstant.IMAGE_PATH.equals(`type`) || SystemConstant.GROUP_AVATAR_PATH.equals(`type`)) {
       UuidUtil.getUuid32.map(_ + name.substring(name.indexOf("."))).map { nn =>
@@ -67,7 +70,7 @@ object FileUtil {
         result + nn
       }
     } else if (SystemConstant.FILE_PATH.equals(`type`)) {
-      //如果是文件，则区分目录
+      // 如果是文件，则区分目录
       UuidUtil.getUuid32.map { pp =>
         copyInputStreamToFile(new FileInputStream(file.body), new File("." + paths + pp, name))
         result + pp + "/" + name
@@ -77,19 +80,21 @@ object FileUtil {
     }
   }
 
-  /**
-   * 用户更新头像
+  /** 用户更新头像
    *
-   * @param realpath 服务器绝对路径地址
-   * @param file     文件
-   * @return 相对路径
+   *  @param realpath
+   *    服务器绝对路径地址
+   *  @param file
+   *    文件
+   *  @return
+   *    相对路径
    */
   def upload(realpath: String, file: Part[TapirFile]): IO[Throwable, String] =
     for {
       prefix <- UuidUtil.getUuid32
-      n = file.fileName.getOrElse(file.name)
+      n    = file.fileName.getOrElse(file.name)
       name = prefix + n.substring(n.indexOf("."))
-      _ = copyInputStreamToFile(new FileInputStream(file.body), new File("." + realpath, name))
+      _    = copyInputStreamToFile(new FileInputStream(file.body), new File("." + realpath, name))
     } yield realpath + name
 
   def copyInputStreamToFile(inputStream: InputStream, file: File): Unit = {

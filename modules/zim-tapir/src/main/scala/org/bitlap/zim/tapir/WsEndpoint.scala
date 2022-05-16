@@ -27,10 +27,10 @@ import sttp.ws.WebSocketFrame
 import scala.concurrent.duration.DurationInt
 import akka.http.scaladsl.model.ws.TextMessage
 
-/**
- * @author 梦境迷离
- * @since 2022/1/16
- * @version 2.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/1/16
+ *  @version 2.0
  */
 trait WsEndpoint {
 

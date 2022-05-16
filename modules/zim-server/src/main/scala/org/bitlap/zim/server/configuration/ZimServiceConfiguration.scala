@@ -23,13 +23,14 @@ import org.bitlap.zim.server.configuration.ApiConfiguration.ZApiConfiguration
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.server.configuration.ZioActorSystemConfiguration.ZZioActorSystemConfiguration
 import zio.{ TaskLayer, ULayer }
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 
-/**
- * global configuration to collect all service or system layer
+/** global configuration to collect all service or system layer
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 trait ZimServiceConfiguration {
 

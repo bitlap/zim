@@ -21,12 +21,14 @@ import io.circe.{ Decoder, Encoder }
 import org.bitlap.zim.domain.model.{ GroupList, User }
 import zio.schema.{ DeriveSchema, Schema }
 
-/**
- * 好友和群组整个信息集
+/** 好友和群组整个信息集
  *
- * @param mine   我的信息
- * @param friend 好友列表
- * @param group  群组信息列表
+ *  @param mine
+ *    我的信息
+ *  @param friend
+ *    好友列表
+ *  @param group
+ *    群组信息列表
  */
 final case class FriendAndGroupInfo(
   mine: User,
@@ -38,6 +40,6 @@ object FriendAndGroupInfo {
 
   implicit val decoder: Decoder[FriendAndGroupInfo] = deriveDecoder[FriendAndGroupInfo]
   implicit val encoder: Encoder[FriendAndGroupInfo] = deriveEncoder[FriendAndGroupInfo]
-  implicit val schema: Schema[FriendAndGroupInfo] = DeriveSchema.gen[FriendAndGroupInfo]
+  implicit val schema: Schema[FriendAndGroupInfo]   = DeriveSchema.gen[FriendAndGroupInfo]
 
 }

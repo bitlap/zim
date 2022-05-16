@@ -25,8 +25,7 @@ package object repository {
 
   object Condition {
 
-    /**
-     * define params value type
+    /** define params value type
      */
     final case class ConditionValidator()
 
@@ -34,13 +33,13 @@ package object repository {
       implicit val conditionValueValidate: Validate.Plain[Condition, ConditionValidator] = Validate.fromPredicate(
         p =>
           p != null ||
-            p.value.isInstanceOf[Serializable] ||
-            p.value.isInstanceOf[SQLSyntax] ||
-            (p.value match {
-              case Some(o) => o.isInstanceOf[Serializable] || o.isInstanceOf[SQLSyntax]
-              case None    => true
-              case _       => false
-            }),
+          p.value.isInstanceOf[Serializable] ||
+          p.value.isInstanceOf[SQLSyntax] ||
+          (p.value match {
+            case Some(o) => o.isInstanceOf[Serializable] || o.isInstanceOf[SQLSyntax]
+            case None    => true
+            case _       => false
+          }),
         p => s"($p should be a instance of the `org.bitlap.zim.domain.Condition`)",
         ConditionValidator()
       )

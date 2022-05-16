@@ -19,17 +19,17 @@ package org.bitlap.zim.server.configuration
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
-import org.bitlap.zim.server.api.{ ZimActuatorApi, ZimOpenApi, ZimUserApi, ZimWsApi }
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.server.ZMaterializer
+import org.bitlap.zim.server.route.{ ZimActuatorApi, ZimOpenApi, ZimUserApi, ZimWsApi }
 import zio._
 
-/**
- * api configuration
+/** api configuration
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 final class ApiConfiguration(applicationConfiguration: ApplicationConfiguration)(implicit materializer: Materializer) {
 
@@ -43,8 +43,7 @@ final class ApiConfiguration(applicationConfiguration: ApplicationConfiguration)
 
 }
 
-/**
- * api dependencies
+/** api dependencies
  */
 object ApiConfiguration {
 
@@ -55,11 +54,11 @@ object ApiConfiguration {
 
   val routes: URIO[ZApiConfiguration, Route] =
     for {
-      userRoute <- ZIO.access[ZApiConfiguration](_.get.zimUserApi.route)
+      userRoute     <- ZIO.access[ZApiConfiguration](_.get.zimUserApi.route)
       actuatorRoute <- ZIO.access[ZApiConfiguration](_.get.zimActuatorApi.route)
-      openRoute <- ZIO.access[ZApiConfiguration](_.get.zimOpenApi.route)
-      wsDocsRoute <- ZIO.access[ZApiConfiguration](_.get.zimOpenApi.wsDocsRoute)
-      wsRoute <- ZIO.access[ZApiConfiguration](_.get.wsApi.route)
+      openRoute     <- ZIO.access[ZApiConfiguration](_.get.zimOpenApi.route)
+      wsDocsRoute   <- ZIO.access[ZApiConfiguration](_.get.zimOpenApi.wsDocsRoute)
+      wsRoute       <- ZIO.access[ZApiConfiguration](_.get.wsApi.route)
     } yield openRoute ~ actuatorRoute ~ wsRoute ~ wsDocsRoute ~ userRoute
 
   val live: RLayer[ZApplicationConfiguration with ZMaterializer, ZApiConfiguration] =

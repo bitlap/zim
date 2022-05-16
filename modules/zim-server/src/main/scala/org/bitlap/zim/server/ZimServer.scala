@@ -21,11 +21,11 @@ import org.bitlap.zim.server.util.LogUtil
 import zio._
 import zio.console.putStrLn
 
-/**
- * main方法
+/** main方法
  *
- * @author 梦境迷离
- * @version 1.0,2021/12/24
+ *  @author
+ *    梦境迷离
+ *  @version 1.0,2021/12/24
  */
 object ZimServer extends ZimServiceConfiguration with zio.App {
 

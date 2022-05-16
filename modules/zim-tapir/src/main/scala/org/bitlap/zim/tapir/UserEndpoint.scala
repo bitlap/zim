@@ -35,12 +35,12 @@ import sttp.tapir.server.PartialServerEndpoint
 
 import scala.concurrent.Future
 
-/**
- * 用户接口的端点
+/** 用户接口的端点
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 trait UserEndpoint extends ApiErrorMapping {
 
@@ -67,7 +67,7 @@ trait UserEndpoint extends ApiErrorMapping {
 
   val secureEndpoint: PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, Unauthorized, Unit, Any, Future]
 
-  //================================================用户API定义（这是用于测试的接口）===============================================================
+  // ================================================用户API定义（这是用于测试的接口）===============================================================
   lazy val userGetOneEndpoint: ZimOut[Long] =
     endpoint.get
       .in(userResource / "getOne" / query[Long]("id").example(1L).description("query parameter"))
@@ -77,7 +77,7 @@ trait UserEndpoint extends ApiErrorMapping {
       .errorOut(errorOut)
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  //================================================用户API定义（正式接口）这些API目前不是标准的restful api===============================================================
+  // ================================================用户API定义（正式接口）这些API目前不是标准的restful api===============================================================
   lazy val leaveOutGroupEndpoint: ZimSecurityOut[LeaveOutGroupInput] =
     secureEndpoint.post
       .in(userResource / "leaveOutGroup")

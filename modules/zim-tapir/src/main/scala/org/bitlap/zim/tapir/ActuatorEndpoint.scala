@@ -24,18 +24,18 @@ import sttp.tapir._
 import sttp.tapir.Codec.JsonCodec
 import sttp.tapir.json.circe._
 
-/**
- * Actuator的端点
+/** Actuator的端点
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 trait ActuatorEndpoint {
 
   type HealthInfo = Map[String, Any]
-  private[tapir] lazy val healthResource: String = "health"
-  private[tapir] lazy val healthNameResource: String = "health-resource"
+  private[tapir] lazy val healthResource: String            = "health"
+  private[tapir] lazy val healthNameResource: String        = "health-resource"
   private[tapir] lazy val healthDescriptionResource: String = "Zim Service Health Check Endpoint"
 
   lazy val healthEndpoint: PublicEndpoint[Unit, StatusCode, HealthInfo, Any] =

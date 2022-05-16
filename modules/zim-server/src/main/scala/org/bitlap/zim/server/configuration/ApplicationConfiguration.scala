@@ -16,18 +16,19 @@
 
 package org.bitlap.zim.server.configuration
 
-import org.bitlap.zim.server.application.{ ApiApplication, UserApplication }
-import org.bitlap.zim.server.configuration.InfrastructureConfiguration.ZInfrastructureConfiguration
-import zio.{ URIO, _ }
-import org.bitlap.zim.server.application.impl.UserService
-import org.bitlap.zim.server.application.impl.ApiService
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration.ZInfrastructureConfiguration
+import org.bitlap.zim.server.service.ApiApplication
+import zio._
+import org.bitlap.zim.server.service.impl.{ ApiService, UserService }
+import org.bitlap.zim.server.service.UserApplication
 
-/**
- * application configuration
+/** application configuration
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 final class ApplicationConfiguration(infrastructureConfiguration: InfrastructureConfiguration) {
 
@@ -46,8 +47,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
 
 }
 
-/**
- * application dependencies
+/** application dependencies
  */
 object ApplicationConfiguration {
 

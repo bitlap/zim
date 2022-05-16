@@ -21,10 +21,10 @@ import org.scalatest.matchers.should.Matchers
 
 import java.time.ZonedDateTime
 
-/**
- * @author 梦境迷离
- * @since 2022/2/8
- * @version 1.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/2/8
+ *  @version 1.0
  */
 class DateUtilSpec extends AnyFlatSpec with Matchers {
 

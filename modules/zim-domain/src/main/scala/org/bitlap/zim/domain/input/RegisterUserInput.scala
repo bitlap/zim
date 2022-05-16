@@ -20,12 +20,14 @@ import io.circe.generic.semiauto.deriveDecoder
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
 
-/**
- * 注册用户信息提交 输入
+/** 注册用户信息提交 输入
  *
- * @param username 用户名
- * @param email 邮箱
- * @param password 密码
+ *  @param username
+ *    用户名
+ *  @param email
+ *    邮箱
+ *  @param password
+ *    密码
  */
 final case class RegisterUserInput(
   username: String,

@@ -30,12 +30,12 @@ import sttp.tapir.{ EndpointOutput, _ }
 import java.util.Base64
 import scala.util.Try
 
-/**
- * 错误处理
+/** 错误处理
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 trait ApiErrorMapping extends ApiJsonCodec {
 
