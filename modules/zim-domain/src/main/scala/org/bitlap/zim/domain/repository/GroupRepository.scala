@@ -18,12 +18,12 @@ package org.bitlap.zim.domain.repository
 import org.bitlap.zim.domain.model.GroupList
 import zio.stream
 
-/**
- * 群组的操作定义
+/** 群组的操作定义
  *
- * @author 梦境迷离
- * @since 2021/12/29
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/29
+ *  @version 1.0
  */
 trait GroupRepository extends BaseRepository[GroupList] {
 

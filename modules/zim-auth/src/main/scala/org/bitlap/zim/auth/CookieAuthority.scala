@@ -26,11 +26,11 @@ import scala.concurrent.Future
 import scala.util.Try
 import scala.concurrent.ExecutionContext.Implicits.global
 
-/**
- * Cookie based authentication
+/** Cookie based authentication
  *
- * @author 梦境迷离
- * @version 1.0,2022/1/25
+ *  @author
+ *    梦境迷离
+ *  @version 1.0,2022/1/25
  */
 trait CookieAuthority {
 
@@ -38,25 +38,24 @@ trait CookieAuthority {
 
   type AuthorityFunction = (String, String) => IO[Throwable, (Boolean, Option[UserSecurityInfo])]
 
-  /**
-   * 鉴权，使用Redis缓存用户信息，没有再查库
-   * @param token
-   * @return
+  /** 鉴权，使用Redis缓存用户信息，没有再查库
+   *  @param token
+   *  @return
    */
   def authenticate(
     token: UserSecurity
   )(authorityFunction: AuthorityFunction): Future[Either[Unauthorized, UserSecurityInfo]] =
     Future {
-      val tk = if (token.cookie.trim.contains(" ")) token.cookie.trim.split(" ")(1) else token.cookie
+      val tk             = if (token.cookie.trim.contains(" ")) token.cookie.trim.split(" ")(1) else token.cookie
       val secret: String = Try(new String(Base64.getDecoder.decode(tk))).getOrElse(null)
       if (secret == null || secret.isEmpty) {
         Left(Unauthorized())
       } else if (secret.contains(":")) {
         val usernamePassword = secret.split(":")
-        val email = usernamePassword(0)
-        val passwd = usernamePassword(1)
-        val ret = authorityFunction(email, passwd)
-        val (check, user) = zioRuntime.unsafeRun(ret)
+        val email            = usernamePassword(0)
+        val passwd           = usernamePassword(1)
+        val ret              = authorityFunction(email, passwd)
+        val (check, user)    = zioRuntime.unsafeRun(ret)
         if (!check) {
           Left(Unauthorized())
         } else {

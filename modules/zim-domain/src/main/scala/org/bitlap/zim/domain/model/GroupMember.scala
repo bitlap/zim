@@ -20,13 +20,16 @@ import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 import scalikejdbc.{ WrappedResultSet, _ }
 
-/**
- * 群组成员
+/** 群组成员
  *
- * @see table:t_group_members
- * @param id 表ID 无意义
- * @param gid 群组编号
- * @param uid 用户编号
+ *  @see
+ *    table:t_group_members
+ *  @param id
+ *    表ID 无意义
+ *  @param gid
+ *    群组编号
+ *  @param uid
+ *    用户编号
  */
 final case class GroupMember(gid: Int, uid: Int, id: Int = 0)
 

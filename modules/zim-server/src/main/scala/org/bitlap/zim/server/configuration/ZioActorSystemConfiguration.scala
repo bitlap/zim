@@ -21,20 +21,20 @@ import org.bitlap.zim.server.actor.{ ScheduleStateful, UserStatusStateful }
 import zio.actors._
 import zio.clock.Clock
 import zio.{ UIO, _ }
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 
-/**
- * zio actor configuration
+/** zio actor configuration
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 object ZioActorSystemConfiguration {
 
   type ZZioActorSystemConfiguration = Has[ActorSystem]
 
-  /**
-   * create a zio actorSystem
+  /** create a zio actorSystem
    */
   private lazy val actorSystem: Task[ActorSystem] = ActorSystem("zioActorSystem")
 

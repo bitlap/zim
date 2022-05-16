@@ -37,12 +37,12 @@ import org.reactivestreams.Publisher
 
 import scala.concurrent.Future
 
-/**
- * API的circe解码器
+/** API的circe解码器
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 trait ApiJsonCodec extends BootstrapRuntime {
 
@@ -52,7 +52,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
     Schema[ZimError](SchemaType.SProduct(Nil), Some(Schema.SName("ZimError")))
 
   // User不能使用`asJson`，会爆栈
-  implicit def encodeGeneric[T <: Product]: Encoder[T] = (a: T) => {
+  implicit def encodeGeneric[T <: Product]: Encoder[T] = (a: T) =>
     if (a == null) Json.Null
     else {
       a match {
@@ -71,7 +71,6 @@ trait ApiJsonCodec extends BootstrapRuntime {
         case _                     => Json.Null
       }
     }
-  }
 
   implicit def encodeGenericResultSet[T <: Product]: Encoder[ResultSet[T]] =
     (a: ResultSet[T]) =>
@@ -136,12 +135,12 @@ trait ApiJsonCodec extends BootstrapRuntime {
     (c: HCursor) =>
       for {
         code <- c.get[Int]("code")
-        msg <- c.get[String]("msg")
+        msg  <- c.get[String]("msg")
       } yield BusinessException(code = code, msg = msg).asInstanceOf[A]
 
-  /**
-   * @tparam T 支持的多元素的类型
-   * @return
+  /** @tparam T
+   *    支持的多元素的类型
+   *  @return
    */
   def buildFlowResponse[T <: Product]
     : stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
@@ -156,11 +155,12 @@ trait ApiJsonCodec extends BootstrapRuntime {
     )
   }
 
-  /**
-   * 这些函数本来是没有必要的，因为都使用了ResultSet和Stream，被迫在这里转换
-   * @param returnError 是否检验null，如果检验，出现null则返回错误信息
-   * @tparam T 支持的单元素的类型
-   * @return
+  /** 这些函数本来是没有必要的，因为都使用了ResultSet和Stream，被迫在这里转换
+   *  @param returnError
+   *    是否检验null，如果检验，出现null则返回错误信息
+   *  @tparam T
+   *    支持的单元素的类型
+   *  @return
    */
   def buildMonoResponse[T <: Product](
     returnError: Boolean = false
@@ -216,7 +216,7 @@ trait ApiJsonCodec extends BootstrapRuntime {
     respIO => {
       val resp: ZIO[Any, Throwable, Publisher[ByteString]] = (for {
         resp <- respIO
-        r <- ZStream.succeed(resp.asJson.noSpaces).map(body => ByteString(body)).toPublisher
+        r    <- ZStream.succeed(resp.asJson.noSpaces).map(body => ByteString(body)).toPublisher
       } yield r).catchSome(catchStreamError)
       Future.successful(
         Right(Source.fromPublisher(unsafeRun(resp)))

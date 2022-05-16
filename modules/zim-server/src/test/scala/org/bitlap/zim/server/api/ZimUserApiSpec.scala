@@ -19,38 +19,35 @@ package org.bitlap.zim.server.api
 import akka.http.scaladsl.marshalling.{ Marshaller, ToEntityMarshaller }
 import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.model.MediaTypes.`application/json`
+import akka.http.scaladsl.model.headers.Cookie
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.testkit.{ RouteTestTimeout, ScalatestRouteTest }
 import akka.testkit.TestDuration
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.domain.input.{ ExistEmailInput, GroupInput, RegisterUserInput, UpdateSignInput, UpdateUserInput }
-import org.bitlap.zim.server.api.ZimUserApi.ZZimUserApi
-import org.bitlap.zim.server.application.TestApplication
-import org.bitlap.zim.server.application.impl.ApiService
+import org.bitlap.zim.domain.input._
+import org.bitlap.zim.domain.model.{ GroupList, GroupMember, User }
+import org.bitlap.zim.infrastructure.repository._
 import org.bitlap.zim.server.configuration.ZimServiceConfiguration
-import org.bitlap.zim.server.repository.TangibleUserRepository
+import org.bitlap.zim.server.route.ZimUserApi
+import org.bitlap.zim.server.route.ZimUserApi.ZZimUserApi
+import org.bitlap.zim.server.service.impl.ApiService
+import org.bitlap.zim.server.service.{ TestApplication, UserApplication }
 import zio.{ TaskLayer, ZIO }
-import akka.http.scaladsl.model.headers.Cookie
-import org.bitlap.zim.server.repository._
-import org.bitlap.zim.domain.model.GroupMember
 
 import scala.concurrent.duration._
-import org.bitlap.zim.server.application.UserApplication
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.model.GroupList
 
-/**
- * 测试akka-http route
+/** 测试akka-http route
  *
- * @author 梦境迷离
- * @since 2022/2/11
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2022/2/11
+ *  @version 1.0
  */
 class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with ScalatestRouteTest {
 
   implicit val timeout = RouteTestTimeout(15.seconds.dilated)
   val authorityHeaders = Seq(Cookie("Authorization", "ZHJlYW15bG9zdEBvdXRsb29rLmNvbToxMjM0NTY="))
-  val pwdUser = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
+  val pwdUser          = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
 
   val api: TaskLayer[ZZimUserApi] = ZimUserApi.make(ApiService.make(userApplicationLayer), materializerLayer)
 
@@ -166,7 +163,7 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     }
     // 使用service模拟注册创建一个完成的用户记录
     val register = createRegisterUser(mockUser.copy(username = "updateInfo"))
-    val user = findUserByName("updateInfo")
+    val user     = findUserByName("updateInfo")
     println(s"register => $register, user => $user")
     Post(s"/user/updateInfo", UpdateUserInput(user.map(_.id).getOrElse(1), "lisi", None, None, "", ""))
       .withHeaders(authorityHeaders) ~> getRoute(
@@ -245,7 +242,7 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
 
   "getMembers is empty" should "OK" in {
     val register = createRegisterUser(mockUser.copy(username = "getMembers"))
-    val user = findUserByName("getMembers")
+    val user     = findUserByName("getMembers")
     createGroup(user.map(_.id).getOrElse(1), 2)
     unsafeRun(
       TangibleGroupMemberRepository
@@ -264,7 +261,7 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
 
   "findMyGroups is empty" should "OK" in {
     val register = createRegisterUser(mockUser.copy(username = "findMyGroups"))
-    val user = findUserByName("findMyGroups")
+    val user     = findUserByName("findMyGroups")
     println(s"user => $user")
     Get(s"/user/findMyGroups?createId=" + user.map(_.id).getOrElse(1)).withHeaders(authorityHeaders) ~> getRoute(
       _.findMyGroupsRoute
@@ -312,7 +309,7 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
     }
     // 使用service模拟注册创建一个完成的用户记录
     val register = createRegisterUser(mockUser.copy(username = "updateInfoPwd"))
-    val user = findUserByName("updateInfoPwd")
+    val user     = findUserByName("updateInfoPwd")
     println(s"register => $register, user => $user")
     val uid = user.map(_.id).getOrElse(1)
     Post(s"/user/updateInfo", UpdateUserInput(uid, "lisi", Some(""), Some(""), "", ""))

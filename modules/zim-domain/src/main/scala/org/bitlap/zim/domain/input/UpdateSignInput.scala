@@ -21,10 +21,10 @@ import io.circe.generic.semiauto.deriveDecoder
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
 
-/**
- * @author 梦境迷离
- * @since 2022/2/5
- * @version 1.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/2/5
+ *  @version 1.0
  */
 final case class UpdateSignInput(sign: String)
 

@@ -23,12 +23,12 @@ import java.text.SimpleDateFormat
 import java.util.{ Calendar, Date }
 import scala.util.Random
 
-/**
- * 造数据
+/** 造数据
  *
- * @author 梦境迷离
- * @since 2022/1/3
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2022/1/3
+ *  @version 1.0
  */
 object RandomData extends zio.App {
 
@@ -47,7 +47,7 @@ object RandomData extends zio.App {
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     myAppLogic.exitCode
 
-  val myAppLogic: ZIO[Any, Throwable, Unit] = {
+  val myAppLogic: ZIO[Any, Throwable, Unit] =
     for {
       password <- SecurityUtil.encrypt("123456")
     } yield (0 to 100).foreach { _ =>
@@ -55,46 +55,45 @@ object RandomData extends zio.App {
         "insert into t_user(username,password,sign,email,avatar,sex,active,status,create_date) values ("
       start =
         start + "'" + getChineseName() + "','" + password.value + "','" + "梦境亦是美，醒来亦是空" + "','" + getTel() + "','" + s"/static/image/avatar/avatar(${new Random()
-          .nextInt(9) + 1}).jpg" + "'," + getNum(
+            .nextInt(9) + 1}).jpg" + "'," + getNum(
           0,
           1
         ) + ",'" + "123','" + "hide','" + getDate() + "');"
       println(start)
     }
-  }
 
-  /**
-   * 随机生成电话号码
+  /** 随机生成电话号码
    *
-   * @return 电话号码
+   *  @return
+   *    电话号码
    */
   def getTel(): String = {
-    val index = getNum(0, teleFirst.length - 1)
-    val first = teleFirst(index)
+    val index  = getNum(0, teleFirst.length - 1)
+    val first  = teleFirst(index)
     val second = String.valueOf(getNum(1, 888) + 10000).substring(1)
-    val third = String.valueOf(getNum(1, 9100) + 10000).substring(1)
+    val third  = String.valueOf(getNum(1, 9100) + 10000).substring(1)
     first + second + third + email_suffix(new Random().nextInt(email_suffix.length - 1))
   }
 
-  /**
-   * 随机生成中文名字
+  /** 随机生成中文名字
    *
-   * @return 中文名
+   *  @return
+   *    中文名
    */
   def getChineseName(): String = {
-    var index = getNum(0, firstName.length() - 1)
-    val first = firstName.substring(index, index + 1)
-    val sex = getNum(0, 1)
-    var str = boy
+    var index  = getNum(0, firstName.length() - 1)
+    val first  = firstName.substring(index, index + 1)
+    val sex    = getNum(0, 1)
+    var str    = boy
     var length = boy.length()
     if (sex == 0) {
       str = girl
       length = girl.length()
     } else {}
     index = getNum(0, length - 1)
-    val second = str.substring(index, index + 1)
+    val second   = str.substring(index, index + 1)
     val hasThird = getNum(0, 1)
-    var third = ""
+    var third    = ""
     if (hasThird == 1) {
       index = getNum(0, length - 1)
       third = str.substring(index, index + 1)
@@ -102,30 +101,30 @@ object RandomData extends zio.App {
     first + second + third
   }
 
-  /**
-   * 获取范围内的随机数字
+  /** 获取范围内的随机数字
    *
-   * @param start
-   * @param end
-   * @return 随机数
+   *  @param start
+   *  @param end
+   *  @return
+   *    随机数
    */
   def getNum(start: Int, end: Int): Int =
     (Math.random() * (end - start + 1) + start).toInt
 
-  /**
-   * 随机生成时间
+  /** 随机生成时间
    *
-   * @return 时间
+   *  @return
+   *    时间
    */
   def getDate(): String = {
-    val rand = new Random()
+    val rand   = new Random()
     val format = new SimpleDateFormat("yyyy-MM-dd")
-    val cal = Calendar.getInstance()
+    val cal    = Calendar.getInstance()
     cal.set(1990, 0, 1)
     val start = cal.getTimeInMillis
     cal.set(2016, 0, 1)
     val end = cal.getTimeInMillis
-    val d = new Date(start + (rand.nextDouble() * (end - start)).toLong)
+    val d   = new Date(start + (rand.nextDouble() * (end - start)).toLong)
     format.format(d)
   }
 

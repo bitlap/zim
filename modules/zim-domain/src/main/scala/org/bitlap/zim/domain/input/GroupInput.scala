@@ -20,12 +20,14 @@ import io.circe.generic.semiauto.deriveDecoder
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
 
-/**
- * 群组 输入
+/** 群组 输入
  *
- * @param groupname 分组名称
- * @param avatar    头像
- * @param createId  创建人 creator Id
+ *  @param groupname
+ *    分组名称
+ *  @param avatar
+ *    头像
+ *  @param createId
+ *    创建人 creator Id
  */
 final case class GroupInput(groupname: String, avatar: String, createId: Int)
 

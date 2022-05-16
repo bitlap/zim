@@ -20,12 +20,15 @@ import io.circe.generic.semiauto._
 import io.circe.{ Decoder, Encoder }
 import scalikejdbc.{ WrappedResultSet, _ }
 
-/**
- * 添加好友
- * @see table:t_friend_group_friends
- * @param id 表ID 无意义
- * @param uid  用户ID
- * @param fgid 分组ID
+/** 添加好友
+ *  @see
+ *    table:t_friend_group_friends
+ *  @param id
+ *    表ID 无意义
+ *  @param uid
+ *    用户ID
+ *  @param fgid
+ *    分组ID
  */
 final case class AddFriend(uid: Int, fgid: Int, id: Int = 0)
 

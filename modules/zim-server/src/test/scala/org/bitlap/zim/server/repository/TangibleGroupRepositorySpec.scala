@@ -15,22 +15,22 @@
  */
 
 package org.bitlap.zim.server.repository
-
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
+import org.bitlap.zim.infrastructure.repository.{ TangibleGroupMemberRepository, TangibleGroupRepository }
 import org.bitlap.zim.server.BaseData
-import org.bitlap.zim.server.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
-import org.bitlap.zim.server.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.server.repository.TangibleGroupRepositorySpec.TangibleGroupRepositoryConfigurationSpec
 import scalikejdbc._
 import zio.{ Chunk, ULayer, ZLayer }
+import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
+import org.bitlap.zim.infrastructure.repository.TangibleGroupRepository.ZGroupRepository
 
-/**
- * t_group表操作的单测
+/** t_group表操作的单测
  *
- * @author 梦境迷离
- * @since 2022/1/2
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2022/1/2
+ *  @version 1.0
  */
 final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigurationSpec {
 
@@ -39,7 +39,7 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
   it should "findGroupById by id" in {
     val actual: Option[GroupList] = unsafeRun(
       (for {
-        id <- TangibleGroupRepository.createGroupList(mockGroupList)
+        id      <- TangibleGroupRepository.createGroupList(mockGroupList)
         dbGroup <- TangibleGroupRepository.findGroupById(id.toInt)
       } yield dbGroup).runHead
         .provideLayer(env)
@@ -50,7 +50,7 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
   it should "findGroup by groupname" in {
     val actual: Option[GroupList] = unsafeRun(
       (for {
-        id <- TangibleGroupRepository.createGroupList(mockGroupList)
+        id      <- TangibleGroupRepository.createGroupList(mockGroupList)
         dbGroup <- TangibleGroupRepository.findGroup(Some(mockGroupList.groupName))
       } yield dbGroup).runHead
         .provideLayer(env)
@@ -61,8 +61,8 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
   it should "findGroupsById by uid" in {
     val actual: Option[GroupList] = unsafeRun(
       (for {
-        id <- TangibleGroupRepository.createGroupList(mockGroupList)
-        _ <- TangibleGroupMemberRepository.addGroupMember(model.GroupMember(id.toInt, mockGroupList.createId))
+        id      <- TangibleGroupRepository.createGroupList(mockGroupList)
+        _       <- TangibleGroupMemberRepository.addGroupMember(model.GroupMember(id.toInt, mockGroupList.createId))
         dbGroup <- TangibleGroupRepository.findGroupsById(mockGroupList.createId)
       } yield dbGroup).runHead
         .provideLayer(env)
@@ -73,7 +73,7 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
   it should "countGroup by groupname" in {
     val actual: Option[Int] = unsafeRun(
       (for {
-        id <- TangibleGroupRepository.createGroupList(mockGroupList)
+        id      <- TangibleGroupRepository.createGroupList(mockGroupList)
         dbGroup <- TangibleGroupRepository.countGroup(Some(mockGroupList.groupName))
       } yield dbGroup).runHead
         .provideLayer(env)
@@ -84,8 +84,8 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
   it should "deleteGroup by id" in {
     val actual: Option[GroupList] = unsafeRun(
       (for {
-        id <- TangibleGroupRepository.createGroupList(mockGroupList)
-        _ <- TangibleGroupRepository.deleteGroup(id.toInt)
+        id      <- TangibleGroupRepository.createGroupList(mockGroupList)
+        _       <- TangibleGroupRepository.deleteGroup(id.toInt)
         dbGroup <- TangibleGroupRepository.findById(id.toInt)
       } yield dbGroup).runHead
         .provideLayer(env)
@@ -97,8 +97,8 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
     val actual: Chunk[Int] = unsafeRun(
       (for {
         id <- TangibleGroupRepository.createGroupList(mockGroupList)
-        _ <- TangibleGroupMemberRepository.addGroupMember(model.GroupMember(id.toInt, mockGroupList.createId))
-        u <- TangibleGroupMemberRepository.findGroupMembers(id.toInt)
+        _  <- TangibleGroupMemberRepository.addGroupMember(model.GroupMember(id.toInt, mockGroupList.createId))
+        u  <- TangibleGroupMemberRepository.findGroupMembers(id.toInt)
       } yield u).runCollect
         .provideLayer(env)
     )
@@ -108,8 +108,8 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
   it should "findById by id" in {
     val actual: Option[model.GroupMember] = unsafeRun(
       (for {
-        id <- TangibleGroupRepository.createGroupList(mockGroupList)
-        _ <- TangibleGroupMemberRepository.addGroupMember(model.GroupMember(id.toInt, mockGroupList.createId))
+        id    <- TangibleGroupRepository.createGroupList(mockGroupList)
+        _     <- TangibleGroupMemberRepository.addGroupMember(model.GroupMember(id.toInt, mockGroupList.createId))
         group <- TangibleGroupMemberRepository.findById(id.toInt)
       } yield group).runHead
         .provideLayer(env)
@@ -120,9 +120,9 @@ final class TangibleGroupRepositorySpec extends TangibleGroupRepositoryConfigura
   it should "leaveOutGroup by uid and gid" in {
     val actual: Option[model.GroupMember] = unsafeRun(
       (for {
-        id <- TangibleGroupRepository.createGroupList(mockGroupList)
-        _ <- TangibleGroupMemberRepository.addGroupMember(model.GroupMember(id.toInt, mockGroupList.createId))
-        _ <- TangibleGroupMemberRepository.leaveOutGroup(model.GroupMember(id.toInt, mockGroupList.createId))
+        id    <- TangibleGroupRepository.createGroupList(mockGroupList)
+        _     <- TangibleGroupMemberRepository.addGroupMember(model.GroupMember(id.toInt, mockGroupList.createId))
+        _     <- TangibleGroupMemberRepository.leaveOutGroup(model.GroupMember(id.toInt, mockGroupList.createId))
         group <- TangibleGroupMemberRepository.findById(id.toInt)
       } yield group).runHead
         .provideLayer(env)

@@ -21,14 +21,18 @@ import org.bitlap.zim.domain.Group
 import scalikejdbc.{ WrappedResultSet, _ }
 import zio.schema.{ DeriveSchema, Schema }
 
-/**
- * 群组信息
+/** 群组信息
  *
- * @see table:t_group
- * @param id        群组id
- * @param groupName 群组名称
- * @param avatar    头像
- * @param createId  创建人ID
+ *  @see
+ *    table:t_group
+ *  @param id
+ *    群组id
+ *  @param groupName
+ *    群组名称
+ *  @param avatar
+ *    头像
+ *  @param createId
+ *    创建人ID
  */
 final case class GroupList(
   override val id: Int,
@@ -45,7 +49,7 @@ object GroupList extends BaseModel[GroupList] {
   override def tableName: String = "t_group"
 
   implicit val decoder: Decoder[GroupList] = deriveDecoder[GroupList]
-  implicit val encoder: Encoder[GroupList] = (a: GroupList) => {
+  implicit val encoder: Encoder[GroupList] = (a: GroupList) =>
     if (a == null) Json.Null
     else
       Json.obj(
@@ -54,7 +58,6 @@ object GroupList extends BaseModel[GroupList] {
         ("avatar", Json.fromString(a.avatar)),
         ("createId", Json.fromInt(a.createId))
       )
-  }
 
   override def apply(rs: WrappedResultSet)(implicit sp: SyntaxProvider[GroupList]): GroupList = autoConstruct(rs, sp)
 

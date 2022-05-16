@@ -20,63 +20,64 @@ import zio.redis.RedisError
 import zio.schema.Schema
 import zio.{ Chunk, IO, Layer, ZIO }
 
-/**
- * Redis缓存服务
+/** Redis缓存服务
  *
- * @author 梦境迷离
- * @version 2.0,2022/1/10
+ *  @author
+ *    梦境迷离
+ *  @version 2.0,2022/1/10
  */
 
 trait ZioRedisService {
 
-  /**
-   * 获取Set集合数据
+  /** 获取Set集合数据
    *
-   * @param k
-   * @return Chunk[String]
+   *  @param k
+   *  @return
+   *    Chunk[String]
    */
   def getSets(k: String): ZIO[ZRedisCacheService, RedisError, Chunk[String]]
 
-  /**
-   * 移除Set集合中的value
+  /** 移除Set集合中的value
    *
-   * @param k
-   * @param m
-   * @return Long
+   *  @param k
+   *  @param m
+   *  @return
+   *    Long
    */
   def removeSetValue(k: String, m: String): ZIO[ZRedisCacheService, RedisError, Long]
 
-  /**
-   * 保存到Set集合中
+  /** 保存到Set集合中
    *
-   * @param k
-   * @param m
-   * @return Long
+   *  @param k
+   *  @param m
+   *  @return
+   *    Long
    */
   def setSet(k: String, m: String): ZIO[ZRedisCacheService, RedisError, Long]
 
-  /**
-   * 存储key-value
+  /** 存储key-value
    *
-   * @param key
-   * @param value 目前仅支持 primitives type
-   * @return Object
+   *  @param key
+   *  @param value
+   *    目前仅支持 primitives type
+   *  @return
+   *    Object
    */
   def set[T: Schema](key: String, value: T): ZIO[ZRedisCacheService, RedisError, Boolean]
 
-  /**
-   * 根据key获取value
+  /** 根据key获取value
    *
-   * @param key
-   * @return Object
+   *  @param key
+   *  @return
+   *    Object
    */
   def get[T: Schema](key: String): ZIO[ZRedisCacheService, RedisError, Option[T]]
 
-  /**
-   * 判断key是否存在
+  /** 判断key是否存在
    *
-   * @param key
-   * @return Boolean
+   *  @param key
+   *  @return
+   *    Boolean
    */
   def exists(key: String): ZIO[ZRedisCacheService, RedisError, Long]
 

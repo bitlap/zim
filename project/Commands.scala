@@ -1,9 +1,9 @@
 import sbt.Command
 
-/**
- * @author 梦境迷离
- * @since 2022/1/15
- * @version 1.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/1/15
+ *  @version 1.0
  */
 object Commands {
 

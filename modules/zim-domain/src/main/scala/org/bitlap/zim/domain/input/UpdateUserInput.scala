@@ -20,15 +20,19 @@ import io.circe.Decoder
 import io.circe.generic.semiauto._
 import io.circe.Encoder
 
-/**
- * 用户信息提交 输入
+/** 用户信息提交 输入
  *
- * @param id
- * @param username 用户名
- * @param password 密码
- * @param oldpwd   旧密码
- * @param sign     签名
- * @param sex      性别
+ *  @param id
+ *  @param username
+ *    用户名
+ *  @param password
+ *    密码
+ *  @param oldpwd
+ *    旧密码
+ *  @param sign
+ *    签名
+ *  @param sex
+ *    性别
  */
 final case class UpdateUserInput(
   id: Int,

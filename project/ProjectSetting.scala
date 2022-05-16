@@ -2,9 +2,9 @@ import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
 import sbt.Keys._
 import sbt.{ CrossVersion, Def, _ }
 
-/**
- * @author 梦境迷离
- * @version 1.0,2022/1/11
+/** @author
+ *    梦境迷离
+ *  @version 1.0,2022/1/11
  */
 object ProjectSetting {
 
@@ -54,15 +54,15 @@ object ProjectSetting {
     )
 
   val value: Seq[Def.Setting[_]] = Seq(
-    scalaVersion := scala213,
-    scalacOptions := (stdOptions ++ extraOptions(scalaVersion.value, !isSnapshot.value)),
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"), TestFrameworks.ScalaTest),
-    autoAPIMappings := true,
-    version := (ThisBuild / version).value,
-    Test / parallelExecution := false, //see https://www.scalatest.org/user_guide/async_testing
-    Global / cancelable := true,
+    scalaVersion             := scala213,
+    scalacOptions            := (stdOptions ++ extraOptions(scalaVersion.value, !isSnapshot.value)),
+    testFrameworks           := Seq(new TestFramework("zio.test.sbt.ZTestFramework"), TestFrameworks.ScalaTest),
+    autoAPIMappings          := true,
+    version                  := (ThisBuild / version).value,
+    Test / parallelExecution := false, // see https://www.scalatest.org/user_guide/async_testing
+    Global / cancelable      := true,
     // OneJar
-    exportJars := true,
+    exportJars        := true,
     scalafmtOnCompile := true
   )
 

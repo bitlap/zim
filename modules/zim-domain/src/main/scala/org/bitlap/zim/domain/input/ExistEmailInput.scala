@@ -19,9 +19,8 @@ package org.bitlap.zim.domain.input
 import io.circe.{ Decoder, Encoder }
 import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 
-/**
- * 校验注册邮件 输入
- * @param email
+/** 校验注册邮件 输入
+ *  @param email
  */
 final case class ExistEmailInput(email: String)
 

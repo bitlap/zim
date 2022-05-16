@@ -21,29 +21,31 @@ import zio.{ RIO, Task }
 
 import java.nio.charset.StandardCharsets.US_ASCII
 
-/**
- * SpringSecurity加密工具 PasswordEncoder
+/** SpringSecurity加密工具 PasswordEncoder
  *
- * @since 2021年12月31日
- * @author 梦境迷离
+ *  @since 2021年12月31日
+ *  @author
+ *    梦境迷离
  */
 object SecurityUtil {
 
-  /**
-   * 采用SHA-256算法
+  /** 采用SHA-256算法
    *
-   * @param rawPassword
-   * @return 80位加密后的密码
+   *  @param rawPassword
+   *  @return
+   *    80位加密后的密码
    */
   def encrypt(rawPassword: String): Task[MessageDigest[String]] =
     Hash.hash[HashAlgorithm.SHA256](rawPassword, US_ASCII).provideLayer(Hash.live)
 
-  /**
-   * 验证密码和加密后密码是否一致
+  /** 验证密码和加密后密码是否一致
    *
-   * @param rawPassword 明文密码
-   * @param password    加密后的密码
-   * @return Boolean
+   *  @param rawPassword
+   *    明文密码
+   *  @param password
+   *    加密后的密码
+   *  @return
+   *    Boolean
    */
   def matched(rawPassword: String, password: String): Task[Boolean] =
     (if (rawPassword == null && password == null) RIO.succeed(true)

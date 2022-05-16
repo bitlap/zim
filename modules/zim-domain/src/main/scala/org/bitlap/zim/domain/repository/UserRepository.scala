@@ -19,12 +19,12 @@ package org.bitlap.zim.domain.repository
 import org.bitlap.zim.domain.model.User
 import zio.stream
 
-/**
- * 用户的操作定义
+/** 用户的操作定义
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 trait UserRepository extends BaseRepository[User] {
 

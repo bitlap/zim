@@ -22,10 +22,9 @@ import zio.schema.{ DeriveSchema, Schema }
 import java.nio.charset.Charset
 import java.util.Base64
 
-/**
- * 用户登录 输入
- * cookie
- * @param cookie token 目前是邮箱+密码
+/** 用户登录 输入 cookie
+ *  @param cookie
+ *    token 目前是邮箱+密码
  */
 final case class UserSecurity(cookie: String)
 
@@ -44,16 +43,15 @@ object UserSecurity {
 
     implicit val encoder: Encoder[UserSecurityInfo] = deriveEncoder[UserSecurityInfo]
 
-    implicit val decoder: Decoder[UserSecurityInfo] = (c: HCursor) => {
+    implicit val decoder: Decoder[UserSecurityInfo] = (c: HCursor) =>
       if (!c.succeeded) null
       else
         for {
-          id <- c.getOrElse("id")(0)
-          email <- c.downField("email").as[String]
+          id       <- c.getOrElse("id")(0)
+          email    <- c.downField("email").as[String]
           password <- c.downField("password").as[String]
           username <- c.getOrElse("username")("")
         } yield UserSecurityInfo(id, email, password, username)
-    }
 
     implicit val userSecuritySchema: Schema[UserSecurityInfo] = DeriveSchema.gen[UserSecurityInfo]
   }

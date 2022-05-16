@@ -22,12 +22,12 @@ import zio.logging.Logging
 import zio.redis.{ Redis, RedisConfig, RedisError, RedisExecutor }
 import zio.schema.codec.{ Codec, ProtobufCodec }
 
-/**
- * redis configuration
+/** redis configuration
  *
- * @author 梦境迷离
- * @since 2022/1/10
- * @version 2.0
+ *  @author
+ *    梦境迷离
+ *  @since 2022/1/10
+ *  @version 2.0
  */
 object ZioRedisConfiguration {
 

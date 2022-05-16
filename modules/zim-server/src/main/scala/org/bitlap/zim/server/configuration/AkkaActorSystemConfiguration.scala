@@ -17,22 +17,22 @@
 package org.bitlap.zim.server.configuration
 
 import akka.actor.ActorSystem
-import org.bitlap.zim.server.configuration.InfrastructureConfiguration.ZInfrastructureConfiguration
 import zio._
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration.ZInfrastructureConfiguration
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 
-/**
- * akka actor configuration
+/** akka actor configuration
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 object AkkaActorSystemConfiguration {
 
   type ZAkkaActorSystemConfiguration = Has[ActorSystem]
 
-  /**
-   * create actorSystem，convert to classic actor when use it in akkahttp
+  /** create actorSystem，convert to classic actor when use it in akkahttp
    */
   private lazy val actorSystem: RIO[ZInfrastructureConfiguration, ActorSystem] =
     Task.effect(ActorSystem("akkaActorSystem"))

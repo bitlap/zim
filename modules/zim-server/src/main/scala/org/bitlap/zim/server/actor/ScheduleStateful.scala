@@ -17,17 +17,17 @@
 package org.bitlap.zim.server.actor
 
 import org.bitlap.zim.domain.ws.protocol.{ Command, OnlineUserMessage }
-import org.bitlap.zim.server.application.ws.WsService
+import org.bitlap.zim.server.service.ws.WsService
 import org.bitlap.zim.server.util.LogUtil
 import zio.actors.Actor.Stateful
 import zio.actors.Context
 import zio.{ UIO, ZIO }
 
-/**
- * zio actor
+/** zio actor
  *
- * @author 梦境迷离
- * @version 1.0,2022/1/11
+ *  @author
+ *    梦境迷离
+ *  @version 1.0,2022/1/11
  */
 object ScheduleStateful {
 

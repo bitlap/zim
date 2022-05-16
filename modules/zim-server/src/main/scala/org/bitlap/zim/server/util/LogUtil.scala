@@ -21,10 +21,10 @@ import zio.logging.{ LogFormat, LogLevel, Logger, Logging }
 import zio.{ UIO, ULayer, URLayer, ZIO }
 import zio.stream.{ UStream, ZStream }
 
-/**
- * @author 梦境迷离
- * @since 2022/1/20
- * @version 1.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/1/20
+ *  @version 1.0
  */
 object LogUtil {
 

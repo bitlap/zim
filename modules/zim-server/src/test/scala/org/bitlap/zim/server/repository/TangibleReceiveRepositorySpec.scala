@@ -15,20 +15,20 @@
  */
 
 package org.bitlap.zim.server.repository
-
 import org.bitlap.zim.domain.model.Receive
+import org.bitlap.zim.infrastructure.repository._
+import org.bitlap.zim.infrastructure.repository.TangibleReceiveRepository.ZReceiveRepository
 import org.bitlap.zim.server.BaseData
-import org.bitlap.zim.server.repository.TangibleReceiveRepository.ZReceiveRepository
 import org.bitlap.zim.server.repository.TangibleReceiveRepositorySpec.TangibleReceiveRepositoryConfigurationSpec
 import scalikejdbc._
 import zio.ULayer
 
-/**
- * t_message表操作的单测
+/** t_message表操作的单测
  *
- * @author 梦境迷离
- * @since 2022/1/3
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2022/1/3
+ *  @version 1.0
  */
 final class TangibleReceiveRepositorySpec extends TangibleReceiveRepositoryConfigurationSpec {
 
@@ -61,7 +61,7 @@ final class TangibleReceiveRepositorySpec extends TangibleReceiveRepositoryConfi
   it should "findOffLineMessage by fromid toid" in {
     val actual: Option[Receive] = unsafeRun(
       (for {
-        id <- TangibleReceiveRepository.saveMessage(mockReceive)
+        id        <- TangibleReceiveRepository.saveMessage(mockReceive)
         dbReceive <- TangibleReceiveRepository.findOffLineMessage(mockReceive.toid, mockReceive.status)
       } yield dbReceive).runHead
         .provideLayer(env)
@@ -72,8 +72,8 @@ final class TangibleReceiveRepositorySpec extends TangibleReceiveRepositoryConfi
   it should "readMessage by fromid toid" in {
     val actual: Option[Receive] = unsafeRun(
       (for {
-        _ <- TangibleReceiveRepository.saveMessage(mockReceive)
-        _ <- TangibleReceiveRepository.readMessage(mockReceive.fromid, mockReceive.toid, mockReceive.`type`)
+        _         <- TangibleReceiveRepository.saveMessage(mockReceive)
+        _         <- TangibleReceiveRepository.readMessage(mockReceive.fromid, mockReceive.toid, mockReceive.`type`)
         dbReceive <- TangibleReceiveRepository.findById(1)
       } yield dbReceive).runHead
         .provideLayer(env)

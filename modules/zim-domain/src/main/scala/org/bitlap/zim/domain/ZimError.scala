@@ -16,12 +16,12 @@
 
 package org.bitlap.zim.domain
 
-/**
- * 系统异常
+/** 系统异常
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 sealed trait ZimError extends Throwable with Product {
   val msg: String

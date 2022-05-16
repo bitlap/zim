@@ -16,15 +16,16 @@
 
 package org.bitlap.zim.server.repository
 import org.bitlap.zim.server.BaseData
-import org.bitlap.zim.server.repository.TangibleAddMessageRepository._
 import org.bitlap.zim.server.repository.TangibleAddMessageRepositorySpec.TangibleAddMessageRepositoryConfigurationSpec
 import scalikejdbc._
 import zio.ULayer
+import org.bitlap.zim.infrastructure.repository._
+import org.bitlap.zim.infrastructure.repository.TangibleAddMessageRepository.ZAddMessageRepository
 
-/**
- * @author 梦境迷离
- * @since 2022/2/8
- * @version 1.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/2/8
+ *  @version 1.0
  */
 class TangibleAddMessageRepositorySpec extends TangibleAddMessageRepositoryConfigurationSpec {
 
@@ -33,7 +34,7 @@ class TangibleAddMessageRepositorySpec extends TangibleAddMessageRepositoryConfi
   it should "findById ok" in {
     val actual = unsafeRun(
       (for {
-        _ <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage)
+        _   <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage)
         msg <- TangibleAddMessageRepository.findById(1)
       } yield msg).runHead
         .provideLayer(env)
@@ -44,7 +45,7 @@ class TangibleAddMessageRepositorySpec extends TangibleAddMessageRepositoryConfi
   it should "findAddInfo ok" in {
     val actual = unsafeRun(
       (for {
-        _ <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage)
+        _   <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage)
         msg <- TangibleAddMessageRepository.findAddInfo(2)
       } yield msg).runHead
         .provideLayer(env)
@@ -55,8 +56,8 @@ class TangibleAddMessageRepositorySpec extends TangibleAddMessageRepositoryConfi
   it should "updateAgree ok" in {
     val actual = unsafeRun(
       (for {
-        _ <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage)
-        _ <- TangibleAddMessageRepository.updateAgree(1, 2)
+        _   <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage)
+        _   <- TangibleAddMessageRepository.updateAgree(1, 2)
         msg <- TangibleAddMessageRepository.findById(1)
       } yield msg).runHead
         .provideLayer(env)
@@ -67,8 +68,8 @@ class TangibleAddMessageRepositorySpec extends TangibleAddMessageRepositoryConfi
   it should "countUnHandMessage by to_uid" in {
     val actual = unsafeRun(
       (for {
-        _ <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage)
-        _ <- TangibleAddMessageRepository.countUnHandMessage(2, None)
+        _   <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage)
+        _   <- TangibleAddMessageRepository.countUnHandMessage(2, None)
         msg <- TangibleAddMessageRepository.findById(1)
       } yield msg).runHead
         .provideLayer(env)
@@ -79,9 +80,9 @@ class TangibleAddMessageRepositorySpec extends TangibleAddMessageRepositoryConfi
   it should "countUnHandMessage by to_uid and agree" in {
     val actual = unsafeRun(
       (for {
-        _ <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage)
-        _ <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage.copy(agree = 1))
-        _ <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage.copy(agree = 1))
+        _   <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage)
+        _   <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage.copy(agree = 1))
+        _   <- TangibleAddMessageRepository.saveAddMessage(mockAddMessage.copy(agree = 1))
         ret <- TangibleAddMessageRepository.countUnHandMessage(2, Some(1))
       } yield ret).runHead
         .provideLayer(env)

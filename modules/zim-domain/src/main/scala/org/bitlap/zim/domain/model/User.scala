@@ -23,26 +23,35 @@ import zio.schema.{ DeriveSchema, Schema }
 
 import java.time.ZonedDateTime
 
-/**
- * 用户
+/** 用户
  *
- * @see table:t_user
- * @param id
- * @param username   用户名
- * @param password   密码
- * @param sign       签名
- * @param avatar     头像
- * @param email      邮箱
- * @param createDate 创建时间
- * @param sex        性别
- * @param status     状态
- * @param active     激活码
+ *  @see
+ *    table:t_user
+ *  @param id
+ *  @param username
+ *    用户名
+ *  @param password
+ *    密码
+ *  @param sign
+ *    签名
+ *  @param avatar
+ *    头像
+ *  @param email
+ *    邮箱
+ *  @param createDate
+ *    创建时间
+ *  @param sex
+ *    性别
+ *  @param status
+ *    状态
+ *  @param active
+ *    激活码
  */
 final case class User(
   id: Int,
   username: String,
   password: String,
-  sign: String, //TODO use `Option[String]`
+  sign: String, // TODO use `Option[String]`
   avatar: String,
   email: String,
   createDate: ZonedDateTime,

@@ -18,10 +18,10 @@ package org.bitlap.zim.domain.repository
 import org.bitlap.zim.domain.model.GroupMember
 import zio.stream
 
-/**
- * @author 梦境迷离
- * @since 2022/1/15
- * @version 1.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/1/15
+ *  @version 1.0
  */
 trait GroupMemberRepository extends BaseRepository[GroupMember] {
 

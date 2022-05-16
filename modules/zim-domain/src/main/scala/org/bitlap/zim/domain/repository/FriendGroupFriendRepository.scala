@@ -18,12 +18,12 @@ package org.bitlap.zim.domain.repository
 import org.bitlap.zim.domain.model.AddFriend
 import zio.stream
 
-/**
- * 好友分组操作定义
+/** 好友分组操作定义
  *
- * @author 梦境迷离
- * @since 2022/1/2
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2022/1/2
+ *  @version 1.0
  */
 trait FriendGroupFriendRepository extends BaseRepository[AddFriend] {
 

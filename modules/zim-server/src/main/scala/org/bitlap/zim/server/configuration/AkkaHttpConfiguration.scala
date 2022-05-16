@@ -25,26 +25,27 @@ import akka.stream.Materializer
 import akka.util.ByteString
 import org.bitlap.zim.domain.ws.protocol.OnlineUserMessage
 import org.bitlap.zim.server.ZMaterializer
-import org.bitlap.zim.server.api.ZimOpenApi
 import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
+import org.bitlap.zim.server.route.ZimOpenApi
 import org.bitlap.zim.server.util.LogUtil
 import zio._
 import zio.clock.Clock
 
 import java.util.concurrent.atomic.AtomicInteger
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 
-/**
- * akka http configuration
+/** akka http configuration
  *
- * @author 梦境迷离
- * @since 2021/12/25
- * @version 1.0
+ *  @author
+ *    梦境迷离
+ *  @since 2021/12/25
+ *  @version 1.0
  */
 final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
 
   private lazy val imServerSettings: ServerSettings = {
     val defaultSettings = ServerSettings(actorSystem)
-    val pingCounter = new AtomicInteger()
+    val pingCounter     = new AtomicInteger()
     val imWebsocketSettings = defaultSettings.websocketSettings.withPeriodicKeepAliveData(() =>
       ByteString(s"debug-ping-${pingCounter.incrementAndGet()}")
     )

@@ -16,11 +16,11 @@
 
 package org.bitlap.zim.domain.ws.protocol
 
-/**
- * IM Protocol
+/** IM Protocol
  *
- * @author 梦境迷离
- * @version 1.0,2022/1/11
+ *  @author
+ *    梦境迷离
+ *  @version 1.0,2022/1/11
  */
 sealed trait Protocol {
   self =>
@@ -44,16 +44,16 @@ object Protocol {
 
   private lazy val mapping = Map(
     Protocol.readOfflineMessage.stringify -> readOfflineMessage,
-    Protocol.message.stringify -> message,
-    Protocol.checkOnline.stringify -> checkOnline,
-    Protocol.addGroup.stringify -> addGroup,
-    Protocol.changOnline.stringify -> changOnline,
-    Protocol.addFriend.stringify -> addFriend,
-    Protocol.agreeAddFriend.stringify -> agreeAddFriend,
-    Protocol.agreeAddGroup.stringify -> agreeAddGroup,
-    Protocol.refuseAddGroup.stringify -> refuseAddGroup,
-    Protocol.unHandMessage.stringify -> unHandMessage,
-    Protocol.delFriend.stringify -> delFriend
+    Protocol.message.stringify            -> message,
+    Protocol.checkOnline.stringify        -> checkOnline,
+    Protocol.addGroup.stringify           -> addGroup,
+    Protocol.changOnline.stringify        -> changOnline,
+    Protocol.addFriend.stringify          -> addFriend,
+    Protocol.agreeAddFriend.stringify     -> agreeAddFriend,
+    Protocol.agreeAddGroup.stringify      -> agreeAddGroup,
+    Protocol.refuseAddGroup.stringify     -> refuseAddGroup,
+    Protocol.unHandMessage.stringify      -> unHandMessage,
+    Protocol.delFriend.stringify          -> delFriend
   )
 
   @inline final def unStringify(`type`: String): Protocol = mapping(`type`)

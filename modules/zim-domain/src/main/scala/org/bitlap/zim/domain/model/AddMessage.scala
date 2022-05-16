@@ -22,18 +22,26 @@ import scalikejdbc.{ WrappedResultSet, _ }
 
 import java.time.ZonedDateTime
 
-/**
- * 添加消息
+/** 添加消息
  *
- * @see table:t_add_message
- * @param id 暂时都使用`Int`
- * @param fromUid 谁发起的请求
- * @param toUid   发送给谁的申请,可能是群，那么就是创建该群组的用户
- * @param groupId 如果是添加好友则为from_id的分组id，如果为群组则为群组id
- * @param remark  附言
- * @param agree   0未处理，1同意，2拒绝
- * @param `type`  类型，可能是添加好友或群组
- * @param time    申请时间
+ *  @see
+ *    table:t_add_message
+ *  @param id
+ *    暂时都使用`Int`
+ *  @param fromUid
+ *    谁发起的请求
+ *  @param toUid
+ *    发送给谁的申请,可能是群，那么就是创建该群组的用户
+ *  @param groupId
+ *    如果是添加好友则为from_id的分组id，如果为群组则为群组id
+ *  @param remark
+ *    附言
+ *  @param agree
+ *    0未处理，1同意，2拒绝
+ *  @param `type`
+ *    类型，可能是添加好友或群组
+ *  @param time
+ *    申请时间
  */
 final case class AddMessage(
   id: Int,

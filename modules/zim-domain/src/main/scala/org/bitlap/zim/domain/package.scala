@@ -23,10 +23,10 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import scala.util.Try
 
-/**
- * @author 梦境迷离
- * @since 2022/2/2
- * @version 1.0
+/** @author
+ *    梦境迷离
+ *  @since 2022/2/2
+ *  @version 1.0
  */
 package object domain {
 

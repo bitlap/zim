@@ -17,12 +17,12 @@
 package org.bitlap.zim.domain.repository
 import zio.stream
 
-/**
- * 消息的操作定义
+/** 消息的操作定义
  *
- * @author LittleTear
- * @since 2021/12/30
- * @version 1.0
+ *  @author
+ *    LittleTear
+ *  @since 2021/12/30
+ *  @version 1.0
  */
 trait ReceiveRepository[T] extends BaseRepository[T] {
 
