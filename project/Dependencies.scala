@@ -3,7 +3,7 @@ import sbt._
 /** @author
  *    梦境迷离
  *  @since 2021/12/25
- *  @version 1.0
+ *  @version 2.0
  */
 object Dependencies {
 
@@ -29,38 +29,15 @@ object Dependencies {
     val `smt-cacheable`               = "0.5.2"
   }
 
-  lazy val redis               = "dev.zio"     %% "zio-redis"             % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
-  lazy val config              = "com.typesafe" % "config"                % Version.config
-  lazy val `schema-derivation` = "dev.zio"     %% "zio-schema-derivation" % Version.`zio-schema`
-  lazy val zio                 = "dev.zio"     %% "zio"                   % Version.zio
-  lazy val `zio-interop-reactivestreams` =
-    "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
-  lazy val `akka-actor` = "com.typesafe.akka" %% "akka-actor-typed" % Version.akka
-
-  lazy val `zio-actors` = Seq(
-    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
-    "dev.zio" %% "zio-actors"              % Version.`zio-actors`
-  )
-  lazy val `zio-schema` = Seq(
-    "dev.zio" %% "zio-schema"          % Version.`zio-schema`,
-    "dev.zio" %% "zio-schema-protobuf" % Version.`zio-schema`
+  lazy val zioDeps: Seq[ModuleID] = Seq(
+    "dev.zio" %% "zio"                         % Version.zio,
+    "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`,
+    "dev.zio" %% "zio-logging"                 % Version.`zio-logging`,
+    "dev.zio" %% "zio-test"                    % Version.zio % Test,
+    "dev.zio" %% "zio-test-sbt"                % Version.zio % Test
   )
 
-  lazy val `zio-crypto` = "dev.zio" %% "zio-crypto" % "0.0.0+92-5672c642-SNAPSHOT" // 实验性质的
-
-  lazy val smtDeps = Seq(
-    "org.bitlap" %% "smt-cacheable-caffeine" % Version.`smt-cacheable`
-  )
-
-  lazy val zioDeps = Seq(
-    zio,
-    `zio-interop-reactivestreams`,
-    "dev.zio" %% "zio-logging"  % Version.`zio-logging`,
-    "dev.zio" %% "zio-test"     % Version.zio % Test,
-    "dev.zio" %% "zio-test-sbt" % Version.zio % Test
-  )
-
-  lazy val tapirDeps = Seq(
+  lazy val tapirDeps: Seq[ModuleID] = Seq(
     "com.softwaremill.sttp.tapir" %% "tapir-core"               % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % Version.tapir,
@@ -69,14 +46,14 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle"  % Version.tapir
   )
 
-  lazy val `tapir-async-doc` = Seq(
+  lazy val tapirAsyncDocDeps: Seq[ModuleID] = Seq(
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"       % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe"      % Version.tapir
   )
 
-  lazy val akkaDeps = Seq(
-    `akka-actor`,
+  lazy val akkaDeps: Seq[ModuleID] = Seq(
+    "com.typesafe.akka" %% "akka-actor-typed"    % Version.akka,
     "com.typesafe.akka" %% "akka-http"           % Version.`akka-http`,
     "com.typesafe.akka" %% "akka-stream"         % Version.akka,
     "com.typesafe.akka" %% "akka-slf4j"          % Version.akka,
@@ -84,13 +61,13 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-http-testkit"   % Version.`akka-http` % Test
   )
 
-  lazy val circeDeps = Seq(
+  lazy val circeDeps: Seq[ModuleID] = Seq(
     "io.circe" %% "circe-generic"        % Version.circe,
     "io.circe" %% "circe-generic-extras" % Version.circe,
     "io.circe" %% "circe-parser"         % Version.circe
   )
 
-  lazy val otherDeps = Seq(
+  lazy val otherDeps: Seq[ModuleID] = Seq(
     "ch.qos.logback"     % "logback-classic"  % Version.logback,
     "org.simplejavamail" % "simple-java-mail" % Version.`simple-java-mail`,
     "com.h2database"     % "h2"               % Version.h2        % Test,
@@ -98,27 +75,48 @@ object Dependencies {
   )
 
   /** ----------------Module deps------------------ */
-  lazy val serverDeps: Seq[ModuleID] =
-    domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++
-      tapirDeps ++ `zio-actors` ++ `tapir-async-doc` ++ smtDeps ++ Seq(`zio-crypto`, redis)
+  lazy val serverDeps: Seq[ModuleID] = Seq(
+    "dev.zio"                     %% "zio-actors-akka-interop"   % Version.`zio-actors`,
+    "dev.zio"                     %% "zio-actors"                % Version.`zio-actors`,
+    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"       % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe"      % Version.tapir,
+    "org.bitlap"                  %% "smt-cacheable-caffeine"    % Version.`smt-cacheable`,
+    "dev.zio"                     %% "zio-redis"                 % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
+  ) ++ domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
 
-  lazy val tapirApiDeps: Seq[ModuleID] = Seq(zio, `zio-interop-reactivestreams`) ++ akkaDeps ++ tapirDeps ++ domainDeps
+  lazy val tapirApiDeps: Seq[ModuleID] = Seq(
+    "dev.zio" %% "zio"                         % Version.zio,
+    "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
+  ) ++ akkaDeps ++ tapirDeps ++ domainDeps
 
   lazy val domainDeps: Seq[ModuleID] = Seq(
-    "org.scalikejdbc" %% "scalikejdbc"                      % Version.scalikejdbc % Compile,
-    "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc % Compile,
-    "dev.zio"         %% "zio-streams"                      % Version.zio         % Compile,
-    "eu.timepit"      %% "refined"                          % Version.refined,
-    `schema-derivation`,
-    `akka-actor`
-  ) ++ circeDeps ++ `zio-schema`
-
-  lazy val infrastructureDeps = zioDeps ++ Seq(
-    "org.simplejavamail" % "simple-java-mail"    % Version.`simple-java-mail`,
-    "org.scalikejdbc"   %% "scalikejdbc-streams" % Version.scalikejdbc,
-    config,
-    "mysql" % "mysql-connector-java" % Version.mysql
+    "org.scalikejdbc"   %% "scalikejdbc"                      % Version.scalikejdbc % Compile,
+    "org.scalikejdbc"   %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc % Compile,
+    "dev.zio"           %% "zio-streams"                      % Version.zio         % Compile,
+    "eu.timepit"        %% "refined"                          % Version.refined,
+    "dev.zio"           %% "zio-schema-derivation"            % Version.`zio-schema`,
+    "com.typesafe.akka" %% "akka-actor-typed"                 % Version.akka,
+    "dev.zio"           %% "zio-schema"                       % Version.`zio-schema`,
+    "dev.zio"           %% "zio-schema-protobuf"              % Version.`zio-schema`,
+    "io.circe"          %% "circe-generic"                    % Version.circe,
+    "io.circe"          %% "circe-generic-extras"             % Version.circe,
+    "io.circe"          %% "circe-parser"                     % Version.circe
   )
 
-  lazy val cacheDeps = Seq(config, redis, zio) ++ `zio-schema`
+  lazy val infrastructureDeps: Seq[ModuleID] = zioDeps ++ Seq(
+    "org.simplejavamail" % "simple-java-mail"     % Version.`simple-java-mail`,
+    "org.scalikejdbc"   %% "scalikejdbc-streams"  % Version.scalikejdbc,
+    "com.typesafe"       % "config"               % Version.config,
+    "mysql"              % "mysql-connector-java" % Version.mysql,
+    "dev.zio"           %% "zio-crypto"           % "0.0.0+92-5672c642-SNAPSHOT" // 实验性质的
+  )
+
+  lazy val cacheDeps: Seq[ModuleID] = Seq(
+    "com.typesafe" % "config"              % Version.config,
+    "dev.zio"     %% "zio-redis"           % "0.0.0+381-86c20614-SNAPSHOT",
+    "dev.zio"     %% "zio"                 % Version.zio,
+    "dev.zio"     %% "zio-schema"          % Version.`zio-schema`,
+    "dev.zio"     %% "zio-schema-protobuf" % Version.`zio-schema`
+  )
 }

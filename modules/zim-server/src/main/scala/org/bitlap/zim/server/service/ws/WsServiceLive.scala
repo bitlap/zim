@@ -25,9 +25,9 @@ import org.bitlap.zim.domain.model.{ AddMessage, User }
 import org.bitlap.zim.domain.ws._
 import org.bitlap.zim.domain.ws.protocol.Protocol
 import org.bitlap.zim.domain.{ Add, SystemConstant }
+import org.bitlap.zim.infrastructure.util.LogUtil
 import org.bitlap.zim.server.service.UserApplication
 import org.bitlap.zim.server.configuration.ApplicationConfiguration
-import org.bitlap.zim.server.util.LogUtil
 import zio.{ Task, ZIO }
 
 import java.time.ZonedDateTime

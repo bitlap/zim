@@ -16,16 +16,17 @@
 
 package org.bitlap.zim.server.service.impl
 
-import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.ZimError.BusinessException
+import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
-import org.bitlap.zim.server.service.{ ApiApplication, UserApplication }
-import org.bitlap.zim.server.util.{ FileUtil, LogUtil, SecurityUtil }
-import org.bitlap.zim.tapir.MultipartInput
-import zio.{ stream, Has, IO, TaskLayer, URLayer, ZLayer }
-import zio.stream.ZStream
+import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil }
+import org.bitlap.zim.server.FileUtil
 import org.bitlap.zim.server.service.impl.UserService.ZUserApplication
+import org.bitlap.zim.server.service.{ ApiApplication, UserApplication }
+import org.bitlap.zim.tapir.MultipartInput
+import zio.stream.ZStream
+import zio.{ stream, Has, IO, TaskLayer, URLayer, ZLayer }
 
 import java.time.ZonedDateTime
 
@@ -114,8 +115,6 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
   override def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean] =
     if (user.username.isEmpty || user.password.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
-    } else if (!ApiService.EMAIL_REGEX.matches(user.email)) {
-      ZStream.fail(BusinessException(msg = "邮箱格式不正确"))
     } else {
       userApplication.saveUser(
         User(

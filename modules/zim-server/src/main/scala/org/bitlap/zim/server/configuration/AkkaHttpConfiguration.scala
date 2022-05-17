@@ -27,12 +27,12 @@ import org.bitlap.zim.domain.ws.protocol.OnlineUserMessage
 import org.bitlap.zim.server.ZMaterializer
 import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
 import org.bitlap.zim.server.route.ZimOpenApi
-import org.bitlap.zim.server.util.LogUtil
 import zio._
 import zio.clock.Clock
 
 import java.util.concurrent.atomic.AtomicInteger
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
+import org.bitlap.zim.infrastructure.util.LogUtil
 
 /** akka http configuration
  *

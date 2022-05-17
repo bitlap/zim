@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.server
 
-import org.bitlap.zim.server.util.SecurityUtil
+import org.bitlap.zim.infrastructure.util.SecurityUtil
 import zio.{ ExitCode, URIO, ZIO }
 
 import java.text.SimpleDateFormat

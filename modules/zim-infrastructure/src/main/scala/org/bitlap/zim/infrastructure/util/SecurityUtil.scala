@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.util
+package org.bitlap.zim.infrastructure.util
 
 import zio.crypto.hash.{ Hash, HashAlgorithm, MessageDigest }
 import zio.{ RIO, Task }

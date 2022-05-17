@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.util
+package org.bitlap.zim.infrastructure.util
 
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
+import zio.{ UIO, ZIO }
 
-/** 时间工具
+import java.util.UUID
+
+/** UUID工具
  *
  *  @since 2021年12月31日
  *  @author
  *    梦境迷离
  */
-object DateUtil {
+object UuidUtil {
 
-  final lazy val pattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-  /** 获取格式化后的当前时间yyyy-MM-dd
-   *  @param now
+  /** 64位随机UUID
    */
-  def getDateString(now: ZonedDateTime = ZonedDateTime.now()): String =
-    now.format(pattern)
+  def getUuid64: UIO[String] =
+    ZIO.succeed((UUID.randomUUID.toString + UUID.randomUUID.toString).replace("-", ""))
+
+  /** 32位随机UUID
+   */
+  def getUuid32: UIO[String] =
+    ZIO.succeed(UUID.randomUUID.toString.replace("-", ""))
 
 }
