@@ -55,7 +55,7 @@ lazy val commonConfiguration: Project => Project =
 
 lazy val zim = (project in file("."))
   .settings(name := "zim")
-  .aggregate(`zim-server`, `zim-domain`, `zim-cache`, `zim-api`, `zim-auth`, `zim-infrastructure`)
+  .aggregate(`zim-server`, `zim-domain`, `zim-cache`, `zim-api`, `zim-auth`, `zim-infra`)
   .configure(commonConfiguration)
 
 lazy val `zim-server` = (project in file("modules/zim-server"))
@@ -66,9 +66,9 @@ lazy val `zim-server` = (project in file("modules/zim-server"))
   .settings(assembly / mainClass := Some("org.bitlap.zim.server.ZimServer"))
   .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
-  .dependsOn(`zim-cache`, `zim-api`, `zim-auth`, `zim-infrastructure`)
+  .dependsOn(`zim-cache`, `zim-api`, `zim-auth`, `zim-infra`)
 
-lazy val `zim-infrastructure` = (project in file("modules/zim-infrastructure"))
+lazy val `zim-infra` = (project in file("modules/zim-infra"))
   .settings(
     libraryDependencies ++= Dependencies.infrastructureDeps
   )

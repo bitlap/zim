@@ -115,6 +115,8 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
   override def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean] =
     if (user.username.isEmpty || user.password.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
+    } else if (!ApiService.EMAIL_REGEX.matches(user.email)) {
+      ZStream.fail(BusinessException(msg = "邮箱格式不正确"))
     } else {
       userApplication.saveUser(
         User(
