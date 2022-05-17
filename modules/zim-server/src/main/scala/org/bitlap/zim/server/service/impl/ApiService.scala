@@ -16,16 +16,17 @@
 
 package org.bitlap.zim.server.service.impl
 
-import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.ZimError.BusinessException
+import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
-import org.bitlap.zim.server.service.{ ApiApplication, UserApplication }
-import org.bitlap.zim.server.util.{ FileUtil, LogUtil, SecurityUtil }
-import org.bitlap.zim.tapir.MultipartInput
-import zio.{ stream, Has, IO, TaskLayer, URLayer, ZLayer }
-import zio.stream.ZStream
+import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil }
+import org.bitlap.zim.server.FileUtil
 import org.bitlap.zim.server.service.impl.UserService.ZUserApplication
+import org.bitlap.zim.server.service.{ ApiApplication, UserApplication }
+import org.bitlap.zim.tapir.MultipartInput
+import zio.stream.ZStream
+import zio.{ stream, Has, IO, TaskLayer, URLayer, ZLayer }
 
 import java.time.ZonedDateTime
 

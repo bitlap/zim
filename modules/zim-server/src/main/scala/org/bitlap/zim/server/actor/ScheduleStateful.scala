@@ -17,8 +17,8 @@
 package org.bitlap.zim.server.actor
 
 import org.bitlap.zim.domain.ws.protocol.{ Command, OnlineUserMessage }
+import org.bitlap.zim.infrastructure.util.LogUtil
 import org.bitlap.zim.server.service.ws.WsService
-import org.bitlap.zim.server.util.LogUtil
 import zio.actors.Actor.Stateful
 import zio.actors.Context
 import zio.{ UIO, ZIO }

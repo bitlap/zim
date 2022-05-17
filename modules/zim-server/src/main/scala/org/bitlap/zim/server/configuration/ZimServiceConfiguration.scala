@@ -16,14 +16,13 @@
 
 package org.bitlap.zim.server.configuration
 
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.server.ZMaterializer
 import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
 import org.bitlap.zim.server.configuration.AkkaHttpConfiguration.ZAkkaHttpConfiguration
 import org.bitlap.zim.server.configuration.ApiConfiguration.ZApiConfiguration
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
-import org.bitlap.zim.server.configuration.ZioActorSystemConfiguration.ZZioActorSystemConfiguration
 import zio.{ TaskLayer, ULayer }
-import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 
 /** global configuration to collect all service or system layer
  *
@@ -57,8 +56,5 @@ trait ZimServiceConfiguration {
 
   val ZimEnv: TaskLayer[ZApiConfiguration with ZAkkaActorSystemConfiguration with ZAkkaHttpConfiguration] =
     apiConfigurationLayer ++ akkaActorSystemLayer ++ akkaHttpConfigurationLayer
-
-  protected lazy val zioActorSystemLayer: TaskLayer[ZZioActorSystemConfiguration] =
-    InfrastructureConfiguration.live >>> ZioActorSystemConfiguration.live
 
 }

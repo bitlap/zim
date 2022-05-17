@@ -25,11 +25,10 @@ import akka.stream.Materializer
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
-import org.bitlap.zim.server.ZMaterializer
+import org.bitlap.zim.server.{ FileUtil, ZMaterializer }
 import ZimUserEndpoint._
 import org.bitlap.zim.server.service.ApiApplication
 import org.bitlap.zim.server.service.impl.ApiService.ZApiApplication
-import org.bitlap.zim.server.util.FileUtil
 import org.bitlap.zim.tapir.{ ApiErrorMapping, ApiJsonCodec }
 import sttp.model.HeaderNames.Authorization
 import sttp.model.Uri

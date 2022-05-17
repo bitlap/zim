@@ -24,13 +24,11 @@ import org.bitlap.zim.domain.model._
 import org.bitlap.zim.domain.repository._
 import org.bitlap.zim.server.service.ws.WsService
 import org.bitlap.zim.server.service.UserApplication
-import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil, UuidUtil }
 import zio.{ stream, Has, URLayer, ZLayer }
 import zio.stream.ZStream
 
 import java.time.ZonedDateTime
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
-
 import org.bitlap.zim.infrastructure.repository.TangibleAddMessageRepository.ZAddMessageRepository
 import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
 import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
@@ -38,6 +36,7 @@ import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository.ZG
 import org.bitlap.zim.infrastructure.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.infrastructure.repository.TangibleReceiveRepository.ZReceiveRepository
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepository.ZUserRepository
+import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil, UuidUtil }
 
 /** 用户服务
  *

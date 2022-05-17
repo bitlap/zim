@@ -25,7 +25,7 @@ import org.bitlap.zim.domain.ZimError.Unauthorized
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
 import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepository
-import org.bitlap.zim.server.util.{ LogUtil, SecurityUtil }
+import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil }
 import org.bitlap.zim.tapir.{ ApiErrorMapping, UserEndpoint }
 import sttp.model.HeaderNames.Authorization
 import sttp.tapir._

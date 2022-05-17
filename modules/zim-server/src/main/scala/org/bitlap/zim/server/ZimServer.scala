@@ -16,8 +16,8 @@
 
 package org.bitlap.zim.server
 
+import org.bitlap.zim.infrastructure.util.LogUtil
 import org.bitlap.zim.server.configuration.{ AkkaHttpConfiguration, ApiConfiguration, ZimServiceConfiguration }
-import org.bitlap.zim.server.util.LogUtil
 import zio._
 import zio.console.putStrLn
 
