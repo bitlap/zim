@@ -10,7 +10,7 @@ object Dependencies {
   object Version {
     val zio                           = "1.0.13"
     val `zio-logging`                 = "0.5.14"
-    val tapir                         = "0.19.4"
+    val tapir                         = "0.20.2"
     val `akka-http`                   = "10.2.9"
     val akka                          = "2.6.19"
     val circe                         = "0.14.1"
