@@ -5,6 +5,8 @@
 
 [在线预览地址](http://im.dreamylost.cn:8989)
 
+[完整Docker镜像](https://hub.docker.com/r/liguobin/zim)
+
 **如果感兴趣可以watch一下，如果对你有帮助可以点个star，欢迎贡献。**
 
 ## 模块
