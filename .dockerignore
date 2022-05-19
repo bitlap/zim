@@ -1,0 +1,7 @@
+.git/
+target/
+project/project
+project/target
+application.conf.example
+logs
+.idea
