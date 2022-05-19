@@ -22,6 +22,7 @@
 - java 8/11
 - redis 4/5/6
 - mysql 8
+- docker-compose
 
 ## 技术栈
 

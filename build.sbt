@@ -29,24 +29,25 @@ ThisBuild / resolvers ++= Seq(
   "New snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 )
 
-lazy val assemblySettings = Seq(
-  ThisBuild / assemblyMergeStrategy := {
-    case "application.conf"                              => MergeStrategy.concat
-    case x if x.endsWith(".txt") || x.endsWith(".proto") => MergeStrategy.first
-    case x if x.endsWith("module-info.class")            => MergeStrategy.first
-    case x if x.endsWith(".properties")                  => MergeStrategy.deduplicate
-    case x =>
-      val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
-      oldStrategy(x)
-  }
-)
+// sbt-assembly, not support build docker image by sbt task, so we use sbt-native-packager
+//lazy val assemblySettings = Seq(
+//  ThisBuild / assemblyMergeStrategy := {
+//    case "application.conf"                              => MergeStrategy.concat
+//    case x if x.endsWith(".txt") || x.endsWith(".proto") => MergeStrategy.first
+//    case x if x.endsWith("module-info.class")            => MergeStrategy.first
+//    case x if x.endsWith(".properties")                  => MergeStrategy.deduplicate
+//    case x =>
+//      val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
+//      oldStrategy(x)
+//  }
+//)
 
 lazy val commonConfiguration: Project => Project =
   _.settings(Information.value)
     .settings(ProjectSetting.value)
     .settings(ProjectSetting.noPublish)
     .settings(commands ++= Commands.value)
-    .settings(assemblySettings)
+//    .settings(assemblySettings)
     .settings(
       semanticdbEnabled := true, // enable SemanticDB
       semanticdbVersion := scalafixSemanticdb.revision,
@@ -61,11 +62,20 @@ lazy val zim = (project in file("."))
 lazy val `zim-server` = (project in file("modules/zim-server"))
   .settings(
     libraryDependencies ++= Dependencies.serverDeps,
-    Compile / scalacOptions ++= List("-Ymacro-annotations")
+    Compile / scalacOptions ++= List("-Ymacro-annotations"),
+    Docker / packageName := "liguobin/zim",
+    Docker / version := version.value,
+    dockerBaseImage := "openjdk",
+    dockerExposedVolumes ++= Seq("/opt/docker"),
+    dockerExposedPorts := Seq(9000),
+    Compile / mainClass := Some("org.bitlap.zim.server.ZimServer"),
+    dockerEntrypoint := Seq(
+      "/opt/docker/bin/zim-server" ,"--privileged=true"
+    )
   )
-  .settings(assembly / mainClass := Some("org.bitlap.zim.server.ZimServer"))
+//  .settings(assembly / mainClass := Some("org.bitlap.zim.server.ZimServer"))
   .configure(commonConfiguration)
-  .enablePlugins(ScalafmtPlugin, HeaderPlugin)
+  .enablePlugins(ScalafmtPlugin, HeaderPlugin, JavaServerAppPackaging, DockerPlugin)
   .dependsOn(`zim-cache`, `zim-api`, `zim-auth`, `zim-infra`)
 
 lazy val `zim-infra` = (project in file("modules/zim-infra"))

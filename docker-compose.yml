@@ -1,0 +1,33 @@
+version: '3'
+services:
+  zim_server:
+    image: liguobin/zim:0.3.0-SNAPSHOT
+    container_name: zim_server
+    depends_on:
+      - zim_mysql_server
+      - zim_redis_server
+    ports:
+      - "9000:9000"
+  
+  zim_mysql_server:
+    image: mysql:oracle
+    restart: always
+    container_name: zim_mysql_server
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    # FIXME The MySQL host directory must already exist, change it to your own MySQL location
+    volumes:
+      - /opt/homebrew/var/mysql/datadir:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - MYSQL_DATABASE=trace
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+  
+  zim_redis_server:
+    image: redis
+    container_name: zim_redis_server
+    command: redis-server
+    restart: always
+    ports:
+      - "6379:6379"
