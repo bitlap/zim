@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# it only executed for local pc, and used local image
+# it can only executed for local pc, and used local image
 IFS=$'\n'
 maybeOld=`docker ps | grep liguobin/zim | awk '{print $1}'`
 if [[ -n "$maybeOld" ]];then
