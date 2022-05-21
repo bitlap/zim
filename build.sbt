@@ -1,4 +1,5 @@
 import de.heikoseeberger.sbtheader.HeaderPlugin
+import sbt.TupleSyntax.t2ToTable2
 
 Global / onLoad := {
   val GREEN = "\u001b[32m"
