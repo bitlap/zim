@@ -31,7 +31,7 @@ import zio.schema.codec.{ Codec, ProtobufCodec }
  */
 object ZioRedisConfiguration {
 
-  private val conf: Config = ConfigFactory.load().getConfig("application.redis")
+  private val conf: Config = ConfigFactory.load().getConfig("cache.redis")
 
   private val redisConf: RedisConfig =
     if (conf.isEmpty) {
