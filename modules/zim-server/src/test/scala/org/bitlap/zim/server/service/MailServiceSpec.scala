@@ -46,7 +46,7 @@ object MailServiceSpec {
 
   // 本地
 //  lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties(
-//    config = ConfigFactory.load("application-test.conf").getConfig("application.javamail")
+//    config = ConfigFactory.load("application-test.conf").getConfig("infrastructure.javamail")
 //  )
 
   lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties()

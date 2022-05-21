@@ -54,7 +54,7 @@ object MailConfigurationProperties {
 
   type ZMailConfigurationProperties = Has[MailConfigurationProperties]
 
-  lazy val config: Config = ConfigFactory.load().getConfig("application.javamail")
+  lazy val config: Config = ConfigFactory.load().getConfig("infrastructure.javamail")
 
   val live: ULayer[ZMailConfigurationProperties] =
     ZLayer.succeed(config) >>> ZLayer.fromService[Config, MailConfigurationProperties](MailConfigurationProperties(_))

@@ -64,13 +64,14 @@ lazy val `zim-server` = (project in file("modules/zim-server"))
     libraryDependencies ++= Dependencies.serverDeps,
     Compile / scalacOptions ++= List("-Ymacro-annotations"),
     Docker / packageName := "liguobin/zim",
-    Docker / version := version.value,
-    dockerBaseImage := "openjdk",
+    Docker / version     := version.value,
+    dockerBaseImage      := "openjdk",
     dockerExposedVolumes ++= Seq("/opt/docker"),
-    dockerExposedPorts := Seq(9000),
+    dockerExposedPorts  := Seq(9000),
     Compile / mainClass := Some("org.bitlap.zim.server.ZimServer"),
     dockerEntrypoint := Seq(
-      "/opt/docker/bin/zim-server" ,"--privileged=true"
+      "/opt/docker/bin/zim-server",
+      "--privileged=true"
     )
   )
 //  .settings(assembly / mainClass := Some("org.bitlap.zim.server.ZimServer"))

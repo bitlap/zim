@@ -26,14 +26,14 @@ import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.openapi.{ Contact, Info, License }
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
-import sttp.tapir.swagger.SwaggerUI
+import sttp.tapir.swagger.{ SwaggerUI, SwaggerUIOptions }
 
 import scala.concurrent.Future
 import akka.http.scaladsl.server.Directives._
 
 /** Open API
  *  @see
- *    http://localhost:9000/api/v1.0/docs
+ *    http://host:port/api/v1.0/docs
  *  @author
  *    梦境迷离
  *  @since 2021/12/25
@@ -80,7 +80,9 @@ final class ZimOpenApi {
     AsyncAPIInterpreter().toAsyncAPI(WsEndpoint.wsEndpoint, "zim websocket endpoint", info.version).toYaml
 
   lazy val route: Route =
-    AkkaHttpServerInterpreter().toRoute(SwaggerUI[Future](openApiYaml, prefix = openapi.split("/").toList))
+    AkkaHttpServerInterpreter().toRoute(
+      SwaggerUI[Future](openApiYaml, SwaggerUIOptions(pathPrefix = openapi.split("/").toList, "docs.yaml", Nil))
+    )
 
   lazy val wsDocsRoute: Route = pathPrefix(ApiEndpoint.apiResource / ApiEndpoint.apiVersion / wsContextPath) {
     get {
