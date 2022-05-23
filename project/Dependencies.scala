@@ -25,7 +25,7 @@ object Dependencies {
     val `zio-actors`                  = "0.0.9"
     val refined                       = "0.9.29"
     val `zio-schema`                  = "0.1.9"
-    val `smt-cacheable`               = "0.5.2"
+    val `smt-cacheable`               = "0.5.4"
   }
 
   lazy val zioDeps: Seq[ModuleID] = Seq(
