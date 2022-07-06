@@ -13,7 +13,7 @@ object Dependencies {
     val tapir                         = "0.20.2"
     val `akka-http`                   = "10.2.9"
     val akka                          = "2.6.19"
-    val circe                         = "0.14.1"
+    val circe                         = "0.14.2"
     val scalikejdbc                   = "3.5.0"
     val logback                       = "1.2.11"
     val config                        = "1.4.1"
