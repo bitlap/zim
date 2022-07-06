@@ -17,7 +17,7 @@ def spec: ZSpec[Environment, Failure] =  suite("Tangible GroupMember Repository"
         _  <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
         gm <- TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
       } yield assert(gm)(equalTo(Some(mockGroupMembers)))
-        ).provideLayer(env)
+        )
     } @@ TestAspect.before(ZIO.succeed(before)),
     testM("leave out group") {
       (for {
@@ -25,17 +25,17 @@ def spec: ZSpec[Environment, Failure] =  suite("Tangible GroupMember Repository"
         _  <- TangibleGroupMemberRepository.leaveOutGroup(mockGroupMembers).runHead
         gm <-  TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
       } yield assert(gm)(equalTo(None))
-        ).provideLayer(env)
+        )
     },
    testM("find group members") {
     (for {
       _   <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
       uid <- TangibleGroupMemberRepository.findGroupMembers(mockGroupMembers.gid).runHead
     } yield assert(uid)(equalTo(Some(1)))
-      ).provideLayer(env)
+      )
     } @@ TestAspect.after(ZIO.succeed(after))
 
-  ) @@ TestAspect.sequential
+  ) .provideLayer(env) @@ TestAspect.sequential
 
 }
 
