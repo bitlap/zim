@@ -24,7 +24,7 @@ object Dependencies {
     val scalaTest                     = "3.2.12"
     val `zio-actors`                  = "0.0.9"
     val refined                       = "0.9.29"
-    val `zio-schema`                  = "0.1.9"
+    val `zio-schema`                  = "0.2.0"
     val `smt-cacheable`               = "0.5.4"
   }
 
