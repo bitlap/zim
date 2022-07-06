@@ -49,20 +49,12 @@
 
 ## 详细介绍和博客
 
-前往 >>> [bitlap官网](https://bitlap.org/lab/zim)
+[bitlap官网](https://bitlap.org/lab/zim)
 
-前往 >>>  [csdn 博客](https://blog.csdn.net/qq_34446485/category_11720549.html?spm=1001.2014.3001.5482)
+[csdn 博客](https://blog.csdn.net/qq_34446485/category_11720549.html?spm=1001.2014.3001.5482)
 
-- [x] 如何快速开始
-- [x] zio 基本介绍
-- [x] zio1.x 模块模式之 1.0
-- [x] zio1.x 模块模式之 2.0
-- [x] zio-streams、与 scalikejdbc-streams 的集成
-- [x] zio 中的依赖注入
-- [x] zio-streams 与 akka-stream 的集成
-- [x] zio-actors 与 akka-actor-typed 通信的集成
-- [ ] zio 如何构建一个可重用模块
-- [ ] zio 应用如何测试
-- [ ] zio-schema 应用
-- [ ] 如何编写 tapir 应用
-- [ ] 如何编写 akka-http 接口
+## 特别感谢
+
+<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/IntelliJ_IDEA.svg" alt="IntelliJ IDEA logo.">
+
+This project is developed using JetBrains IDEA. Thanks to JetBrains for providing me with a free license, which is a strong support for me.
