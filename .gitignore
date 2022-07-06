@@ -13,6 +13,8 @@ null/
 modules/zim-server/src/main/resources/application.conf
 modules/zim-server/src/test/resources/application-dev.conf
 modules/zim-server/src/test/resources/application-test.conf
+modules/zim-infra/src/main/resources/reference.conf
+
 # upload file into this folder
 static/
 logs/

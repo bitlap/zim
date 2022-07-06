@@ -12,26 +12,41 @@ import zio.test.Assertion._
 object TangibleGroupMemberRepositoryMainSpec extends  TangibleGroupMemberRepositoryConfigurationSpec{
 
 def spec: ZSpec[Environment, Failure] =  suite("Tangible GroupMember Repository")(
-  testM("find by id") {
+    testM("find by id") {
+      (for {
+        _  <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
+        gm <- TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
+      } yield assert(gm)(equalTo(Some(mockGroupMembers)))
+        ).provideLayer(env)
+    } @@ TestAspect.before(ZIO.succeed(before)),
+    testM("leave out group") {
+      (for {
+        _  <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
+        _  <- TangibleGroupMemberRepository.leaveOutGroup(mockGroupMembers).runHead
+        gm <-  TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
+      } yield assert(gm)(equalTo(None))
+        ).provideLayer(env)
+    },
+   testM("find group members") {
     (for {
-      _ <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
-      gm <- TangibleGroupMemberRepository.findById(1).runHead
-    } yield assert(gm)(equalTo(Some(mockGroupMembers)))
+      _   <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
+      uid <- TangibleGroupMemberRepository.findGroupMembers(mockGroupMembers.gid).runHead
+    } yield assert(uid)(equalTo(Some(1)))
       ).provideLayer(env)
-  } @@ TestAspect.before(ZIO.succeed(before))
-    @@ TestAspect.after(ZIO.succeed(after))
-)
+    } @@ TestAspect.after(ZIO.succeed(after))
+
+  ) @@ TestAspect.sequential
 
 }
 
 object TangibleGroupMemberRepositorySpec {
   trait TangibleGroupMemberRepositoryConfigurationSpec extends BaseSuit {
-     val sqlAfter: SQL[_, NoExtractor] =
+     override val sqlAfter: SQL[_, NoExtractor] =
       sql"""
         drop table if exists t_group;
         drop table if exists t_group_members;
          """
-     val sqlBefore: SQL[_, NoExtractor] =
+    override val sqlBefore: SQL[_, NoExtractor] =
       sql"""
             DROP TABLE IF EXISTS `t_group`;
             CREATE TABLE `t_group` (
@@ -52,17 +67,6 @@ object TangibleGroupMemberRepositorySpec {
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
          """
     val env: ULayer[ZGroupMemberRepository] = TangibleGroupMemberRepository.make(h2ConfigurationProperties.databaseName)
-
-    lazy val before: Boolean =
-      NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
-        sqlBefore.execute().apply()
-      }
-
-
-    lazy val after: Boolean =
-      NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
-        sqlAfter.execute().apply()
-      }
   }
 
 
