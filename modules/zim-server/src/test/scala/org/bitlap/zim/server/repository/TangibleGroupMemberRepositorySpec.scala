@@ -10,32 +10,28 @@ import zio.test.Assertion._
 
 
 object TangibleGroupMemberRepositoryMainSpec extends  TangibleGroupMemberRepositoryConfigurationSpec{
-
-def spec: ZSpec[Environment, Failure] =  suite("Tangible GroupMember Repository")(
+  override def spec: ZSpec[Environment, Failure] =  suite("Tangible GroupMember Repository")(
     testM("find by id") {
-      (for {
+      for {
         _  <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
         gm <- TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
       } yield assert(gm)(equalTo(Some(mockGroupMembers)))
-        )
     } @@ TestAspect.before(ZIO.succeed(before)),
+
+    testM("find group members") {
+      for {
+        uid <- TangibleGroupMemberRepository.findGroupMembers(mockGroupMembers.gid).runHead
+      } yield assert(uid)(equalTo(Some(1)))
+    },
+
     testM("leave out group") {
-      (for {
-        _  <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
+      for {
         _  <- TangibleGroupMemberRepository.leaveOutGroup(mockGroupMembers).runHead
         gm <-  TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
       } yield assert(gm)(equalTo(None))
-        )
-    },
-   testM("find group members") {
-    (for {
-      _   <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
-      uid <- TangibleGroupMemberRepository.findGroupMembers(mockGroupMembers.gid).runHead
-    } yield assert(uid)(equalTo(Some(1)))
-      )
     } @@ TestAspect.after(ZIO.succeed(after))
 
-  ) .provideLayer(env) @@ TestAspect.sequential
+  ).provideLayer(env) @@ TestAspect.sequential
 
 }
 

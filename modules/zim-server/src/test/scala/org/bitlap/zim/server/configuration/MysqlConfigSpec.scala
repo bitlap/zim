@@ -7,10 +7,6 @@ import zio.test.Assertion._
 
 object MysqlConfigSpec extends BaseSuit {
 
-
-  override val sqlBefore: SQL[_, NoExtractor] = ???
-  override val sqlAfter: SQL[_, NoExtractor] = ???
-
   def spec = suite("MysqlConfigSpec")(
     test("test the database connect working state") {
       assert(isConnected)(equalTo(true))

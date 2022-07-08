@@ -8,9 +8,9 @@ import scalikejdbc.{ConnectionPool, ConnectionPoolSettings, NamedDB, NoExtractor
 import zio.test.DefaultRunnableSpec
 
 trait BaseSuit extends DefaultRunnableSpec{
-  val sqlBefore: SQL[_, NoExtractor]
+  val sqlBefore: SQL[_, NoExtractor] = null
 
-  val sqlAfter: SQL[_, NoExtractor]
+  val sqlAfter: SQL[_, NoExtractor] = null
 
   lazy val before: Boolean =
     NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
@@ -89,6 +89,18 @@ trait BaseSuit extends DefaultRunnableSpec{
     id = 1,
     gid = 1,
     uid = 1
+  )
+
+  val mockFriendGroup = model.FriendGroup(
+    id = 1,
+    uid = 1,
+    groupName = "zim"
+  )
+
+  val mockAddFriend = model.AddFriend(
+    uid = 1,
+    fgid = 2,
+    id = 1
   )
 
 
