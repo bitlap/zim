@@ -13,7 +13,7 @@ object Dependencies {
     val tapir                         = "0.20.2"
     val `akka-http`                   = "10.2.9"
     val akka                          = "2.6.19"
-    val circe                         = "0.14.1"
+    val circe                         = "0.14.2"
     val scalikejdbc                   = "3.5.0"
     val logback                       = "1.2.11"
     val config                        = "1.4.1"
@@ -23,9 +23,9 @@ object Dependencies {
     val h2                            = "2.1.214"
     val scalaTest                     = "3.2.12"
     val `zio-actors`                  = "0.0.9"
-    val refined                       = "0.9.29"
+    val refined                       = "0.10.0"
     val `zio-schema`                  = "0.1.9"
-    val `smt-cacheable`               = "0.5.4"
+    val `smt-cacheable`               = "0.7.4"
   }
 
   lazy val zioDeps: Seq[ModuleID] = Seq(
