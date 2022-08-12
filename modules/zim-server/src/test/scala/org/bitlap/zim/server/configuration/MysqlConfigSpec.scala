@@ -15,9 +15,4 @@ object MysqlConfigSpec extends BaseSuit {
 
   val isConnected: Boolean = NamedDB(Symbol(h2ConfigurationProperties.databaseName)).conn.isValid(0)
 
-
 }
-
-
-
-

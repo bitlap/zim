@@ -4,40 +4,36 @@ import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository.ZG
 import org.bitlap.zim.server.BaseSuit
 import org.bitlap.zim.server.repository.TangibleGroupMemberRepositorySpec.TangibleGroupMemberRepositoryConfigurationSpec
 import scalikejdbc._
-import zio.{ULayer, ZIO}
+import zio.{ ULayer, ZIO }
 import zio.test._
 import zio.test.Assertion._
 
-
-object TangibleGroupMemberRepositoryMainSpec extends  TangibleGroupMemberRepositoryConfigurationSpec{
-  override def spec: ZSpec[Environment, Failure] =  suite("Tangible GroupMember Repository")(
+object TangibleGroupMemberRepositoryMainSpec extends TangibleGroupMemberRepositoryConfigurationSpec {
+  override def spec: ZSpec[Environment, Failure] = suite("Tangible GroupMember Repository")(
     testM("find by id") {
       for {
         _  <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
         gm <- TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
       } yield assert(gm)(equalTo(Some(mockGroupMembers)))
     } @@ TestAspect.before(ZIO.succeed(before)),
-
     testM("find group members") {
       for {
         uid <- TangibleGroupMemberRepository.findGroupMembers(mockGroupMembers.gid).runHead
       } yield assert(uid)(equalTo(Some(1)))
     },
-
     testM("leave out group") {
       for {
         _  <- TangibleGroupMemberRepository.leaveOutGroup(mockGroupMembers).runHead
-        gm <-  TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
+        gm <- TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
       } yield assert(gm)(equalTo(None))
     } @@ TestAspect.after(ZIO.succeed(after))
-
   ).provideLayer(env) @@ TestAspect.sequential
 
 }
 
 object TangibleGroupMemberRepositorySpec {
   trait TangibleGroupMemberRepositoryConfigurationSpec extends BaseSuit {
-     override val sqlAfter: SQL[_, NoExtractor] =
+    override val sqlAfter: SQL[_, NoExtractor] =
       sql"""
         drop table if exists t_group;
         drop table if exists t_group_members;
@@ -64,7 +60,5 @@ object TangibleGroupMemberRepositorySpec {
          """
     val env: ULayer[ZGroupMemberRepository] = TangibleGroupMemberRepository.make(h2ConfigurationProperties.databaseName)
   }
-
-
 
 }

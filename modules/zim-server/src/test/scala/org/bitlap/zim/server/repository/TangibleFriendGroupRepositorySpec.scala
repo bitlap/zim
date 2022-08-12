@@ -10,23 +10,20 @@ import zio.test.Assertion._
 import zio.test._
 
 object TangibleFriendGroupRepositoryMainSpec extends TangibleFriendGroupRepositorySpec {
-  override def spec: ZSpec[Environment, Failure]  = suite("Tangible friendGroup repository") (
+  override def spec: ZSpec[Environment, Failure] = suite("Tangible friendGroup repository")(
     testM("find by id") {
       for {
-            _  <- TangibleFriendGroupRepository.createFriendGroup(mockFriendGroup).runHead
-            fg <- TangibleFriendGroupRepository.findById(1).runHead
+        _  <- TangibleFriendGroupRepository.createFriendGroup(mockFriendGroup).runHead
+        fg <- TangibleFriendGroupRepository.findById(1).runHead
       } yield assert(fg)(equalTo(Some(mockFriendGroup)))
     } @@ TestAspect.before(ZIO.succeed(before)),
-
     testM("find friendGroups by id") {
       for {
-            fg <- TangibleFriendGroupRepository.findFriendGroupsById(mockFriendGroup.uid).runHead
+        fg <- TangibleFriendGroupRepository.findFriendGroupsById(mockFriendGroup.uid).runHead
       } yield assert(fg)(equalTo(Some(mockFriendGroup)))
     } @@ TestAspect.after(ZIO.succeed(after))
-
   ).provideLayer(env) @@ TestAspect.sequential
 }
-
 
 object TangibleFriendGroupRepositorySpec {
   trait TangibleFriendGroupRepositorySpec extends BaseSuit {
@@ -55,7 +52,6 @@ object TangibleFriendGroupRepositorySpec {
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
        """
-
 
     val env: ULayer[ZFriendGroupRepository] = TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
   }

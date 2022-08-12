@@ -1,13 +1,13 @@
 package org.bitlap.zim.server
 
 import org.bitlap.zim.domain.model
-import org.bitlap.zim.domain.model.{AddMessage, GroupList, User}
+import org.bitlap.zim.domain.model.{ AddMessage, GroupList, User }
 import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
 import org.bitlap.zim.server.util.DateHelper
-import scalikejdbc.{ConnectionPool, ConnectionPoolSettings, NamedDB, NoExtractor, SQL}
+import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings, NamedDB, NoExtractor, SQL }
 import zio.test.DefaultRunnableSpec
 
-trait BaseSuit extends DefaultRunnableSpec{
+trait BaseSuit extends DefaultRunnableSpec {
   val sqlBefore: SQL[_, NoExtractor] = null
 
   val sqlAfter: SQL[_, NoExtractor] = null
@@ -16,7 +16,6 @@ trait BaseSuit extends DefaultRunnableSpec{
     NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
       sqlBefore.execute().apply()
     }
-
 
   lazy val after: Boolean =
     NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
@@ -103,6 +102,4 @@ trait BaseSuit extends DefaultRunnableSpec{
     id = 1
   )
 
-
-  }
-
+}
