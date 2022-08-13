@@ -37,7 +37,7 @@ import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import zio._
 import zio.stream.ZStream
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContextExecutor
 import scala.util.Try
 
 /** 用户API
@@ -50,6 +50,8 @@ import scala.util.Try
 final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Materializer)
     extends ApiJsonCodec
     with ApiErrorMapping {
+
+  implicit val ec: ExecutionContextExecutor = materializer.executionContext
 
   private val USER: String = "user"
 

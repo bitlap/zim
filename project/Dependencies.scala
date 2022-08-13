@@ -10,7 +10,7 @@ object Dependencies {
   object Version {
     val zio                           = "1.0.15"
     val `zio-logging`                 = "0.5.14"
-    val tapir                         = "0.20.2"
+    val tapir                         = "1.0.4"
     val `akka-http`                   = "10.2.9"
     val akka                          = "2.6.19"
     val circe                         = "0.14.2"
@@ -25,6 +25,7 @@ object Dependencies {
     val `zio-actors`                  = "0.0.9"
     val refined                       = "0.10.0"
     val `zio-schema`                  = "0.1.9"
+    val `sttp-apispec`                = "0.2.1"
   }
 
   lazy val zioDeps: Seq[ModuleID] = Seq(
@@ -35,20 +36,24 @@ object Dependencies {
     "dev.zio" %% "zio-test-sbt"                % Version.zio % Test
   )
 
-  lazy val tapirDeps: Seq[ModuleID] = Seq(
-    "com.softwaremill.sttp.tapir" %% "tapir-core"               % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server"   % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle"  % Version.tapir
+  lazy val tapirApiSpec: Seq[ModuleID] = Seq(
+    "com.softwaremill.sttp.apispec" %% "apispec-model"       % Version.`sttp-apispec`,
+    "com.softwaremill.sttp.apispec" %% "openapi-model"       % Version.`sttp-apispec`,
+    "com.softwaremill.sttp.apispec" %% "openapi-circe"       % Version.`sttp-apispec`,
+    "com.softwaremill.sttp.apispec" %% "openapi-circe-yaml"  % Version.`sttp-apispec`,
+    "com.softwaremill.sttp.apispec" %% "asyncapi-model"      % Version.`sttp-apispec`,
+    "com.softwaremill.sttp.apispec" %% "asyncapi-circe"      % Version.`sttp-apispec`,
+    "com.softwaremill.sttp.apispec" %% "asyncapi-circe-yaml" % Version.`sttp-apispec`
   )
 
-  lazy val tapirAsyncDocDeps: Seq[ModuleID] = Seq(
-    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"       % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe"      % Version.tapir
-  )
+  lazy val tapirDeps: Seq[ModuleID] = Seq(
+    "com.softwaremill.sttp.tapir" %% "tapir-core"              % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"      % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server"  % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-json-circe"        % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % Version.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"     % Version.tapir
+  ) ++ tapirApiSpec
 
   lazy val akkaDeps: Seq[ModuleID] = Seq(
     "com.typesafe.akka" %% "akka-actor-typed"    % Version.akka,
@@ -74,12 +79,9 @@ object Dependencies {
 
   /** ----------------Module deps------------------ */
   lazy val serverDeps: Seq[ModuleID] = Seq(
-    "dev.zio"                     %% "zio-actors-akka-interop"   % Version.`zio-actors`,
-    "dev.zio"                     %% "zio-actors"                % Version.`zio-actors`,
-    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"       % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe"      % Version.tapir,
-    "dev.zio"                     %% "zio-redis"                 % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
+    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
+    "dev.zio" %% "zio-actors"              % Version.`zio-actors`,
+    "dev.zio" %% "zio-redis"               % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
   ) ++ domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
 
   lazy val tapirApiDeps: Seq[ModuleID] = Seq(
