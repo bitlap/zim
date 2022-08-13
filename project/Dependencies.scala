@@ -23,7 +23,7 @@ object Dependencies {
     val h2                            = "2.1.214"
     val scalaTest                     = "3.2.13"
     val `zio-actors`                  = "0.0.9"
-    val refined                       = "0.10.0"
+    val refined                       = "0.10.1"
     val `zio-schema`                  = "0.1.9"
   }
 
