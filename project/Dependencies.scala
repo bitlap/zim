@@ -8,7 +8,7 @@ import sbt._
 object Dependencies {
 
   object Version {
-    val zio                           = "1.0.15"
+    val zio                           = "1.0.16"
     val `zio-logging`                 = "0.5.14"
     val tapir                         = "1.0.4"
     val `akka-http`                   = "10.2.9"
@@ -18,12 +18,12 @@ object Dependencies {
     val logback                       = "1.2.11"
     val config                        = "1.4.1"
     val `zio-interop-reactiveStreams` = "1.3.12"
-    val mysql                         = "8.0.29"
+    val mysql                         = "8.0.30"
     val `simple-java-mail`            = "7.1.1"
     val h2                            = "2.1.214"
-    val scalaTest                     = "3.2.12"
+    val scalaTest                     = "3.2.13"
     val `zio-actors`                  = "0.0.9"
-    val refined                       = "0.10.0"
+    val refined                       = "0.10.1"
     val `zio-schema`                  = "0.1.9"
     val `sttp-apispec`                = "0.2.1"
   }
