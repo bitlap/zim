@@ -8,7 +8,7 @@ import sbt._
 object Dependencies {
 
   object Version {
-    val zio                           = "1.0.15"
+    val zio                           = "1.0.16"
     val `zio-logging`                 = "0.5.14"
     val tapir                         = "0.20.2"
     val `akka-http`                   = "10.2.9"
@@ -18,14 +18,13 @@ object Dependencies {
     val logback                       = "1.2.11"
     val config                        = "1.4.1"
     val `zio-interop-reactiveStreams` = "1.3.12"
-    val mysql                         = "8.0.29"
+    val mysql                         = "8.0.30"
     val `simple-java-mail`            = "7.1.3"
     val h2                            = "2.1.214"
-    val scalaTest                     = "3.2.12"
+    val scalaTest                     = "3.2.13"
     val `zio-actors`                  = "0.0.9"
-    val refined                       = "0.10.0"
+    val refined                       = "0.10.1"
     val `zio-schema`                  = "0.1.9"
-    val `smt-cacheable`               = "0.7.4"
   }
 
   lazy val zioDeps: Seq[ModuleID] = Seq(
@@ -80,7 +79,6 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"       % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe"      % Version.tapir,
-    "org.bitlap"                  %% "smt-cacheable-caffeine"    % Version.`smt-cacheable`,
     "dev.zio"                     %% "zio-redis"                 % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
   ) ++ domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
 
