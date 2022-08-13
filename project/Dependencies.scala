@@ -25,7 +25,6 @@ object Dependencies {
     val `zio-actors`                  = "0.0.9"
     val refined                       = "0.10.0"
     val `zio-schema`                  = "0.1.9"
-    val `smt-cacheable`               = "0.7.4"
   }
 
   lazy val zioDeps: Seq[ModuleID] = Seq(
@@ -80,7 +79,6 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-docs"       % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe-yaml" % Version.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-asyncapi-circe"      % Version.tapir,
-    "org.bitlap"                  %% "smt-cacheable-caffeine"    % Version.`smt-cacheable`,
     "dev.zio"                     %% "zio-redis"                 % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
   ) ++ domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
 
