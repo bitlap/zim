@@ -20,16 +20,18 @@ import akka.http.scaladsl.server.Route
 import org.bitlap.zim.ZimBuildInfo
 import org.bitlap.zim.tapir.{ ActuatorEndpoint, ApiEndpoint, WsEndpoint }
 import sttp.tapir.AnyEndpoint
-import sttp.tapir.asyncapi.circe.yaml.RichAsyncAPI
 import sttp.tapir.docs.asyncapi.AsyncAPIInterpreter
 import sttp.tapir.docs.openapi._
-import sttp.tapir.openapi.circe.yaml._
-import sttp.tapir.openapi.{ Contact, Info, License }
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import sttp.tapir.swagger.{ SwaggerUI, SwaggerUIOptions }
 
 import scala.concurrent.Future
 import akka.http.scaladsl.server.Directives._
+import sttp.apispec.asyncapi.circe.yaml.RichAsyncAPI
+import sttp.apispec.openapi.circe.yaml.RichOpenAPI
+import sttp.apispec.openapi.{ Contact, Info, License }
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /** Open API
  *  @see
@@ -81,7 +83,7 @@ final class ZimOpenApi {
 
   lazy val route: Route =
     AkkaHttpServerInterpreter().toRoute(
-      SwaggerUI[Future](openApiYaml, SwaggerUIOptions(pathPrefix = openapi.split("/").toList, "docs.yaml", Nil))
+      SwaggerUI[Future](openApiYaml, SwaggerUIOptions(pathPrefix = openapi.split("/").toList, "docs.yaml", Nil, true))
     )
 
   lazy val wsDocsRoute: Route = pathPrefix(ApiEndpoint.apiResource / ApiEndpoint.apiVersion / wsContextPath) {

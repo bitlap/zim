@@ -26,7 +26,7 @@ import sttp.tapir.TapirFile
  *  @since 2022/2/3
  *  @version 1.0
  */
-case class MultipartInput(file: Part[TapirFile]) extends Serializable {
+final case class MultipartInput(file: Part[TapirFile]) extends Serializable {
 
   def getFileName: String = file.fileName.getOrElse(file.name)
 
