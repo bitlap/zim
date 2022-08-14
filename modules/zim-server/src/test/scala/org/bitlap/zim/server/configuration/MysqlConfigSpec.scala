@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.tapir
+package org.bitlap.zim.server.configuration
 
-import sttp.model.Part
-import sttp.tapir.TapirFile
+import org.bitlap.zim.server.BaseSuit
+import scalikejdbc._
+import zio.test._
+import zio.test.Assertion._
 
-/** 文件上传
- *
- *  @author
- *    梦境迷离
- *  @since 2022/2/3
- *  @version 1.0
- */
-final case class MultipartInput(file: Part[TapirFile]) extends Serializable {
+object MysqlConfigSpec extends BaseSuit {
 
-  def getFileName: String = file.fileName.getOrElse(file.name)
+  def spec = suite("MysqlConfigSpec")(
+    test("test the database connect working state") {
+      assert(isConnected)(equalTo(true))
+    }
+  )
+
+  val isConnected: Boolean = NamedDB(Symbol(h2ConfigurationProperties.databaseName)).conn.isValid(0)
 
 }
