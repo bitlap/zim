@@ -22,6 +22,7 @@ import org.bitlap.zim.ZimBuildInfo
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import org.bitlap.zim.tapir.ActuatorEndpoint
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /** Actuator端点的API http://host:port/api/v1.0/health
