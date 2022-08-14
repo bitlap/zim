@@ -33,8 +33,7 @@ cache {
 }
 
 application {
-
-    name = "Zim-Application"
+    name = "ZIM"
     server {
       port = 9000
       interface = "0.0.0.0"

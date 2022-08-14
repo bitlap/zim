@@ -43,7 +43,7 @@ trait ActuatorEndpoint {
       .in(healthResource)
       .name(healthNameResource)
       .description(healthDescriptionResource)
-      .out(customJsonBody[HealthInfo].example(ZimBuildInfo.toMap))
+      .out(customCodecJsonBody[HealthInfo].example(ZimBuildInfo.toMap))
       .errorOut(statusCode)
 
   private[tapir] implicit lazy val buildInfoCodec: JsonCodec[HealthInfo] =

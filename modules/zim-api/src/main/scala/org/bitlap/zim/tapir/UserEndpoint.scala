@@ -284,7 +284,7 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(statusCode(sttp.model.StatusCode.PermanentRedirect))
       .out(header[Uri](HeaderNames.Location))
       .out(streamBody(AkkaStreams)(Schema(Schema.schemaForInt.schemaType), CodecFormat.Json()))
-      .errorOut(customJsonBody[String].description("Redirect Error"))
+      .errorOut(customCodecJsonBody[String].description("Redirect Error"))
 
   lazy val existEmailEndpoint: ZimOut[ExistEmailInput] =
     endpoint.post
