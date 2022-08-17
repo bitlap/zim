@@ -3,7 +3,9 @@
 [![Build](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml/badge.svg?branch=master)](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml)
 [![codecov](https://codecov.io/gh/bitlap/zim/branch/master/graph/badge.svg?token=V95ZMWUUCE)](https://codecov.io/gh/bitlap/zim)
 
-[在线预览地址](http://im.dreamylost.cn:8989)
+[在线预览地址](http://im.dreamylost.cn:8989) 
+
+> 服务器到期时间（为爱发电）：2024-11-28 19:55:29	
 
 [完整Docker镜像](https://hub.docker.com/r/liguobin/zim/tags)
 
