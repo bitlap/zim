@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.service.impl
+package org.bitlap.zim.server.service
 
 import org.bitlap.zim.infrastructure.properties.MailConfigurationProperties
+import org.bitlap.zim.infrastructure.properties.MailConfigurationProperties.ZMailConfigurationProperties
 import org.simplejavamail.api.mailer.Mailer
 import org.simplejavamail.config.ConfigLoader
 import org.simplejavamail.email.EmailBuilder
 import org.simplejavamail.mailer.MailerBuilder
 import zio.{ Has, UIO, ULayer, URIO, URLayer, ZIO, ZLayer }
-import org.bitlap.zim.infrastructure.properties.MailConfigurationProperties.ZMailConfigurationProperties
 
 import scala.concurrent.duration._
 import scala.jdk.FutureConverters.CompletionStageOps
@@ -33,7 +33,7 @@ import scala.jdk.FutureConverters.CompletionStageOps
  *    梦境迷离
  *  @version 1.0,2021/12/30
  */
-final class MailService(mailConfigurationProperties: MailConfigurationProperties) {
+final class MailServiceImpl(mailConfigurationProperties: MailConfigurationProperties) {
 
   ConfigLoader.loadProperties(mailConfigurationProperties.toProperties, true)
 
@@ -62,11 +62,11 @@ final class MailService(mailConfigurationProperties: MailConfigurationProperties
   }
 }
 
-object MailService {
+object MailServiceImpl {
 
-  type ZMailService = Has[MailService]
+  type ZMailService = Has[MailServiceImpl]
 
-  def apply(mailConfigurationProperties: MailConfigurationProperties): MailService = new MailService(
+  def apply(mailConfigurationProperties: MailConfigurationProperties): MailServiceImpl = new MailServiceImpl(
     mailConfigurationProperties
   )
 
@@ -74,8 +74,8 @@ object MailService {
     ZIO.access(_.get.sendHtmlMail(to, subject, content))
 
   val live: URLayer[ZMailConfigurationProperties, ZMailService] =
-    ZLayer.fromService[MailConfigurationProperties, MailService](MailService(_))
+    ZLayer.fromService[MailConfigurationProperties, MailServiceImpl](MailServiceImpl(_))
 
   def make(mailConfigurationProperties: MailConfigurationProperties): ULayer[ZMailService] =
-    ZLayer.succeed(mailConfigurationProperties) >>> MailService.live
+    ZLayer.succeed(mailConfigurationProperties) >>> MailServiceImpl.live
 }

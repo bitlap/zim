@@ -18,10 +18,9 @@ package org.bitlap.zim.server.configuration
 
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration.ZInfrastructureConfiguration
-import org.bitlap.zim.server.service.ApiApplication
+import org.bitlap.zim.api.service.{ ApiService, PaginationApiService, UserService }
 import zio._
-import org.bitlap.zim.server.service.impl.{ ApiService, UserService }
-import org.bitlap.zim.server.service.UserApplication
+import org.bitlap.zim.server.service.{ APIService, ApiServiceImpl, UserServiceImpl }
 import org.bitlap.zim.infrastructure.repository.RStream
 
 /** application configuration
@@ -34,7 +33,7 @@ import org.bitlap.zim.infrastructure.repository.RStream
 final class ApplicationConfiguration(infrastructureConfiguration: InfrastructureConfiguration) {
 
   // multi application
-  val userApplication: UserApplication[RStream] = UserService(
+  val userService: UserService[RStream] = UserServiceImpl(
     infrastructureConfiguration.userRepository,
     infrastructureConfiguration.groupRepository,
     infrastructureConfiguration.receiveRepository,
@@ -44,7 +43,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
     infrastructureConfiguration.addMessageRepository
   )
 
-  val apiApplication: ApiApplication[RStream] = ApiService(userApplication)
+  val apiService: APIService = new ApiServiceImpl(userService) with PaginationApiService[Task]
 
 }
 
@@ -57,11 +56,11 @@ object ApplicationConfiguration {
 
   type ZApplicationConfiguration = Has[ApplicationConfiguration]
 
-  val userApplication: URIO[ZApplicationConfiguration, UserApplication[RStream]] =
-    ZIO.access(_.get.userApplication)
+  val userApplication: URIO[ZApplicationConfiguration, UserService[RStream]] =
+    ZIO.access(_.get.userService)
 
-  val apiApplication: URIO[ZApplicationConfiguration, ApiApplication[RStream]] =
-    ZIO.access(_.get.apiApplication)
+  val apiApplication: URIO[ZApplicationConfiguration, ApiService[RStream]] =
+    ZIO.access(_.get.apiService)
 
   val live: URLayer[ZInfrastructureConfiguration, ZApplicationConfiguration] =
     ZLayer.fromService[InfrastructureConfiguration, ApplicationConfiguration](ApplicationConfiguration(_))

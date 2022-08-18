@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.tapir
+package org.bitlap.zim.api
 
 import sttp.model.Part
 import sttp.tapir.TapirFile

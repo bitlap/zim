@@ -26,7 +26,7 @@ import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepository
 import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil }
 import org.bitlap.zim.server.service.RedisCache
-import org.bitlap.zim.tapir.{ ApiErrorMapping, UserEndpoint }
+import org.bitlap.zim.api.{ ApiErrorMapping, UserEndpoint }
 import sttp.model.HeaderNames.Authorization
 import sttp.tapir._
 import sttp.tapir.server.PartialServerEndpoint

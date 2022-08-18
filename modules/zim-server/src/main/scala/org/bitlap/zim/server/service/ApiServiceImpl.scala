@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.service.impl
+package org.bitlap.zim.server.service
 
+import org.bitlap.zim.api.MultipartInput
+import org.bitlap.zim.api.service.{ ApiService, PaginationApiService, UserService }
 import org.bitlap.zim.domain.ZimError.BusinessException
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input._
@@ -23,11 +25,9 @@ import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil }
 import org.bitlap.zim.server.FileUtil
-import org.bitlap.zim.server.service.impl.UserService.ZUserApplication
-import org.bitlap.zim.server.service.{ ApiApplication, UserApplication }
-import org.bitlap.zim.tapir.MultipartInput
+import org.bitlap.zim.server.service.UserServiceImpl.ZUserApplication
 import zio.stream.ZStream
-import zio.{ stream, Has, IO, TaskLayer, URLayer, ZLayer }
+import zio.{ stream, Has, IO, Task, TaskLayer, URLayer, ZLayer }
 
 import java.time.ZonedDateTime
 
@@ -36,31 +36,29 @@ import java.time.ZonedDateTime
  *  @since 2022/1/8
  *  @version 1.0
  */
-private final class ApiService(userApplication: UserApplication[RStream]) extends ApiApplication[RStream] {
-
-  override def findById(id: Long): RStream[User] = userApplication.findById(id)
+class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStream] with PaginationApiService[Task] {
 
   override def existEmail(email: String): RStream[Boolean] =
     if (email.isEmpty) ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
-    else userApplication.existEmail(email)
+    else userService.existEmail(email)
 
-  override def findUserById(id: Int): RStream[User] = userApplication.findUserById(id)
+  override def findUserById(id: Int): RStream[User] = userService.findUserById(id)
 
   override def updateInfo(user: UpdateUserInput): RStream[Boolean] = {
     def check(): Boolean = user.password.isEmpty || user.oldpwd.isEmpty
 
     for {
-      u <- userApplication.findUserById(user.id)
+      u <- userService.findUserById(user.id)
       sex = if (user.sex.equals("nan")) 1 else 0
       pwdCheck <- ZStream.fromEffect(SecurityUtil.matched(user.oldpwd.getOrElse(""), u.password))
       newPwd   <- ZStream.fromEffect(SecurityUtil.encrypt(user.password.getOrElse("")))
       checkAndUpdate <-
         if (check()) {
-          userApplication.updateUserInfo(u.copy(sex = sex, sign = user.sign, username = user.username))
+          userService.updateUserInfo(u.copy(sex = sex, sign = user.sign, username = user.username))
         } else if (!pwdCheck) {
           ZStream.fail(BusinessException(msg = "旧密码不正确"))
         } else {
-          userApplication
+          userService
             .updateUserInfo(
               u.copy(
                 password = newPwd.value,
@@ -77,16 +75,16 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
   override def login(user: UserSecurity.UserSecurityInfo): RStream[User] =
     if (user.email.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
-    } else userApplication.matchUser(User(user.id, user.email, user.password))
+    } else userService.matchUser(User(user.id, user.email, user.password))
 
   override def init(userId: Int): RStream[FriendAndGroupInfo] =
     ZStream.fromEffect {
       for {
-        user    <- userApplication.findUserById(userId).runHead
+        user    <- userService.findUserById(userId).runHead
         _       <- LogUtil.info(s"init user=>$user")
-        friends <- userApplication.findFriendGroupsById(userId).runCollect
+        friends <- userService.findFriendGroupsById(userId).runCollect
         _       <- LogUtil.info(s"init friends=>$friends")
-        groups  <- userApplication.findGroupsById(userId).runCollect
+        groups  <- userService.findGroupsById(userId).runCollect
         _       <- LogUtil.info(s"init groups=>$groups")
         resp = FriendAndGroupInfo(
           // 怎么区分主动刷新？这样如果主动刷新会将隐式重置为在线
@@ -100,14 +98,14 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
 
   override def getOffLineMessage(mid: Int): RStream[Receive] = {
     val groupReceives = for {
-      gId      <- userApplication.findGroupsById(mid).map(_.id)
-      groupMsg <- userApplication.findOffLineMessage(gId, 0)
+      gId      <- userService.findGroupsById(mid).map(_.id)
+      groupMsg <- userService.findOffLineMessage(gId, 0)
       _        <- LogUtil.infoS(s"getOffLineMessage userId=>$mid gId=>$gId groupMsg=>$groupMsg")
     } yield groupMsg
 
-    val receives = groupReceives.filter(_.fromid != mid) ++ userApplication.findOffLineMessage(mid, 0)
+    val receives = groupReceives.filter(_.fromid != mid) ++ userService.findOffLineMessage(mid, 0)
     receives.flatMap { receive =>
-      userApplication
+      userService
         .findUserById(receive.fromid)
         .map(user => receive.copy(username = user.username, avatar = user.avatar))
     }
@@ -116,10 +114,10 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
   override def register(user: RegisterUserInput): RStream[Boolean] =
     if (user.username.isEmpty || user.password.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
-    } else if (!ApiService.EMAIL_REGEX.matches(user.email)) {
+    } else if (!ApiServiceImpl.EMAIL_REGEX.matches(user.email)) {
       ZStream.fail(BusinessException(msg = "邮箱格式不正确"))
     } else {
-      userApplication.saveUser(
+      userService.saveUser(
         User(
           id = 0,
           username = user.username,
@@ -136,22 +134,22 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
     }
 
   override def activeUser(activeCode: String): RStream[Int] =
-    userApplication
+    userService
       .activeUser(activeCode)
       .map(i => if (i > 0) 1 else 0)
 
   override def createUserGroup(friendGroup: FriendGroupInput): RStream[Int] =
-    userApplication.createFriendGroup(friendGroup.groupname, friendGroup.uid)
+    userService.createFriendGroup(friendGroup.groupname, friendGroup.uid)
 
   override def createGroup(groupInput: GroupInput): RStream[Int] =
-    userApplication
+    userService
       .createGroup(
         GroupList(id = 0, createId = groupInput.createId, groupName = groupInput.groupname, avatar = groupInput.avatar)
       )
       .flatMap(f =>
         if (f > 0) {
           for {
-            s   <- userApplication.addGroupMember(f, groupInput.createId)
+            s   <- userService.addGroupMember(f, groupInput.createId)
             ret <- if (s) ZStream.succeed(f) else ZStream.fail(BusinessException())
           } yield ret
         } else ZStream.fail(BusinessException())
@@ -159,30 +157,30 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
 
   override def getMembers(id: Int): RStream[FriendList] =
     ZStream.fromEffect {
-      userApplication
+      userService
         .findUserByGroupId(id)
         .runCollect
         .map(f => FriendList(id = 0, groupName = "", list = f.toList))
     }
 
   override def updateSign(sign: String, mid: Int): RStream[Boolean] =
-    userApplication.findUserById(mid).flatMap(user => userApplication.updateSign(user.copy(sign = sign)))
+    userService.findUserById(mid).flatMap(user => userService.updateSign(user.copy(sign = sign)))
 
   override def leaveOutGroup(groupId: Int, mid: Int): RStream[Int] =
     for {
-      masterId <- userApplication.findGroupById(groupId).map(_.createId)
-      status   <- userApplication.leaveOutGroup(groupId, mid)
+      masterId <- userService.findGroupById(groupId).map(_.createId)
+      status   <- userService.leaveOutGroup(groupId, mid)
       _        <- LogUtil.infoS(s"leaveOutGroup groupId=>$groupId, mid=>$mid, masterId=$masterId, status=>$status")
     } yield if (status) masterId else -1
 
   override def removeFriend(friendId: Int, mid: Int): RStream[Boolean] =
-    userApplication.removeFriend(friendId, mid)
+    userService.removeFriend(friendId, mid)
 
   override def changeGroup(groupId: Int, userId: Int, mid: Int): RStream[Boolean] =
-    userApplication.changeGroup(groupId, userId, mid)
+    userService.changeGroup(groupId, userId, mid)
 
   override def refuseFriend(messageBoxId: Int, to: Int, username: String): RStream[Boolean] =
-    userApplication.refuseAddFriend(messageBoxId, username, to)
+    userService.refuseAddFriend(messageBoxId, username, to)
 
   override def agreeFriend(
     uid: Int,
@@ -191,19 +189,19 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
     messageBoxId: Int,
     mid: Int
   ): RStream[Boolean] =
-    userApplication.addFriend(mid, group, uid, fromGroup, messageBoxId)
+    userService.addFriend(mid, group, uid, fromGroup, messageBoxId)
 
   override def chatLogIndex(id: Int, `type`: String, mid: Int): RStream[Int] =
-    userApplication
+    userService
       .countHistoryMessage(mid, id, `type`)
       .map(pages => if (pages < SystemConstant.SYSTEM_PAGE) pages else pages / SystemConstant.SYSTEM_PAGE + 1)
 
   override def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, ResultPageSet[ChatHistory]] =
     for {
-      list <- userApplication
+      list <- userService
         .findUserById(mid)
         .flatMap { u =>
-          userApplication.findHistoryMessage(u, id, `type`)
+          userService.findHistoryMessage(u, id, `type`)
         }
         .runCollect
       pageRet = list
@@ -218,7 +216,7 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
 
   override def findAddInfo(uid: Int, page: Int): IO[Throwable, ResultPageSet[AddInfo]] =
     for {
-      list <- userApplication.findAddInfo(uid).runCollect
+      list <- userService.findAddInfo(uid).runCollect
       listRet = list.slice(
         SystemConstant.ADD_MESSAGE_PAGE * (page - 1),
         math.min(SystemConstant.ADD_MESSAGE_PAGE * page, list.size)
@@ -230,7 +228,7 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
 
   override def findUsers(name: Option[String], sex: Option[Int], page: Int): IO[Throwable, ResultPageSet[User]] =
     for {
-      list <- userApplication.findUsers(name, sex).runCollect
+      list <- userService.findUsers(name, sex).runCollect
       listRet = list.slice(
         SystemConstant.USER_PAGE * (page - 1),
         math.min(SystemConstant.USER_PAGE * page, list.size)
@@ -242,7 +240,7 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
 
   override def findGroups(name: Option[String], page: Int): IO[Throwable, ResultPageSet[GroupList]] =
     for {
-      list <- userApplication.findGroups(name).runCollect
+      list <- userService.findGroups(name).runCollect
       listRet = list.slice(
         SystemConstant.USER_PAGE * (page - 1),
         math.min(SystemConstant.USER_PAGE * page, list.size)
@@ -254,7 +252,7 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
 
   override def findMyGroups(createId: Int, page: Int): IO[Throwable, ResultPageSet[GroupList]] =
     for {
-      list <- userApplication.findGroupsById(createId).runCollect
+      list <- userService.findGroupsById(createId).runCollect
       listFilter = list.filter(x => x.createId.equals(createId))
       listRet = listFilter.slice(
         SystemConstant.USER_PAGE * (page - 1),
@@ -288,7 +286,7 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     } else {
       val fileIO = FileUtil.upload(SystemConstant.AVATAR_PATH, multipartInput.file).flatMap { src =>
-        userApplication.updateAvatar(mid, src).runHead.as(UploadResult(src = src, name = multipartInput.getFileName))
+        userService.updateAvatar(mid, src).runHead.as(UploadResult(src = src, name = multipartInput.getFileName))
       }
       ZStream.fromEffect(fileIO)
     }
@@ -314,16 +312,14 @@ private final class ApiService(userApplication: UserApplication[RStream]) extend
     }
 }
 
-object ApiService {
+object ApiServiceImpl {
 
-  private[impl] val EMAIL_REGEX = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$".r
+  private[service] val EMAIL_REGEX = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$".r
 
-  type ZApiApplication = Has[ApiApplication[RStream]]
-
-  def apply(userApplication: UserApplication[RStream]): ApiApplication[RStream] = new ApiService(userApplication)
+  type ZApiApplication = Has[APIService]
 
   val live: URLayer[ZUserApplication, ZApiApplication] =
-    ZLayer.fromService[UserApplication[RStream], ApiApplication[RStream]](ApiService(_))
+    ZLayer.fromService[UserService[RStream], APIService](p => new ApiServiceImpl(p) with PaginationApiService[Task])
 
   def make(
     userApplicationLayer: TaskLayer[ZUserApplication]

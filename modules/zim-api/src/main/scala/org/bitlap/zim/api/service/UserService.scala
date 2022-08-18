@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.service
+package org.bitlap.zim.api.service
 
 import org.bitlap.zim.domain
-import org.bitlap.zim.domain.{ model, AddInfo, FriendList }
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
+import org.bitlap.zim.domain.{ model, AddInfo, FriendList }
 
 /** 用户应用定义 这不是最终接口，参数和返回值可能后面需要修改 注意：sim项目controller层的逻辑都需要下沉到ApiService，而不只是直接使用UserService的逻辑
+ *
  *  @author
  *    梦境迷离
  *  @since 2021/12/25
  *  @version 1.0
  */
-trait UserApplication[F[_]] extends BaseApplication[F, User] {
+trait UserService[F[_]] {
 
   /** 退出群
    *

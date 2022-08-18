@@ -26,7 +26,7 @@ import scalikejdbc._
  *  @since 2022/1/13
  *  @version 1.0
  */
-trait TestApplication extends BaseData with TestApplicationEnv {
+trait TestService extends BaseData with TestServiceEnv {
 
   override val sqlBefore: SQL[Nothing, NoExtractor] =
     sql"""

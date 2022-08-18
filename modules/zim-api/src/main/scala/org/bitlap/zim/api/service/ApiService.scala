@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.service
+package org.bitlap.zim.api.service
 
+import org.bitlap.zim.api.MultipartInput
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model._
-import org.bitlap.zim.tapir.MultipartInput
-import zio.IO
 
 /** 直接提供给endpoint使用 对userService做一定的包装
  *
@@ -29,7 +28,7 @@ import zio.IO
  *  @since 2022/1/8
  *  @version 1.0
  */
-trait ApiApplication[F[_]] extends BaseApplication[F, User] {
+trait ApiService[F[_]] {
 
   def existEmail(email: String): F[Boolean]
 
@@ -66,25 +65,6 @@ trait ApiApplication[F[_]] extends BaseApplication[F, User] {
   def agreeFriend(uid: Int, fromGroup: Int, group: Int, messageBoxId: Int, mid: Int): F[Boolean]
 
   def chatLogIndex(id: Int, `type`: String, mid: Int): F[Int]
-
-  /** 分页接口 内存分页
-   *
-   *  TODO 没有使用数据的offset
-   *  @param id
-   *  @param `type`
-   *  @param page
-   *  @param mid
-   *  @return
-   */
-  def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, ResultPageSet[ChatHistory]]
-
-  def findAddInfo(uid: Int, page: Int): IO[Throwable, ResultPageSet[AddInfo]]
-
-  def findUsers(name: Option[String], sex: Option[Int], page: Int): IO[Throwable, ResultPageSet[User]]
-
-  def findGroups(name: Option[String], page: Int): IO[Throwable, ResultPageSet[GroupList]]
-
-  def findMyGroups(createId: Int, page: Int): IO[Throwable, ResultPageSet[GroupList]]
 
   /** 聊天文件上传
    *

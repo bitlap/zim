@@ -18,7 +18,7 @@ package org.bitlap.zim.server.route
 
 import akka.http.scaladsl.server.Route
 import org.bitlap.zim.ZimBuildInfo
-import org.bitlap.zim.tapir.{ ActuatorEndpoint, ApiEndpoint, WsEndpoint }
+import org.bitlap.zim.api.{ ActuatorEndpoint, ApiEndpoint, WsEndpoint }
 import sttp.tapir.AnyEndpoint
 import sttp.tapir.docs.asyncapi.AsyncAPIInterpreter
 import sttp.tapir.docs.openapi._

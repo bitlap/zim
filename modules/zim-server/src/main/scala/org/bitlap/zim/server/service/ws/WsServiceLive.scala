@@ -19,6 +19,7 @@ package org.bitlap.zim.server.service.ws
 import akka.actor.ActorRef
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
+import org.bitlap.zim.api.service.{ UserService, WsService }
 import org.bitlap.zim.domain
 import org.bitlap.zim.domain.{ Add, SystemConstant }
 import org.bitlap.zim.domain.model.{ AddMessage, User }
@@ -26,7 +27,7 @@ import org.bitlap.zim.domain.ws._
 import org.bitlap.zim.domain.ws.protocol.Protocol
 import org.bitlap.zim.infrastructure.util.LogUtil
 import org.bitlap.zim.server.configuration.ApplicationConfiguration
-import org.bitlap.zim.server.service.{ RedisCache, UserApplication }
+import org.bitlap.zim.server.service.RedisCache
 import zio.{ Task, ZIO }
 
 import java.time.ZonedDateTime
@@ -38,9 +39,9 @@ import org.bitlap.zim.infrastructure.repository.RStream
  *  @since 2022/3/5
  *  @version 2.0
  */
-case class WsServiceLive(private val app: ApplicationConfiguration) extends WsService {
+case class WsServiceLive(private val app: ApplicationConfiguration) extends WsService[Task] {
 
-  private val userService: UserApplication[RStream] = app.userApplication
+  private val userService: UserService[RStream] = app.userService
 
   override def sendMessage(message: domain.Message): Task[Unit] =
     message.synchronized {
@@ -98,7 +99,7 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
     uId.synchronized {
       // 对方是否在线，在线则处理，不在线则不处理
       val actor = WsService.actorRefSessions.get(friendId)
-      app.userApplication.findUserById(uId).runHead.flatMap { u =>
+      app.userService.findUserById(uId).runHead.flatMap { u =>
         {
           val result = Map(
             "type"     -> Protocol.delFriend.stringify,

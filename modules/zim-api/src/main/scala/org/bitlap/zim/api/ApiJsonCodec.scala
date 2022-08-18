@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.tapir
+package org.bitlap.zim.api
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString

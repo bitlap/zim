@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.tapir
+package org.bitlap.zim.api
 
 import io.circe.Json
 import io.circe.parser._
@@ -34,9 +34,9 @@ import sttp.tapir.json.circe._
 trait ActuatorEndpoint {
 
   type HealthInfo = Map[String, Any]
-  private[tapir] lazy val healthResource: String            = "health"
-  private[tapir] lazy val healthNameResource: String        = "health-resource"
-  private[tapir] lazy val healthDescriptionResource: String = "Zim Service Health Check Endpoint"
+  private[api] lazy val healthResource: String            = "health"
+  private[api] lazy val healthNameResource: String        = "health-resource"
+  private[api] lazy val healthDescriptionResource: String = "Zim Service Health Check Endpoint"
 
   lazy val healthEndpoint: PublicEndpoint[Unit, StatusCode, HealthInfo, Any] =
     ApiEndpoint.baseEndpoint.get
@@ -46,7 +46,7 @@ trait ActuatorEndpoint {
       .out(customCodecJsonBody[HealthInfo].example(ZimBuildInfo.toMap))
       .errorOut(statusCode)
 
-  private[tapir] implicit lazy val buildInfoCodec: JsonCodec[HealthInfo] =
+  private[api] implicit lazy val buildInfoCodec: JsonCodec[HealthInfo] =
     implicitly[JsonCodec[Json]].map(_ => ZimBuildInfo.toMap)(_ =>
       parse(ZimBuildInfo.toJson) match {
         case Left(_)      => throw new RuntimeException("health doesn't work")

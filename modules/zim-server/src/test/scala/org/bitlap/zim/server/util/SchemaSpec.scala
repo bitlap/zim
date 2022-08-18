@@ -17,7 +17,7 @@
 package org.bitlap.zim.server.util
 
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
-import org.bitlap.zim.tapir.ApiJsonCodec
+import org.bitlap.zim.api.ApiJsonCodec
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import zio.schema.codec.ProtobufCodec

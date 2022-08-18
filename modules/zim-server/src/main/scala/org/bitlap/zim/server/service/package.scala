@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.service
+package org.bitlap.zim.server
 
-/** 基础应用定义
- *
- *  @author
+import org.bitlap.zim.api.service.{ ApiService, PaginationApiService }
+import org.bitlap.zim.infrastructure.repository.RStream
+import zio.Task
+
+/** @author
  *    梦境迷离
- *  @since 2021/12/25
- *  @version 1.0
+ *  @version 1.0,8/18/22
  */
-trait BaseApplication[F[_], T] {
-
-  def findById(id: Long): F[T]
-
+package object service {
+  type APIService = ApiService[RStream] with PaginationApiService[Task]
 }

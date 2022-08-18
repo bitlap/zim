@@ -21,7 +21,7 @@ import io.circe.syntax.EncoderOps
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
 import org.bitlap.zim.domain.model.{ GroupList, User }
 import org.bitlap.zim.domain.{ FriendAndGroupInfo, FriendList, Message, Mine, ResultSet }
-import org.bitlap.zim.tapir.ApiJsonCodec
+import org.bitlap.zim.api.ApiJsonCodec
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

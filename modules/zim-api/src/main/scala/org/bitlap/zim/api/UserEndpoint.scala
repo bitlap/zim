@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.tapir
+package org.bitlap.zim.api
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
@@ -45,9 +45,9 @@ import scala.concurrent.Future
 trait UserEndpoint extends ApiErrorMapping {
 
   // API 最前缀path
-  private[tapir] lazy val userResource: EndpointInput[Unit] = "user"
+  private[api] lazy val userResource: EndpointInput[Unit] = "user"
   // API  资源描述
-  private[tapir] lazy val userResourceDescription: String = "User Endpoint"
+  private[api] lazy val userResourceDescription: String = "User Endpoint"
 
   type ZimSecurityOut[In] = PartialServerEndpoint[
     UserSecurity,

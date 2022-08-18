@@ -30,8 +30,8 @@ import org.bitlap.zim.infrastructure.repository._
 import org.bitlap.zim.server.configuration.ZimServiceConfiguration
 import org.bitlap.zim.server.route.ZimUserApi
 import org.bitlap.zim.server.route.ZimUserApi.ZZimUserApi
-import org.bitlap.zim.server.service.impl.ApiService
-import org.bitlap.zim.server.service.{ TestApplication, UserApplication }
+import org.bitlap.zim.server.service.impl.ApiServiceImpl
+import org.bitlap.zim.server.service.{ TestService, UserService }
 import zio.{ TaskLayer, ZIO }
 
 import scala.concurrent.duration._
@@ -43,13 +43,13 @@ import scala.concurrent.duration._
  *  @since 2022/2/11
  *  @version 1.0
  */
-class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with ScalatestRouteTest {
+class ZimUserApiSpec extends TestService with ZimServiceConfiguration with ScalatestRouteTest {
 
   implicit val timeout = RouteTestTimeout(15.seconds.dilated)
   val authorityHeaders = Seq(Cookie("Authorization", "ZHJlYW15bG9zdEBvdXRsb29rLmNvbToxMjM0NTY="))
   val pwdUser          = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
 
-  val api: TaskLayer[ZZimUserApi] = ZimUserApi.make(ApiService.make(userApplicationLayer), materializerLayer)
+  val api: TaskLayer[ZZimUserApi] = ZimUserApi.make(ApiServiceImpl.make(userApplicationLayer), materializerLayer)
 
   def getRoute(zapi: ZimUserApi => Route): Route = {
     val s = ZIO.serviceWith[ZimUserApi](api => ZIO.effect(zapi(api))).provideLayer(api)
@@ -57,7 +57,7 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
   }
 
   def createRegisterUser(user: User = mockUser): Option[Boolean] =
-    unsafeRun(ZIO.serviceWith[UserApplication[RStream]](_.saveUser(user).runHead).provideLayer(userApplicationLayer))
+    unsafeRun(ZIO.serviceWith[UserService[RStream]](_.saveUser(user).runHead).provideLayer(userApplicationLayer))
 
   // 对于需要使用插入后ID的，根据名字查询用户，避免并发跑单测时串数据。与createRegisterUser同时使用
   def findUserByName(name: String): Option[User] =
@@ -69,11 +69,11 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
   def createGroup(uid: Int = 1, gid: Int = 1): Option[Boolean] = {
     unsafeRun(
       ZIO
-        .serviceWith[UserApplication[RStream]](_.createGroup(GroupList(0, "梦境迷离", "", uid)).runHead)
+        .serviceWith[UserService[RStream]](_.createGroup(GroupList(0, "梦境迷离", "", uid)).runHead)
         .provideLayer(userApplicationLayer)
     )
     unsafeRun(
-      ZIO.serviceWith[UserApplication[RStream]](_.addGroupMember(gid, uid).runHead).provideLayer(userApplicationLayer)
+      ZIO.serviceWith[UserService[RStream]](_.addGroupMember(gid, uid).runHead).provideLayer(userApplicationLayer)
     )
   }
 

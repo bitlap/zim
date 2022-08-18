@@ -23,8 +23,7 @@ import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository.ZG
 import org.bitlap.zim.infrastructure.repository.TangibleGroupRepository.ZGroupRepository
 import org.bitlap.zim.infrastructure.repository.TangibleReceiveRepository.ZReceiveRepository
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepository.ZUserRepository
-import org.bitlap.zim.server.service.impl.UserService
-import org.bitlap.zim.server.service.impl.UserService.ZUserApplication
+import org.bitlap.zim.server.service.UserServiceImpl.ZUserApplication
 import zio.{ Layer, TaskLayer, ULayer, ZLayer }
 
 /** 测试service的所有layer
@@ -34,7 +33,7 @@ import zio.{ Layer, TaskLayer, ULayer, ZLayer }
  *  @since 2022/2/11
  *  @version 1.0
  */
-trait TestApplicationEnv {
+trait TestServiceEnv {
 
   lazy val infra = InfrastructureConfiguration()
 
@@ -65,6 +64,6 @@ trait TestApplicationEnv {
   ] = userLayer ++ groupLayer ++ receiveLayer ++ friendGroupLayer ++
     friendGroupMemberLayer ++ groupMemberLayer ++ addMessageLayer
 
-  lazy val userApplicationLayer: TaskLayer[ZUserApplication] = repositoryLayer >>> UserService.live
+  lazy val userApplicationLayer: TaskLayer[ZUserApplication] = repositoryLayer >>> UserServiceImpl.live
 
 }

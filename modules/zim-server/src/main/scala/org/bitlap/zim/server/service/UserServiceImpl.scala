@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.service.impl
+package org.bitlap.zim.server.service
 
+import org.bitlap.zim.api.service.UserService
 import org.bitlap.zim.domain
-import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.ZimError.BusinessException
+import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.domain.repository._
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
@@ -32,9 +33,8 @@ import org.bitlap.zim.infrastructure.repository.TangibleReceiveRepository.ZRecei
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil, UuidUtil }
 import org.bitlap.zim.server.service.ws.WsService
-import org.bitlap.zim.server.service.UserApplication
-import zio.{ Has, URLayer, ZLayer }
 import zio.stream.ZStream
+import zio.{ Has, URLayer, ZLayer }
 
 import java.time.ZonedDateTime
 
@@ -45,7 +45,7 @@ import java.time.ZonedDateTime
  *  @since 2021/12/25
  *  @version 1.0
  */
-private final class UserService(
+private final class UserServiceImpl(
   userRepository: UserRepository[RStream],
   groupRepository: GroupRepository[RStream],
   receiveRepository: ReceiveRepository[RStream],
@@ -53,13 +53,7 @@ private final class UserService(
   friendGroupFriendRepository: FriendGroupFriendRepository[RStream],
   groupMemberRepository: GroupMemberRepository[RStream],
   addMessageRepository: AddMessageRepository[RStream]
-) extends UserApplication[RStream] {
-
-  override def findById(id: Long): RStream[User] =
-    for {
-      user <- userRepository.findById(id)
-      _    <- LogUtil.infoS(s"findById id=$id user=$user")
-    } yield user
+) extends UserService[RStream] {
 
   override def leaveOutGroup(gid: Int, uid: Int): RStream[Boolean] =
     for {
@@ -325,13 +319,13 @@ private final class UserService(
         zimConf  <- InfrastructureConfiguration.zimConfigurationProperties
         mailConf <- InfrastructureConfiguration.mailConfigurationProperties
         host = if (zimConf.port == 80) zimConf.webHost else s"${zimConf.webHost}:${zimConf.port}"
-        _ <- MailService
+        _ <- MailServiceImpl
           .sendHtmlMail(
             userCopy.email,
             SystemConstant.SUBJECT,
             s"${userCopy.username} 请确定这是你本人注册的账号, http://$host/user/active/" + activeCode
           )
-          .provideLayer(MailService.make(mailConf))
+          .provideLayer(MailServiceImpl.make(mailConf))
         _ <- LogUtil.info(
           s"saveUser uid=$id, user=>$user, activeCode=>$activeCode, userCopy=>$userCopy, zimConf=>$zimConf, mailConf=>$mailConf"
         )
@@ -340,9 +334,9 @@ private final class UserService(
 
 }
 
-object UserService {
+object UserServiceImpl {
 
-  type ZUserApplication = Has[UserApplication[RStream]]
+  type ZUserApplication = Has[UserService[RStream]]
 
   def apply(
     userRepository: UserRepository[RStream],
@@ -352,8 +346,8 @@ object UserService {
     friendGroupFriendRepository: FriendGroupFriendRepository[RStream],
     groupMemberRepository: GroupMemberRepository[RStream],
     addMessageRepository: AddMessageRepository[RStream]
-  ): UserApplication[RStream] =
-    new UserService(
+  ): UserService[RStream] =
+    new UserServiceImpl(
       userRepository,
       groupRepository,
       receiveRepository,
@@ -380,8 +374,8 @@ object UserService {
       RStream
     ], FriendGroupRepository[RStream], FriendGroupFriendRepository[RStream], GroupMemberRepository[
       RStream
-    ], AddMessageRepository[RStream], UserApplication[RStream]] { (a, b, c, d, e, f, g) =>
-      UserService(a, b, c, d, e, f, g)
+    ], AddMessageRepository[RStream], UserService[RStream]] { (a, b, c, d, e, f, g) =>
+      UserServiceImpl(a, b, c, d, e, f, g)
     }
 
 }
