@@ -29,7 +29,7 @@ import zio.schema.Schema
 
 object RedisCache {
 
-  def getSets(k: String)(implicit cacheType: CacheType): zio.IO[Throwable, List[String]] = cacheType match {
+  def getSets(k: String)(implicit cacheType: CacheType): Task[List[String]] = cacheType match {
     case ZioCache => ZIO.serviceWith[ZRedis](_.getSets(k)).provideLayer(ZioRedisConfiguration.redisLayer)
     case CatsCache =>
       ZIO.runtime[Any].flatMap { implicit runtime =>
@@ -37,7 +37,7 @@ object RedisCache {
       }
   }
 
-  def removeSetValue(k: String, m: String)(implicit cacheType: CacheType): zio.IO[Throwable, Long] = cacheType match {
+  def removeSetValue(k: String, m: String)(implicit cacheType: CacheType): Task[Long] = cacheType match {
     case ZioCache =>
       ZIO.serviceWith[ZRedis](_.removeSetValue(k, m)).provideLayer(ZioRedisConfiguration.redisLayer)
     case CatsCache =>
@@ -46,7 +46,7 @@ object RedisCache {
       }
   }
 
-  def setSet(k: String, m: String)(implicit cacheType: CacheType): zio.IO[Throwable, Long] =
+  def setSet(k: String, m: String)(implicit cacheType: CacheType): Task[Long] =
     cacheType match {
       case ZioCache => ZIO.serviceWith[ZRedis](_.setSet(k, m)).provideLayer(ZioRedisConfiguration.redisLayer)
       case CatsCache =>
@@ -58,7 +58,7 @@ object RedisCache {
   def set[T: Schema](key: String, value: T)(implicit
     cacheType: CacheType,
     encoder: Encoder[T]
-  ): zio.IO[Throwable, Boolean] =
+  ): Task[Boolean] =
     cacheType match {
       case ZioCache =>
         ZIO.serviceWith[ZRedis](_.set[T](key, value)).provideLayer(ZioRedisConfiguration.redisLayer)
@@ -71,7 +71,7 @@ object RedisCache {
   def get[T: Schema](key: String)(implicit
     cacheType: CacheType,
     decoder: Decoder[T]
-  ): zio.IO[Throwable, Option[T]] = cacheType match {
+  ): zio.Task[Option[T]] = cacheType match {
     case ZioCache =>
       ZIO.serviceWith[ZRedis](_.get[T](key)).provideLayer(ZioRedisConfiguration.redisLayer)
     case CatsCache =>
@@ -80,7 +80,7 @@ object RedisCache {
       }
   }
 
-  def exists(key: String)(implicit cacheType: CacheType): zio.IO[Throwable, Boolean] = cacheType match {
+  def exists(key: String)(implicit cacheType: CacheType): Task[Boolean] = cacheType match {
     case ZioCache =>
       ZIO.serviceWith[ZRedis](_.exists(key)).provideLayer(ZioRedisConfiguration.redisLayer)
     case CatsCache =>

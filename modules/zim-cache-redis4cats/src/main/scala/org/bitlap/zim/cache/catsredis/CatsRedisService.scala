@@ -23,7 +23,7 @@ import io.circe.syntax.EncoderOps
 import org.bitlap.zim.cache.RedisService
 import dev.profunktor.redis4cats.effects.{ SetArg, SetArgs }
 
-import scala.concurrent.duration.DurationLong
+import scala.concurrent.duration._
 import org.bitlap.zim.cache.JavaDuration
 
 /** @author
@@ -52,7 +52,7 @@ case class CatsRedisService() extends RedisService[IO] {
   ): IO[Boolean] =
     CatsRedisConfiguration.api.use { redis =>
       redis
-        .set(k, v.asJson.noSpaces, SetArgs(SetArg.Existence.Nx, SetArg.Ttl.Ex(expireTime.toSeconds.seconds)))
+        .set(k, v.asJson.noSpaces, SetArgs(SetArg.Existence.Nx, SetArg.Ttl.Ex(expireTime.getSeconds.seconds)))
         .map(_ => true)
     }
 
