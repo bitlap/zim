@@ -17,10 +17,10 @@
 package org.bitlap.zim.server.service
 
 import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.input.{ FriendGroupInput, GroupInput, RegisterUserInput, UpdateUserInput, UserSecurity }
+import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.tapir.MultipartInput
-import zio.{ stream, IO }
+import zio.IO
 
 /** 直接提供给endpoint使用 对userService做一定的包装
  *
@@ -29,43 +29,43 @@ import zio.{ stream, IO }
  *  @since 2022/1/8
  *  @version 1.0
  */
-trait ApiApplication extends BaseApplication[User] {
+trait ApiApplication[F[_]] extends BaseApplication[F, User] {
 
-  def existEmail(email: String): stream.Stream[Throwable, Boolean]
+  def existEmail(email: String): F[Boolean]
 
-  def findUserById(id: Int): stream.Stream[Throwable, User]
+  def findUserById(id: Int): F[User]
 
-  def updateInfo(user: UpdateUserInput): stream.Stream[Throwable, Boolean]
+  def updateInfo(user: UpdateUserInput): F[Boolean]
 
-  def login(user: UserSecurity.UserSecurityInfo): stream.Stream[Throwable, User]
+  def login(user: UserSecurity.UserSecurityInfo): F[User]
 
-  def init(userId: Int): stream.Stream[Throwable, FriendAndGroupInfo]
+  def init(userId: Int): F[FriendAndGroupInfo]
 
-  def getOffLineMessage(mid: Int): stream.Stream[Throwable, Receive]
+  def getOffLineMessage(mid: Int): F[Receive]
 
-  def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean]
+  def register(user: RegisterUserInput): F[Boolean]
 
-  def activeUser(activeCode: String): stream.Stream[Throwable, Int]
+  def activeUser(activeCode: String): F[Int]
 
-  def createUserGroup(friendGroup: FriendGroupInput): stream.Stream[Throwable, Int]
+  def createUserGroup(friendGroup: FriendGroupInput): F[Int]
 
-  def createGroup(groupInput: GroupInput): stream.Stream[Throwable, Int]
+  def createGroup(groupInput: GroupInput): F[Int]
 
-  def getMembers(id: Int): stream.Stream[Throwable, FriendList]
+  def getMembers(id: Int): F[FriendList]
 
-  def updateSign(sign: String, mid: Int): stream.Stream[Throwable, Boolean]
+  def updateSign(sign: String, mid: Int): F[Boolean]
 
-  def leaveOutGroup(groupId: Int, mid: Int): stream.Stream[Throwable, Int]
+  def leaveOutGroup(groupId: Int, mid: Int): F[Int]
 
-  def removeFriend(friendId: Int, mid: Int): stream.Stream[Throwable, Boolean]
+  def removeFriend(friendId: Int, mid: Int): F[Boolean]
 
-  def changeGroup(groupId: Int, userId: Int, mid: Int): stream.Stream[Throwable, Boolean]
+  def changeGroup(groupId: Int, userId: Int, mid: Int): F[Boolean]
 
-  def refuseFriend(messageBoxId: Int, to: Int, username: String): stream.Stream[Throwable, Boolean]
+  def refuseFriend(messageBoxId: Int, to: Int, username: String): F[Boolean]
 
-  def agreeFriend(uid: Int, fromGroup: Int, group: Int, messageBoxId: Int, mid: Int): stream.Stream[Throwable, Boolean]
+  def agreeFriend(uid: Int, fromGroup: Int, group: Int, messageBoxId: Int, mid: Int): F[Boolean]
 
-  def chatLogIndex(id: Int, `type`: String, mid: Int): stream.Stream[Throwable, Int]
+  def chatLogIndex(id: Int, `type`: String, mid: Int): F[Int]
 
   /** 分页接口 内存分页
    *
@@ -91,14 +91,14 @@ trait ApiApplication extends BaseApplication[User] {
    *  @param multipartInput
    *  @return
    */
-  def uploadFile(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult]
+  def uploadFile(multipartInput: MultipartInput): F[UploadResult]
 
   /** 聊天图片上传
    *
    *  @param multipartInput
    *  @return
    */
-  def uploadImage(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult]
+  def uploadImage(multipartInput: MultipartInput): F[UploadResult]
 
   /** 用户资料的头像更新
    *
@@ -108,13 +108,13 @@ trait ApiApplication extends BaseApplication[User] {
    *  @param mid
    *  @return
    */
-  def updateAvatar(multipartInput: MultipartInput, mid: Int): stream.Stream[Throwable, UploadResult]
+  def updateAvatar(multipartInput: MultipartInput, mid: Int): F[UploadResult]
 
   /** 群组资料的头像上传
    *
    *  @param multipartInput
    *  @return
    */
-  def uploadGroupAvatar(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult]
+  def uploadGroupAvatar(multipartInput: MultipartInput): F[UploadResult]
 
 }

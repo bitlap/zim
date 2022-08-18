@@ -21,13 +21,8 @@ import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.ZimError.BusinessException
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.domain.repository._
-import org.bitlap.zim.server.service.ws.WsService
-import org.bitlap.zim.server.service.UserApplication
-import zio.{ stream, Has, URLayer, ZLayer }
-import zio.stream.ZStream
-
-import java.time.ZonedDateTime
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
+import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.repository.TangibleAddMessageRepository.ZAddMessageRepository
 import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
 import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
@@ -36,6 +31,12 @@ import org.bitlap.zim.infrastructure.repository.TangibleGroupRepository.ZGroupRe
 import org.bitlap.zim.infrastructure.repository.TangibleReceiveRepository.ZReceiveRepository
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepository.ZUserRepository
 import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil, UuidUtil }
+import org.bitlap.zim.server.service.ws.WsService
+import org.bitlap.zim.server.service.UserApplication
+import zio.{ Has, URLayer, ZLayer }
+import zio.stream.ZStream
+
+import java.time.ZonedDateTime
 
 /** 用户服务
  *
@@ -45,22 +46,22 @@ import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil, UuidUtil }
  *  @version 1.0
  */
 private final class UserService(
-  userRepository: UserRepository,
-  groupRepository: GroupRepository,
-  receiveRepository: ReceiveRepository[Receive],
-  friendGroupRepository: FriendGroupRepository,
-  friendGroupFriendRepository: FriendGroupFriendRepository,
-  groupMemberRepository: GroupMemberRepository,
-  addMessageRepository: AddMessageRepository
-) extends UserApplication {
+  userRepository: UserRepository[RStream],
+  groupRepository: GroupRepository[RStream],
+  receiveRepository: ReceiveRepository[RStream],
+  friendGroupRepository: FriendGroupRepository[RStream],
+  friendGroupFriendRepository: FriendGroupFriendRepository[RStream],
+  groupMemberRepository: GroupMemberRepository[RStream],
+  addMessageRepository: AddMessageRepository[RStream]
+) extends UserApplication[RStream] {
 
-  override def findById(id: Long): stream.Stream[Throwable, User] =
+  override def findById(id: Long): RStream[User] =
     for {
       user <- userRepository.findById(id)
       _    <- LogUtil.infoS(s"findById id=$id user=$user")
     } yield user
 
-  override def leaveOutGroup(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
+  override def leaveOutGroup(gid: Int, uid: Int): RStream[Boolean] =
     for {
       group <- groupRepository.findGroupById(gid)
       ret <-
@@ -81,9 +82,9 @@ private final class UserService(
         } else ZStream.succeed(1)
     } yield ret
 
-  override def findGroupById(gid: Int): stream.Stream[Throwable, GroupList] = groupRepository.findGroupById(gid)
+  override def findGroupById(gid: Int): RStream[GroupList] = groupRepository.findGroupById(gid)
 
-  override def addGroupMember(gid: Int, uid: Int, messageBoxId: Int): stream.Stream[Throwable, Boolean] =
+  override def addGroupMember(gid: Int, uid: Int, messageBoxId: Int): RStream[Boolean] =
     for {
       group <- groupRepository.findGroupById(gid)
       // 自己加自己的群，默认同意
@@ -97,22 +98,22 @@ private final class UserService(
         .when(upRet && group.createId != uid)
     } yield ret
 
-  override def addGroupMember(gid: Int, uid: Int): stream.Stream[Throwable, Boolean] =
+  override def addGroupMember(gid: Int, uid: Int): RStream[Boolean] =
     groupMemberRepository.addGroupMember(GroupMember(gid, uid)).map(_ == 1)
 
-  override def removeFriend(friendId: Int, uId: Int): stream.Stream[Throwable, Boolean] =
+  override def removeFriend(friendId: Int, uId: Int): RStream[Boolean] =
     friendGroupFriendRepository.removeFriend(friendId, uId).map(_ > 0)
 
-  override def updateAvatar(userId: Int, avatar: String): stream.Stream[Throwable, Boolean] =
+  override def updateAvatar(userId: Int, avatar: String): RStream[Boolean] =
     userRepository.updateAvatar(avatar, userId).map(_ == 1)
 
-  override def updateUserInfo(user: User): stream.Stream[Throwable, Boolean] =
+  override def updateUserInfo(user: User): RStream[Boolean] =
     userRepository.updateUserInfo(user.id, user).map(_ == 1)
 
-  override def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Boolean] =
+  override def updateUserStatus(status: String, uid: Int): RStream[Boolean] =
     userRepository.updateUserStatus(status, uid).map(_ == 1)
 
-  override def changeGroup(groupId: Int, uId: Int, mId: Int): stream.Stream[Throwable, Boolean] =
+  override def changeGroup(groupId: Int, uId: Int, mId: Int): RStream[Boolean] =
     friendGroupFriendRepository.findUserGroup(uId, mId).flatMap { originRecordId =>
       friendGroupFriendRepository.changeGroup(groupId, originRecordId).map(_ == 1)
     }
@@ -123,7 +124,7 @@ private final class UserService(
     tid: Int,
     tgid: Int,
     messageBoxId: Int
-  ): stream.Stream[Throwable, Boolean] =
+  ): RStream[Boolean] =
     if (mid == tid) {
       ZStream.succeed(false)
     } else {
@@ -134,16 +135,16 @@ private final class UserService(
         .flatMap(c => if (c > 0) updateAgree(messageBoxId, 1) else ZStream.fail(BusinessException()))
     }
 
-  override def createFriendGroup(groupname: String, uid: Int): stream.Stream[Throwable, Int] =
+  override def createFriendGroup(groupname: String, uid: Int): RStream[Int] =
     friendGroupRepository.createFriendGroup(FriendGroup(0, uid, groupname))
 
-  override def createGroup(groupList: GroupList): stream.Stream[Throwable, Int] =
+  override def createGroup(groupList: GroupList): RStream[Int] =
     groupRepository.createGroupList(groupList).map(_.toInt)
 
-  override def countUnHandMessage(uid: Int, agree: Option[Int]): stream.Stream[Throwable, Int] =
+  override def countUnHandMessage(uid: Int, agree: Option[Int]): RStream[Int] =
     addMessageRepository.countUnHandMessage(uid, agree)
 
-  override def findAddInfo(uid: Int): stream.Stream[Throwable, AddInfo] =
+  override def findAddInfo(uid: Int): RStream[AddInfo] =
     for {
       addMessage <- addMessageRepository.findAddInfo(uid)
       user       <- findUserById(addMessage.fromUid)
@@ -171,34 +172,34 @@ private final class UserService(
         }
     } yield addInfoCopy
 
-  override def updateAgree(messageBoxId: Int, agree: Int): stream.Stream[Throwable, Boolean] =
+  override def updateAgree(messageBoxId: Int, agree: Int): RStream[Boolean] =
     addMessageRepository.updateAgree(messageBoxId, agree).map(_ == 1)
 
-  override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): stream.Stream[Throwable, Boolean] =
+  override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): RStream[Boolean] =
     ZStream.fromEffect(WsService.refuseAddFriend(messageBoxId, username, to))
 
-  override def readFriendMessage(mine: Int, to: Int): stream.Stream[Throwable, Boolean] =
+  override def readFriendMessage(mine: Int, to: Int): RStream[Boolean] =
     receiveRepository.readMessage(mine, to, SystemConstant.FRIEND_TYPE).map(_ == 1)
 
-  override def readGroupMessage(gId: Int, to: Int): stream.Stream[Throwable, Boolean] =
+  override def readGroupMessage(gId: Int, to: Int): RStream[Boolean] =
     receiveRepository.readMessage(gId, to, SystemConstant.GROUP_TYPE).map(_ == 1)
 
-  override def saveAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int] =
+  override def saveAddMessage(addMessage: AddMessage): RStream[Int] =
     addMessageRepository.saveAddMessage(addMessage)
 
-  override def countGroup(groupName: Option[String]): stream.Stream[Throwable, Int] =
+  override def countGroup(groupName: Option[String]): RStream[Int] =
     groupRepository.countGroup(groupName)
 
-  override def findGroups(groupName: Option[String]): stream.Stream[Throwable, GroupList] =
+  override def findGroups(groupName: Option[String]): RStream[GroupList] =
     groupRepository.findGroups(groupName)
 
-  override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
+  override def countUser(username: Option[String], sex: Option[Int]): RStream[Int] =
     userRepository.countUser(username, sex)
 
-  override def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, User] =
+  override def findUsers(username: Option[String], sex: Option[Int]): RStream[User] =
     userRepository.findUsers(username, sex)
 
-  override def countHistoryMessage(uid: Int, mid: Int, `type`: String): stream.Stream[Throwable, Int] =
+  override def countHistoryMessage(uid: Int, mid: Int, `type`: String): RStream[Int] =
     `type` match {
       case SystemConstant.FRIEND_TYPE => receiveRepository.countHistoryMessage(Some(uid), Some(mid), Some(`type`))
       case SystemConstant.GROUP_TYPE  => receiveRepository.countHistoryMessage(None, Some(mid), Some(`type`))
@@ -209,8 +210,8 @@ private final class UserService(
     user: User,
     mid: Int,
     `type`: String
-  ): stream.Stream[Throwable, domain.ChatHistory] = {
-    def userHistory(): stream.Stream[Throwable, ChatHistory] =
+  ): RStream[domain.ChatHistory] = {
+    def userHistory(): RStream[ChatHistory] =
       // 单人聊天记录
       for {
         toUser  <- findUserById(mid)
@@ -233,7 +234,7 @@ private final class UserService(
 
       } yield newHistory
 
-    def groupHistory(): stream.Stream[Throwable, ChatHistory] =
+    def groupHistory(): RStream[ChatHistory] =
       // 群聊天记录
       for {
         history <- receiveRepository.findHistoryMessage(None, Some(mid), Some(`type`))
@@ -255,22 +256,22 @@ private final class UserService(
     }
   }
 
-  override def findOffLineMessage(uid: Int, status: Int): stream.Stream[Throwable, Receive] =
+  override def findOffLineMessage(uid: Int, status: Int): RStream[Receive] =
     receiveRepository.findOffLineMessage(uid, status)
 
-  override def saveMessage(receive: Receive): stream.Stream[Throwable, Int] =
+  override def saveMessage(receive: Receive): RStream[Int] =
     receiveRepository.saveMessage(receive)
 
-  override def updateSign(user: User): stream.Stream[Throwable, Boolean] =
+  override def updateSign(user: User): RStream[Boolean] =
     userRepository.updateSign(user.sign, user.id).map(_ == 1)
 
-  override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
+  override def activeUser(activeCode: String): RStream[Int] =
     userRepository.activeUser(activeCode)
 
-  override def existEmail(email: String): stream.Stream[Throwable, Boolean] =
+  override def existEmail(email: String): RStream[Boolean] =
     userRepository.matchUser(email).map(_ != null)
 
-  override def matchUser(user: User): stream.Stream[Throwable, User] =
+  override def matchUser(user: User): RStream[User] =
     for {
       u <- userRepository.matchUser(user.email) // FIXME 前端加密传输
       isMath <- ZStream.fromEffect(
@@ -288,10 +289,10 @@ private final class UserService(
       _ <- LogUtil.infoS(s"matchUser user=>$user, u=>$u, isMath=>$isMath")
     } yield ret
 
-  override def findUserByGroupId(gid: Int): stream.Stream[Throwable, User] =
+  override def findUserByGroupId(gid: Int): RStream[User] =
     userRepository.findUserByGroupId(gid)
 
-  override def findFriendGroupsById(uid: Int): stream.Stream[Throwable, FriendList] =
+  override def findFriendGroupsById(uid: Int): RStream[FriendList] =
     for {
       groupList <- friendGroupRepository.findFriendGroupsById(uid).map { friendGroup =>
         FriendList(id = friendGroup.id, groupName = friendGroup.groupName, Nil)
@@ -300,13 +301,13 @@ private final class UserService(
       _     <- LogUtil.infoS(s"findFriendGroupsById uid=>$uid, groupList=>$groupList, users=>$users")
     } yield groupList.copy(list = users.toList)
 
-  override def findUserById(id: Int): stream.Stream[Throwable, User] =
+  override def findUserById(id: Int): RStream[User] =
     userRepository.findById(id)
 
-  override def findGroupsById(id: Int): stream.Stream[Throwable, GroupList] =
+  override def findGroupsById(id: Int): RStream[GroupList] =
     groupRepository.findGroupsById(id)
 
-  override def saveUser(user: User): stream.Stream[Throwable, Boolean] =
+  override def saveUser(user: User): RStream[Boolean] =
     // TODO createFriendGroup不用返回Stream会好看点
     ZStream.fromEffect {
       for {
@@ -341,17 +342,17 @@ private final class UserService(
 
 object UserService {
 
-  type ZUserApplication = Has[UserApplication]
+  type ZUserApplication = Has[UserApplication[RStream]]
 
   def apply(
-    userRepository: UserRepository,
-    groupRepository: GroupRepository,
-    receiveRepository: ReceiveRepository[Receive],
-    friendGroupRepository: FriendGroupRepository,
-    friendGroupFriendRepository: FriendGroupFriendRepository,
-    groupMemberRepository: GroupMemberRepository,
-    addMessageRepository: AddMessageRepository
-  ): UserApplication =
+    userRepository: UserRepository[RStream],
+    groupRepository: GroupRepository[RStream],
+    receiveRepository: ReceiveRepository[RStream],
+    friendGroupRepository: FriendGroupRepository[RStream],
+    friendGroupFriendRepository: FriendGroupFriendRepository[RStream],
+    groupMemberRepository: GroupMemberRepository[RStream],
+    addMessageRepository: AddMessageRepository[RStream]
+  ): UserApplication[RStream] =
     new UserService(
       userRepository,
       groupRepository,
@@ -375,11 +376,12 @@ object UserService {
       with ZAddMessageRepository,
     ZUserApplication
   ] =
-    ZLayer.fromServices[UserRepository, GroupRepository, ReceiveRepository[
-      Receive
-    ], FriendGroupRepository, FriendGroupFriendRepository, GroupMemberRepository, AddMessageRepository, UserApplication] {
-      (a, b, c, d, e, f, g) =>
-        UserService(a, b, c, d, e, f, g)
+    ZLayer.fromServices[UserRepository[RStream], GroupRepository[RStream], ReceiveRepository[
+      RStream
+    ], FriendGroupRepository[RStream], FriendGroupFriendRepository[RStream], GroupMemberRepository[
+      RStream
+    ], AddMessageRepository[RStream], UserApplication[RStream]] { (a, b, c, d, e, f, g) =>
+      UserService(a, b, c, d, e, f, g)
     }
 
 }

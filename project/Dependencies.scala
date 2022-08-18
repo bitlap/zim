@@ -96,7 +96,6 @@ object Dependencies {
   lazy val domainDeps: Seq[ModuleID] = Seq(
     "org.scalikejdbc"   %% "scalikejdbc"                      % Version.scalikejdbc % Compile,
     "org.scalikejdbc"   %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc % Compile,
-    "dev.zio"           %% "zio-streams"                      % Version.zio         % Compile,
     "eu.timepit"        %% "refined"                          % Version.refined,
     "dev.zio"           %% "zio-schema-derivation"            % Version.`zio-schema`,
     "com.typesafe.akka" %% "akka-actor-typed"                 % Version.akka,

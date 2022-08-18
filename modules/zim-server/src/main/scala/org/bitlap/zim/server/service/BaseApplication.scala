@@ -16,8 +16,6 @@
 
 package org.bitlap.zim.server.service
 
-import zio.stream
-
 /** 基础应用定义
  *
  *  @author
@@ -25,8 +23,8 @@ import zio.stream
  *  @since 2021/12/25
  *  @version 1.0
  */
-trait BaseApplication[T] {
+trait BaseApplication[F[_], T] {
 
-  def findById(id: Long): stream.Stream[Throwable, T]
+  def findById(id: Long): F[T]
 
 }

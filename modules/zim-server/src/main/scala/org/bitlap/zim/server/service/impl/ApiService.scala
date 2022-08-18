@@ -20,6 +20,7 @@ import org.bitlap.zim.domain.ZimError.BusinessException
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
+import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil }
 import org.bitlap.zim.server.FileUtil
 import org.bitlap.zim.server.service.impl.UserService.ZUserApplication
@@ -35,17 +36,17 @@ import java.time.ZonedDateTime
  *  @since 2022/1/8
  *  @version 1.0
  */
-private final class ApiService(userApplication: UserApplication) extends ApiApplication {
+private final class ApiService(userApplication: UserApplication[RStream]) extends ApiApplication[RStream] {
 
-  override def findById(id: Long): stream.Stream[Throwable, User] = userApplication.findById(id)
+  override def findById(id: Long): RStream[User] = userApplication.findById(id)
 
-  override def existEmail(email: String): stream.Stream[Throwable, Boolean] =
+  override def existEmail(email: String): RStream[Boolean] =
     if (email.isEmpty) ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     else userApplication.existEmail(email)
 
-  override def findUserById(id: Int): stream.Stream[Throwable, User] = userApplication.findUserById(id)
+  override def findUserById(id: Int): RStream[User] = userApplication.findUserById(id)
 
-  override def updateInfo(user: UpdateUserInput): stream.Stream[Throwable, Boolean] = {
+  override def updateInfo(user: UpdateUserInput): RStream[Boolean] = {
     def check(): Boolean = user.password.isEmpty || user.oldpwd.isEmpty
 
     for {
@@ -73,12 +74,12 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     } yield checkAndUpdate
   }
 
-  override def login(user: UserSecurity.UserSecurityInfo): stream.Stream[Throwable, User] =
+  override def login(user: UserSecurity.UserSecurityInfo): RStream[User] =
     if (user.email.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     } else userApplication.matchUser(User(user.id, user.email, user.password))
 
-  override def init(userId: Int): stream.Stream[Throwable, FriendAndGroupInfo] =
+  override def init(userId: Int): RStream[FriendAndGroupInfo] =
     ZStream.fromEffect {
       for {
         user    <- userApplication.findUserById(userId).runHead
@@ -97,7 +98,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       } yield resp
     }
 
-  override def getOffLineMessage(mid: Int): stream.Stream[Throwable, Receive] = {
+  override def getOffLineMessage(mid: Int): RStream[Receive] = {
     val groupReceives = for {
       gId      <- userApplication.findGroupsById(mid).map(_.id)
       groupMsg <- userApplication.findOffLineMessage(gId, 0)
@@ -112,7 +113,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     }
   }
 
-  override def register(user: RegisterUserInput): stream.Stream[Throwable, Boolean] =
+  override def register(user: RegisterUserInput): RStream[Boolean] =
     if (user.username.isEmpty || user.password.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     } else if (!ApiService.EMAIL_REGEX.matches(user.email)) {
@@ -134,15 +135,15 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       )
     }
 
-  override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
+  override def activeUser(activeCode: String): RStream[Int] =
     userApplication
       .activeUser(activeCode)
       .map(i => if (i > 0) 1 else 0)
 
-  override def createUserGroup(friendGroup: FriendGroupInput): stream.Stream[Throwable, Int] =
+  override def createUserGroup(friendGroup: FriendGroupInput): RStream[Int] =
     userApplication.createFriendGroup(friendGroup.groupname, friendGroup.uid)
 
-  override def createGroup(groupInput: GroupInput): stream.Stream[Throwable, Int] =
+  override def createGroup(groupInput: GroupInput): RStream[Int] =
     userApplication
       .createGroup(
         GroupList(id = 0, createId = groupInput.createId, groupName = groupInput.groupname, avatar = groupInput.avatar)
@@ -156,7 +157,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         } else ZStream.fail(BusinessException())
       )
 
-  override def getMembers(id: Int): stream.Stream[Throwable, FriendList] =
+  override def getMembers(id: Int): RStream[FriendList] =
     ZStream.fromEffect {
       userApplication
         .findUserByGroupId(id)
@@ -164,23 +165,23 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
         .map(f => FriendList(id = 0, groupName = "", list = f.toList))
     }
 
-  override def updateSign(sign: String, mid: Int): stream.Stream[Throwable, Boolean] =
+  override def updateSign(sign: String, mid: Int): RStream[Boolean] =
     userApplication.findUserById(mid).flatMap(user => userApplication.updateSign(user.copy(sign = sign)))
 
-  override def leaveOutGroup(groupId: Int, mid: Int): stream.Stream[Throwable, Int] =
+  override def leaveOutGroup(groupId: Int, mid: Int): RStream[Int] =
     for {
       masterId <- userApplication.findGroupById(groupId).map(_.createId)
       status   <- userApplication.leaveOutGroup(groupId, mid)
       _        <- LogUtil.infoS(s"leaveOutGroup groupId=>$groupId, mid=>$mid, masterId=$masterId, status=>$status")
     } yield if (status) masterId else -1
 
-  override def removeFriend(friendId: Int, mid: Int): stream.Stream[Throwable, Boolean] =
+  override def removeFriend(friendId: Int, mid: Int): RStream[Boolean] =
     userApplication.removeFriend(friendId, mid)
 
-  override def changeGroup(groupId: Int, userId: Int, mid: Int): stream.Stream[Throwable, Boolean] =
+  override def changeGroup(groupId: Int, userId: Int, mid: Int): RStream[Boolean] =
     userApplication.changeGroup(groupId, userId, mid)
 
-  override def refuseFriend(messageBoxId: Int, to: Int, username: String): stream.Stream[Throwable, Boolean] =
+  override def refuseFriend(messageBoxId: Int, to: Int, username: String): RStream[Boolean] =
     userApplication.refuseAddFriend(messageBoxId, username, to)
 
   override def agreeFriend(
@@ -189,10 +190,10 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
     group: Int,
     messageBoxId: Int,
     mid: Int
-  ): stream.Stream[Throwable, Boolean] =
+  ): RStream[Boolean] =
     userApplication.addFriend(mid, group, uid, fromGroup, messageBoxId)
 
-  override def chatLogIndex(id: Int, `type`: String, mid: Int): stream.Stream[Throwable, Int] =
+  override def chatLogIndex(id: Int, `type`: String, mid: Int): RStream[Int] =
     userApplication
       .countHistoryMessage(mid, id, `type`)
       .map(pages => if (pages < SystemConstant.SYSTEM_PAGE) pages else pages / SystemConstant.SYSTEM_PAGE + 1)
@@ -282,7 +283,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       ZStream.fromEffect(fileIO)
     }
 
-  override def updateAvatar(multipartInput: MultipartInput, mid: Int): stream.Stream[Throwable, UploadResult] =
+  override def updateAvatar(multipartInput: MultipartInput, mid: Int): RStream[UploadResult] =
     if (multipartInput.file.name.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     } else {
@@ -292,7 +293,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       ZStream.fromEffect(fileIO)
     }
 
-  override def uploadGroupAvatar(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] =
+  override def uploadGroupAvatar(multipartInput: MultipartInput): RStream[UploadResult] =
     if (multipartInput.file.name.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     } else {
@@ -302,7 +303,7 @@ private final class ApiService(userApplication: UserApplication) extends ApiAppl
       ZStream.fromEffect(fileIO)
     }
 
-  override def uploadImage(multipartInput: MultipartInput): stream.Stream[Throwable, UploadResult] =
+  override def uploadImage(multipartInput: MultipartInput): RStream[UploadResult] =
     if (multipartInput.file.name.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     } else {
@@ -317,12 +318,12 @@ object ApiService {
 
   private[impl] val EMAIL_REGEX = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$".r
 
-  type ZApiApplication = Has[ApiApplication]
+  type ZApiApplication = Has[ApiApplication[RStream]]
 
-  def apply(userApplication: UserApplication): ApiApplication = new ApiService(userApplication)
+  def apply(userApplication: UserApplication[RStream]): ApiApplication[RStream] = new ApiService(userApplication)
 
   val live: URLayer[ZUserApplication, ZApiApplication] =
-    ZLayer.fromService[UserApplication, ApiApplication](ApiService(_))
+    ZLayer.fromService[UserApplication[RStream], ApiApplication[RStream]](ApiService(_))
 
   def make(
     userApplicationLayer: TaskLayer[ZUserApplication]

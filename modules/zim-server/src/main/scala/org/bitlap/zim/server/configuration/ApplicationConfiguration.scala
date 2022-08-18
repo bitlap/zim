@@ -22,6 +22,7 @@ import org.bitlap.zim.server.service.ApiApplication
 import zio._
 import org.bitlap.zim.server.service.impl.{ ApiService, UserService }
 import org.bitlap.zim.server.service.UserApplication
+import org.bitlap.zim.infrastructure.repository.RStream
 
 /** application configuration
  *
@@ -33,7 +34,7 @@ import org.bitlap.zim.server.service.UserApplication
 final class ApplicationConfiguration(infrastructureConfiguration: InfrastructureConfiguration) {
 
   // multi application
-  val userApplication: UserApplication = UserService(
+  val userApplication: UserApplication[RStream] = UserService(
     infrastructureConfiguration.userRepository,
     infrastructureConfiguration.groupRepository,
     infrastructureConfiguration.receiveRepository,
@@ -43,7 +44,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
     infrastructureConfiguration.addMessageRepository
   )
 
-  val apiApplication: ApiApplication = ApiService(userApplication)
+  val apiApplication: ApiApplication[RStream] = ApiService(userApplication)
 
 }
 
@@ -56,10 +57,10 @@ object ApplicationConfiguration {
 
   type ZApplicationConfiguration = Has[ApplicationConfiguration]
 
-  val userApplication: URIO[ZApplicationConfiguration, UserApplication] =
+  val userApplication: URIO[ZApplicationConfiguration, UserApplication[RStream]] =
     ZIO.access(_.get.userApplication)
 
-  val apiApplication: URIO[ZApplicationConfiguration, ApiApplication] =
+  val apiApplication: URIO[ZApplicationConfiguration, ApiApplication[RStream]] =
     ZIO.access(_.get.apiApplication)
 
   val live: URLayer[ZInfrastructureConfiguration, ZApplicationConfiguration] =

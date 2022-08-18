@@ -31,51 +31,51 @@ import zio._
  */
 private final class TangibleUserRepository(databaseName: String)
     extends TangibleBaseRepository(User)
-    with UserRepository {
+    with UserRepository[RStream] {
 
   override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[User], User] = User.syntax("u")
   override implicit lazy val dbName: String                                      = databaseName
 
-  override def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int] =
+  override def countUser(username: Option[String], sex: Option[Int]): RStream[Int] =
     this.count("username" like username, "sex" === sex)
 
-  override def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, model.User] =
+  override def findUsers(username: Option[String], sex: Option[Int]): RStream[model.User] =
     this.find("username" like username, "sex" === sex)
 
-  override def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int] =
+  override def updateAvatar(avatar: String, uid: Int): RStream[Int] =
     _updateAvatar(avatar, uid).toUpdateOperation
 
-  override def updateSign(sign: String, uid: Int): stream.Stream[Throwable, Int] =
+  override def updateSign(sign: String, uid: Int): RStream[Int] =
     _updateSign(sign, uid).toUpdateOperation
 
-  override def updateUserInfo(id: Int, user: model.User): stream.Stream[Throwable, Int] =
+  override def updateUserInfo(id: Int, user: model.User): RStream[Int] =
     _updateUserInfo(id, user).toUpdateOperation
 
-  override def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Int] =
+  override def updateUserStatus(status: String, uid: Int): RStream[Int] =
     _updateUserStatus(status, uid).toUpdateOperation
 
-  override def activeUser(activeCode: String): stream.Stream[Throwable, Int] =
+  override def activeUser(activeCode: String): RStream[Int] =
     _activeUser(activeCode).toUpdateOperation
 
-  override def findUserByGroupId(gid: Int): stream.Stream[Throwable, model.User] =
+  override def findUserByGroupId(gid: Int): RStream[model.User] =
     _findUserByGroupId(gid).toStreamOperation
 
-  override def findUsersByFriendGroupIds(fgid: Int): stream.Stream[Throwable, model.User] =
+  override def findUsersByFriendGroupIds(fgid: Int): RStream[model.User] =
     _findUsersByFriendGroupIds(fgid).toStreamOperation
 
-  override def saveUser(user: model.User): stream.Stream[Throwable, Long] =
+  override def saveUser(user: model.User): RStream[Long] =
     _saveUser(user).toUpdateReturnKey
 
-  override def matchUser(email: String): stream.Stream[Throwable, model.User] =
+  override def matchUser(email: String): RStream[model.User] =
     this.find("email" === email)
 }
 
 object TangibleUserRepository {
 
-  def apply(databaseName: String): UserRepository =
+  def apply(databaseName: String): UserRepository[RStream] =
     new TangibleUserRepository(databaseName)
 
-  type ZUserRepository = Has[UserRepository]
+  type ZUserRepository = Has[UserRepository[RStream]]
 
   /** 下面的测试很有用，对外提供
    *
@@ -118,7 +118,7 @@ object TangibleUserRepository {
     stream.ZStream.accessStream(_.get.updateUserStatus(status, uid))
 
   val live: URLayer[Has[String], ZUserRepository] =
-    ZLayer.fromService[String, UserRepository](TangibleUserRepository(_))
+    ZLayer.fromService[String, UserRepository[RStream]](TangibleUserRepository(_))
 
   def make(databaseName: String): ULayer[ZUserRepository] =
     ZLayer.succeed(databaseName) >>> live

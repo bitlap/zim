@@ -27,6 +27,7 @@ import org.bitlap.zim.domain.model.User
 import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
 import org.bitlap.zim.server.{ FileUtil, ZMaterializer }
 import ZimUserEndpoint._
+import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.server.service.ApiApplication
 import org.bitlap.zim.server.service.impl.ApiService.ZApiApplication
 import org.bitlap.zim.tapir.{ ApiErrorMapping, ApiJsonCodec }
@@ -47,7 +48,7 @@ import scala.util.Try
  *  @since 2021/12/25
  *  @version 2.0
  */
-final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Materializer)
+final class ZimUserApi(apiApplication: ApiApplication[RStream])(implicit materializer: Materializer)
     extends ApiJsonCodec
     with ApiErrorMapping {
 
@@ -370,7 +371,7 @@ final class ZimUserApi(apiApplication: ApiApplication)(implicit materializer: Ma
 
 object ZimUserApi {
 
-  def apply(app: ApiApplication)(implicit materializer: Materializer): ZimUserApi = new ZimUserApi(app)
+  def apply(app: ApiApplication[RStream])(implicit materializer: Materializer): ZimUserApi = new ZimUserApi(app)
 
   type ZZimUserApi = Has[ZimUserApi]
 
@@ -378,7 +379,7 @@ object ZimUserApi {
     ZIO.access[ZZimUserApi](_.get.route)
 
   val live: ZLayer[ZApiApplication with ZMaterializer, Nothing, ZZimUserApi] =
-    ZLayer.fromServices[ApiApplication, Materializer, ZimUserApi]((app, mat) => ZimUserApi(app)(mat))
+    ZLayer.fromServices[ApiApplication[RStream], Materializer, ZimUserApi]((app, mat) => ZimUserApi(app)(mat))
 
   def make(
     apiApplicationLayer: TaskLayer[ZApiApplication],

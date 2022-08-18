@@ -19,7 +19,6 @@ package org.bitlap.zim.server.service
 import org.bitlap.zim.domain
 import org.bitlap.zim.domain.{ model, AddInfo, FriendList }
 import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
-import zio.stream
 
 /** 用户应用定义 这不是最终接口，参数和返回值可能后面需要修改 注意：sim项目controller层的逻辑都需要下沉到ApiService，而不只是直接使用UserService的逻辑
  *  @author
@@ -27,7 +26,7 @@ import zio.stream
  *  @since 2021/12/25
  *  @version 1.0
  */
-trait UserApplication extends BaseApplication[User] {
+trait UserApplication[F[_]] extends BaseApplication[F, User] {
 
   /** 退出群
    *
@@ -37,14 +36,14 @@ trait UserApplication extends BaseApplication[User] {
    *    用户
    *  @return
    */
-  def leaveOutGroup(gid: Int, uid: Int): stream.Stream[Throwable, Boolean]
+  def leaveOutGroup(gid: Int, uid: Int): F[Boolean]
 
   /** 根据ID查找群
    *
    *  @param gid
    *  @return
    */
-  def findGroupById(gid: Int): stream.Stream[Throwable, GroupList]
+  def findGroupById(gid: Int): F[GroupList]
 
   /** 添加群成员
    *
@@ -56,7 +55,7 @@ trait UserApplication extends BaseApplication[User] {
    *    消息盒子Id
    *  @return
    */
-  def addGroupMember(gid: Int, uid: Int, messageBoxId: Int): stream.Stream[Throwable, Boolean]
+  def addGroupMember(gid: Int, uid: Int, messageBoxId: Int): F[Boolean]
 
   /** 用户创建群时，将自己加入群组，不需要提示
    *
@@ -66,7 +65,7 @@ trait UserApplication extends BaseApplication[User] {
    *    用户id
    *  @return
    */
-  def addGroupMember(gid: Int, uid: Int): stream.Stream[Throwable, Boolean]
+  def addGroupMember(gid: Int, uid: Int): F[Boolean]
 
   /** 删除好友
    *
@@ -76,7 +75,7 @@ trait UserApplication extends BaseApplication[User] {
    *    个人/用户id
    *  @return
    */
-  def removeFriend(friendId: Int, uId: Int): stream.Stream[Throwable, Boolean]
+  def removeFriend(friendId: Int, uId: Int): F[Boolean]
 
   /** 更新用户头像
    *
@@ -86,7 +85,7 @@ trait UserApplication extends BaseApplication[User] {
    *    头像
    *  @return
    */
-  def updateAvatar(userId: Int, avatar: String): stream.Stream[Throwable, Boolean]
+  def updateAvatar(userId: Int, avatar: String): F[Boolean]
 
   /** 更新用户信息
    *
@@ -94,7 +93,7 @@ trait UserApplication extends BaseApplication[User] {
    *    个人信息
    *  @return
    */
-  def updateUserInfo(user: User): stream.Stream[Throwable, Boolean]
+  def updateUserInfo(user: User): F[Boolean]
 
   /** 更新用户状态
    *
@@ -104,7 +103,7 @@ trait UserApplication extends BaseApplication[User] {
    *    用户ID
    *  @return
    */
-  def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Boolean]
+  def updateUserStatus(status: String, uid: Int): F[Boolean]
 
   /** 移动好友分组
    *
@@ -116,7 +115,7 @@ trait UserApplication extends BaseApplication[User] {
    *    我的id
    *  @return
    */
-  def changeGroup(groupId: Int, uId: Int, mId: Int): stream.Stream[Throwable, Boolean]
+  def changeGroup(groupId: Int, uId: Int, mId: Int): F[Boolean]
 
   /** 添加好友操作
    *
@@ -132,7 +131,7 @@ trait UserApplication extends BaseApplication[User] {
    *    消息盒子的消息id
    *  @return
    */
-  def addFriend(mid: Int, mgid: Int, tid: Int, tgid: Int, messageBoxId: Int): stream.Stream[Throwable, Boolean]
+  def addFriend(mid: Int, mgid: Int, tid: Int, tgid: Int, messageBoxId: Int): F[Boolean]
 
   /** 创建好友分组列表
    *
@@ -142,7 +141,7 @@ trait UserApplication extends BaseApplication[User] {
    *    群组id
    *  @return
    */
-  def createFriendGroup(groupname: String, uid: Int): stream.Stream[Throwable, Int]
+  def createFriendGroup(groupname: String, uid: Int): F[Int]
 
   /** 创建群组
    *
@@ -150,7 +149,7 @@ trait UserApplication extends BaseApplication[User] {
    *    群
    *  @return
    */
-  def createGroup(groupList: GroupList): stream.Stream[Throwable, Int]
+  def createGroup(groupList: GroupList): F[Int]
 
   /** 统计未处理消息
    *
@@ -160,7 +159,7 @@ trait UserApplication extends BaseApplication[User] {
    *    0未处理，1同意，2拒绝
    *  @return
    */
-  def countUnHandMessage(uid: Int, agree: Option[Int]): stream.Stream[Throwable, Int]
+  def countUnHandMessage(uid: Int, agree: Option[Int]): F[Int]
 
   /** 查询添加好友、群组信息
    *
@@ -168,7 +167,7 @@ trait UserApplication extends BaseApplication[User] {
    *    个人id
    *  @return
    */
-  def findAddInfo(uid: Int): stream.Stream[Throwable, AddInfo]
+  def findAddInfo(uid: Int): F[AddInfo]
 
   /** 更新好友、群组信息请求
    *
@@ -179,7 +178,7 @@ trait UserApplication extends BaseApplication[User] {
    *  @return
    *    Boolean
    */
-  def updateAgree(messageBoxId: Int, agree: Int): stream.Stream[Throwable, Boolean]
+  def updateAgree(messageBoxId: Int, agree: Int): F[Boolean]
 
   /** 拒绝添加好友
    *  @param messageBoxId
@@ -187,7 +186,7 @@ trait UserApplication extends BaseApplication[User] {
    *  @param to
    *  @return
    */
-  def refuseAddFriend(messageBoxId: Int, username: String, to: Int): stream.Stream[Throwable, Boolean]
+  def refuseAddFriend(messageBoxId: Int, username: String, to: Int): F[Boolean]
 
   /** 好友消息已读
    *
@@ -195,7 +194,7 @@ trait UserApplication extends BaseApplication[User] {
    *  @param to
    *  @return
    */
-  def readFriendMessage(mine: Int, to: Int): stream.Stream[Throwable, Boolean]
+  def readFriendMessage(mine: Int, to: Int): F[Boolean]
 
   /** 将本群中的所有消息对我标记为已读
    *
@@ -204,7 +203,7 @@ trait UserApplication extends BaseApplication[User] {
    *    群离线消息的接收人to就是群的ID
    *  @return
    */
-  def readGroupMessage(gId: Int, to: Int): stream.Stream[Throwable, Boolean]
+  def readGroupMessage(gId: Int, to: Int): F[Boolean]
 
   /** 添加好友、群组信息请求
    *
@@ -212,7 +211,7 @@ trait UserApplication extends BaseApplication[User] {
    *    添加好友、群组信息对象
    *  @return
    */
-  def saveAddMessage(addMessage: model.AddMessage): stream.Stream[Throwable, Int]
+  def saveAddMessage(addMessage: model.AddMessage): F[Int]
 
   /** 根据群名模糊统计
    *
@@ -220,7 +219,7 @@ trait UserApplication extends BaseApplication[User] {
    *    群组名称
    *  @return
    */
-  def countGroup(groupName: Option[String]): stream.Stream[Throwable, Int]
+  def countGroup(groupName: Option[String]): F[Int]
 
   /** 根据群名模糊查询群
    *
@@ -228,7 +227,7 @@ trait UserApplication extends BaseApplication[User] {
    *    群组名称
    *  @return
    */
-  def findGroups(groupName: Option[String]): stream.Stream[Throwable, GroupList]
+  def findGroups(groupName: Option[String]): F[GroupList]
 
   /** 根据用户名和性别统计用户
    *
@@ -238,7 +237,7 @@ trait UserApplication extends BaseApplication[User] {
    *    性别
    *  @return
    */
-  def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int]
+  def countUser(username: Option[String], sex: Option[Int]): F[Int]
 
   /** 根据用户名和性别查询用户
    *
@@ -248,7 +247,7 @@ trait UserApplication extends BaseApplication[User] {
    *    性别
    *  @return
    */
-  def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, User]
+  def findUsers(username: Option[String], sex: Option[Int]): F[User]
 
   /** 统计查询消息
    *
@@ -260,7 +259,7 @@ trait UserApplication extends BaseApplication[User] {
    *    消息类型，可能来自friend或者group
    *  @return
    */
-  def countHistoryMessage(uid: Int, mid: Int, `type`: String): stream.Stream[Throwable, Int]
+  def countHistoryMessage(uid: Int, mid: Int, `type`: String): F[Int]
 
   /** 查询历史消息
    *  @param user
@@ -271,7 +270,7 @@ trait UserApplication extends BaseApplication[User] {
    *    消息类型，可能来自friend或者group
    *  @return
    */
-  def findHistoryMessage(user: User, mid: Int, `type`: String): stream.Stream[Throwable, domain.ChatHistory]
+  def findHistoryMessage(user: User, mid: Int, `type`: String): F[domain.ChatHistory]
 
   /** 查询离线消息
    *  @param uid
@@ -280,43 +279,43 @@ trait UserApplication extends BaseApplication[User] {
    *    历史消息还是离线消息 0代表离线 1表示已读
    *  @return
    */
-  def findOffLineMessage(uid: Int, status: Int): stream.Stream[Throwable, Receive]
+  def findOffLineMessage(uid: Int, status: Int): F[Receive]
 
   /** 保存用户聊天记录
    *  @param receive
    *  @return
    */
-  def saveMessage(receive: Receive): stream.Stream[Throwable, Int]
+  def saveMessage(receive: Receive): F[Int]
 
   /** 用户更新签名
    *  @param user
    *  @return
    */
-  def updateSign(user: User): stream.Stream[Throwable, Boolean]
+  def updateSign(user: User): F[Boolean]
 
   /** 激活码激活用户
    *  @param activeCode
    *  @return
    */
-  def activeUser(activeCode: String): stream.Stream[Throwable, Int]
+  def activeUser(activeCode: String): F[Int]
 
   /** 判断邮件是否存在
    *  @param email
    *  @return
    */
-  def existEmail(email: String): stream.Stream[Throwable, Boolean]
+  def existEmail(email: String): F[Boolean]
 
   /** 用户邮件和密码是否匹配
    *  @param user
    *  @return
    */
-  def matchUser(user: User): stream.Stream[Throwable, User]
+  def matchUser(user: User): F[User]
 
   /** 根据群组ID查询群里用户的信息
    *  @param gid
    *  @return
    */
-  def findUserByGroupId(gid: Int): stream.Stream[Throwable, User]
+  def findUserByGroupId(gid: Int): F[User]
 
   /** 根据ID查询用户的好友分组的列表信息
    *
@@ -324,23 +323,23 @@ trait UserApplication extends BaseApplication[User] {
    *  @param uid
    *  @return
    */
-  def findFriendGroupsById(uid: Int): stream.Stream[Throwable, FriendList]
+  def findFriendGroupsById(uid: Int): F[FriendList]
 
   /** 根据ID查询用户信息
    *  @param id
    *  @return
    */
-  def findUserById(id: Int): stream.Stream[Throwable, User]
+  def findUserById(id: Int): F[User]
 
   /** 根据用户ID查询用户的群组列表
    *  @param id
    *  @return
    */
-  def findGroupsById(id: Int): stream.Stream[Throwable, GroupList]
+  def findGroupsById(id: Int): F[GroupList]
 
   /** 保存用户信息
    *  @param user
    *  @return
    */
-  def saveUser(user: User): stream.Stream[Throwable, Boolean]
+  def saveUser(user: User): F[Boolean]
 }

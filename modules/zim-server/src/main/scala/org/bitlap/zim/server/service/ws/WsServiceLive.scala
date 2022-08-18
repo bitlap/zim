@@ -31,6 +31,7 @@ import zio.{ Task, ZIO }
 
 import java.time.ZonedDateTime
 import scala.collection.mutable
+import org.bitlap.zim.infrastructure.repository.RStream
 
 /** @author
  *    梦境迷离
@@ -39,7 +40,7 @@ import scala.collection.mutable
  */
 case class WsServiceLive(private val app: ApplicationConfiguration) extends WsService {
 
-  private val userService: UserApplication = app.userApplication
+  private val userService: UserApplication[RStream] = app.userApplication
 
   override def sendMessage(message: domain.Message): Task[Unit] =
     message.synchronized {

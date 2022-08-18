@@ -57,7 +57,7 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
   }
 
   def createRegisterUser(user: User = mockUser): Option[Boolean] =
-    unsafeRun(ZIO.serviceWith[UserApplication](_.saveUser(user).runHead).provideLayer(userApplicationLayer))
+    unsafeRun(ZIO.serviceWith[UserApplication[RStream]](_.saveUser(user).runHead).provideLayer(userApplicationLayer))
 
   // 对于需要使用插入后ID的，根据名字查询用户，避免并发跑单测时串数据。与createRegisterUser同时使用
   def findUserByName(name: String): Option[User] =
@@ -69,10 +69,12 @@ class ZimUserApiSpec extends TestApplication with ZimServiceConfiguration with S
   def createGroup(uid: Int = 1, gid: Int = 1): Option[Boolean] = {
     unsafeRun(
       ZIO
-        .serviceWith[UserApplication](_.createGroup(GroupList(0, "梦境迷离", "", uid)).runHead)
+        .serviceWith[UserApplication[RStream]](_.createGroup(GroupList(0, "梦境迷离", "", uid)).runHead)
         .provideLayer(userApplicationLayer)
     )
-    unsafeRun(ZIO.serviceWith[UserApplication](_.addGroupMember(gid, uid).runHead).provideLayer(userApplicationLayer))
+    unsafeRun(
+      ZIO.serviceWith[UserApplication[RStream]](_.addGroupMember(gid, uid).runHead).provideLayer(userApplicationLayer)
+    )
   }
 
   "getOne" should "OK for GET empty data" in {

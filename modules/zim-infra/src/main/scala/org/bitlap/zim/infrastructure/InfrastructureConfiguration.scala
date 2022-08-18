@@ -16,7 +16,6 @@
 
 package org.bitlap.zim.infrastructure
 
-import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.domain.repository.{
   AddMessageRepository,
   FriendGroupFriendRepository,
@@ -42,6 +41,7 @@ import org.bitlap.zim.infrastructure.repository.{
 }
 import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings }
 import zio._
+import org.bitlap.zim.infrastructure.repository.RStream
 
 /** infrastructure configuration
  *
@@ -68,27 +68,27 @@ final class InfrastructureConfiguration {
 
   lazy val mysqlConfigurationProperties: MysqlConfigurationProperties = MysqlConfigurationProperties()
 
-  lazy val userRepository: UserRepository = TangibleUserRepository(mysqlConfigurationProperties.databaseName)
+  lazy val userRepository: UserRepository[RStream] = TangibleUserRepository(mysqlConfigurationProperties.databaseName)
 
-  lazy val groupRepository: GroupRepository = TangibleGroupRepository(
+  lazy val groupRepository: GroupRepository[RStream] = TangibleGroupRepository(
     mysqlConfigurationProperties.databaseName
   )
-  lazy val receiveRepository: ReceiveRepository[Receive] = TangibleReceiveRepository(
-    mysqlConfigurationProperties.databaseName
-  )
-
-  lazy val friendGroupRepository: FriendGroupRepository = TangibleFriendGroupRepository(
+  lazy val receiveRepository: ReceiveRepository[RStream] = TangibleReceiveRepository(
     mysqlConfigurationProperties.databaseName
   )
 
-  lazy val friendGroupFriendRepository: FriendGroupFriendRepository = TangibleFriendGroupFriendRepository(
+  lazy val friendGroupRepository: FriendGroupRepository[RStream] = TangibleFriendGroupRepository(
     mysqlConfigurationProperties.databaseName
   )
 
-  lazy val groupMemberRepository: GroupMemberRepository = TangibleGroupMemberRepository(
+  lazy val friendGroupFriendRepository: FriendGroupFriendRepository[RStream] = TangibleFriendGroupFriendRepository(
     mysqlConfigurationProperties.databaseName
   )
-  lazy val addMessageRepository: AddMessageRepository = TangibleAddMessageRepository(
+
+  lazy val groupMemberRepository: GroupMemberRepository[RStream] = TangibleGroupMemberRepository(
+    mysqlConfigurationProperties.databaseName
+  )
+  lazy val addMessageRepository: AddMessageRepository[RStream] = TangibleAddMessageRepository(
     mysqlConfigurationProperties.databaseName
   )
 }
@@ -112,22 +112,22 @@ object InfrastructureConfiguration {
     MailConfigurationProperties.make
 
   // ==================================数据库============================================
-  val userRepository: URIO[ZInfrastructureConfiguration, UserRepository] =
+  val userRepository: URIO[ZInfrastructureConfiguration, UserRepository[RStream]] =
     ZIO.access(_.get.userRepository)
 
-  val groupRepository: URIO[ZInfrastructureConfiguration, GroupRepository] =
+  val groupRepository: URIO[ZInfrastructureConfiguration, GroupRepository[RStream]] =
     ZIO.access(_.get.groupRepository)
 
-  val receiveRepository: URIO[ZInfrastructureConfiguration, ReceiveRepository[Receive]] =
+  val receiveRepository: URIO[ZInfrastructureConfiguration, ReceiveRepository[RStream]] =
     ZIO.access(_.get.receiveRepository)
 
-  val friendGroupFriendRepository: URIO[ZInfrastructureConfiguration, FriendGroupFriendRepository] =
+  val friendGroupFriendRepository: URIO[ZInfrastructureConfiguration, FriendGroupFriendRepository[RStream]] =
     ZIO.access(_.get.friendGroupFriendRepository)
 
-  val groupMemberRepository: URIO[ZInfrastructureConfiguration, GroupMemberRepository] =
+  val groupMemberRepository: URIO[ZInfrastructureConfiguration, GroupMemberRepository[RStream]] =
     ZIO.access(_.get.groupMemberRepository)
 
-  val addMessageRepository: URIO[ZInfrastructureConfiguration, AddMessageRepository] =
+  val addMessageRepository: URIO[ZInfrastructureConfiguration, AddMessageRepository[RStream]] =
     ZIO.access(_.get.addMessageRepository)
 
   val live: ULayer[ZInfrastructureConfiguration] =

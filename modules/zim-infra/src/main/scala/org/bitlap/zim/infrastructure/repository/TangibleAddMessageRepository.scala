@@ -24,30 +24,30 @@ import zio.stream.ZStream
 
 private final class TangibleAddMessageRepository(databaseName: String)
     extends TangibleBaseRepository(AddMessage)
-    with AddMessageRepository {
+    with AddMessageRepository[RStream] {
 
   override implicit val dbName: String                                                       = databaseName
   override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddMessage], AddMessage] = AddMessage.syntax("am")
 
-  override def countUnHandMessage(uid: Int, agree: Option[Int]): stream.Stream[Throwable, Int] =
+  override def countUnHandMessage(uid: Int, agree: Option[Int]): RStream[Int] =
     this.count("to_uid" === uid, "agree" === agree)
 
-  override def findAddInfo(uid: Int): stream.Stream[Throwable, AddMessage] =
+  override def findAddInfo(uid: Int): RStream[AddMessage] =
     _findAddInfo(uid).toStreamOperation
 
-  override def updateAgree(id: Int, agree: Int): stream.Stream[Throwable, Int] =
+  override def updateAgree(id: Int, agree: Int): RStream[Int] =
     _updateAgree(id, agree).toUpdateOperation
 
-  override def saveAddMessage(addMessage: AddMessage): stream.Stream[Throwable, Int] =
+  override def saveAddMessage(addMessage: AddMessage): RStream[Int] =
     _saveAddMessage(addMessage).toUpdateOperation
 }
 
 object TangibleAddMessageRepository {
 
-  def apply(databaseName: String): AddMessageRepository =
+  def apply(databaseName: String): AddMessageRepository[RStream] =
     new TangibleAddMessageRepository(databaseName)
 
-  type ZAddMessageRepository = Has[AddMessageRepository]
+  type ZAddMessageRepository = Has[AddMessageRepository[RStream]]
 
   def findById(id: Int): stream.ZStream[ZAddMessageRepository, Throwable, AddMessage] =
     stream.ZStream.accessStream(_.get.findById(id))
@@ -65,7 +65,7 @@ object TangibleAddMessageRepository {
     stream.ZStream.accessStream(_.get.saveAddMessage(addMessage))
 
   val live: URLayer[Has[String], ZAddMessageRepository] =
-    ZLayer.fromService[String, AddMessageRepository](TangibleAddMessageRepository(_))
+    ZLayer.fromService[String, AddMessageRepository[RStream]](TangibleAddMessageRepository(_))
 
   def make(databaseName: String): ULayer[ZAddMessageRepository] =
     ZLayer.succeed(databaseName) >>> live
