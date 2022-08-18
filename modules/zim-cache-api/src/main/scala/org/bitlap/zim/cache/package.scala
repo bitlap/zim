@@ -15,20 +15,11 @@
  */
 
 package org.bitlap.zim
-import akka.stream.Materializer
-import zio.Has
 
 /** @author
  *    梦境迷离
- *  @version 1.0,2022/2/11
+ *  @version 1.0,2022/8/18
  */
-package object server {
-
-  type ZMaterializer = Has[Materializer]
-
-  lazy val zioRuntime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
-
-  // default cache
-  implicit val defaultCache: CacheType = CacheType.CatsCache
-
+package object cache {
+  type JavaDuration = java.time.Duration
 }

@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim
-import zio.Has
+package org.bitlap.zim.server
 
 /** @author
  *    梦境迷离
- *  @since 2022/2/27
- *  @version 1.0
+ *  @version 1.0,2022/8/18
  */
-package object cache {
+sealed trait CacheType
 
-  type ZRedisCacheService = Has[ZioRedisService]
+object CacheType {
+
+  final case object ZioCache  extends CacheType
+  final case object CatsCache extends CacheType
 
 }

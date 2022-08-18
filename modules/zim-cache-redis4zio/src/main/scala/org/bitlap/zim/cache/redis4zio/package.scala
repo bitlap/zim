@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim
-import akka.stream.Materializer
+package org.bitlap.zim.cache
+
+import zio.Task
 import zio.Has
 
 /** @author
  *    梦境迷离
- *  @version 1.0,2022/2/11
+ *  @since 2022/2/27
+ *  @version 1.0
  */
-package object server {
+package object redis4zio {
 
-  type ZMaterializer = Has[Materializer]
+  type ZRedis = RedisService[Task]
 
-  lazy val zioRuntime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
-
-  // default cache
-  implicit val defaultCache: CacheType = CacheType.CatsCache
+  type ZRedisService = Has[ZRedis]
 
 }

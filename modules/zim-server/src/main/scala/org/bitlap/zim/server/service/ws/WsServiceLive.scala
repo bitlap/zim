@@ -19,15 +19,14 @@ package org.bitlap.zim.server.service.ws
 import akka.actor.ActorRef
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.cache.ZioRedisService
 import org.bitlap.zim.domain
+import org.bitlap.zim.domain.{ Add, SystemConstant }
 import org.bitlap.zim.domain.model.{ AddMessage, User }
 import org.bitlap.zim.domain.ws._
 import org.bitlap.zim.domain.ws.protocol.Protocol
-import org.bitlap.zim.domain.{ Add, SystemConstant }
 import org.bitlap.zim.infrastructure.util.LogUtil
-import org.bitlap.zim.server.service.UserApplication
 import org.bitlap.zim.server.configuration.ApplicationConfiguration
+import org.bitlap.zim.server.service.{ RedisCache, UserApplication }
 import zio.{ Task, ZIO }
 
 import java.time.ZonedDateTime
@@ -172,7 +171,7 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
   override def checkOnline(message: domain.Message): Task[Map[String, String]] = {
     val result = mutable.HashMap[String, String]()
     result.put("type", Protocol.checkOnline.stringify)
-    ZioRedisService.getSets(SystemConstant.ONLINE_USER).map { uids =>
+    RedisCache.getSets(SystemConstant.ONLINE_USER).map { uids =>
       if (uids.contains(message.to.id.toString))
         result.put("status", SystemConstant.status.ONLINE_DESC)
       else result.put("status", SystemConstant.status.HIDE_DESC)

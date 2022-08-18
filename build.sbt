@@ -56,7 +56,16 @@ lazy val commonConfiguration: Project => Project =
 
 lazy val zim = (project in file("."))
   .settings(name := "zim")
-  .aggregate(`zim-server`, `zim-domain`, `zim-cache`, `zim-api`, `zim-auth`, `zim-infra`)
+  .aggregate(
+    `zim-server`,
+    `zim-domain`,
+    `zim-cache-api`,
+    `zim-api`,
+    `zim-auth`,
+    `zim-infra`,
+    `zim-cache-redis4cats`,
+    `zim-cache-redis4zio`
+  )
   .configure(commonConfiguration)
 
 lazy val `zim-server` = (project in file("modules/zim-server"))
@@ -77,7 +86,7 @@ lazy val `zim-server` = (project in file("modules/zim-server"))
 //  .settings(assembly / mainClass := Some("org.bitlap.zim.server.ZimServer"))
   .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin, JavaServerAppPackaging, DockerPlugin)
-  .dependsOn(`zim-cache`, `zim-api`, `zim-auth`, `zim-infra`)
+  .dependsOn(`zim-api`, `zim-auth`, `zim-infra`, `zim-cache-redis4cats`, `zim-cache-redis4zio`)
 
 lazy val `zim-infra` = (project in file("modules/zim-infra"))
   .settings(
@@ -93,8 +102,8 @@ lazy val `zim-domain` = (project in file("modules/zim-domain"))
   .configure(commonConfiguration)
   .enablePlugins(GitVersioning, BuildInfoPlugin, ScalafmtPlugin, HeaderPlugin)
 
-lazy val `zim-cache` = (project in file("modules/zim-cache"))
-  .settings(libraryDependencies ++= Dependencies.cacheDeps)
+lazy val `zim-cache-api` = (project in file("modules/zim-cache-api"))
+  .settings(libraryDependencies ++= Dependencies.cacheRedis4zioDeps)
   .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
 
@@ -109,3 +118,15 @@ lazy val `zim-auth` = (project in file("modules/zim-auth"))
   .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
   .dependsOn(`zim-domain`)
+
+lazy val `zim-cache-redis4cats` = (project in file("modules/zim-cache-redis4cats"))
+  .settings(libraryDependencies ++= Dependencies.cacheRedis4catsDeps)
+  .configure(commonConfiguration)
+  .enablePlugins(ScalafmtPlugin, HeaderPlugin)
+  .dependsOn(`zim-cache-api`)
+
+lazy val `zim-cache-redis4zio` = (project in file("modules/zim-cache-redis4zio"))
+  .settings(libraryDependencies ++= Dependencies.domainDeps)
+  .configure(commonConfiguration)
+  .enablePlugins(ScalafmtPlugin, HeaderPlugin)
+  .dependsOn(`zim-cache-api`)

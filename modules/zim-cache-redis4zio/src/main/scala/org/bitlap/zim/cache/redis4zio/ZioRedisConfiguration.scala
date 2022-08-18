@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.cache
+package org.bitlap.zim.cache.redis4zio
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import zio._
@@ -43,11 +43,11 @@ object ZioRedisConfiguration {
   private val codec: ULayer[Has[Codec]] = ZLayer.succeed[Codec](ProtobufCodec)
 
   // local redis layer
-  private val live: Layer[RedisError.IOError, Has[RedisExecutor]] =
+  private lazy val live: Layer[RedisError.IOError, Has[RedisExecutor]] =
     (Logging.ignore ++ ZLayer.succeed(redisConf)) >>> RedisExecutor.local
 
-  val cacheLayer: URLayer[Has[Redis], ZRedisCacheService] = (r => ZioRedisLive(r)).toLayer
+  private lazy val cacheLayer: URLayer[Has[Redis], ZRedisService] = (r => ZioRedisLive(r)).toLayer
 
-  val redisLayer: Layer[RedisError.IOError, ZRedisCacheService] =
+  val redisLayer: Layer[RedisError.IOError, ZRedisService] =
     (ZioRedisConfiguration.live ++ ZioRedisConfiguration.codec) >>> (Redis.live >>> cacheLayer)
 }

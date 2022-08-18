@@ -15,27 +15,27 @@
  */
 
 package org.bitlap.zim.server.service.ws
+import akka.{ Done, NotUsed }
+import akka.actor.{ ActorRef, Status }
 import akka.actor.typed.DispatcherSelector
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.{ ActorRef, Status }
 import akka.http.scaladsl.model.ws.{ Message, TextMessage }
-import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
 import akka.stream.{ CompletionStrategy, Materializer, OverflowStrategy }
-import akka.{ Done, NotUsed }
+import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.cache.ZioRedisService
 import org.bitlap.zim.domain
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.ws.protocol._
-import org.bitlap.zim.domain.ws._
 import org.bitlap.zim.domain.{ Message => IMMessage, SystemConstant }
+import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.ws._
+import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.server.actor.akka.WsMessageForwardBehavior
-import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
 import org.bitlap.zim.server.configuration.{
   AkkaActorSystemConfiguration,
   ZimServiceConfiguration,
   ZioActorSystemConfiguration
 }
+import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
+import org.bitlap.zim.server.service.RedisCache
 import org.bitlap.zim.server.zioRuntime
 import org.reactivestreams.Publisher
 import zio._
@@ -141,11 +141,11 @@ object WsService extends ZimServiceConfiguration {
     for {
       _ <-
         if (status == SystemConstant.status.ONLINE) {
-          ZioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
+          RedisCache.setSet(SystemConstant.ONLINE_USER, s"$uId")
         } else {
-          ZioRedisService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
+          RedisCache.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
         }
-      _ <- ZioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
+      _ <- RedisCache.setSet(SystemConstant.ONLINE_USER, s"$uId")
       msg = IMMessage(
         `type` = Protocol.changOnline.stringify,
         mine = null,
