@@ -20,7 +20,7 @@ import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration.ZInfrastructureConfiguration
 import org.bitlap.zim.api.service.{ ApiService, PaginationApiService, UserService }
 import zio._
-import org.bitlap.zim.server.service.{ APIService, ApiServiceImpl, UserServiceImpl }
+import org.bitlap.zim.server.service.{ APICombineService, ApiServiceImpl, UserServiceImpl }
 import org.bitlap.zim.infrastructure.repository.RStream
 
 /** application configuration
@@ -43,7 +43,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
     infrastructureConfiguration.addMessageRepository
   )
 
-  val apiService: APIService = new ApiServiceImpl(userService) with PaginationApiService[Task]
+  val apiService: APICombineService = new ApiServiceImpl(userService) with PaginationApiService[Task]
 
 }
 

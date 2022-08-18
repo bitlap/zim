@@ -31,6 +31,7 @@ import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.api.service.{ ApiService, PaginationApiService }
 import org.bitlap.zim.server.service.ApiServiceImpl.ZApiApplication
 import org.bitlap.zim.api.{ ApiErrorMapping, ApiJsonCodec }
+import org.bitlap.zim.server.service.APICombineService
 import sttp.model.HeaderNames.Authorization
 import sttp.model.Uri
 import sttp.model.headers.CookieValueWithMeta
@@ -381,9 +382,7 @@ object ZimUserApi {
     ZIO.access[ZZimUserApi](_.get.route)
 
   val live: ZLayer[ZApiApplication with ZMaterializer, Nothing, ZZimUserApi] =
-    ZLayer.fromServices[ApiService[RStream] with PaginationApiService[Task], Materializer, ZimUserApi]((app, mat) =>
-      ZimUserApi(app)(mat)
-    )
+    ZLayer.fromServices[APICombineService, Materializer, ZimUserApi]((app, mat) => ZimUserApi(app)(mat))
 
   def make(
     apiApplicationLayer: TaskLayer[ZApiApplication],

@@ -25,5 +25,5 @@ import zio.Task
  *  @version 1.0,8/18/22
  */
 package object service {
-  type APIService = ApiService[RStream] with PaginationApiService[Task]
+  type APICombineService = ApiService[RStream] with PaginationApiService[Task]
 }

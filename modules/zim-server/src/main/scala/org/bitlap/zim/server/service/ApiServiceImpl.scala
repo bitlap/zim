@@ -316,10 +316,10 @@ object ApiServiceImpl {
 
   private[service] val EMAIL_REGEX = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$".r
 
-  type ZApiApplication = Has[APIService]
+  type ZApiApplication = Has[APICombineService]
 
   val live: URLayer[ZUserApplication, ZApiApplication] =
-    ZLayer.fromService[UserService[RStream], APIService](p => new ApiServiceImpl(p) with PaginationApiService[Task])
+    ZLayer.fromService[UserService[RStream], APICombineService](p => new ApiServiceImpl(p) with PaginationApiService[Task])
 
   def make(
     userApplicationLayer: TaskLayer[ZUserApplication]
