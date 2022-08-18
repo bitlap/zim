@@ -14,7 +14,7 @@
 ## 模块
 
 - `zim-auth` 登录鉴权，目前由 cookie 实现并对外提供“鉴权缓存”函数，具体实现由`zim-server`完成。
-- `zim-cache` 缓存定义。
+- `zim-cache-api` 缓存定义。
 - `zim-cache-redis4cats` 基于redis4cats实现缓存。 
 - `zim-cache-redis4zio` 基于zio-redis实现缓存。
 - `zim-domain` 所有领域对象，包括数据库、http、websocket 等，还包括 circe 和 scalikejdbc 所需的隐式对象。
