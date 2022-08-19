@@ -15,8 +15,8 @@
  */
 
 package org.bitlap.zim.domain.repository
+
 import org.bitlap.zim.domain.model.GroupList
-import zio.stream
 
 /** 群组的操作定义
  *
@@ -25,18 +25,18 @@ import zio.stream
  *  @since 2021/12/29
  *  @version 1.0
  */
-trait GroupRepository extends BaseRepository[GroupList] {
+trait GroupRepository[F[_]] extends BaseRepository[F, GroupList] {
 
-  def deleteGroup(id: Int): stream.Stream[Throwable, Int]
+  def deleteGroup(id: Int): F[Int]
 
-  def countGroup(groupName: Option[String]): stream.Stream[Throwable, Int]
+  def countGroup(groupName: Option[String]): F[Int]
 
-  def createGroupList(group: GroupList): stream.Stream[Throwable, Long]
+  def createGroupList(group: GroupList): F[Long]
 
-  def findGroups(groupName: Option[String]): stream.Stream[Throwable, GroupList]
+  def findGroups(groupName: Option[String]): F[GroupList]
 
-  def findGroupById(gid: Int): stream.Stream[Throwable, GroupList]
+  def findGroupById(gid: Int): F[GroupList]
 
-  def findGroupsById(uid: Int): stream.Stream[Throwable, GroupList]
+  def findGroupsById(uid: Int): F[GroupList]
 
 }

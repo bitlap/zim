@@ -28,4 +28,7 @@ package object server {
 
   lazy val zioRuntime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
 
+  // default cache
+  implicit val defaultCache: CacheType = CacheType.CatsCache
+
 }

@@ -20,7 +20,7 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.DebuggingDirectives
 import org.bitlap.zim.ZimBuildInfo
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
-import org.bitlap.zim.tapir.ActuatorEndpoint
+import org.bitlap.zim.api.ActuatorEndpoint
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

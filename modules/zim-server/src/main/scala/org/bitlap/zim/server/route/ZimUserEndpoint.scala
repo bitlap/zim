@@ -19,14 +19,14 @@ package org.bitlap.zim.server.route
 import io.circe.jawn
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.auth.CookieAuthority
-import org.bitlap.zim.cache.ZioRedisService
 import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.ZimError.Unauthorized
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
 import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepository
 import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil }
-import org.bitlap.zim.tapir.{ ApiErrorMapping, UserEndpoint }
+import org.bitlap.zim.server.service.RedisCache
+import org.bitlap.zim.api.{ ApiErrorMapping, UserEndpoint }
 import sttp.model.HeaderNames.Authorization
 import sttp.tapir._
 import sttp.tapir.server.PartialServerEndpoint
@@ -45,7 +45,7 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
 
   def authorityCacheFunction(email: String, passwd: String): IO[Throwable, (Boolean, Option[UserSecurityInfo])] =
     for {
-      userSecurityInfo <- ZioRedisService
+      userSecurityInfo <- RedisCache
         .get[String](email)
         .map(_.map(s => jawn.decode[UserSecurityInfo](s).getOrElse(null)))
       user <-
@@ -61,7 +61,7 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
         s"verifyUserAuth email=>$email passwd=>$passwd userSecurityInfo=>$userSecurityInfo user=>$user check=>$check"
       )
       _ <-
-        if (check && user.isDefined) ZioRedisService.set[String](email, user.get.asJson.noSpaces)
+        if (check && user.isDefined) RedisCache.set[String](email, user.get.asJson.noSpaces)
         else ZIO.succeed(false)
     } yield check -> user
 

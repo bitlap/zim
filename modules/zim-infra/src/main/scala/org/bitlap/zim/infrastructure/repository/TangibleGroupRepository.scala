@@ -30,36 +30,36 @@ import zio._
  */
 private final class TangibleGroupRepository(databaseName: String)
     extends TangibleBaseRepository(GroupList)
-    with GroupRepository {
+    with GroupRepository[RStream] {
 
   override implicit val dbName: String                                                     = databaseName
   override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupList], GroupList] = GroupList.syntax("g")
 
-  override def deleteGroup(id: Int): stream.Stream[Throwable, Int] =
+  override def deleteGroup(id: Int): RStream[Int] =
     _deleteGroup(id).toUpdateOperation
 
-  override def countGroup(groupName: Option[String]): stream.Stream[Throwable, Int] =
+  override def countGroup(groupName: Option[String]): RStream[Int] =
     _countGroup(groupName).toStreamOperation
 
-  override def createGroupList(group: GroupList): stream.Stream[Throwable, Long] =
+  override def createGroupList(group: GroupList): RStream[Long] =
     _createGroupList(group).toUpdateReturnKey
 
-  override def findGroups(groupName: Option[String]): stream.Stream[Throwable, GroupList] =
+  override def findGroups(groupName: Option[String]): RStream[GroupList] =
     _findGroups(groupName).toStreamOperation
 
-  override def findGroupById(gid: Int): stream.Stream[Throwable, GroupList] =
+  override def findGroupById(gid: Int): RStream[GroupList] =
     _findGroupById(gid).toStreamOperation
 
-  override def findGroupsById(uid: Int): stream.Stream[Throwable, GroupList] =
+  override def findGroupsById(uid: Int): RStream[GroupList] =
     _findGroupsById(uid).toStreamOperation
 }
 
 object TangibleGroupRepository {
 
-  def apply(databaseName: String): GroupRepository =
+  def apply(databaseName: String): GroupRepository[RStream] =
     new TangibleGroupRepository(databaseName)
 
-  type ZGroupRepository = Has[GroupRepository]
+  type ZGroupRepository = Has[GroupRepository[RStream]]
 
   def findById(id: Int): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
     stream.ZStream.accessStream(_.get.findById(id))
@@ -83,7 +83,7 @@ object TangibleGroupRepository {
     stream.ZStream.accessStream(_.get.findGroupsById(uid))
 
   val live: URLayer[Has[String], ZGroupRepository] =
-    ZLayer.fromService[String, GroupRepository](TangibleGroupRepository(_))
+    ZLayer.fromService[String, GroupRepository[RStream]](TangibleGroupRepository(_))
 
   def make(databaseName: String): ULayer[ZGroupRepository] =
     ZLayer.succeed(databaseName) >>> live

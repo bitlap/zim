@@ -23,7 +23,7 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.Flow
 import org.bitlap.zim.server.service.ws.WsService
 import org.bitlap.zim.server.zioRuntime
-import org.bitlap.zim.tapir.WsEndpoint
+import org.bitlap.zim.api.WsEndpoint
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 
 import scala.concurrent.{ ExecutionContextExecutor, Future }

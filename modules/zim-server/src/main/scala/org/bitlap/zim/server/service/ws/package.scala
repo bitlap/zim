@@ -17,14 +17,15 @@
 package org.bitlap.zim.server.service
 
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.cache.ZioRedisService
-import org.bitlap.zim.domain.{ Message, SystemConstant }
+import org.bitlap.zim.api.service.UserService
 import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.domain.ws.RefuseOrAgreeMessage
 import org.bitlap.zim.domain.ws.protocol.Protocol
-import zio.{ IO, ZIO }
+import org.bitlap.zim.domain.{ Message, SystemConstant }
+import org.bitlap.zim.infrastructure.repository.RStream
 import zio.actors.{ ActorRef => _ }
 import zio.stream.ZStream
+import zio.{ IO, ZIO }
 
 import java.time.ZonedDateTime
 
@@ -55,7 +56,7 @@ package object ws {
     )
   }
 
-  private[ws] def friendMessageHandler(userService: UserApplication)(message: Message): IO[Throwable, Unit] = {
+  private[ws] def friendMessageHandler(userService: UserService[RStream])(message: Message): IO[Throwable, Unit] = {
     val uid     = message.to.id
     val receive = getReceive(message)
     userService.findUserById(uid).runHead.flatMap { us =>
@@ -72,7 +73,7 @@ package object ws {
     }
   }
 
-  private[ws] def groupMessageHandler(userService: UserApplication)(message: Message): IO[Throwable, Unit] = {
+  private[ws] def groupMessageHandler(userService: UserService[RStream])(message: Message): IO[Throwable, Unit] = {
     val gid                     = message.to.id
     val receive                 = getReceive(message)
     var receiveArchive: Receive = receive.copy(mid = gid)
@@ -95,7 +96,7 @@ package object ws {
   }
 
   private[ws] def agreeAddGroupHandler(
-    userService: UserApplication
+    userService: UserService[RStream]
   )(agree: RefuseOrAgreeMessage): IO[Throwable, Unit] =
     userService.addGroupMember(agree.groupId, agree.toUid, agree.messageBoxId).runHead.map { f =>
       userService
@@ -119,7 +120,7 @@ package object ws {
     }
 
   private[ws] def refuseAddFriendHandler(
-    userService: UserApplication
+    userService: UserService[RStream]
   )(messageBoxId: Int, username: String, to: Int): IO[Throwable, Boolean] =
     userService.updateAgree(messageBoxId, 2).runHead.flatMap { r =>
       r.fold(ZIO.effect(false)) { ret =>
@@ -132,7 +133,7 @@ package object ws {
     }
 
   private[ws] def readOfflineMessageHandler(
-    userService: UserApplication
+    userService: UserService[RStream]
   )(message: Message): IO[Throwable, Unit] =
     userService
       .findOffLineMessage(message.mine.id, 0)
@@ -150,17 +151,17 @@ package object ws {
       .unit
 
   private[ws] def changeOnlineHandler(
-    userService: UserApplication
+    userService: UserService[RStream]
   )(uId: Int, status: String): IO[Throwable, Boolean] = {
     val isOnline = SystemConstant.status.ONLINE.equals(status)
     val beforeChange =
-      if (isOnline) ZioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
-      else ZioRedisService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
+      if (isOnline) RedisCache.setSet(SystemConstant.ONLINE_USER, s"$uId")
+      else RedisCache.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
     // 向我的所有在线好友发送广播消息，告知我的状态变更，否则只能再次打聊天开窗口时变更,todo 异步发送
     beforeChange *> {
       val ret = for {
         fs    <- userService.findFriendGroupsById(uId)
-        users <- ZStream.fromEffect(ZioRedisService.getSets(SystemConstant.ONLINE_USER))
+        users <- ZStream.fromEffect(RedisCache.getSets(SystemConstant.ONLINE_USER))
         u     <- ZStream.fromIterable(fs.list)
         notify <- {
           val fu       = users.contains(u.id.toString)

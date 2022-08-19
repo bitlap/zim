@@ -13,18 +13,19 @@ fi
 
 sbt docker:publishLocal
 
-fold=`pwd`
+if [[ -d "/tmp/mysql/datadir/" ]];then
+  rm -rf /tmp/mysql/datadir/*
+else
+  mkdir -p /tmp/mysql/datadir/
+fi
 
-cd /opt/homebrew/var/mysql/datadir/
-
-rm -rf ./*
-
-cd $fold
-
-docker-compose -f docker-compose.yml up  -d
-
-zim_container_ip=`docker ps | grep liguobin/zim | awk '{print $1}' | xargs docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'`
-echo "zim server container ip: $zim_container_ip"
-
+if [[ -d "/tmp/mysql/datadir/" ]];then
+    docker-compose -f docker-compose.yml up  -d
+    zim_container_ip=`docker ps | grep liguobin/zim | awk '{print $1}' | xargs docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'`
+    echo "zim server container ip: $zim_container_ip"
+else
+  echo "Not found a folder named /tmp/mysql/datadir/ for docker mysql"
+  exit -1
+fi
 
 # mac osx visit docker container network? see https://www.haoyizebo.com/posts/fd0b9bd8/  and close your VPN

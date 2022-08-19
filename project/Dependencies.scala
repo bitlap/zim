@@ -26,6 +26,9 @@ object Dependencies {
     val refined                       = "0.10.1"
     val `zio-schema`                  = "0.1.9"
     val `sttp-apispec`                = "0.2.1"
+    val redis4cats                    = "1.2.0"
+    val `zio-interop-cats`            = "3.2.9.0"
+    val `log4cats-slf4j`              = "2.4.0"
   }
 
   lazy val zioDeps: Seq[ModuleID] = Seq(
@@ -81,6 +84,7 @@ object Dependencies {
   lazy val serverDeps: Seq[ModuleID] = Seq(
     "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
     "dev.zio" %% "zio-actors"              % Version.`zio-actors`,
+    "dev.zio" %% "zio-interop-cats"        % Version.`zio-interop-cats`,
     "dev.zio" %% "zio-redis"               % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
   ) ++ domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
 
@@ -92,7 +96,6 @@ object Dependencies {
   lazy val domainDeps: Seq[ModuleID] = Seq(
     "org.scalikejdbc"   %% "scalikejdbc"                      % Version.scalikejdbc % Compile,
     "org.scalikejdbc"   %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc % Compile,
-    "dev.zio"           %% "zio-streams"                      % Version.zio         % Compile,
     "eu.timepit"        %% "refined"                          % Version.refined,
     "dev.zio"           %% "zio-schema-derivation"            % Version.`zio-schema`,
     "com.typesafe.akka" %% "akka-actor-typed"                 % Version.akka,
@@ -111,11 +114,23 @@ object Dependencies {
     "dev.zio"           %% "zio-crypto"           % "0.0.0+92-5672c642-SNAPSHOT" // 实验性质的
   )
 
-  lazy val cacheDeps: Seq[ModuleID] = Seq(
+  lazy val cacheRedis4zioDeps: Seq[ModuleID] = Seq(
     "com.typesafe" % "config"              % Version.config,
     "dev.zio"     %% "zio-redis"           % "0.0.0+381-86c20614-SNAPSHOT",
     "dev.zio"     %% "zio"                 % Version.zio,
     "dev.zio"     %% "zio-schema"          % Version.`zio-schema`,
-    "dev.zio"     %% "zio-schema-protobuf" % Version.`zio-schema`
+    "dev.zio"     %% "zio-schema-protobuf" % Version.`zio-schema`,
+    "io.circe"    %% "circe-core"          % Version.circe,
+    "io.circe"    %% "circe-parser"        % Version.circe
+  )
+
+  lazy val cacheRedis4catsDeps: Seq[ModuleID] = Seq(
+    "com.typesafe"    % "config"              % Version.config,
+    "dev.profunktor" %% "redis4cats-effects"  % Version.redis4cats,
+    "dev.profunktor" %% "redis4cats-log4cats" % Version.redis4cats,
+    "dev.profunktor" %% "redis4cats-streams"  % Version.redis4cats,
+    "io.circe"       %% "circe-core"          % Version.circe,
+    "io.circe"       %% "circe-parser"        % Version.circe,
+    "org.typelevel"  %% "log4cats-slf4j"      % Version.`log4cats-slf4j`
   )
 }

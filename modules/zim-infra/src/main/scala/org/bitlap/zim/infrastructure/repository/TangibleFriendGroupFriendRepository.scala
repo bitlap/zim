@@ -31,30 +31,30 @@ import zio.stream.ZStream
  */
 private final class TangibleFriendGroupFriendRepository(databaseName: String)
     extends TangibleBaseRepository(AddFriend)
-    with FriendGroupFriendRepository {
+    with FriendGroupFriendRepository[RStream] {
 
   override implicit val dbName: String                                                     = databaseName
   override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[AddFriend], AddFriend] = AddFriend.syntax("af")
 
-  override def removeFriend(friendId: Int, uId: Int): stream.Stream[Throwable, Int] =
+  override def removeFriend(friendId: Int, uId: Int): RStream[Int] =
     _removeFriend(friendId, uId).toUpdateOperation
 
-  override def changeGroup(groupId: Int, originRecordId: Int): stream.Stream[Throwable, Int] =
+  override def changeGroup(groupId: Int, originRecordId: Int): RStream[Int] =
     _changeGroup(groupId, originRecordId).toUpdateOperation
 
-  override def findUserGroup(uId: Int, mId: Int): stream.Stream[Throwable, Int] =
+  override def findUserGroup(uId: Int, mId: Int): RStream[Int] =
     _findUserGroup(uId, mId).toStreamOperation
 
-  override def addFriend(from: AddFriend, to: AddFriend): stream.Stream[Throwable, Int] =
+  override def addFriend(from: AddFriend, to: AddFriend): RStream[Int] =
     _addFriend(from, to).toUpdateOperation
 }
 
 object TangibleFriendGroupFriendRepository {
 
-  def apply(databaseName: String): FriendGroupFriendRepository =
+  def apply(databaseName: String): FriendGroupFriendRepository[RStream] =
     new TangibleFriendGroupFriendRepository(databaseName)
 
-  type ZFriendGroupFriendRepository = Has[FriendGroupFriendRepository]
+  type ZFriendGroupFriendRepository = Has[FriendGroupFriendRepository[RStream]]
 
   def findById(id: Int): stream.ZStream[ZFriendGroupFriendRepository, Throwable, AddFriend] =
     stream.ZStream.accessStream(_.get.findById(id))
@@ -72,7 +72,7 @@ object TangibleFriendGroupFriendRepository {
     ZStream.accessStream(_.get.addFriend(from, to))
 
   val live: URLayer[Has[String], ZFriendGroupFriendRepository] =
-    ZLayer.fromService[String, FriendGroupFriendRepository](TangibleFriendGroupFriendRepository(_))
+    ZLayer.fromService[String, FriendGroupFriendRepository[RStream]](TangibleFriendGroupFriendRepository(_))
 
   def make(databaseName: String): ULayer[ZFriendGroupFriendRepository] =
     ZLayer.succeed(databaseName) >>> live
