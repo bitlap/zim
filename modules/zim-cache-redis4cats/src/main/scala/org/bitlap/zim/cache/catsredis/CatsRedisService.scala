@@ -31,7 +31,7 @@ import org.typelevel.log4cats.Logger
  *    梦境迷离
  *  @version 1.0,2022/8/18
  */
-case class CatsRedisService(implicit logger: Logger[IO]) extends RedisService[IO] {
+case class CatsRedisService()(implicit logger: Logger[IO]) extends RedisService[IO] {
 
   override def getSets(k: String): IO[List[String]] =
     logger.info(s"Redis sMembers command: $k") *> CatsRedisConfiguration.api.use { redis =>
