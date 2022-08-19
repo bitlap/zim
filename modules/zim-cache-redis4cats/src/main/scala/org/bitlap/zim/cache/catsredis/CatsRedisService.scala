@@ -25,39 +25,40 @@ import dev.profunktor.redis4cats.effects.{ SetArg, SetArgs }
 
 import scala.concurrent.duration._
 import org.bitlap.zim.cache.JavaDuration
+import org.typelevel.log4cats.Logger
 
 /** @author
  *    梦境迷离
  *  @version 1.0,2022/8/18
  */
-case class CatsRedisService() extends RedisService[IO] {
+case class CatsRedisService(implicit logger: Logger[IO]) extends RedisService[IO] {
 
   override def getSets(k: String): IO[List[String]] =
-    CatsRedisConfiguration.api.use { redis =>
+    logger.info(s"Redis sMembers command: $k") *> CatsRedisConfiguration.api.use { redis =>
       redis.sMembers(k).map(_.toList)
     }
 
   override def removeSetValue(k: String, m: String): IO[Long] =
-    CatsRedisConfiguration.api.use { redis =>
+    logger.info(s"Redis sRem command: $k, $m") *> CatsRedisConfiguration.api.use { redis =>
       redis.sRem(k, m).map(_ => 1)
     }
 
   override def setSet(k: String, m: String): IO[Long] =
-    CatsRedisConfiguration.api.use { redis =>
+    logger.info(s"Redis sAdd command: $k, $m") *> CatsRedisConfiguration.api.use { redis =>
       redis.sAdd(k, m)
     }
 
   override def set[T](k: String, v: T, expireTime: JavaDuration = java.time.Duration.ofMinutes(30))(implicit
     encoder: Encoder[T]
   ): IO[Boolean] =
-    CatsRedisConfiguration.api.use { redis =>
+    logger.info(s"Redis set command: $k, $v, $expireTime") *> CatsRedisConfiguration.api.use { redis =>
       redis
         .set(k, v.asJson.noSpaces, SetArgs(SetArg.Existence.Nx, SetArg.Ttl.Ex(expireTime.getSeconds.seconds)))
         .map(_ => true)
     }
 
   override def get[T](key: String)(implicit decoder: Decoder[T]): IO[Option[T]] =
-    CatsRedisConfiguration.api.use { redis =>
+    logger.info(s"Redis get command: $key") *> CatsRedisConfiguration.api.use { redis =>
       redis
         .get(key)
         .map {
@@ -67,7 +68,7 @@ case class CatsRedisService() extends RedisService[IO] {
     }
 
   override def exists(key: String): IO[Boolean] =
-    CatsRedisConfiguration.api.use { redis =>
+    logger.info(s"Redis exists command: $key") *> CatsRedisConfiguration.api.use { redis =>
       redis.exists(key)
     }
 }
