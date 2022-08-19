@@ -18,7 +18,7 @@ services:
       - "3306:3306"
     # FIXME The MySQL host directory must already exist, change it to your own MySQL location
     volumes:
-      - /opt/homebrew/var/mysql/datadir:/var/lib/mysql
+      - /var/mysql/datadir:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       - MYSQL_DATABASE=trace

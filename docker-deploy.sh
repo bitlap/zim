@@ -13,18 +13,18 @@ fi
 
 sbt docker:publishLocal
 
-if [[ -d "/opt/homebrew/var/mysql/datadir/" ]];then
-  rm -rf /opt/homebrew/var/mysql/datadir/*
+if [[ -d "/var/mysql/datadir/" ]];then
+  rm -rf /var/mysql/datadir/*
 else
-  mkdir -p /opt/homebrew/var/mysql/datadir/
+  mkdir -p /var/mysql/datadir/
 fi
 
-if [[ -d "/opt/homebrew/var/mysql/datadir/" ]];then
+if [[ -d "/var/mysql/datadir/" ]];then
     docker-compose -f docker-compose.yml up  -d
     zim_container_ip=`docker ps | grep liguobin/zim | awk '{print $1}' | xargs docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'`
     echo "zim server container ip: $zim_container_ip"
 else
-  echo "Not found a folder named /opt/homebrew/var/mysql/datadir/ for docker mysql"
+  echo "Not found a folder named /var/mysql/datadir/ for docker mysql"
   exit -1
 fi
 
