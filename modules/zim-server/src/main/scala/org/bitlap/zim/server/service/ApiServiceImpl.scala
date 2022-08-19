@@ -319,7 +319,9 @@ object ApiServiceImpl {
   type ZApiApplication = Has[APICombineService]
 
   val live: URLayer[ZUserApplication, ZApiApplication] =
-    ZLayer.fromService[UserService[RStream], APICombineService](p => new ApiServiceImpl(p) with PaginationApiService[Task])
+    ZLayer.fromService[UserService[RStream], APICombineService](p =>
+      new ApiServiceImpl(p) with PaginationApiService[Task]
+    )
 
   def make(
     userApplicationLayer: TaskLayer[ZUserApplication]

@@ -145,7 +145,7 @@ final class UserServiceSpec extends TestService {
   "UserApplication" should "findById ok" in {
     val stream = (for {
       _   <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      ret <- ZIO.serviceWith[UserService[RStream]](_.findById(1).runHead)
+      ret <- ZIO.serviceWith[UserService[RStream]](_.findUserById(1).runHead)
     } yield ret)
       .provideLayer(userApplicationLayer)
     val ret = unsafeRun(stream)

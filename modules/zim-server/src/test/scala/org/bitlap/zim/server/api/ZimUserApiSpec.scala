@@ -24,14 +24,14 @@ import akka.http.scaladsl.server._
 import akka.http.scaladsl.testkit.{ RouteTestTimeout, ScalatestRouteTest }
 import akka.testkit.TestDuration
 import io.circe.syntax.EncoderOps
+import org.bitlap.zim.api.service.UserService
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model.{ GroupList, GroupMember, User }
 import org.bitlap.zim.infrastructure.repository._
 import org.bitlap.zim.server.configuration.ZimServiceConfiguration
 import org.bitlap.zim.server.route.ZimUserApi
 import org.bitlap.zim.server.route.ZimUserApi.ZZimUserApi
-import org.bitlap.zim.server.service.impl.ApiServiceImpl
-import org.bitlap.zim.server.service.{ TestService, UserService }
+import org.bitlap.zim.server.service.{ ApiServiceImpl, TestService }
 import zio.{ TaskLayer, ZIO }
 
 import scala.concurrent.duration._
