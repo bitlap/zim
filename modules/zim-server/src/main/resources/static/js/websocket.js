@@ -256,7 +256,7 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
             url: "/user/updateSign",
             dataType: "JSON",
             type: "POST",
-            data: {"sign": value},
+            data: JSON.stringify({"sign": value}),
             success: function (data) {
                 layer.msg(data.msg);
             },

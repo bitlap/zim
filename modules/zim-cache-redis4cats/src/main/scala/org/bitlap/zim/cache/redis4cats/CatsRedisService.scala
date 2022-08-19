@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.cache.catsredis
+package org.bitlap.zim.cache.redis4cats
 
 import cats.effect.IO
 import io.circe.{ Decoder, Encoder }

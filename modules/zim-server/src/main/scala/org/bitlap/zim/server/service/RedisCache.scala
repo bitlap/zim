@@ -19,7 +19,7 @@ package org.bitlap.zim.server.service
 import cats.effect._
 import cats.effect.unsafe.implicits.global
 import io.circe.{ Decoder, Encoder }
-import org.bitlap.zim.cache.catsredis.CatsRedisConfiguration
+import org.bitlap.zim.cache.redis4cats.CatsRedisConfiguration
 import org.bitlap.zim.cache.redis4zio.{ ZRedis, ZioRedisConfiguration }
 import org.bitlap.zim.server.CacheType
 import org.bitlap.zim.server.CacheType._
