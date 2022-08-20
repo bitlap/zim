@@ -15,7 +15,8 @@
  */
 
 package org.bitlap.zim.domain.repository
-import zio.stream
+
+import org.bitlap.zim.domain.model.Receive
 
 /** 消息的操作定义
  *
@@ -24,16 +25,16 @@ import zio.stream
  *  @since 2021/12/30
  *  @version 1.0
  */
-trait ReceiveRepository[T] extends BaseRepository[T] {
+trait ReceiveRepository[F[_]] extends BaseRepository[F, Receive] {
 
-  def saveMessage(receive: T): stream.Stream[Throwable, Int]
+  def saveMessage(receive: Receive): F[Int]
 
-  def findOffLineMessage(uid: Int, status: Int): stream.Stream[Throwable, T]
+  def findOffLineMessage(uid: Int, status: Int): F[Receive]
 
-  def findHistoryMessage(uid: Option[Int], mid: Option[Int], typ: Option[String]): stream.Stream[Throwable, T]
+  def findHistoryMessage(uid: Option[Int], mid: Option[Int], typ: Option[String]): F[Receive]
 
-  def countHistoryMessage(uid: Option[Int], mid: Option[Int], typ: Option[String]): stream.Stream[Throwable, Int]
+  def countHistoryMessage(uid: Option[Int], mid: Option[Int], typ: Option[String]): F[Int]
 
-  def readMessage(mine: Int, to: Int, typ: String): stream.Stream[Throwable, Int]
+  def readMessage(mine: Int, to: Int, typ: String): F[Int]
 
 }

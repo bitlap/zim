@@ -23,11 +23,10 @@ import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
 import akka.stream.{ CompletionStrategy, Materializer, OverflowStrategy }
 import akka.{ Done, NotUsed }
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.cache.ZioRedisService
+import org.bitlap.zim.api.service.WsService
 import org.bitlap.zim.domain
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.domain.ws._
+import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.domain.{ Message => IMMessage, SystemConstant }
 import org.bitlap.zim.server.actor.akka.WsMessageForwardBehavior
 import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
@@ -36,6 +35,7 @@ import org.bitlap.zim.server.configuration.{
   ZimServiceConfiguration,
   ZioActorSystemConfiguration
 }
+import org.bitlap.zim.server.service.RedisCache
 import org.bitlap.zim.server.zioRuntime
 import org.reactivestreams.Publisher
 import zio._
@@ -49,43 +49,12 @@ import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
  *    梦境迷离
  *  @version 2.0, 2022/1/11
  */
-trait WsService {
-
-  def sendMessage(message: domain.Message): Task[Unit]
-
-  def agreeAddGroup(msg: domain.Message): Task[Unit]
-
-  def refuseAddGroup(msg: domain.Message): Task[Unit]
-
-  def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean]
-
-  def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): Task[Unit]
-
-  def removeFriend(uId: Int, friendId: Int): Task[Unit]
-
-  def addGroup(uId: Int, message: domain.Message): Task[Unit]
-
-  def addFriend(uId: Int, message: domain.Message): Task[Unit]
-
-  def countUnHandMessage(uId: Int): Task[Map[String, String]]
-
-  def checkOnline(message: domain.Message): Task[Map[String, String]]
-
-  def sendMessage(message: String, actorRef: ActorRef): Task[Unit]
-
-  def changeOnline(uId: Int, status: String): Task[Boolean]
-
-  def readOfflineMessage(message: domain.Message): Task[Unit]
-
-  def getConnections: Task[Int]
-}
-
 object WsService extends ZimServiceConfiguration {
 
-  private lazy val live: URLayer[ZApplicationConfiguration, Has[WsService]] = (r => WsServiceLive(r)).toLayer
+  private lazy val live: URLayer[ZApplicationConfiguration, Has[WsService[Task]]] = (r => WsServiceLive(r)).toLayer
 
   // 非最佳实践
-  private lazy val wsLayer: ULayer[Has[WsService]] = applicationConfigurationLayer >>> WsService.live
+  private lazy val wsLayer: ULayer[Has[WsService[Task]]] = applicationConfigurationLayer >>> WsService.live
 
   final lazy val actorRefSessions: ConcurrentHashMap[Integer, ActorRef] = new ConcurrentHashMap[Integer, ActorRef]
 
@@ -93,46 +62,46 @@ object WsService extends ZimServiceConfiguration {
 
   // 非最佳实践，为了使用unsafeRun，不能把environment传递到最外层，这里直接provideLayer
   def sendMessage(message: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService](_.sendMessage(message)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.sendMessage(message)).provideLayer(wsLayer)
 
   def agreeAddGroup(msg: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService](_.agreeAddGroup(msg)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.agreeAddGroup(msg)).provideLayer(wsLayer)
 
   def refuseAddGroup(msg: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService](_.refuseAddGroup(msg)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.refuseAddGroup(msg)).provideLayer(wsLayer)
 
   def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean] =
-    ZIO.serviceWith[WsService](_.refuseAddFriend(messageBoxId, username, to)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.refuseAddFriend(messageBoxId, username, to)).provideLayer(wsLayer)
 
   def deleteGroup(master: domain.model.User, groupname: String, gid: Int, uid: Int): Task[Unit] =
-    ZIO.serviceWith[WsService](_.deleteGroup(master, groupname, gid, uid)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.deleteGroup(master, groupname, gid, uid)).provideLayer(wsLayer)
 
   def removeFriend(uId: Int, friendId: Int): Task[Unit] =
-    ZIO.serviceWith[WsService](_.removeFriend(uId, friendId)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.removeFriend(uId, friendId)).provideLayer(wsLayer)
 
   def addGroup(uId: Int, message: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService](_.addGroup(uId, message)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.addGroup(uId, message)).provideLayer(wsLayer)
 
   def addFriend(uId: Int, message: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService](_.addFriend(uId, message)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.addFriend(uId, message)).provideLayer(wsLayer)
 
   def countUnHandMessage(uId: Int): Task[Map[String, String]] =
-    ZIO.serviceWith[WsService](_.countUnHandMessage(uId)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.countUnHandMessage(uId)).provideLayer(wsLayer)
 
   def checkOnline(message: domain.Message): Task[Map[String, String]] =
-    ZIO.serviceWith[WsService](_.checkOnline(message)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.checkOnline(message)).provideLayer(wsLayer)
 
   def sendMessage(message: String, actorRef: ActorRef): Task[Unit] =
-    ZIO.serviceWith[WsService](_.sendMessage(message, actorRef)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.sendMessage(message, actorRef)).provideLayer(wsLayer)
 
   def changeOnline(uId: Int, status: String): Task[Boolean] =
-    ZIO.serviceWith[WsService](_.changeOnline(uId, status)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.changeOnline(uId, status)).provideLayer(wsLayer)
 
   def readOfflineMessage(message: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService](_.readOfflineMessage(message)).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.readOfflineMessage(message)).provideLayer(wsLayer)
 
   def getConnections: Task[Int] =
-    ZIO.serviceWith[WsService](_.getConnections).provideLayer(wsLayer)
+    ZIO.serviceWith[WsService[Task]](_.getConnections).provideLayer(wsLayer)
 
   private final lazy val wsConnections: ConcurrentHashMap[Integer, ActorRef] =
     WsService.actorRefSessions
@@ -141,11 +110,11 @@ object WsService extends ZimServiceConfiguration {
     for {
       _ <-
         if (status == SystemConstant.status.ONLINE) {
-          ZioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
+          RedisCache.setSet(SystemConstant.ONLINE_USER, s"$uId")
         } else {
-          ZioRedisService.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
+          RedisCache.removeSetValue(SystemConstant.ONLINE_USER, s"$uId")
         }
-      _ <- ZioRedisService.setSet(SystemConstant.ONLINE_USER, s"$uId")
+      _ <- RedisCache.setSet(SystemConstant.ONLINE_USER, s"$uId")
       msg = IMMessage(
         `type` = Protocol.changOnline.stringify,
         mine = null,

@@ -38,6 +38,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 package object repository {
 
+  type RStream[+T] = stream.Stream[Throwable, T]
+
   // ==============================隐式转换========================================
 
   /** scalikejdbc更新并返回主键的转换

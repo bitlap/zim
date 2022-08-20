@@ -17,7 +17,6 @@
 package org.bitlap.zim.domain.repository
 
 import org.bitlap.zim.domain.model.User
-import zio.stream
 
 /** 用户的操作定义
  *
@@ -26,27 +25,27 @@ import zio.stream
  *  @since 2021/12/25
  *  @version 1.0
  */
-trait UserRepository extends BaseRepository[User] {
+trait UserRepository[F[_]] extends BaseRepository[F, User] {
 
-  def countUser(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, Int]
+  def countUser(username: Option[String], sex: Option[Int]): F[Int]
 
-  def findUsers(username: Option[String], sex: Option[Int]): stream.Stream[Throwable, User]
+  def findUsers(username: Option[String], sex: Option[Int]): F[User]
 
-  def updateAvatar(avatar: String, uid: Int): stream.Stream[Throwable, Int]
+  def updateAvatar(avatar: String, uid: Int): F[Int]
 
-  def updateSign(sign: String, uid: Int): stream.Stream[Throwable, Int]
+  def updateSign(sign: String, uid: Int): F[Int]
 
-  def updateUserInfo(id: Int, user: User): stream.Stream[Throwable, Int]
+  def updateUserInfo(id: Int, user: User): F[Int]
 
-  def updateUserStatus(status: String, uid: Int): stream.Stream[Throwable, Int]
+  def updateUserStatus(status: String, uid: Int): F[Int]
 
-  def activeUser(activeCode: String): stream.Stream[Throwable, Int]
+  def activeUser(activeCode: String): F[Int]
 
-  def findUserByGroupId(gid: Int): stream.Stream[Throwable, User]
+  def findUserByGroupId(gid: Int): F[User]
 
-  def findUsersByFriendGroupIds(fgid: Int): stream.Stream[Throwable, User]
+  def findUsersByFriendGroupIds(fgid: Int): F[User]
 
-  def saveUser(user: User): stream.Stream[Throwable, Long]
+  def saveUser(user: User): F[Long]
 
-  def matchUser(email: String): stream.Stream[Throwable, User]
+  def matchUser(email: String): F[User]
 }

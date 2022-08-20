@@ -24,28 +24,28 @@ import zio.stream.ZStream
 
 private final class TangibleGroupMemberRepository(databaseName: String)
     extends TangibleBaseRepository(GroupMember)
-    with GroupMemberRepository {
+    with GroupMemberRepository[RStream] {
 
   override implicit val dbName: String = databaseName
   override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupMember], GroupMember] =
     GroupMember.syntax("gm")
 
-  override def leaveOutGroup(groupMember: GroupMember): stream.Stream[Throwable, Int] =
+  override def leaveOutGroup(groupMember: GroupMember): RStream[Int] =
     _leaveOutGroup(groupMember).toUpdateOperation
 
-  override def findGroupMembers(gid: Int): stream.Stream[Throwable, Int] =
+  override def findGroupMembers(gid: Int): RStream[Int] =
     _findGroupMembers(gid).toStreamOperation
 
-  override def addGroupMember(groupMember: GroupMember): stream.Stream[Throwable, Int] =
+  override def addGroupMember(groupMember: GroupMember): RStream[Int] =
     _addGroupMember(groupMember).toUpdateOperation
 }
 
 object TangibleGroupMemberRepository {
 
-  def apply(databaseName: String): GroupMemberRepository =
+  def apply(databaseName: String): GroupMemberRepository[RStream] =
     new TangibleGroupMemberRepository(databaseName)
 
-  type ZGroupMemberRepository = Has[GroupMemberRepository]
+  type ZGroupMemberRepository = Has[GroupMemberRepository[RStream]]
 
   def findById(id: Int): stream.ZStream[ZGroupMemberRepository, Throwable, GroupMember] =
     stream.ZStream.accessStream(_.get.findById(id))
@@ -60,7 +60,7 @@ object TangibleGroupMemberRepository {
     stream.ZStream.accessStream(_.get.addGroupMember(groupMember))
 
   val live: URLayer[Has[String], ZGroupMemberRepository] =
-    ZLayer.fromService[String, GroupMemberRepository](TangibleGroupMemberRepository(_))
+    ZLayer.fromService[String, GroupMemberRepository[RStream]](TangibleGroupMemberRepository(_))
 
   def make(databaseName: String): ULayer[ZGroupMemberRepository] =
     ZLayer.succeed(databaseName) >>> live

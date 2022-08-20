@@ -16,8 +16,6 @@
 
 package org.bitlap.zim.domain.repository
 
-import zio.stream
-
 /** 基础操作类
  *
  *  @author
@@ -25,13 +23,13 @@ import zio.stream
  *  @since 2021/12/25
  *  @version 1.0
  */
-trait BaseRepository[T] {
+trait BaseRepository[F[_], T] {
 
   /** find by id
    */
-  def findById(id: Long): stream.Stream[Throwable, T]
+  def findById(id: Long): F[T]
 
   /** find by params
    */
-//  def find(params: Condition*): stream.Stream[Throwable, T]
+//  def find(params: Condition*): F[T]
 }

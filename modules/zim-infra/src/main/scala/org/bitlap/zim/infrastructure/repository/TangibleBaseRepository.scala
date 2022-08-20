@@ -20,14 +20,13 @@ import org.bitlap.zim.domain.model.BaseModel
 import org.bitlap.zim.domain.repository.BaseRepository
 import org.bitlap.zim.domain.repository.Condition._
 import scalikejdbc._
-import zio.stream
 
-abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository[T] {
+abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository[RStream, T] {
 
   implicit val dbName: String
   implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[T], T]
 
-  override def findById(id: Long): stream.Stream[Throwable, T] =
+  override def findById(id: Long): RStream[T] =
     withSQL {
       select
         .from(M as sp)
@@ -36,7 +35,7 @@ abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository
         )
     }.map(M(_)).toSQLOperation
 
-  def find(params: Option[ZCondition]*): stream.Stream[Throwable, T] =
+  def find(params: Option[ZCondition]*): RStream[T] =
     withSQL {
       select
         .from(M as sp)
@@ -62,7 +61,7 @@ abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository
         )
     }.map(M(_)).toSQLOperation
 
-  def count(params: Option[ZCondition]*): stream.Stream[Throwable, Int] =
+  def count(params: Option[ZCondition]*): RStream[Int] =
     withSQL {
       select(SQLSyntax.count(sp.id))
         .from(M as sp)
