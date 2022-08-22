@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.domain.repository
+package org.bitlap.zim.api.repository
 
-import org.bitlap.zim.domain.model.GroupMember
+import org.bitlap.zim.domain.model.Receive
 
-/** @author
- *    梦境迷离
- *  @since 2022/1/15
+/** 消息的操作定义
+ *
+ *  @author
+ *    LittleTear
+ *  @since 2021/12/30
  *  @version 1.0
  */
-trait GroupMemberRepository[F[_]] extends BaseRepository[F, GroupMember] {
+trait ReceiveRepository[F[_]] extends BaseRepository[F, Receive] {
 
-  def leaveOutGroup(groupMember: GroupMember): F[Int]
+  def saveMessage(receive: Receive): F[Int]
 
-  def findGroupMembers(gid: Int): F[Int]
+  def findOffLineMessage(uid: Int, status: Int): F[Receive]
 
-  def addGroupMember(groupMember: GroupMember): F[Int]
+  def findHistoryMessage(uid: Option[Int], mid: Option[Int], typ: Option[String]): F[Receive]
+
+  def countHistoryMessage(uid: Option[Int], mid: Option[Int], typ: Option[String]): F[Int]
+
+  def readMessage(mine: Int, to: Int, typ: String): F[Int]
 
 }

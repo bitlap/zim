@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.infrastructure
 
-import org.bitlap.zim.domain.repository.{
+import org.bitlap.zim.api.repository.{
   AddMessageRepository,
   FriendGroupFriendRepository,
   FriendGroupRepository,

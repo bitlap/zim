@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.domain.repository
+package org.bitlap.zim.api.repository
 
-import org.bitlap.zim.domain.model.AddMessage
+import org.bitlap.zim.domain.model.GroupMember
 
 /** @author
  *    梦境迷离
  *  @since 2022/1/15
  *  @version 1.0
  */
-trait AddMessageRepository[F[_]] extends BaseRepository[F, AddMessage] {
+trait GroupMemberRepository[F[_]] extends BaseRepository[F, GroupMember] {
 
-  def countUnHandMessage(uid: Int, agree: Option[Int]): F[Int]
+  def leaveOutGroup(groupMember: GroupMember): F[Int]
 
-  def findAddInfo(uid: Int): F[AddMessage]
+  def findGroupMembers(gid: Int): F[Int]
 
-  def updateAgree(id: Int, agree: Int): F[Int]
+  def addGroupMember(groupMember: GroupMember): F[Int]
 
-  def saveAddMessage(addMessage: AddMessage): F[Int]
 }

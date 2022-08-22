@@ -21,7 +21,7 @@ import org.bitlap.zim.domain
 import org.bitlap.zim.domain.ZimError.BusinessException
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
-import org.bitlap.zim.domain.repository._
+import org.bitlap.zim.api.repository._
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.repository.TangibleAddMessageRepository.ZAddMessageRepository

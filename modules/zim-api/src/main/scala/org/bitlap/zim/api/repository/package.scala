@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.domain
+package org.bitlap.zim.api
 
 import eu.timepit.refined.api.{ Refined, Validate }
 import scalikejdbc.SQLSyntax

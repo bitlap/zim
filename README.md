@@ -22,6 +22,10 @@
 - `zim-infra` 配置和基础设施，包括系统基础配置、工具类、领域对象及其 CRUD 实现。
 - `zim-api` tapir API 描述定义和service接口定义（`F[_]`），具体实现由`zim-server`完成。
 
+### 架构图
+
+![](./zim-1.drawio.png)
+
 ## 环境
 
 - scala 2.12/2.13
