@@ -17,10 +17,14 @@
 - `zim-cache-api` 缓存接口定义（`F[_]`）。
 - `zim-cache-redis4cats` 基于redis4cats实现缓存。 
 - `zim-cache-redis4zio` 基于zio-redis实现缓存。
-- `zim-domain` 所有领域模型和repository接口定义（`F[_]`）。
+- `zim-domain` 所有领域模型定义。
 - `zim-server` Server端的主要实现，包括 zio 依赖管理、基于 akka-http 的 route 实现、基于 tapir 的 API 具体实现。
-- `zim-infra` 配置和基础设施，包括系统基础配置、工具类、领域对象及其 CRUD 实现。
-- `zim-api` tapir API 描述定义和service接口定义（`F[_]`），具体实现由`zim-server`完成。
+- `zim-infra` 配置和基础设施，包括系统基础配置、工具类、部分领域对象及核心CRUD实现。
+- `zim-api` tapir API 描述定义和 service、repository 接口定义（`F[_]`），repository 具体实现在`zim-infra`，service 具体实现在`zim-server`。
+
+### 架构图
+
+![](./zim-1.drawio.png)
 
 ## 环境
 

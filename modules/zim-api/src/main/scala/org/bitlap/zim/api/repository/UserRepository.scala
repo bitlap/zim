@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.domain.repository
+package org.bitlap.zim.api.repository
 
 import org.bitlap.zim.domain.model.User
 

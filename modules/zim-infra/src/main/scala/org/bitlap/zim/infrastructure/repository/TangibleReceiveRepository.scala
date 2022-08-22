@@ -17,7 +17,7 @@
 package org.bitlap.zim.infrastructure.repository
 
 import org.bitlap.zim.domain.model.Receive
-import org.bitlap.zim.domain.repository.ReceiveRepository
+import org.bitlap.zim.api.repository.ReceiveRepository
 import zio._
 import zio.stream.ZStream
 

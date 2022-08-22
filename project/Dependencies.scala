@@ -88,15 +88,15 @@ object Dependencies {
     "dev.zio" %% "zio-redis"               % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
   ) ++ domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
 
-  lazy val tapirApiDeps: Seq[ModuleID] = Seq(
-    "dev.zio" %% "zio"                         % Version.zio,
-    "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
+  lazy val apiDeps: Seq[ModuleID] = Seq(
+    "dev.zio"    %% "zio"                         % Version.zio,
+    "dev.zio"    %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`,
+    "eu.timepit" %% "refined"                     % Version.refined
   ) ++ akkaDeps ++ tapirDeps ++ domainDeps
 
   lazy val domainDeps: Seq[ModuleID] = Seq(
     "org.scalikejdbc"   %% "scalikejdbc"                      % Version.scalikejdbc % Compile,
     "org.scalikejdbc"   %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc % Compile,
-    "eu.timepit"        %% "refined"                          % Version.refined,
     "dev.zio"           %% "zio-schema-derivation"            % Version.`zio-schema`,
     "com.typesafe.akka" %% "akka-actor-typed"                 % Version.akka,
     "dev.zio"           %% "zio-schema"                       % Version.`zio-schema`,
