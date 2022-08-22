@@ -20,7 +20,7 @@
 - `zim-domain` 所有领域模型定义。
 - `zim-server` Server端的主要实现，包括 zio 依赖管理、基于 akka-http 的 route 实现、基于 tapir 的 API 具体实现。
 - `zim-infra` 配置和基础设施，包括系统基础配置、工具类、部分领域对象及核心CRUD实现。
-- `zim-api` tapir API 描述定义和 service、repository 接口定义（`F[_]`），repository 具体实现在`zim-infra`，service具体实现在`zim-server`。
+- `zim-api` tapir API 描述定义和 service、repository 接口定义（`F[_]`），repository 具体实现在`zim-infra`，service 具体实现在`zim-server`。
 
 ### 架构图
 
