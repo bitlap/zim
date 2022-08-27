@@ -16,14 +16,16 @@
 
 package org.bitlap.zim.server
 
-import org.bitlap.zim.api.service.{ ApiService, PaginationApiService }
-import org.bitlap.zim.infrastructure.repository.RStream
-import zio.Task
+import zio._
 
-/** @author
+/** @since 2022/8/27
+ *  @author
  *    梦境迷离
- *  @version 1.0,8/18/22
  */
-package object service {
-  type APICombineService = ApiService[RStream] with PaginationApiService[Task]
+trait CommonTestSupport {
+  def unsafeRun[T](action: => ZIO[Any, Throwable, T]): T =
+    Unsafe.unsafe { implicit runtime =>
+      Runtime.default.unsafe.run(action).getOrThrowFiberFailure()
+    }
+
 }

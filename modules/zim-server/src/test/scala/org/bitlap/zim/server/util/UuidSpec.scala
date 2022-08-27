@@ -17,16 +17,16 @@
 package org.bitlap.zim.server.util
 
 import org.bitlap.zim.infrastructure.util.UuidUtil
+import org.bitlap.zim.server.CommonTestSupport
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import zio.BootstrapRuntime
 
 /** @author
  *    梦境迷离
  *  @since 2022/1/9
  *  @version 1.0
  */
-final class UuidSpec extends AnyFlatSpec with Matchers with BootstrapRuntime {
+final class UuidSpec extends AnyFlatSpec with Matchers with CommonTestSupport {
 
   "getUuid64" should "ok" in {
     val uuid = unsafeRun(UuidUtil.getUuid64)

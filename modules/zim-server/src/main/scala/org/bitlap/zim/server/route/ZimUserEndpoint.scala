@@ -30,9 +30,9 @@ import org.bitlap.zim.api.{ ApiErrorMapping, UserEndpoint }
 import sttp.model.HeaderNames.Authorization
 import sttp.tapir._
 import sttp.tapir.server.PartialServerEndpoint
-import zio.{ IO, ZIO }
+import zio._
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 /** 用户接口的端点
  *
@@ -43,6 +43,7 @@ import scala.concurrent.Future
  */
 trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndpoint {
 
+  implicit val ec: ExecutionContext
   def authorityCacheFunction(email: String, passwd: String): IO[Throwable, (Boolean, Option[UserSecurityInfo])] =
     for {
       userSecurityInfo <- RedisCache
@@ -72,4 +73,6 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
     .serverSecurityLogic(token => authenticate(token)(authorityCacheFunction))
 }
 
-object ZimUserEndpoint extends ZimUserEndpoint
+object ZimUserEndpoint extends ZimUserEndpoint {
+  override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+}

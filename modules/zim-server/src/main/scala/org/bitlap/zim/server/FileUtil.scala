@@ -25,6 +25,7 @@ import zio.{ IO, ZIO }
 
 import java.io._
 import java.nio.charset.Charset
+import scala.collection.mutable
 import scala.io.Source
 import scala.util.Using
 
@@ -37,7 +38,7 @@ object FileUtil {
 
   def readFile(file: InputStream): String = {
     val input       = Source.fromInputStream(file)
-    val fileContent = new StringBuilder
+    val fileContent = new mutable.StringBuilder
     input.getLines().foreach(f => fileContent.append(new String(f.getBytes(), Charset.forName("utf8"))).append("\n"))
     fileContent.toString()
   }

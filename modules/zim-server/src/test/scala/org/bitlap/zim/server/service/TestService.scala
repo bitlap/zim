@@ -31,10 +31,21 @@ trait TestService extends BaseData with TestServiceEnv {
   override val sqlBefore: SQL[Nothing, NoExtractor] =
     sql"""
         SET FOREIGN_KEY_CHECKS=0;
-        
-        -- ----------------------------
-        -- Table structure for `t_add_message`
-        -- ----------------------------
+
+        DROP TABLE IF EXISTS `t_user`;
+        CREATE TABLE `t_user` (
+          `id` int(10) NOT NULL AUTO_INCREMENT,
+          `username` varchar(64) NOT NULL COMMENT '用户名',
+          `password` varchar(128) NOT NULL COMMENT '密码',
+          `sign` varchar(255) DEFAULT NULL COMMENT '签名',
+          `email` varchar(64) NOT NULL COMMENT '邮箱地址',
+          `avatar` varchar(255) DEFAULT '/static/image/avatar/avatar(3).jpg' COMMENT '头像地址',
+          `sex` int(2) NOT NULL DEFAULT '1' COMMENT '性别',
+          `active` varchar(64) NOT NULL COMMENT '激活码',
+          `status` varchar(16) NOT NULL DEFAULT 'nonactivated' COMMENT '是否激活',
+          `create_date` date NOT NULL COMMENT '创建时间',
+          PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
         DROP TABLE IF EXISTS `t_add_message`;
         CREATE TABLE `t_add_message` (
           `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -48,10 +59,6 @@ trait TestService extends BaseData with TestServiceEnv {
           PRIMARY KEY (`id`),
           UNIQUE KEY `add_friend_unique` (`from_uid`,`to_uid`,`group_id`,`type`) USING BTREE
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-        
-        -- ----------------------------
-        -- Table structure for `t_friend_group`
-        -- ----------------------------
         DROP TABLE IF EXISTS `t_friend_group`;
         CREATE TABLE `t_friend_group` (
           `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -59,10 +66,6 @@ trait TestService extends BaseData with TestServiceEnv {
           `group_name` varchar(64) NOT NULL COMMENT '分组名称',
           PRIMARY KEY (`id`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-        
-        -- ----------------------------
-        -- Table structure for `t_friend_group_friends`
-        -- ----------------------------
         DROP TABLE IF EXISTS `t_friend_group_friends`;
         CREATE TABLE `t_friend_group_friends` (
           `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -71,11 +74,6 @@ trait TestService extends BaseData with TestServiceEnv {
           PRIMARY KEY (`id`),
           UNIQUE KEY `g_uid_unique` (`fgid`,`uid`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-        
-        -- ----------------------------
-        -- Table structure for `t_group`
-        -- 格式问题，使用了其他默认时间
-        -- ----------------------------
         DROP TABLE IF EXISTS `t_group`;
         CREATE TABLE `t_group` (
           `id` int(20) NOT NULL AUTO_INCREMENT,
@@ -85,10 +83,6 @@ trait TestService extends BaseData with TestServiceEnv {
           `create_time` timestamp NOT NULL DEFAULT '1971-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
           PRIMARY KEY (`id`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-        
-        -- ----------------------------
-        -- Table structure for `t_group_members`
-        -- ----------------------------
         DROP TABLE IF EXISTS `t_group_members`;
         CREATE TABLE `t_group_members` (
           `id` int(20) NOT NULL AUTO_INCREMENT,
@@ -96,11 +90,6 @@ trait TestService extends BaseData with TestServiceEnv {
           `uid` int(20) NOT NULL,
           PRIMARY KEY (`id`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-        
-        
-        -- ----------------------------
-        -- Table structure for `t_message`
-        -- ----------------------------
         DROP TABLE IF EXISTS `t_message`;
         CREATE TABLE `t_message` (
           `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -111,25 +100,6 @@ trait TestService extends BaseData with TestServiceEnv {
           `type` varchar(10) NOT NULL DEFAULT '' COMMENT '聊天窗口来源类型',
           `timestamp` bigint(25) NOT NULL COMMENT '服务器动态时间',
           `status` tinyint(2) NOT NULL DEFAULT '0' COMMENT '是否已读',
-          PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-        
-        
-        -- ----------------------------
-        -- Table structure for `t_user`
-        -- ----------------------------
-        DROP TABLE IF EXISTS `t_user`;
-        CREATE TABLE `t_user` (
-          `id` int(10) NOT NULL AUTO_INCREMENT,
-          `username` varchar(64) NOT NULL COMMENT '用户名',
-          `password` varchar(128) NOT NULL COMMENT '密码',
-          `sign` varchar(255) DEFAULT NULL COMMENT '签名',
-          `email` varchar(64) NOT NULL COMMENT '邮箱地址',
-          `avatar` varchar(255) DEFAULT '/static/image/avatar/avatar(3).jpg' COMMENT '头像地址',
-          `sex` int(2) NOT NULL DEFAULT '1' COMMENT '性别',
-          `active` varchar(64) NOT NULL COMMENT '激活码',
-          `status` varchar(16) NOT NULL DEFAULT 'nonactivated' COMMENT '是否激活',
-          `create_date` date NOT NULL COMMENT '创建时间',
           PRIMARY KEY (`id`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
        """

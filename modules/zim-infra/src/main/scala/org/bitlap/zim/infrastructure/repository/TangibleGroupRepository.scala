@@ -59,33 +59,30 @@ object TangibleGroupRepository {
   def apply(databaseName: String): GroupRepository[RStream] =
     new TangibleGroupRepository(databaseName)
 
-  type ZGroupRepository = Has[GroupRepository[RStream]]
+  def findById(id: Int): stream.ZStream[GroupRepository[RStream], Throwable, GroupList] =
+    stream.ZStream.environmentWithStream(_.get.findById(id))
 
-  def findById(id: Int): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
-    stream.ZStream.accessStream(_.get.findById(id))
+  def deleteGroup(id: Int): stream.ZStream[GroupRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.deleteGroup(id))
 
-  def deleteGroup(id: Int): stream.ZStream[ZGroupRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.deleteGroup(id))
+  def countGroup(groupName: Option[String]): stream.ZStream[GroupRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.countGroup(groupName))
 
-  def countGroup(groupName: Option[String]): stream.ZStream[ZGroupRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.countGroup(groupName))
+  def createGroupList(group: GroupList): stream.ZStream[GroupRepository[RStream], Throwable, Long] =
+    stream.ZStream.environmentWithStream(_.get.createGroupList(group))
 
-  def createGroupList(group: GroupList): stream.ZStream[ZGroupRepository, Throwable, Long] =
-    stream.ZStream.accessStream(_.get.createGroupList(group))
+  def findGroup(groupName: Option[String]): stream.ZStream[GroupRepository[RStream], Throwable, GroupList] =
+    stream.ZStream.environmentWithStream(_.get.findGroups(groupName))
 
-  def findGroup(groupName: Option[String]): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
-    stream.ZStream.accessStream(_.get.findGroups(groupName))
+  def findGroupById(gid: Int): stream.ZStream[GroupRepository[RStream], Throwable, GroupList] =
+    stream.ZStream.environmentWithStream(_.get.findGroupById(gid))
 
-  def findGroupById(gid: Int): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
-    stream.ZStream.accessStream(_.get.findGroupById(gid))
+  def findGroupsById(uid: Int): stream.ZStream[GroupRepository[RStream], Throwable, GroupList] =
+    stream.ZStream.environmentWithStream(_.get.findGroupsById(uid))
 
-  def findGroupsById(uid: Int): stream.ZStream[ZGroupRepository, Throwable, GroupList] =
-    stream.ZStream.accessStream(_.get.findGroupsById(uid))
+  val live: URLayer[String, GroupRepository[RStream]] = ZLayer(ZIO.service[String].map(TangibleGroupRepository.apply))
 
-  val live: URLayer[Has[String], ZGroupRepository] =
-    ZLayer.fromService[String, GroupRepository[RStream]](TangibleGroupRepository(_))
-
-  def make(databaseName: String): ULayer[ZGroupRepository] =
+  def make(databaseName: String): ULayer[GroupRepository[RStream]] =
     ZLayer.succeed(databaseName) >>> live
 
 }

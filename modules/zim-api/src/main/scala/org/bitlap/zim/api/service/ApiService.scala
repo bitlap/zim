@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.api.service
 
-import org.bitlap.zim.api.MultipartInput
+import org.bitlap.zim.api._
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model._
@@ -28,7 +28,7 @@ import org.bitlap.zim.domain.model._
  *  @since 2022/1/8
  *  @version 1.0
  */
-trait ApiService[F[_]] {
+trait ApiService[F[_], S[_]] extends PaginationApiService[S] {
 
   def existEmail(email: String): F[Boolean]
 

@@ -16,27 +16,26 @@
 
 package org.bitlap.zim.server.service
 
-import org.bitlap.zim.api.MultipartInput
-import org.bitlap.zim.api.service.{ ApiService, PaginationApiService, UserService }
-import org.bitlap.zim.domain.ZimError.BusinessException
+import org.bitlap.zim.api._
+import org.bitlap.zim.api.service._
+import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input._
-import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
+import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository.RStream
-import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil }
+import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.FileUtil
-import org.bitlap.zim.server.service.UserServiceImpl.ZUserApplication
-import zio.stream.ZStream
-import zio.{ stream, Has, IO, Task, TaskLayer, URLayer, ZLayer }
+import zio.stream._
+import zio.{ stream, IO, Task, TaskLayer, URLayer, ZIO, ZLayer }
 
-import java.time.ZonedDateTime
+import java.time._
 
 /** @author
  *    梦境迷离
  *  @since 2022/1/8
  *  @version 1.0
  */
-class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStream] with PaginationApiService[Task] {
+class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStream, Task] {
 
   override def existEmail(email: String): RStream[Boolean] =
     if (email.isEmpty) ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
@@ -50,8 +49,8 @@ class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStre
     for {
       u <- userService.findUserById(user.id)
       sex = if (user.sex.equals("nan")) 1 else 0
-      pwdCheck <- ZStream.fromEffect(SecurityUtil.matched(user.oldpwd.getOrElse(""), u.password))
-      newPwd   <- ZStream.fromEffect(SecurityUtil.encrypt(user.password.getOrElse("")))
+      pwdCheck <- ZStream.fromZIO(SecurityUtil.matched(user.oldpwd.getOrElse(""), u.password))
+      newPwd   <- ZStream.fromZIO(SecurityUtil.encrypt(user.password.getOrElse("")))
       checkAndUpdate <-
         if (check()) {
           userService.updateUserInfo(u.copy(sex = sex, sign = user.sign, username = user.username))
@@ -78,7 +77,7 @@ class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStre
     } else userService.matchUser(User(user.id, user.email, user.password))
 
   override def init(userId: Int): RStream[FriendAndGroupInfo] =
-    ZStream.fromEffect {
+    ZStream.fromZIO {
       for {
         user    <- userService.findUserById(userId).runHead
         _       <- LogUtil.info(s"init user=>$user")
@@ -156,7 +155,7 @@ class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStre
       )
 
   override def getMembers(id: Int): RStream[FriendList] =
-    ZStream.fromEffect {
+    ZStream.fromZIO {
       userService
         .findUserByGroupId(id)
         .runCollect
@@ -278,7 +277,7 @@ class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStre
       val fileIO = FileUtil
         .upload(SystemConstant.FILE_PATH, "/", multipartInput.file)
         .map(src => UploadResult(src = src, name = multipartInput.getFileName))
-      ZStream.fromEffect(fileIO)
+      ZStream.fromZIO(fileIO)
     }
 
   override def updateAvatar(multipartInput: MultipartInput, mid: Int): RStream[UploadResult] =
@@ -288,7 +287,7 @@ class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStre
       val fileIO = FileUtil.upload(SystemConstant.AVATAR_PATH, multipartInput.file).flatMap { src =>
         userService.updateAvatar(mid, src).runHead.as(UploadResult(src = src, name = multipartInput.getFileName))
       }
-      ZStream.fromEffect(fileIO)
+      ZStream.fromZIO(fileIO)
     }
 
   override def uploadGroupAvatar(multipartInput: MultipartInput): RStream[UploadResult] =
@@ -298,7 +297,7 @@ class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStre
       val fileIO = FileUtil
         .upload(SystemConstant.GROUP_AVATAR_PATH, multipartInput.file)
         .map(src => UploadResult(src = src, name = multipartInput.getFileName))
-      ZStream.fromEffect(fileIO)
+      ZStream.fromZIO(fileIO)
     }
 
   override def uploadImage(multipartInput: MultipartInput): RStream[UploadResult] =
@@ -308,7 +307,7 @@ class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStre
       val fileIO = FileUtil
         .upload(SystemConstant.IMAGE_PATH, "/", multipartInput.file)
         .map(src => UploadResult(src = src, name = multipartInput.getFileName))
-      ZStream.fromEffect(fileIO)
+      ZStream.fromZIO(fileIO)
     }
 }
 
@@ -316,15 +315,14 @@ object ApiServiceImpl {
 
   private[service] val EMAIL_REGEX = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$".r
 
-  type ZApiApplication = Has[APICombineService]
-
-  val live: URLayer[ZUserApplication, ZApiApplication] =
-    ZLayer.fromService[UserService[RStream], APICombineService](p =>
-      new ApiServiceImpl(p) with PaginationApiService[Task]
-    )
+  val live: URLayer[UserService[RStream], ApiService[RStream, Task]] = ZLayer(
+    ZIO
+      .service[UserService[RStream]]
+      .map((p: UserService[RStream]) => new ApiServiceImpl(p))
+  )
 
   def make(
-    userApplicationLayer: TaskLayer[ZUserApplication]
-  ): TaskLayer[ZApiApplication] = userApplicationLayer >>> live
+    userServiceLayer: TaskLayer[UserService[RStream]]
+  ): TaskLayer[ApiService[RStream, Task]] = userServiceLayer >>> live
 
 }

@@ -17,7 +17,6 @@
 package org.bitlap.zim.cache
 
 import zio.Task
-import zio.Has
 
 /** @author
  *    梦境迷离
@@ -27,7 +26,4 @@ import zio.Has
 package object redis4zio {
 
   type ZRedis = RedisService[Task]
-
-  type ZRedisService = Has[ZRedis]
-
 }

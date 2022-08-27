@@ -47,26 +47,25 @@ object TangibleAddMessageRepository {
   def apply(databaseName: String): AddMessageRepository[RStream] =
     new TangibleAddMessageRepository(databaseName)
 
-  type ZAddMessageRepository = Has[AddMessageRepository[RStream]]
+  def findById(id: Int): stream.ZStream[AddMessageRepository[RStream], Throwable, AddMessage] =
+    stream.ZStream.environmentWithStream(_.get.findById(id))
 
-  def findById(id: Int): stream.ZStream[ZAddMessageRepository, Throwable, AddMessage] =
-    stream.ZStream.accessStream(_.get.findById(id))
+  def countUnHandMessage(uid: Int, agree: Option[Int]): ZStream[AddMessageRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.countUnHandMessage(uid, agree))
 
-  def countUnHandMessage(uid: Int, agree: Option[Int]): ZStream[ZAddMessageRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.countUnHandMessage(uid, agree))
+  def findAddInfo(uid: Int): ZStream[AddMessageRepository[RStream], Throwable, AddMessage] =
+    stream.ZStream.environmentWithStream(_.get.findAddInfo(uid))
 
-  def findAddInfo(uid: Int): ZStream[ZAddMessageRepository, Throwable, AddMessage] =
-    stream.ZStream.accessStream(_.get.findAddInfo(uid))
+  def updateAgree(id: Int, agree: Int): ZStream[AddMessageRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.updateAgree(id, agree))
 
-  def updateAgree(id: Int, agree: Int): ZStream[ZAddMessageRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.updateAgree(id, agree))
+  def saveAddMessage(addMessage: AddMessage): ZStream[AddMessageRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.saveAddMessage(addMessage))
 
-  def saveAddMessage(addMessage: AddMessage): ZStream[ZAddMessageRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.saveAddMessage(addMessage))
+  val live: URLayer[String, AddMessageRepository[RStream]] = ZLayer(
+    ZIO.service[String].map(TangibleAddMessageRepository.apply)
+  )
 
-  val live: URLayer[Has[String], ZAddMessageRepository] =
-    ZLayer.fromService[String, AddMessageRepository[RStream]](TangibleAddMessageRepository(_))
-
-  def make(databaseName: String): ULayer[ZAddMessageRepository] =
+  def make(databaseName: String): ULayer[AddMessageRepository[RStream]] =
     ZLayer.succeed(databaseName) >>> live
 }

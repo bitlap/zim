@@ -44,7 +44,7 @@ import scala.concurrent.Future
  *  @since 2021/12/25
  *  @version 1.0
  */
-trait ApiJsonCodec extends BootstrapRuntime {
+trait ApiJsonCodec {
 
   implicit val customConfig: Configuration = Configuration.default.withDefaults
 
@@ -151,7 +151,11 @@ trait ApiJsonCodec extends BootstrapRuntime {
     } yield r).catchSome(catchStreamError)
 
     Future.successful(
-      Right(Source.fromPublisher(unsafeRun(resp)))
+      Right(Source.fromPublisher {
+        Unsafe.unsafe { implicit runtime =>
+          Runtime.default.unsafe.run(resp).getOrThrowFiberFailure()
+        }
+      })
     )
   }
 
@@ -175,7 +179,9 @@ trait ApiJsonCodec extends BootstrapRuntime {
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r).catchSome(catchStreamError)
     Future.successful(
-      Right(Source.fromPublisher(unsafeRun(resp)))
+      Right(Source.fromPublisher(Unsafe.unsafe { implicit runtime =>
+        Runtime.default.unsafe.run(resp).getOrThrowFiberFailure()
+      }))
     )
   }
 
@@ -191,7 +197,9 @@ trait ApiJsonCodec extends BootstrapRuntime {
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r).catchSome(catchStreamError)
     Future.successful(
-      Right(Source.fromPublisher(unsafeRun(resp)))
+      Right(Source.fromPublisher(Unsafe.unsafe { implicit runtime =>
+        Runtime.default.unsafe.run(resp).getOrThrowFiberFailure()
+      }))
     )
   }
 
@@ -207,7 +215,9 @@ trait ApiJsonCodec extends BootstrapRuntime {
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r).catchSome(catchStreamError)
     Future.successful(
-      Right(Source.fromPublisher(unsafeRun(resp)))
+      Right(Source.fromPublisher(Unsafe.unsafe { implicit runtime =>
+        Runtime.default.unsafe.run(resp).getOrThrowFiberFailure()
+      }))
     )
   }
 
@@ -219,7 +229,9 @@ trait ApiJsonCodec extends BootstrapRuntime {
         r    <- ZStream.succeed(resp.asJson.noSpaces).map(body => ByteString(body)).toPublisher
       } yield r).catchSome(catchStreamError)
       Future.successful(
-        Right(Source.fromPublisher(unsafeRun(resp)))
+        Right(Source.fromPublisher(Unsafe.unsafe { implicit runtime =>
+          Runtime.default.unsafe.run(resp).getOrThrowFiberFailure()
+        }))
       )
     }
 

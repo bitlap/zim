@@ -15,33 +15,26 @@
  */
 
 package org.bitlap.zim.server.service.ws
-import akka.actor.typed.DispatcherSelector
+import akka.actor.typed._
 import akka.actor.typed.scaladsl.adapter._
 import akka.actor.{ ActorRef, Status }
-import akka.http.scaladsl.model.ws.{ Message, TextMessage }
+import akka.http.scaladsl.model.ws._
 import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
-import akka.stream.{ CompletionStrategy, Materializer, OverflowStrategy }
-import akka.{ Done, NotUsed }
-import io.circe.syntax.EncoderOps
+import akka.stream._
+import akka._
+import _root_.io.circe.syntax.EncoderOps
 import org.bitlap.zim.api.service.WsService
-import org.bitlap.zim.domain
+import org.bitlap.zim._
 import org.bitlap.zim.domain.ws._
 import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.domain.{ Message => IMMessage, SystemConstant }
-import org.bitlap.zim.server.actor.akka.WsMessageForwardBehavior
-import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
-import org.bitlap.zim.server.configuration.{
-  AkkaActorSystemConfiguration,
-  ZimServiceConfiguration,
-  ZioActorSystemConfiguration
-}
-import org.bitlap.zim.server.service.RedisCache
-import org.bitlap.zim.server.zioRuntime
-import org.reactivestreams.Publisher
+import org.bitlap.zim.server.actor.akka._
+import org.bitlap.zim.server.configuration._
+import org.bitlap.zim.server.service._
+import org.reactivestreams._
 import zio._
-import zio.actors.akka.AkkaTypedActor
 
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
 
@@ -51,10 +44,10 @@ import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
  */
 object WsService extends ZimServiceConfiguration {
 
-  private lazy val live: URLayer[ZApplicationConfiguration, Has[WsService[Task]]] = (r => WsServiceLive(r)).toLayer
-
-  // 非最佳实践
-  private lazy val wsLayer: ULayer[Has[WsService[Task]]] = applicationConfigurationLayer >>> WsService.live
+  private lazy val wsLayer: ULayer[WsService[Task]] = ZLayer.make[WsService[Task]](
+    applicationConfigurationLayer,
+    ZLayer(ZIO.service[ApplicationConfiguration].map(WsServiceLive.apply))
+  )
 
   final lazy val actorRefSessions: ConcurrentHashMap[Integer, ActorRef] = new ConcurrentHashMap[Integer, ActorRef]
 
@@ -62,46 +55,46 @@ object WsService extends ZimServiceConfiguration {
 
   // 非最佳实践，为了使用unsafeRun，不能把environment传递到最外层，这里直接provideLayer
   def sendMessage(message: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService[Task]](_.sendMessage(message)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.sendMessage(message)).provideLayer(wsLayer)
 
   def agreeAddGroup(msg: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService[Task]](_.agreeAddGroup(msg)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.agreeAddGroup(msg)).provideLayer(wsLayer)
 
   def refuseAddGroup(msg: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService[Task]](_.refuseAddGroup(msg)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.refuseAddGroup(msg)).provideLayer(wsLayer)
 
   def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean] =
-    ZIO.serviceWith[WsService[Task]](_.refuseAddFriend(messageBoxId, username, to)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.refuseAddFriend(messageBoxId, username, to)).provideLayer(wsLayer)
 
   def deleteGroup(master: domain.model.User, groupname: String, gid: Int, uid: Int): Task[Unit] =
-    ZIO.serviceWith[WsService[Task]](_.deleteGroup(master, groupname, gid, uid)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.deleteGroup(master, groupname, gid, uid)).provideLayer(wsLayer)
 
   def removeFriend(uId: Int, friendId: Int): Task[Unit] =
-    ZIO.serviceWith[WsService[Task]](_.removeFriend(uId, friendId)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.removeFriend(uId, friendId)).provideLayer(wsLayer)
 
   def addGroup(uId: Int, message: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService[Task]](_.addGroup(uId, message)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.addGroup(uId, message)).provideLayer(wsLayer)
 
   def addFriend(uId: Int, message: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService[Task]](_.addFriend(uId, message)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.addFriend(uId, message)).provideLayer(wsLayer)
 
   def countUnHandMessage(uId: Int): Task[Map[String, String]] =
-    ZIO.serviceWith[WsService[Task]](_.countUnHandMessage(uId)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.countUnHandMessage(uId)).provideLayer(wsLayer)
 
   def checkOnline(message: domain.Message): Task[Map[String, String]] =
-    ZIO.serviceWith[WsService[Task]](_.checkOnline(message)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.checkOnline(message)).provideLayer(wsLayer)
 
   def sendMessage(message: String, actorRef: ActorRef): Task[Unit] =
-    ZIO.serviceWith[WsService[Task]](_.sendMessage(message, actorRef)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.sendMessage(message, actorRef)).provideLayer(wsLayer)
 
   def changeOnline(uId: Int, status: String): Task[Boolean] =
-    ZIO.serviceWith[WsService[Task]](_.changeOnline(uId, status)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.changeOnline(uId, status)).provideLayer(wsLayer)
 
   def readOfflineMessage(message: domain.Message): Task[Unit] =
-    ZIO.serviceWith[WsService[Task]](_.readOfflineMessage(message)).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.readOfflineMessage(message)).provideLayer(wsLayer)
 
   def getConnections: Task[Int] =
-    ZIO.serviceWith[WsService[Task]](_.getConnections).provideLayer(wsLayer)
+    ZIO.serviceWithZIO[WsService[Task]](_.getConnections).provideLayer(wsLayer)
 
   private final lazy val wsConnections: ConcurrentHashMap[Integer, ActorRef] =
     WsService.actorRefSessions
@@ -129,8 +122,8 @@ object WsService extends ZimServiceConfiguration {
         Constants.WS_MESSAGE_FORWARD_ACTOR,
         customDispatcher
       )
-      akkaActor <- AkkaTypedActor.make(akkaTypedActor)
-      _         <- akkaActor ! TransmitMessageProxy(uId, msg, None)
+      // FIXME: until zio-actors support zio 2.0
+      _ <- ZIO.attempt(akkaTypedActor ! TransmitMessageProxy(uId, msg, None))
     } yield ()
 
   /** Connection processing and message processing
@@ -165,13 +158,13 @@ object WsService extends ZimServiceConfiguration {
       // so we only use akka here
       akkaSystem <- AkkaActorSystemConfiguration.make
       akkaTypedActor = akkaSystem.spawn(WsMessageForwardBehavior(), Constants.WS_MESSAGE_FORWARD_ACTOR)
-      _         <- changeStatus(uId, SystemConstant.status.ONLINE)
-      akkaActor <- AkkaTypedActor.make(akkaTypedActor)
+      _ <- changeStatus(uId, SystemConstant.status.ONLINE)
+//      akkaActor <- AkkaTypedActor.make(akkaTypedActor)
       in = Flow[Message]
         .watchTermination()((_, ft) => ft.foreach(_ => closeConnection(uId)))
         .mapConcat {
           case TextMessage.Strict(message) =>
-            zioRuntime.unsafeRun(akkaActor ! TransmitMessageProxy(uId, message, Some(actorRef)))
+            akkaTypedActor ! TransmitMessageProxy(uId, message, Some(actorRef))
             Nil
           case _ => Nil
         }
@@ -187,14 +180,15 @@ object WsService extends ZimServiceConfiguration {
   def closeConnection(id: Int): Unit =
     wsConnections.asScala.get(id).foreach { ar =>
       wsConnections.remove(id)
-      zioRuntime.unsafeRunAsync {
-        changeStatus(id, SystemConstant.status.HIDE)
-          .flatMap(_ => userStatusChangeByServer(id, SystemConstant.status.HIDE))
-      }(ex => ex.unit)
+      Unsafe.unsafe { implicit runtime =>
+        Runtime.default.unsafe
+          .run(changeStatus(id, SystemConstant.status.HIDE) *> userStatusChangeByServer(id, SystemConstant.status.HIDE))
+          .getOrThrowFiberFailure()
+      }
 
       ar ! Status.Success(Done)
     }
 
-  def userStatusChangeByServer(uId: Int, status: String): ZIO[Any, Throwable, Unit] =
-    ZioActorSystemConfiguration.userStatusActor.flatMap(actor => actor ! UserStatusChangeMessage(uId, status))
+  // FIXME: until zio-actors support zio 2.0
+  def userStatusChangeByServer(uId: Int, status: String): ZIO[Any, Throwable, Unit] = ZIO.unit
 }

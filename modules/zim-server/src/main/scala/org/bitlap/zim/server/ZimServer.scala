@@ -16,10 +16,8 @@
 
 package org.bitlap.zim.server
 
-import org.bitlap.zim.infrastructure.util.LogUtil
-import org.bitlap.zim.server.configuration.{ AkkaHttpConfiguration, ApiConfiguration, ZimServiceConfiguration }
+import org.bitlap.zim.server.configuration._
 import zio._
-import zio.console.putStrLn
 
 /** main方法
  *
@@ -27,30 +25,23 @@ import zio.console.putStrLn
  *    梦境迷离
  *  @version 1.0,2021/12/24
  */
-object ZimServer extends ZimServiceConfiguration with zio.App {
-
-  override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
-    (for {
-      routes <- ApiConfiguration.routes
-      _ <- putStrLn("""
-                      |                                 ____
-                      |                ,--,           ,'  , `.
-                      |        ,----,,--.'|        ,-+-,.' _ |
-                      |      .'   .`||  |,      ,-+-. ;   , ||
-                      |   .'   .'  .'`--'_     ,--.'|'   |  ||
-                      | ,---, '   ./ ,' ,'|   |   |  ,', |  |,
-                      | ;   | .'  /  '  | |   |   | /  | |--'
-                      | `---' /  ;--,|  | :   |   : |  | ,
-                      |   /  /  / .`|'  : |__ |   : |  |/
-                      | ./__;     .' |  | '.'||   | |`-'
-                      | ;   |  .'    ;  :    ;|   ;/
-                      | `---'        |  ,   / '---'""".stripMargin)
-      _ <- AkkaHttpConfiguration.httpServer(routes)
-    } yield ())
-      .provideLayer(ZimEnv ++ zio.console.Console.live)
-      .foldM(
-        e => LogUtil.error(s"error => $e").exitCode,
-        _ => UIO.effectTotal(ExitCode.success)
-      )
+object ZimServer extends ZimServiceConfiguration with zio.ZIOAppDefault {
+  override def run = (for {
+    routes <- ApiConfiguration.routes
+    _ <- Console.printLine("""
+        |                                 ____
+        |                ,--,           ,'  , `.
+        |        ,----,,--.'|        ,-+-,.' _ |
+        |      .'   .`||  |,      ,-+-. ;   , ||
+        |   .'   .'  .'`--'_     ,--.'|'   |  ||
+        | ,---, '   ./ ,' ,'|   |   |  ,', |  |,
+        | ;   | .'  /  '  | |   |   | /  | |--'
+        | `---' /  ;--,|  | :   |   : |  | ,
+        |   /  /  / .`|'  : |__ |   : |  |/
+        | ./__;     .' |  | '.'||   | |`-'
+        | ;   |  .'    ;  :    ;|   ;/
+        | `---'        |  ,   / '---'""".stripMargin)
+    _ <- AkkaHttpConfiguration.httpServer(routes)
+  } yield ()).provideLayer(apiConfigurationLayer)
 
 }

@@ -16,15 +16,14 @@
 
 package org.bitlap.zim.auth
 
-import org.bitlap.zim.domain.input.UserSecurity
+import org.bitlap.zim.domain.ZimError._
+import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
-import org.bitlap.zim.domain.ZimError.Unauthorized
-import zio.IO
+import zio._
 
-import java.util.Base64
-import scala.concurrent.Future
+import java.util._
+import scala.concurrent._
 import scala.util.Try
-import scala.concurrent.ExecutionContext.Implicits.global
 
 /** Cookie based authentication
  *
@@ -34,8 +33,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 trait CookieAuthority {
 
-  lazy val zioRuntime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
-
   type AuthorityFunction = (String, String) => IO[Throwable, (Boolean, Option[UserSecurityInfo])]
 
   /** 鉴权，使用Redis缓存用户信息，没有再查库
@@ -44,7 +41,9 @@ trait CookieAuthority {
    */
   def authenticate(
     token: UserSecurity
-  )(authorityFunction: AuthorityFunction): Future[Either[Unauthorized, UserSecurityInfo]] =
+  )(
+    authorityFunction: AuthorityFunction
+  )(implicit ec: ExecutionContext): Future[Either[Unauthorized, UserSecurityInfo]] =
     Future {
       val tk             = if (token.cookie.trim.contains(" ")) token.cookie.trim.split(" ")(1) else token.cookie
       val secret: String = Try(new String(Base64.getDecoder.decode(tk))).getOrElse(null)
@@ -55,7 +54,9 @@ trait CookieAuthority {
         val email            = usernamePassword(0)
         val passwd           = usernamePassword(1)
         val ret              = authorityFunction(email, passwd)
-        val (check, user)    = zioRuntime.unsafeRun(ret)
+        val (check, user) = Unsafe.unsafe { implicit unsafe =>
+          zio.Runtime.default.unsafe.run(ret).getOrThrowFiberFailure()
+        }
         if (!check) {
           Left(Unauthorized())
         } else {

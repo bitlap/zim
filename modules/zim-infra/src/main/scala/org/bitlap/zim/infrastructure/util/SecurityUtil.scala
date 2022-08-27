@@ -17,7 +17,7 @@
 package org.bitlap.zim.infrastructure.util
 
 import zio.crypto.hash.{ Hash, HashAlgorithm, MessageDigest }
-import zio.{ RIO, Task }
+import zio._
 
 import java.nio.charset.StandardCharsets.US_ASCII
 
@@ -48,9 +48,9 @@ object SecurityUtil {
    *    Boolean
    */
   def matched(rawPassword: String, password: String): Task[Boolean] =
-    (if (rawPassword == null && password == null) RIO.succeed(true)
-     else if (rawPassword == null || password == null) RIO.succeed(false)
-     else if (rawPassword == "" || password == "") RIO.succeed(false)
+    (if (rawPassword == null && password == null) ZIO.succeed(true)
+     else if (rawPassword == null || password == null) ZIO.succeed(false)
+     else if (rawPassword == "" || password == "") ZIO.succeed(false)
      else Hash.verify[HashAlgorithm.SHA256](rawPassword, MessageDigest[String](password), charset = US_ASCII))
       .provideLayer(Hash.live)
 

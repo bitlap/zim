@@ -15,29 +15,29 @@
  */
 
 package org.bitlap.zim.server.repository
-import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository
-import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
-import org.bitlap.zim.server.BaseSuit
+import org.bitlap.zim.api.repository.GroupMemberRepository
+import org.bitlap.zim.infrastructure.repository.{ RStream, TangibleGroupMemberRepository }
+import org.bitlap.zim.server.ZIOBaseSuit
 import org.bitlap.zim.server.repository.TangibleGroupMemberRepositorySpec.TangibleGroupMemberRepositoryConfigurationSpec
 import scalikejdbc._
-import zio.{ ULayer, ZIO }
+import zio._
 import zio.test._
 import zio.test.Assertion._
 
 object TangibleGroupMemberRepositoryMainSpec extends TangibleGroupMemberRepositoryConfigurationSpec {
-  override def spec: ZSpec[Environment, Failure] = suite("Tangible GroupMember Repository")(
-    testM("find by id") {
+  override def spec = suite("Tangible GroupMember Repository")(
+    test("find by id") {
       for {
         _  <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead
         gm <- TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
       } yield assert(gm)(equalTo(Some(mockGroupMembers)))
     } @@ TestAspect.before(ZIO.succeed(before)),
-    testM("find group members") {
+    test("find group members") {
       for {
         uid <- TangibleGroupMemberRepository.findGroupMembers(mockGroupMembers.gid).runHead
       } yield assert(uid)(equalTo(Some(1)))
     },
-    testM("leave out group") {
+    test("leave out group") {
       for {
         _  <- TangibleGroupMemberRepository.leaveOutGroup(mockGroupMembers).runHead
         gm <- TangibleGroupMemberRepository.findById(mockGroupMembers.id).runHead
@@ -48,7 +48,7 @@ object TangibleGroupMemberRepositoryMainSpec extends TangibleGroupMemberReposito
 }
 
 object TangibleGroupMemberRepositorySpec {
-  trait TangibleGroupMemberRepositoryConfigurationSpec extends BaseSuit {
+  trait TangibleGroupMemberRepositoryConfigurationSpec extends ZIOBaseSuit {
     override val sqlAfter: SQL[_, NoExtractor] =
       sql"""
         drop table if exists t_group;
@@ -74,7 +74,8 @@ object TangibleGroupMemberRepositorySpec {
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
          """
-    val env: ULayer[ZGroupMemberRepository] = TangibleGroupMemberRepository.make(h2ConfigurationProperties.databaseName)
+    val env: ULayer[GroupMemberRepository[RStream]] =
+      TangibleGroupMemberRepository.make(h2ConfigurationProperties.databaseName)
   }
 
 }

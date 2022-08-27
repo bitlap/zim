@@ -21,7 +21,7 @@ import org.bitlap.zim.api.repository.Condition
 import scalikejdbc.{ SQL, _ }
 import scalikejdbc.streams._
 import sqls.count
-import zio.{ stream, Task }
+import zio._
 import zio.interop.reactivestreams._
 import zio.stream.ZStream
 
@@ -48,8 +48,8 @@ package object repository {
    */
   implicit class sqlUpdateWithGeneratedKey(sqlUpdateWithGeneratedKey: SQLUpdateWithGeneratedKey) {
     def toUpdateReturnKey(implicit databaseName: String): stream.Stream[Throwable, Long] =
-      ZStream.fromEffect(
-        Task.effect(NamedDB(Symbol(databaseName)).localTx(implicit session => sqlUpdateWithGeneratedKey.apply()))
+      ZStream.fromZIO(
+        ZIO.attempt(NamedDB(Symbol(databaseName)).localTx(implicit session => sqlUpdateWithGeneratedKey.apply()))
       )
   }
 
@@ -59,8 +59,8 @@ package object repository {
    */
   implicit class executeUpdateOperation(sqlUpdate: SQLUpdate) {
     def toUpdateOperation(implicit databaseName: String): stream.Stream[Throwable, Int] =
-      ZStream.fromEffect(
-        Task.effect(NamedDB(Symbol(databaseName)).localTx(implicit session => sqlUpdate.apply()))
+      ZStream.fromZIO(
+        ZIO.attempt(NamedDB(Symbol(databaseName)).localTx(implicit session => sqlUpdate.apply()))
       )
   }
 
@@ -81,7 +81,7 @@ package object repository {
    */
   implicit class executeStreamOperation[T](streamReadySQL: StreamReadySQL[T]) {
     def toStreamOperation(implicit databaseName: String): stream.Stream[Throwable, T] =
-      (NamedDB(Symbol(databaseName)) readOnlyStream streamReadySQL).toStream()
+      (NamedDB(Symbol(databaseName)) readOnlyStream streamReadySQL).toZIOStream()
   }
 
   implicit final class SQLSyntaxStringArrow[T](private val self: String)(implicit

@@ -18,7 +18,6 @@ package org.bitlap.zim.server.configuration
 
 import akka.actor.ActorSystem
 import zio._
-import org.bitlap.zim.infrastructure.InfrastructureConfiguration.ZInfrastructureConfiguration
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 
 /** akka actor configuration
@@ -30,16 +29,14 @@ import org.bitlap.zim.infrastructure.InfrastructureConfiguration
  */
 object AkkaActorSystemConfiguration {
 
-  type ZAkkaActorSystemConfiguration = Has[ActorSystem]
-
   /** create actorSystem，convert to classic actor when use it in akkahttp
    */
-  private lazy val actorSystem: RIO[ZInfrastructureConfiguration, ActorSystem] =
-    Task.effect(ActorSystem("akkaActorSystem"))
+  private lazy val actorSystem: RIO[InfrastructureConfiguration, ActorSystem] =
+    ZIO.attempt(ActorSystem("akkaActorSystem"))
 
-  val live: RLayer[ZInfrastructureConfiguration, ZAkkaActorSystemConfiguration] = ZLayer
-    .fromAcquireRelease(actorSystem)(actorSystem => UIO.succeed(actorSystem.terminate()).ignore)
+  val live: RLayer[InfrastructureConfiguration, ActorSystem] = ZLayer(ZIO.scoped {
+    ZIO.acquireRelease(actorSystem)(actorSystem => ZIO.succeed(actorSystem.terminate()).ignore)
+  })
 
   def make: Task[ActorSystem] = AkkaActorSystemConfiguration.actorSystem.provideLayer(InfrastructureConfiguration.live)
-
 }

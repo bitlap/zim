@@ -15,16 +15,10 @@
  */
 
 package org.bitlap.zim.server.service
+import org.bitlap.zim.api.repository._
 import org.bitlap.zim.infrastructure._
-import org.bitlap.zim.infrastructure.repository.TangibleAddMessageRepository.ZAddMessageRepository
-import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
-import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
-import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
-import org.bitlap.zim.infrastructure.repository.TangibleGroupRepository.ZGroupRepository
-import org.bitlap.zim.infrastructure.repository.TangibleReceiveRepository.ZReceiveRepository
-import org.bitlap.zim.infrastructure.repository.TangibleUserRepository.ZUserRepository
-import org.bitlap.zim.server.service.UserServiceImpl.ZUserApplication
-import zio.{ Layer, TaskLayer, ULayer, ZLayer }
+import org.bitlap.zim.infrastructure.repository.RStream
+import zio._
 
 /** 测试service的所有layer
  *
@@ -37,33 +31,34 @@ trait TestServiceEnv {
 
   lazy val infra = InfrastructureConfiguration()
 
-  val friendGroupLayer: ULayer[ZFriendGroupRepository] = ZLayer.succeed(infra.friendGroupRepository)
+  val friendGroupLayer: ULayer[FriendGroupRepository[RStream]] = ZLayer.succeed(infra.friendGroupRepository)
 
-  val groupLayer: ULayer[ZGroupRepository] = ZLayer.succeed(infra.groupRepository)
+  val groupLayer: ULayer[GroupRepository[RStream]] = ZLayer.succeed(infra.groupRepository)
 
-  val receiveLayer: ULayer[ZReceiveRepository] = ZLayer.succeed(infra.receiveRepository)
+  val receiveLayer: ULayer[ReceiveRepository[RStream]] = ZLayer.succeed(infra.receiveRepository)
 
-  val groupMemberLayer: ULayer[ZGroupMemberRepository] = ZLayer.succeed(infra.groupMemberRepository)
+  val groupMemberLayer: ULayer[GroupMemberRepository[RStream]] = ZLayer.succeed(infra.groupMemberRepository)
 
-  val friendGroupMemberLayer: ULayer[ZFriendGroupFriendRepository] = ZLayer.succeed(infra.friendGroupFriendRepository)
+  val friendGroupMemberLayer: ULayer[FriendGroupFriendRepository[RStream]] =
+    ZLayer.succeed(infra.friendGroupFriendRepository)
 
-  val addMessageLayer: ULayer[ZAddMessageRepository] = ZLayer.succeed(infra.addMessageRepository)
+  val addMessageLayer: ULayer[AddMessageRepository[RStream]] = ZLayer.succeed(infra.addMessageRepository)
 
-  val userLayer: ZLayer[Any, Throwable, ZUserRepository] =
+  val userLayer: ZLayer[Any, Throwable, UserRepository[RStream]] =
     ZLayer.succeed(infra.userRepository)
 
   val repositoryLayer: Layer[
     Throwable,
-    ZUserRepository
-      with ZGroupRepository
-      with ZReceiveRepository
-      with ZFriendGroupRepository
-      with ZFriendGroupFriendRepository
-      with ZGroupMemberRepository
-      with ZAddMessageRepository
+    UserRepository[RStream]
+      with GroupRepository[RStream]
+      with ReceiveRepository[RStream]
+      with FriendGroupRepository[RStream]
+      with FriendGroupFriendRepository[RStream]
+      with GroupMemberRepository[RStream]
+      with AddMessageRepository[RStream]
   ] = userLayer ++ groupLayer ++ receiveLayer ++ friendGroupLayer ++
     friendGroupMemberLayer ++ groupMemberLayer ++ addMessageLayer
 
-  lazy val userApplicationLayer: TaskLayer[ZUserApplication] = repositoryLayer >>> UserServiceImpl.live
+  lazy val userServiceLayer = repositoryLayer >>> UserServiceImpl.live
 
 }

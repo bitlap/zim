@@ -19,7 +19,7 @@ package org.bitlap.zim.infrastructure.repository
 import org.bitlap.zim.domain.model.AddFriend
 import org.bitlap.zim.api.repository.FriendGroupFriendRepository
 import scalikejdbc._
-import zio.{ stream, Has, ULayer, URLayer, ZLayer }
+import zio._
 import zio.stream.ZStream
 
 /** 好友分组操作实现
@@ -54,27 +54,26 @@ object TangibleFriendGroupFriendRepository {
   def apply(databaseName: String): FriendGroupFriendRepository[RStream] =
     new TangibleFriendGroupFriendRepository(databaseName)
 
-  type ZFriendGroupFriendRepository = Has[FriendGroupFriendRepository[RStream]]
+  def findById(id: Int): stream.ZStream[FriendGroupFriendRepository[RStream], Throwable, AddFriend] =
+    stream.ZStream.environmentWithStream(_.get.findById(id))
 
-  def findById(id: Int): stream.ZStream[ZFriendGroupFriendRepository, Throwable, AddFriend] =
-    stream.ZStream.accessStream(_.get.findById(id))
+  def removeFriend(friendId: Int, uId: Int): ZStream[FriendGroupFriendRepository[RStream], Throwable, Int] =
+    ZStream.environmentWithStream(_.get.removeFriend(friendId, uId))
 
-  def removeFriend(friendId: Int, uId: Int): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
-    ZStream.accessStream(_.get.removeFriend(friendId, uId))
+  def changeGroup(groupId: Int, originRecordId: Int): ZStream[FriendGroupFriendRepository[RStream], Throwable, Int] =
+    ZStream.environmentWithStream(_.get.changeGroup(groupId, originRecordId))
 
-  def changeGroup(groupId: Int, originRecordId: Int): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
-    ZStream.accessStream(_.get.changeGroup(groupId, originRecordId))
+  def findUserGroup(uId: Int, mId: Int): ZStream[FriendGroupFriendRepository[RStream], Throwable, Int] =
+    ZStream.environmentWithStream(_.get.findUserGroup(uId, mId))
 
-  def findUserGroup(uId: Int, mId: Int): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
-    ZStream.accessStream(_.get.findUserGroup(uId, mId))
+  def addFriend(from: AddFriend, to: AddFriend): ZStream[FriendGroupFriendRepository[RStream], Throwable, Int] =
+    ZStream.environmentWithStream(_.get.addFriend(from, to))
 
-  def addFriend(from: AddFriend, to: AddFriend): ZStream[ZFriendGroupFriendRepository, Throwable, Int] =
-    ZStream.accessStream(_.get.addFriend(from, to))
+  val live: URLayer[String, FriendGroupFriendRepository[RStream]] = ZLayer(
+    ZIO.service[String].map(TangibleFriendGroupFriendRepository.apply)
+  )
 
-  val live: URLayer[Has[String], ZFriendGroupFriendRepository] =
-    ZLayer.fromService[String, FriendGroupFriendRepository[RStream]](TangibleFriendGroupFriendRepository(_))
-
-  def make(databaseName: String): ULayer[ZFriendGroupFriendRepository] =
+  def make(databaseName: String): ULayer[FriendGroupFriendRepository[RStream]] =
     ZLayer.succeed(databaseName) >>> live
 
 }

@@ -15,12 +15,12 @@
  */
 
 package org.bitlap.zim.server.repository
-import org.bitlap.zim.server.BaseData
-import org.bitlap.zim.server.repository.TangibleAddMessageRepositorySpec.TangibleAddMessageRepositoryConfigurationSpec
-import scalikejdbc._
-import zio.ULayer
+import org.bitlap.zim.api.repository._
 import org.bitlap.zim.infrastructure.repository._
-import org.bitlap.zim.infrastructure.repository.TangibleAddMessageRepository.ZAddMessageRepository
+import org.bitlap.zim.server.BaseData
+import org.bitlap.zim.server.repository.TangibleAddMessageRepositorySpec._
+import scalikejdbc._
+import zio._
 
 /** @author
  *    梦境迷离
@@ -117,7 +117,7 @@ object TangibleAddMessageRepositorySpec {
           ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
          """
 
-    val env: ULayer[ZAddMessageRepository] =
+    val env: ULayer[AddMessageRepository[RStream]] =
       TangibleAddMessageRepository.make(h2ConfigurationProperties.databaseName)
   }
 

@@ -19,7 +19,7 @@ package org.bitlap.zim.infrastructure.repository
 import org.bitlap.zim.domain.model.FriendGroup
 import org.bitlap.zim.api.repository.FriendGroupRepository
 import scalikejdbc._
-import zio.{ stream, Has, ULayer, URLayer, ZLayer }
+import zio._
 
 /** 好友分组操作实现
  *
@@ -48,21 +48,19 @@ object TangibleFriendGroupRepository {
   def apply(databaseName: String): FriendGroupRepository[RStream] =
     new TangibleFriendGroupRepository(databaseName)
 
-  type ZFriendGroupRepository = Has[FriendGroupRepository[RStream]]
+  def findById(id: Int): stream.ZStream[FriendGroupRepository[RStream], Throwable, FriendGroup] =
+    stream.ZStream.environmentWithStream(_.get.findById(id))
 
-  def findById(id: Int): stream.ZStream[ZFriendGroupRepository, Throwable, FriendGroup] =
-    stream.ZStream.accessStream(_.get.findById(id))
+  def createFriendGroup(friend: FriendGroup): stream.ZStream[FriendGroupRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.createFriendGroup(friend))
 
-  def createFriendGroup(friend: FriendGroup): stream.ZStream[ZFriendGroupRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.createFriendGroup(friend))
+  def findFriendGroupsById(uid: Int): stream.ZStream[FriendGroupRepository[RStream], Throwable, FriendGroup] =
+    stream.ZStream.environmentWithStream(_.get.findFriendGroupsById(uid))
 
-  def findFriendGroupsById(uid: Int): stream.ZStream[ZFriendGroupRepository, Throwable, FriendGroup] =
-    stream.ZStream.accessStream(_.get.findFriendGroupsById(uid))
+  val live: URLayer[String, FriendGroupRepository[RStream]] = ZLayer(
+    ZIO.service[String].map(TangibleFriendGroupRepository.apply)
+  )
 
-  val live: URLayer[Has[String], ZFriendGroupRepository] =
-    ZLayer.fromService[String, FriendGroupRepository[RStream]](TangibleFriendGroupRepository(_))
-
-  def make(databaseName: String): ULayer[ZFriendGroupRepository] =
-    ZLayer.succeed(databaseName) >>> live
+  def make(databaseName: String): ULayer[FriendGroupRepository[RStream]] = ZLayer.succeed(databaseName) >>> live
 
 }

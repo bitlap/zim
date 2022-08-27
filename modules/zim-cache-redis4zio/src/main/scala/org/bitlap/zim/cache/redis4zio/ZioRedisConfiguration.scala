@@ -18,8 +18,7 @@ package org.bitlap.zim.cache.redis4zio
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import zio._
-import zio.logging.Logging
-import zio.redis.{ Redis, RedisConfig, RedisError, RedisExecutor }
+import zio.redis.{ Redis, RedisConfig, RedisError, RedisExecutor, RedisLive }
 import zio.schema.codec.{ Codec, ProtobufCodec }
 
 /** redis configuration
@@ -40,14 +39,11 @@ object ZioRedisConfiguration {
       RedisConfig(conf.getString("host"), conf.getInt("port"))
     }
 
-  private val codec: ULayer[Has[Codec]] = ZLayer.succeed[Codec](ProtobufCodec)
+  private val codec: ULayer[Codec] = ZLayer.succeed[Codec](ProtobufCodec)
 
-  // local redis layer
-  private lazy val live: Layer[RedisError.IOError, Has[RedisExecutor]] =
-    (Logging.ignore ++ ZLayer.succeed(redisConf)) >>> RedisExecutor.local
+  private lazy val zioRedisLayer: Layer[RedisError.IOError, Redis] =
+    ZLayer.make[Redis](ZLayer.succeed(redisConf), RedisExecutor.layer, codec, RedisLive.layer)
 
-  private lazy val cacheLayer: URLayer[Has[Redis], ZRedisService] = (r => ZioRedisLive(r)).toLayer
-
-  val redisLayer: Layer[RedisError.IOError, ZRedisService] =
-    (ZioRedisConfiguration.live ++ ZioRedisConfiguration.codec) >>> (Redis.live >>> cacheLayer)
+  lazy val zimRedisLayer: Layer[RedisError.IOError, ZioRedisLive] =
+    zioRedisLayer >>> ZLayer.fromFunction(ZioRedisLive.apply _)
 }

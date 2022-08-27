@@ -21,9 +21,9 @@ import org.bitlap.zim.domain.model.{ AddMessage, GroupList, User }
 import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
 import org.bitlap.zim.server.util.DateHelper
 import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings, NamedDB, NoExtractor, SQL }
-import zio.test.DefaultRunnableSpec
+import zio.test.ZIOSpecDefault
 
-trait BaseSuit extends DefaultRunnableSpec {
+trait ZIOBaseSuit extends ZIOSpecDefault {
   val sqlBefore: SQL[_, NoExtractor] = null
 
   val sqlAfter: SQL[_, NoExtractor] = null

@@ -15,19 +15,13 @@
  */
 
 package org.bitlap.zim.server.repository
-import org.bitlap.zim.infrastructure.repository._
-
-import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.server.BaseData
-import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
-import org.bitlap.zim.server.repository.TangibleUserRepositorySpec.TangibleUserRepositoryConfigurationSpec
-import scalikejdbc._
-import zio.{ Chunk, ULayer, ZLayer }
-import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
-import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
-import org.bitlap.zim.infrastructure.repository.TangibleGroupRepository.ZGroupRepository
-import org.bitlap.zim.infrastructure.repository.TangibleUserRepository.ZUserRepository
+import org.bitlap.zim.api.repository._
 import org.bitlap.zim.domain.model._
+import org.bitlap.zim.infrastructure.repository._
+import org.bitlap.zim.server.BaseData
+import org.bitlap.zim.server.repository.TangibleUserRepositorySpec._
+import scalikejdbc._
+import zio._
 
 /** t_user、t_group_members、t_friend_group_friends、t_friend_group 表操作的单测
  *
@@ -355,33 +349,32 @@ object TangibleUserRepositorySpec {
               `group_name` varchar(64) NOT NULL COMMENT '分组名称',
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-
          """
 
-    val friendGroupLayer: ULayer[ZFriendGroupRepository] =
+    val friendGroupLayer: ULayer[FriendGroupRepository[RStream]] =
       TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
 
-    val groupLayer: ULayer[ZGroupRepository] =
+    val groupLayer: ULayer[GroupRepository[RStream]] =
       TangibleGroupRepository.make(h2ConfigurationProperties.databaseName)
 
-    val groupMemberLayer: ULayer[ZGroupMemberRepository] =
+    val groupMemberLayer: ULayer[GroupMemberRepository[RStream]] =
       TangibleGroupMemberRepository.make(h2ConfigurationProperties.databaseName)
 
-    val friendGroupMemberLayer: ULayer[ZFriendGroupFriendRepository] =
+    val friendGroupMemberLayer: ULayer[FriendGroupFriendRepository[RStream]] =
       TangibleFriendGroupFriendRepository.make(h2ConfigurationProperties.databaseName)
 
     // show a layer specified as Throwable
-    val userLayer: ZLayer[Any, Throwable, ZUserRepository] =
+    val userLayer: ZLayer[Any, Throwable, UserRepository[RStream]] =
       TangibleUserRepository.make(h2ConfigurationProperties.databaseName)
 
     val env: ZLayer[
       Any,
       Throwable,
-      ZFriendGroupRepository
-        with ZFriendGroupFriendRepository
-        with ZUserRepository
-        with ZGroupMemberRepository
-        with ZGroupRepository
+      FriendGroupRepository[RStream]
+        with FriendGroupFriendRepository[RStream]
+        with UserRepository[RStream]
+        with GroupMemberRepository[RStream]
+        with GroupRepository[RStream]
     ] =
       friendGroupLayer ++ friendGroupMemberLayer ++ userLayer ++ groupMemberLayer ++ groupLayer
 

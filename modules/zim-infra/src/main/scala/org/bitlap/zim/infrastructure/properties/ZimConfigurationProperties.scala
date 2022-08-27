@@ -17,7 +17,7 @@
 package org.bitlap.zim.infrastructure.properties
 
 import com.typesafe.config.{ Config, ConfigFactory }
-import zio.{ Has, UIO, ULayer, ZIO, ZLayer }
+import zio._
 
 /** application configuration（exclude database）
  *
@@ -37,10 +37,8 @@ object ZimConfigurationProperties {
 
   lazy val config: Config = ConfigFactory.load().getConfig("application")
 
-  type ZZimConfigurationProperties = Has[ZimConfigurationProperties]
-
-  val live: ULayer[ZZimConfigurationProperties] =
-    ZLayer.succeed(config) >>> ZLayer.fromService[Config, ZimConfigurationProperties](ZimConfigurationProperties(_))
+  val live: ULayer[ZimConfigurationProperties] =
+    ZLayer.succeed(config) >>> ZLayer(ZIO.service[Config].map(ZimConfigurationProperties.apply))
 
   def make: UIO[ZimConfigurationProperties] = ZIO.succeed(ZimConfigurationProperties(config))
 

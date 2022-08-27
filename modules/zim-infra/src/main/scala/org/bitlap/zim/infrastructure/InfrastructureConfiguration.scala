@@ -96,14 +96,10 @@ final class InfrastructureConfiguration {
 /** infrastructure dependencies
  */
 object InfrastructureConfiguration {
-
   def apply(): InfrastructureConfiguration = new InfrastructureConfiguration()
-
-  type ZInfrastructureConfiguration = Has[InfrastructureConfiguration]
-
   // ==================================system configuration============================================
-  val mysqlConfigurationProperties: URIO[ZInfrastructureConfiguration, MysqlConfigurationProperties] =
-    ZIO.access(_.get.mysqlConfigurationProperties)
+  val mysqlConfigurationProperties: URIO[InfrastructureConfiguration, MysqlConfigurationProperties] =
+    ZIO.environmentWith(_.get.mysqlConfigurationProperties)
 
   val zimConfigurationProperties: UIO[ZimConfigurationProperties] =
     ZimConfigurationProperties.make
@@ -112,25 +108,25 @@ object InfrastructureConfiguration {
     MailConfigurationProperties.make
 
   // ==================================数据库============================================
-  val userRepository: URIO[ZInfrastructureConfiguration, UserRepository[RStream]] =
-    ZIO.access(_.get.userRepository)
+  val userRepository: URIO[InfrastructureConfiguration, UserRepository[RStream]] =
+    ZIO.environmentWith(_.get.userRepository)
 
-  val groupRepository: URIO[ZInfrastructureConfiguration, GroupRepository[RStream]] =
-    ZIO.access(_.get.groupRepository)
+  val groupRepository: URIO[InfrastructureConfiguration, GroupRepository[RStream]] =
+    ZIO.environmentWith(_.get.groupRepository)
 
-  val receiveRepository: URIO[ZInfrastructureConfiguration, ReceiveRepository[RStream]] =
-    ZIO.access(_.get.receiveRepository)
+  val receiveRepository: URIO[InfrastructureConfiguration, ReceiveRepository[RStream]] =
+    ZIO.environmentWith(_.get.receiveRepository)
 
-  val friendGroupFriendRepository: URIO[ZInfrastructureConfiguration, FriendGroupFriendRepository[RStream]] =
-    ZIO.access(_.get.friendGroupFriendRepository)
+  val friendGroupFriendRepository: URIO[InfrastructureConfiguration, FriendGroupFriendRepository[RStream]] =
+    ZIO.environmentWith(_.get.friendGroupFriendRepository)
 
-  val groupMemberRepository: URIO[ZInfrastructureConfiguration, GroupMemberRepository[RStream]] =
-    ZIO.access(_.get.groupMemberRepository)
+  val groupMemberRepository: URIO[InfrastructureConfiguration, GroupMemberRepository[RStream]] =
+    ZIO.environmentWith(_.get.groupMemberRepository)
 
-  val addMessageRepository: URIO[ZInfrastructureConfiguration, AddMessageRepository[RStream]] =
-    ZIO.access(_.get.addMessageRepository)
+  val addMessageRepository: URIO[InfrastructureConfiguration, AddMessageRepository[RStream]] =
+    ZIO.environmentWith(_.get.addMessageRepository)
 
-  val live: ULayer[ZInfrastructureConfiguration] =
+  val live: ULayer[InfrastructureConfiguration] =
     ZLayer.succeed[InfrastructureConfiguration](InfrastructureConfiguration())
 
 }

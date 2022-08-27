@@ -16,27 +16,20 @@
 
 package org.bitlap.zim.server.service
 
-import org.bitlap.zim.api.service.UserService
-import org.bitlap.zim.domain
-import org.bitlap.zim.domain.ZimError.BusinessException
+import org.bitlap.zim.api.repository._
+import org.bitlap.zim.api.service._
+import org.bitlap.zim._
+import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
-import org.bitlap.zim.api.repository._
-import org.bitlap.zim.infrastructure.InfrastructureConfiguration
+import org.bitlap.zim.infrastructure._
 import org.bitlap.zim.infrastructure.repository.RStream
-import org.bitlap.zim.infrastructure.repository.TangibleAddMessageRepository.ZAddMessageRepository
-import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
-import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
-import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
-import org.bitlap.zim.infrastructure.repository.TangibleGroupRepository.ZGroupRepository
-import org.bitlap.zim.infrastructure.repository.TangibleReceiveRepository.ZReceiveRepository
-import org.bitlap.zim.infrastructure.repository.TangibleUserRepository.ZUserRepository
-import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil, UuidUtil }
+import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.service.ws.WsService
-import zio.stream.ZStream
-import zio.{ Has, URLayer, ZLayer }
+import zio.stream._
+import zio._
 
-import java.time.ZonedDateTime
+import java.time._
 
 /** 用户服务
  *
@@ -71,7 +64,7 @@ private final class UserServiceImpl(
           groupMemberRepository.findGroupMembers(gid).flatMap { uid =>
             // group owner leave
             groupMemberRepository.leaveOutGroup(GroupMember(gid, uid)) *>
-              ZStream.fromEffect(WsService.deleteGroup(master, group.groupName, gid, uid))
+              ZStream.fromZIO(WsService.deleteGroup(master, group.groupName, gid, uid))
           }
         } else ZStream.succeed(1)
     } yield ret
@@ -170,7 +163,7 @@ private final class UserServiceImpl(
     addMessageRepository.updateAgree(messageBoxId, agree).map(_ == 1)
 
   override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): RStream[Boolean] =
-    ZStream.fromEffect(WsService.refuseAddFriend(messageBoxId, username, to))
+    ZStream.fromZIO(WsService.refuseAddFriend(messageBoxId, username, to))
 
   override def readFriendMessage(mine: Int, to: Int): RStream[Boolean] =
     receiveRepository.readMessage(mine, to, SystemConstant.FRIEND_TYPE).map(_ == 1)
@@ -268,7 +261,7 @@ private final class UserServiceImpl(
   override def matchUser(user: User): RStream[User] =
     for {
       u <- userRepository.matchUser(user.email) // FIXME 前端加密传输
-      isMath <- ZStream.fromEffect(
+      isMath <- ZStream.fromZIO(
         SecurityUtil
           .matched(user.password, Option(u).map(_.password).getOrElse(""))
       )
@@ -291,7 +284,7 @@ private final class UserServiceImpl(
       groupList <- friendGroupRepository.findFriendGroupsById(uid).map { friendGroup =>
         FriendList(id = friendGroup.id, groupName = friendGroup.groupName, Nil)
       }
-      users <- ZStream.fromEffect(userRepository.findUsersByFriendGroupIds(groupList.id).runCollect)
+      users <- ZStream.fromZIO(userRepository.findUsersByFriendGroupIds(groupList.id).runCollect)
       _     <- LogUtil.infoS(s"findFriendGroupsById uid=>$uid, groupList=>$groupList, users=>$users")
     } yield groupList.copy(list = users.toList)
 
@@ -303,7 +296,7 @@ private final class UserServiceImpl(
 
   override def saveUser(user: User): RStream[Boolean] =
     // TODO createFriendGroup不用返回Stream会好看点
-    ZStream.fromEffect {
+    ZStream.fromZIO {
       for {
         activeCode <- UuidUtil.getUuid64
         pwd        <- SecurityUtil.encrypt(user.password)
@@ -336,8 +329,6 @@ private final class UserServiceImpl(
 
 object UserServiceImpl {
 
-  type ZUserApplication = Has[UserService[RStream]]
-
   def apply(
     userRepository: UserRepository[RStream],
     groupRepository: GroupRepository[RStream],
@@ -359,23 +350,31 @@ object UserServiceImpl {
 
   // 测试用
   // TODO 构造注入的代价，以后少用
-  val live: URLayer[
-    ZUserRepository
-      with ZGroupRepository
-      with ZReceiveRepository
-      with ZFriendGroupRepository
-      with ZFriendGroupFriendRepository
-      with ZFriendGroupFriendRepository
-      with ZGroupMemberRepository
-      with ZAddMessageRepository,
-    ZUserApplication
-  ] =
-    ZLayer.fromServices[UserRepository[RStream], GroupRepository[RStream], ReceiveRepository[
-      RStream
-    ], FriendGroupRepository[RStream], FriendGroupFriendRepository[RStream], GroupMemberRepository[
-      RStream
-    ], AddMessageRepository[RStream], UserService[RStream]] { (a, b, c, d, e, f, g) =>
-      UserServiceImpl(a, b, c, d, e, f, g)
+  val live: URLayer[AddMessageRepository[RStream]
+    with GroupMemberRepository[RStream]
+    with FriendGroupFriendRepository[RStream]
+    with FriendGroupRepository[RStream]
+    with ReceiveRepository[RStream]
+    with GroupRepository[RStream]
+    with UserRepository[RStream], UserService[RStream]] =
+    ZLayer {
+      for {
+        user              <- ZIO.service[UserRepository[RStream]]
+        group             <- ZIO.service[GroupRepository[RStream]]
+        receive           <- ZIO.service[ReceiveRepository[RStream]]
+        friendGroup       <- ZIO.service[FriendGroupRepository[RStream]]
+        friendGroupFriend <- ZIO.service[FriendGroupFriendRepository[RStream]]
+        groupMember       <- ZIO.service[GroupMemberRepository[RStream]]
+        addMessage        <- ZIO.service[AddMessageRepository[RStream]]
+      } yield UserServiceImpl(
+        userRepository = user,
+        groupRepository = group,
+        receiveRepository = receive,
+        friendGroupRepository = friendGroup,
+        friendGroupFriendRepository = friendGroupFriend,
+        groupMemberRepository = groupMember,
+        addMessageRepository = addMessage
+      )
     }
 
 }
