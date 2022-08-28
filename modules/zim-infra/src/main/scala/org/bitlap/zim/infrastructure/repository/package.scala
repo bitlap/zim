@@ -17,7 +17,7 @@
 package org.bitlap.zim.infrastructure
 
 import org.bitlap.zim.domain.model._
-import org.bitlap.zim.domain.repository.Condition
+import org.bitlap.zim.api.repository.Condition
 import scalikejdbc.{ SQL, _ }
 import scalikejdbc.streams._
 import sqls.count
@@ -89,8 +89,8 @@ package object repository {
   ) {
 
     import eu.timepit.refined.refineV
-    import org.bitlap.zim.domain.repository.Condition._
-    import org.bitlap.zim.domain.repository.Condition.ConditionValidator._
+    import org.bitlap.zim.api.repository.Condition._
+    import org.bitlap.zim.api.repository.Condition.ConditionValidator._
 
     @inline def like(y: Option[String]): Option[ZCondition] =
       refineV(Condition(self, y.map(sqls.like(sp.column(self), _)).orNull)).toOption

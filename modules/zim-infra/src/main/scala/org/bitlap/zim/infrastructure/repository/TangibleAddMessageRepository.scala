@@ -17,7 +17,7 @@
 package org.bitlap.zim.infrastructure.repository
 
 import org.bitlap.zim.domain.model.AddMessage
-import org.bitlap.zim.domain.repository.AddMessageRepository
+import org.bitlap.zim.api.repository.AddMessageRepository
 import scalikejdbc._
 import zio._
 import zio.stream.ZStream

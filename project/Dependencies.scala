@@ -10,7 +10,7 @@ object Dependencies {
   object Version {
     val zio                           = "1.0.16"
     val `zio-logging`                 = "0.5.14"
-    val tapir                         = "1.0.5"
+    val tapir                         = "1.0.6"
     val `akka-http`                   = "10.2.9"
     val akka                          = "2.6.19"
     val circe                         = "0.14.2"
@@ -19,15 +19,15 @@ object Dependencies {
     val config                        = "1.4.1"
     val `zio-interop-reactiveStreams` = "1.3.12"
     val mysql                         = "8.0.30"
-    val `simple-java-mail`            = "7.1.3"
+    val `simple-java-mail`            = "7.5.0"
     val h2                            = "2.1.214"
     val scalaTest                     = "3.2.13"
     val `zio-actors`                  = "0.0.9"
     val refined                       = "0.10.1"
-    val `zio-schema`                  = "0.1.9"
+    val `zio-schema`                  = "0.1.11"
     val `sttp-apispec`                = "0.2.1"
     val redis4cats                    = "1.2.0"
-    val `zio-interop-cats`            = "3.2.9.0"
+    val `zio-interop-cats`            = "3.2.9.1"
     val `log4cats-slf4j`              = "2.4.0"
   }
 
@@ -88,15 +88,15 @@ object Dependencies {
     "dev.zio" %% "zio-redis"               % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
   ) ++ domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
 
-  lazy val tapirApiDeps: Seq[ModuleID] = Seq(
-    "dev.zio" %% "zio"                         % Version.zio,
-    "dev.zio" %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`
+  lazy val apiDeps: Seq[ModuleID] = Seq(
+    "dev.zio"    %% "zio"                         % Version.zio,
+    "dev.zio"    %% "zio-interop-reactivestreams" % Version.`zio-interop-reactiveStreams`,
+    "eu.timepit" %% "refined"                     % Version.refined
   ) ++ akkaDeps ++ tapirDeps ++ domainDeps
 
   lazy val domainDeps: Seq[ModuleID] = Seq(
     "org.scalikejdbc"   %% "scalikejdbc"                      % Version.scalikejdbc % Compile,
     "org.scalikejdbc"   %% "scalikejdbc-syntax-support-macro" % Version.scalikejdbc % Compile,
-    "eu.timepit"        %% "refined"                          % Version.refined,
     "dev.zio"           %% "zio-schema-derivation"            % Version.`zio-schema`,
     "com.typesafe.akka" %% "akka-actor-typed"                 % Version.akka,
     "dev.zio"           %% "zio-schema"                       % Version.`zio-schema`,

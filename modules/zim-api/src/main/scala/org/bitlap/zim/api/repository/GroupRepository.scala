@@ -14,22 +14,29 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.domain.repository
+package org.bitlap.zim.api.repository
 
-/** 基础操作类
+import org.bitlap.zim.domain.model.GroupList
+
+/** 群组的操作定义
  *
  *  @author
  *    梦境迷离
- *  @since 2021/12/25
+ *  @since 2021/12/29
  *  @version 1.0
  */
-trait BaseRepository[F[_], T] {
+trait GroupRepository[F[_]] extends BaseRepository[F, GroupList] {
 
-  /** find by id
-   */
-  def findById(id: Long): F[T]
+  def deleteGroup(id: Int): F[Int]
 
-  /** find by params
-   */
-//  def find(params: Condition*): F[T]
+  def countGroup(groupName: Option[String]): F[Int]
+
+  def createGroupList(group: GroupList): F[Long]
+
+  def findGroups(groupName: Option[String]): F[GroupList]
+
+  def findGroupById(gid: Int): F[GroupList]
+
+  def findGroupsById(uid: Int): F[GroupList]
+
 }
