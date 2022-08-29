@@ -193,7 +193,7 @@ class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStre
   override def chatLogIndex(id: Int, `type`: String, mid: Int): RStream[Int] =
     userService
       .countHistoryMessage(mid, id, `type`)
-      .map(pages => if (pages < SystemConstant.SYSTEM_PAGE) pages else pages / SystemConstant.SYSTEM_PAGE + 1)
+      .map(count => calculatePages(count, SystemConstant.SYSTEM_PAGE))
 
   override def chatLog(id: Int, `type`: String, page: Int, mid: Int): IO[Throwable, ResultPageSet[ChatHistory]] =
     for {
