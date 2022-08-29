@@ -345,15 +345,12 @@ final class ZimUserApi(apiService: ApiService[RStream, Task])(implicit
           onComplete(checkFuture) {
             case scala.util.Success(u) if u != null =>
               try {
-                val typ =
-                  if (`type` != SystemConstant.GROUP_TYPE && `type` != SystemConstant.FRIEND_TYPE)
-                    SystemConstant.FRIEND_TYPE
-                  else `type`
+                val typ                = if (`type` == "undefined") SystemConstant.FRIEND_TYPE else `type`
                 var pages: Option[Int] = None
                 Unsafe.unsafe { implicit runtime =>
                   // FIXME remove runHead
                   pages = Runtime.default.unsafe
-                    .run(apiService.chatLogIndex(u.id, `type`, id).runHead)
+                    .run(apiService.chatLogIndex(u.id, typ, id).runHead)
                     .getOrThrowFiberFailure()
                 }
                 val resp =
