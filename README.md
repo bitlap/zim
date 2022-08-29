@@ -39,7 +39,7 @@
 - 开发语言：scala2
 - 平台：jvm
 - 前端：layim 3.0
-- 主体框架：zio 1
+- 主体框架：zio 2
 - API server：akka-http
 - API 文档化工具：tapir 1
 - 数据库：redis、mysql
