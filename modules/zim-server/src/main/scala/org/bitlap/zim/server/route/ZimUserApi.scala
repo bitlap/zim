@@ -16,30 +16,28 @@
 
 package org.bitlap.zim.server.route
 
-import akka.http.scaladsl.model.StatusCodes.OK
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse }
+import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directive.addDirectiveApply
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
-import akka.stream.Materializer
-import org.bitlap.zim.domain.input.UserSecurity
-import org.bitlap.zim.domain.model.User
+import akka.http.scaladsl.server._
+import akka.stream._
+import org.bitlap.zim.api._
+import org.bitlap.zim.api.service._
+import org.bitlap.zim.domain.input._
+import org.bitlap.zim.domain.model._
 import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
-import org.bitlap.zim.server.{ FileUtil, ZMaterializer }
-import ZimUserEndpoint._
 import org.bitlap.zim.infrastructure.repository.RStream
-import org.bitlap.zim.api.service.{ ApiService, PaginationApiService }
-import org.bitlap.zim.server.service.ApiServiceImpl.ZApiApplication
-import org.bitlap.zim.api.{ ApiErrorMapping, ApiJsonCodec }
-import org.bitlap.zim.server.service.APICombineService
-import sttp.model.HeaderNames.Authorization
+import org.bitlap.zim.server.FileUtil
+import org.bitlap.zim.server.route.ZimUserEndpoint._
+import sttp.model.HeaderNames._
 import sttp.model.Uri
-import sttp.model.headers.CookieValueWithMeta
-import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
+import sttp.model.headers._
+import sttp.tapir.server.akkahttp._
 import zio._
-import zio.stream.ZStream
+import zio.stream._
 
-import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent._
 import scala.util.Try
 
 /** 用户API
@@ -49,12 +47,12 @@ import scala.util.Try
  *  @since 2021/12/25
  *  @version 2.0
  */
-final class ZimUserApi(apiService: ApiService[RStream] with PaginationApiService[Task])(implicit
+final class ZimUserApi(apiService: ApiService[RStream, Task])(implicit
   materializer: Materializer
 ) extends ApiJsonCodec
     with ApiErrorMapping {
 
-  implicit val ec: ExecutionContextExecutor = materializer.executionContext
+  implicit val ec: ExecutionContext = materializer.executionContext
 
   private val USER: String = "user"
 
@@ -215,7 +213,11 @@ final class ZimUserApi(apiService: ApiService[RStream] with PaginationApiService
       // FIXME 这里用了unsafeRun，只能try stream exception
       val resultStream = apiService.activeUser(activeCode)
       val str =
-        try unsafeRun(resultStream.runHead)
+        try
+          Unsafe.unsafe { implicit runtime =>
+            // FIXME remove runHead
+            Runtime.default.unsafe.run(resultStream.runHead).getOrThrowFiberFailure()
+          }
         catch { case _: Throwable => Some(0) }
       val ret = buildIntMonoResponse()(ZStream.succeed(str.getOrElse(0)))
       ret.map {
@@ -314,7 +316,7 @@ final class ZimUserApi(apiService: ApiService[RStream] with PaginationApiService
       cookie(Authorization) { user =>
         val checkFuture = authenticate(UserSecurity(user.value))(authorityCacheFunction).map(_.getOrElse(null))
         onComplete(checkFuture) {
-          case util.Success(u) if u != null =>
+          case scala.util.Success(u) if u != null =>
             // 这是不使用任何渲染模板
             val resp =
               HttpEntity(
@@ -341,13 +343,16 @@ final class ZimUserApi(apiService: ApiService[RStream] with PaginationApiService
         cookie(Authorization) { user =>
           val checkFuture = authenticate(UserSecurity(user.value))(authorityCacheFunction).map(_.getOrElse(null))
           onComplete(checkFuture) {
-            case util.Success(u) if u != null =>
+            case scala.util.Success(u) if u != null =>
               try {
-                val typ =
-                  if (`type` != SystemConstant.GROUP_TYPE && `type` != SystemConstant.FRIEND_TYPE)
-                    SystemConstant.FRIEND_TYPE
-                  else `type`
-                val pages = unsafeRun(apiService.chatLogIndex(u.id, `type`, id).runHead)
+                val typ                = if (`type` == "undefined") SystemConstant.FRIEND_TYPE else `type`
+                var pages: Option[Int] = None
+                Unsafe.unsafe { implicit runtime =>
+                  // FIXME remove runHead
+                  pages = Runtime.default.unsafe
+                    .run(apiService.chatLogIndex(u.id, typ, id).runHead)
+                    .getOrThrowFiberFailure()
+                }
                 val resp =
                   HttpEntity(
                     ContentTypes.`text/html(UTF-8)`,
@@ -373,20 +378,22 @@ final class ZimUserApi(apiService: ApiService[RStream] with PaginationApiService
 
 object ZimUserApi {
 
-  def apply(app: ApiService[RStream] with PaginationApiService[Task])(implicit materializer: Materializer): ZimUserApi =
+  def apply(app: ApiService[RStream, Task])(implicit materializer: Materializer): ZimUserApi =
     new ZimUserApi(app)
 
-  type ZZimUserApi = Has[ZimUserApi]
+  val route: URIO[ZimUserApi, Route] =
+    ZIO.environmentWith[ZimUserApi](_.get.route)
 
-  val route: URIO[ZZimUserApi, Route] =
-    ZIO.access[ZZimUserApi](_.get.route)
-
-  val live: ZLayer[ZApiApplication with ZMaterializer, Nothing, ZZimUserApi] =
-    ZLayer.fromServices[APICombineService, Materializer, ZimUserApi]((app, mat) => ZimUserApi(app)(mat))
+  val live: ZLayer[ApiService[RStream, Task] with Materializer, Nothing, ZimUserApi] =
+    ZLayer(
+      for {
+        apiService   <- ZIO.service[ApiService[RStream, Task]]
+        materializer <- ZIO.service[Materializer]
+      } yield ZimUserApi(apiService)(materializer)
+    )
 
   def make(
-    apiApplicationLayer: TaskLayer[ZApiApplication],
-    materializerLayer: TaskLayer[ZMaterializer]
-  ): TaskLayer[ZZimUserApi] = apiApplicationLayer ++ materializerLayer >>> live
-
+    apiApplicationLayer: TaskLayer[ApiService[RStream, Task]],
+    materializerLayer: TaskLayer[Materializer]
+  ): TaskLayer[ZimUserApi] = ZLayer.make[ZimUserApi](apiApplicationLayer, materializerLayer, live)
 }

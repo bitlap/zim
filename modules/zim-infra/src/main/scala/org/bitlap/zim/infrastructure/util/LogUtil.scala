@@ -16,11 +16,8 @@
 
 package org.bitlap.zim.infrastructure.util
 
-import zio.clock.Clock
-import zio.console.Console
-import zio.logging.{ LogFormat, LogLevel, Logger, Logging }
-import zio.stream.{ UStream, ZStream }
-import zio.{ UIO, ULayer, URLayer, ZIO }
+import zio.stream._
+import zio._
 
 /** @author
  *    梦境迷离
@@ -28,31 +25,19 @@ import zio.{ UIO, ULayer, URLayer, ZIO }
  *  @version 1.0
  */
 object LogUtil {
+  def info(msg: => String): UIO[Unit] = ZIO.logInfo(msg)
 
-  lazy val loggingLayer: URLayer[Console with Clock, Logging] =
-    Logging.console(
-      logLevel = LogLevel.Debug,
-      format = LogFormat.ColoredLogFormat()
-    ) >>> Logging.withRootLoggerName("ZimApplication")
+  def debug(msg: => String): UIO[Unit] = ZIO.debug(msg)
 
-  private val logLayer: ULayer[Logging] = (Console.live ++ Clock.live) >>> loggingLayer
-
-  def info(msg: => String): UIO[Unit] =
-    ZIO.serviceWith[Logger[String]](_.log(msg)).provideLayer(logLayer)
-
-  def debug(msg: => String): UIO[Unit] =
-    ZIO.serviceWith[Logger[String]](_.debug(msg)).provideLayer(logLayer)
-
-  def error(msg: => String): UIO[Unit] =
-    ZIO.serviceWith[Logger[String]](_.error(msg)).provideLayer(logLayer)
+  def error(msg: => String): UIO[Unit] = ZIO.logError(msg)
 
   // 后面要把非必要的stream去掉
   def infoS(msg: => String): UStream[Unit] =
-    ZStream.fromEffect(info(msg))
+    ZStream.fromZIO(info(msg))
 
   def debugS(msg: => String): UStream[Unit] =
-    ZStream.fromEffect(debug(msg))
+    ZStream.fromZIO(debug(msg))
 
   def errorS(msg: => String): UStream[Unit] =
-    ZStream.fromEffect(error(msg))
+    ZStream.fromZIO(error(msg))
 }

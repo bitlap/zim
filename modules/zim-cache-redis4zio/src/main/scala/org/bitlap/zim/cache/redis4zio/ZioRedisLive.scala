@@ -20,7 +20,7 @@ import io.circe.{ Decoder, Encoder }
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.cache.{ JavaDuration, RedisService }
-import zio.{ redis, Has, Task, ULayer, ZLayer }
+import zio.{ redis, Task, ULayer, ZLayer }
 import zio.redis.Redis
 import zio.schema.DeriveSchema.gen
 
@@ -30,9 +30,9 @@ import zio.schema.DeriveSchema.gen
  *    https://zio.dev/version-1.x/datatypes/contextual/#module-pattern-20
  *  @version 3.0,2022/1/17
  */
-case class ZioRedisLive(private val rs: Redis) extends RedisService[Task] {
+final case class ZioRedisLive(private val rs: Redis) extends RedisService[Task] {
 
-  private lazy val redisLayer: ULayer[Has[Redis]] = ZLayer.succeed(rs)
+  private lazy val redisLayer: ULayer[Redis] = ZLayer.succeed(rs)
 
   override def getSets(k: String): Task[List[String]] =
     redis

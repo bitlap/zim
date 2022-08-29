@@ -64,38 +64,37 @@ object TangibleReceiveRepository {
   def apply(databaseName: String): ReceiveRepository[RStream] =
     new TangibleReceiveRepository(databaseName)
 
-  type ZReceiveRepository = Has[ReceiveRepository[RStream]]
+  def saveMessage(receive: Receive): ZStream[ReceiveRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.saveMessage(receive))
 
-  def saveMessage(receive: Receive): ZStream[ZReceiveRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.saveMessage(receive))
-
-  def findOffLineMessage(uid: Int, status: Int): ZStream[ZReceiveRepository, Throwable, Receive] =
-    stream.ZStream.accessStream(_.get.findOffLineMessage(uid, status))
+  def findOffLineMessage(uid: Int, status: Int): ZStream[ReceiveRepository[RStream], Throwable, Receive] =
+    stream.ZStream.environmentWithStream(_.get.findOffLineMessage(uid, status))
 
   def findHistoryMessage(
     uid: Option[Int],
     mid: Option[Int],
     typ: Option[String]
-  ): ZStream[ZReceiveRepository, Throwable, Receive] =
-    stream.ZStream.accessStream(_.get.findHistoryMessage(uid, mid, typ))
+  ): ZStream[ReceiveRepository[RStream], Throwable, Receive] =
+    stream.ZStream.environmentWithStream(_.get.findHistoryMessage(uid, mid, typ))
 
   def countHistoryMessage(
     uid: Option[Int],
     mid: Option[Int],
     typ: Option[String]
-  ): ZStream[ZReceiveRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.countHistoryMessage(uid, mid, typ))
+  ): ZStream[ReceiveRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.countHistoryMessage(uid, mid, typ))
 
-  def readMessage(mine: Int, to: Int, typ: String): ZStream[ZReceiveRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.readMessage(mine, to, typ))
+  def readMessage(mine: Int, to: Int, typ: String): ZStream[ReceiveRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.readMessage(mine, to, typ))
 
-  def findById(id: Int): stream.ZStream[ZReceiveRepository, Throwable, Receive] =
-    stream.ZStream.accessStream(_.get.findById(id))
+  def findById(id: Int): stream.ZStream[ReceiveRepository[RStream], Throwable, Receive] =
+    stream.ZStream.environmentWithStream(_.get.findById(id))
 
-  val live: URLayer[Has[String], ZReceiveRepository] =
-    ZLayer.fromService[String, ReceiveRepository[RStream]](TangibleReceiveRepository(_))
+  val live: URLayer[String, ReceiveRepository[RStream]] = ZLayer(
+    ZIO.service[String].map(TangibleReceiveRepository.apply)
+  )
 
-  def make(databaseName: String): ULayer[ZReceiveRepository] =
+  def make(databaseName: String): ULayer[ReceiveRepository[RStream]] =
     ZLayer.succeed(databaseName) >>> live
 
 }

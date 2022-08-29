@@ -15,13 +15,13 @@
  */
 
 package org.bitlap.zim.server.repository
+import org.bitlap.zim.api.repository.ReceiveRepository
 import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.infrastructure.repository._
-import org.bitlap.zim.infrastructure.repository.TangibleReceiveRepository.ZReceiveRepository
 import org.bitlap.zim.server.BaseData
 import org.bitlap.zim.server.repository.TangibleReceiveRepositorySpec.TangibleReceiveRepositoryConfigurationSpec
 import scalikejdbc._
-import zio.ULayer
+import zio._
 
 /** t_message表操作的单测
  *
@@ -107,7 +107,7 @@ object TangibleReceiveRepositorySpec {
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
          """
 
-    val env: ULayer[ZReceiveRepository] = TangibleReceiveRepository.make(h2ConfigurationProperties.databaseName)
+    val env: ULayer[ReceiveRepository[RStream]] = TangibleReceiveRepository.make(h2ConfigurationProperties.databaseName)
 
   }
 

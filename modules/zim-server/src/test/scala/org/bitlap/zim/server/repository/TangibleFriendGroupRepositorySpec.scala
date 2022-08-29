@@ -16,9 +16,9 @@
 
 package org.bitlap.zim.server.repository
 
-import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupRepository
-import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
-import org.bitlap.zim.server.BaseSuit
+import org.bitlap.zim.api.repository.FriendGroupRepository
+import org.bitlap.zim.infrastructure.repository.{ RStream, TangibleFriendGroupRepository }
+import org.bitlap.zim.server.ZIOBaseSuit
 import org.bitlap.zim.server.repository.TangibleFriendGroupRepositorySpec.TangibleFriendGroupRepositorySpec
 import scalikejdbc._
 import zio._
@@ -26,14 +26,14 @@ import zio.test.Assertion._
 import zio.test._
 
 object TangibleFriendGroupRepositoryMainSpec extends TangibleFriendGroupRepositorySpec {
-  override def spec: ZSpec[Environment, Failure] = suite("Tangible friendGroup repository")(
-    testM("find by id") {
+  override def spec = suite("Tangible friendGroup repository")(
+    test("find by id") {
       for {
         _  <- TangibleFriendGroupRepository.createFriendGroup(mockFriendGroup).runHead
         fg <- TangibleFriendGroupRepository.findById(1).runHead
       } yield assert(fg)(equalTo(Some(mockFriendGroup)))
     } @@ TestAspect.before(ZIO.succeed(before)),
-    testM("find friendGroups by id") {
+    test("find friendGroups by id") {
       for {
         fg <- TangibleFriendGroupRepository.findFriendGroupsById(mockFriendGroup.uid).runHead
       } yield assert(fg)(equalTo(Some(mockFriendGroup)))
@@ -42,7 +42,7 @@ object TangibleFriendGroupRepositoryMainSpec extends TangibleFriendGroupReposito
 }
 
 object TangibleFriendGroupRepositorySpec {
-  trait TangibleFriendGroupRepositorySpec extends BaseSuit {
+  trait TangibleFriendGroupRepositorySpec extends ZIOBaseSuit {
     override val sqlAfter: SQL[_, NoExtractor] =
       sql"""
            |        drop table if exists t_friend_group_friends;
@@ -69,7 +69,8 @@ object TangibleFriendGroupRepositorySpec {
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
        """
 
-    val env: ULayer[ZFriendGroupRepository] = TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
+    val env: ULayer[FriendGroupRepository[RStream]] =
+      TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
   }
 
 }

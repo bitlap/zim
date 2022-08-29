@@ -17,11 +17,9 @@
 package org.bitlap.zim.server.configuration
 
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
-import akka.stream.Materializer
-import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
-import org.bitlap.zim.server.ZMaterializer
-import org.bitlap.zim.server.route.{ ZimActuatorApi, ZimOpenApi, ZimUserApi, ZimWsApi }
+import akka.http.scaladsl.server._
+import akka.stream._
+import org.bitlap.zim.server.route._
 import zio._
 
 /** api configuration
@@ -50,24 +48,26 @@ object ApiConfiguration {
   def apply(applicationConfiguration: ApplicationConfiguration, materializer: Materializer): ApiConfiguration =
     new ApiConfiguration(applicationConfiguration)(materializer)
 
-  type ZApiConfiguration = Has[ApiConfiguration]
-
-  val routes: URIO[ZApiConfiguration, Route] =
+  val routes: URIO[ApiConfiguration, Route] =
     for {
-      userRoute     <- ZIO.access[ZApiConfiguration](_.get.zimUserApi.route)
-      actuatorRoute <- ZIO.access[ZApiConfiguration](_.get.zimActuatorApi.route)
-      openRoute     <- ZIO.access[ZApiConfiguration](_.get.zimOpenApi.route)
-      wsDocsRoute   <- ZIO.access[ZApiConfiguration](_.get.zimOpenApi.wsDocsRoute)
-      wsRoute       <- ZIO.access[ZApiConfiguration](_.get.wsApi.route)
+      userRoute     <- ZIO.environmentWith[ApiConfiguration](_.get.zimUserApi.route)
+      actuatorRoute <- ZIO.environmentWith[ApiConfiguration](_.get.zimActuatorApi.route)
+      openRoute     <- ZIO.environmentWith[ApiConfiguration](_.get.zimOpenApi.route)
+      wsDocsRoute   <- ZIO.environmentWith[ApiConfiguration](_.get.zimOpenApi.wsDocsRoute)
+      wsRoute       <- ZIO.environmentWith[ApiConfiguration](_.get.wsApi.route)
     } yield openRoute ~ actuatorRoute ~ wsRoute ~ wsDocsRoute ~ userRoute
 
-  val live: RLayer[ZApplicationConfiguration with ZMaterializer, ZApiConfiguration] =
-    ZLayer.fromServices[ApplicationConfiguration, Materializer, ApiConfiguration](ApiConfiguration(_, _))
+  val live: RLayer[ApplicationConfiguration with Materializer, ApiConfiguration] = ZLayer {
+    for {
+      app          <- ZIO.service[ApplicationConfiguration]
+      materializer <- ZIO.service[Materializer]
+    } yield ApiConfiguration(app, materializer)
+  }
 
   def make(
     applicationConfiguration: ApplicationConfiguration,
     materializer: Materializer
-  ): TaskLayer[ZApiConfiguration] =
+  ): TaskLayer[ApiConfiguration] =
     ZLayer.succeed(applicationConfiguration) ++ ZLayer.succeed(materializer) >>> live
 
 }

@@ -16,12 +16,12 @@
 
 package org.bitlap.zim.server.configuration
 
-import org.bitlap.zim.server.BaseSuit
+import org.bitlap.zim.server.ZIOBaseSuit
 import scalikejdbc._
 import zio.test._
 import zio.test.Assertion._
 
-object MysqlConfigSpec extends BaseSuit {
+object MysqlConfigSpec extends ZIOBaseSuit {
 
   def spec = suite("MysqlConfigSpec")(
     test("test the database connect working state") {

@@ -16,17 +16,17 @@
 
 package org.bitlap.zim.server.util
 
-import org.bitlap.zim.infrastructure.util.SecurityUtil
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
-import zio.BootstrapRuntime
+import org.bitlap.zim.infrastructure.util._
+import org.bitlap.zim.server.CommonTestSupport
+import org.scalatest.flatspec._
+import org.scalatest.matchers.should._
 
 /** @author
  *    梦境迷离
  *  @since 2022/1/9
  *  @version 1.0
  */
-final class SecuritySpec extends AnyFlatSpec with Matchers with BootstrapRuntime {
+final class SecuritySpec extends AnyFlatSpec with Matchers with CommonTestSupport {
 
   "encrypt" should "ok" in {
     val encrypt = unsafeRun(SecurityUtil.encrypt("123456"))
@@ -40,5 +40,4 @@ final class SecuritySpec extends AnyFlatSpec with Matchers with BootstrapRuntime
     println(matchPwd)
     assert(matchPwd)
   }
-
 }

@@ -8,8 +8,8 @@ import sbt._
 object Dependencies {
 
   object Version {
-    val zio                           = "1.0.16"
-    val `zio-logging`                 = "0.5.14"
+    val zio                           = "2.0.1"
+    val `zio-logging`                 = "2.1.0"
     val tapir                         = "1.0.6"
     val `akka-http`                   = "10.2.9"
     val akka                          = "2.6.19"
@@ -17,18 +17,20 @@ object Dependencies {
     val scalikejdbc                   = "3.5.0"
     val logback                       = "1.2.11"
     val config                        = "1.4.1"
-    val `zio-interop-reactiveStreams` = "1.3.12"
+    val `zio-interop-reactiveStreams` = "2.0.0"
     val mysql                         = "8.0.30"
     val `simple-java-mail`            = "7.5.0"
     val h2                            = "2.1.214"
     val scalaTest                     = "3.2.13"
-    val `zio-actors`                  = "0.0.9"
-    val refined                       = "0.10.1"
-    val `zio-schema`                  = "0.1.11"
-    val `sttp-apispec`                = "0.2.1"
-    val redis4cats                    = "1.2.0"
-    val `zio-interop-cats`            = "3.2.9.1"
-    val `log4cats-slf4j`              = "2.4.0"
+//    val `zio-actors`                  = "0.0.9" not support zio 2.0
+    val refined            = "0.10.1"
+    val `zio-schema`       = "0.2.1"
+    val `sttp-apispec`     = "0.2.1"
+    val redis4cats         = "1.2.0"
+    val `zio-interop-cats` = "3.3.0"
+    val `log4cats-slf4j`   = "2.4.0"
+    val `zio-redis`        = "0.0.0+430-3646b337-SNAPSHOT" // Experimental
+    val `zio-crypto`       = "0.0.0+102-23de4b47-SNAPSHOT" // Experimental
   }
 
   lazy val zioDeps: Seq[ModuleID] = Seq(
@@ -82,10 +84,10 @@ object Dependencies {
 
   /** ----------------Module deps------------------ */
   lazy val serverDeps: Seq[ModuleID] = Seq(
-    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
-    "dev.zio" %% "zio-actors"              % Version.`zio-actors`,
-    "dev.zio" %% "zio-interop-cats"        % Version.`zio-interop-cats`,
-    "dev.zio" %% "zio-redis"               % "0.0.0+381-86c20614-SNAPSHOT" // 实验性质的
+//    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`, // FIXME
+//    "dev.zio" %% "zio-actors"              % Version.`zio-actors`, // FIXME
+    "dev.zio" %% "zio-interop-cats" % Version.`zio-interop-cats`,
+    "dev.zio" %% "zio-redis"        % Version.`zio-redis`
   ) ++ domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
 
   lazy val apiDeps: Seq[ModuleID] = Seq(
@@ -111,12 +113,12 @@ object Dependencies {
     "org.scalikejdbc"   %% "scalikejdbc-streams"  % Version.scalikejdbc,
     "com.typesafe"       % "config"               % Version.config,
     "mysql"              % "mysql-connector-java" % Version.mysql,
-    "dev.zio"           %% "zio-crypto"           % "0.0.0+92-5672c642-SNAPSHOT" // 实验性质的
+    "dev.zio"           %% "zio-crypto"           % Version.`zio-crypto`
   )
 
   lazy val cacheRedis4zioDeps: Seq[ModuleID] = Seq(
     "com.typesafe" % "config"              % Version.config,
-    "dev.zio"     %% "zio-redis"           % "0.0.0+381-86c20614-SNAPSHOT",
+    "dev.zio"     %% "zio-redis"           % Version.`zio-redis`,
     "dev.zio"     %% "zio"                 % Version.zio,
     "dev.zio"     %% "zio-schema"          % Version.`zio-schema`,
     "dev.zio"     %% "zio-schema-protobuf" % Version.`zio-schema`,

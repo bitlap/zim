@@ -15,15 +15,14 @@
  */
 
 package org.bitlap.zim.server.repository
+import org.bitlap.zim.api.repository.{ GroupMemberRepository, GroupRepository }
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
-import org.bitlap.zim.infrastructure.repository.{ TangibleGroupMemberRepository, TangibleGroupRepository }
+import org.bitlap.zim.infrastructure.repository.{ RStream, TangibleGroupMemberRepository, TangibleGroupRepository }
 import org.bitlap.zim.server.BaseData
 import org.bitlap.zim.server.repository.TangibleGroupRepositorySpec.TangibleGroupRepositoryConfigurationSpec
 import scalikejdbc._
-import zio.{ Chunk, ULayer, ZLayer }
-import org.bitlap.zim.infrastructure.repository.TangibleGroupMemberRepository.ZGroupMemberRepository
-import org.bitlap.zim.infrastructure.repository.TangibleGroupRepository.ZGroupRepository
+import zio._
 
 /** t_group表操作的单测
  *
@@ -162,10 +161,10 @@ object TangibleGroupRepositorySpec {
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
          """
 
-    val groupMemberLayer: ULayer[ZGroupMemberRepository] =
+    val groupMemberLayer: ULayer[GroupMemberRepository[RStream]] =
       TangibleGroupMemberRepository.make(h2ConfigurationProperties.databaseName)
 
-    val env: ZLayer[Any, Throwable, ZGroupRepository with ZGroupMemberRepository] =
+    val env: ZLayer[Any, Throwable, GroupRepository[RStream] with GroupMemberRepository[RStream]] =
       groupMemberLayer ++ TangibleGroupRepository.make(h2ConfigurationProperties.databaseName)
   }
 

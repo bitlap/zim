@@ -95,46 +95,46 @@ CREATE TABLE `t_user`
 
 
 INSERT INTO `t_add_message`
-VALUES ('1', '106', '19', '1', '', '1', '0', '2017-04-16 12:00:14');
+VALUES ('1', '100', '19', '1', '', '1', '0', '2017-04-16 12:00:14');
 INSERT INTO `t_add_message`
-VALUES ('2', '106', '21', '3', '', '0', '0', '2017-04-16 12:00:48');
+VALUES ('2', '100', '21', '3', '', '0', '0', '2017-04-16 12:00:48');
 INSERT INTO `t_add_message`
-VALUES ('3', '106', '18', '3', '我是王培坤', '0', '0', '2017-04-16 12:01:01');
+VALUES ('3', '100', '18', '3', '我是王培坤', '0', '0', '2017-04-16 12:01:01');
 INSERT INTO `t_add_message`
-VALUES ('4', '106', '1', '1', '', '0', '0', '2017-04-17 09:04:16');
+VALUES ('4', '100', '1', '1', '', '0', '0', '2017-04-17 09:04:16');
 INSERT INTO `t_add_message`
-VALUES ('13', '106', '8', '1', '我是是是是', '0', '0', '2017-04-16 15:27:06');
+VALUES ('13', '100', '8', '1', '我是是是是', '0', '0', '2017-04-16 15:27:06');
 INSERT INTO `t_add_message`
 VALUES ('14', '1', '102', '6', '我是嘻嘻嘻 ', '0', '0', '2017-04-16 15:38:18');
 INSERT INTO `t_add_message`
 VALUES ('15', '102', '100', '7', '我是silence', '0', '0', '2017-04-16 16:22:56');
 INSERT INTO `t_add_message`
-VALUES ('16', '45', '106', '1', 'hello you are', '2', '0', '2017-04-20 16:58:31');
+VALUES ('16', '45', '100', '1', 'hello you are', '2', '0', '2017-04-20 16:58:31');
 INSERT INTO `t_add_message`
-VALUES ('17', '46', '106', '2', 'can you ', '1', '0', '2017-04-07 16:58:52');
+VALUES ('17', '46', '100', '2', 'can you ', '1', '0', '2017-04-07 16:58:52');
 INSERT INTO `t_add_message`
-VALUES ('18', '56', '106', '2', '123', '0', '0', '2017-04-14 16:59:10');
+VALUES ('18', '56', '100', '2', '123', '0', '0', '2017-04-14 16:59:10');
 INSERT INTO `t_add_message`
-VALUES ('19', '57', '106', '2', 'whyy', '1', '0', '2017-04-20 16:59:26');
+VALUES ('19', '57', '100', '2', 'whyy', '1', '0', '2017-04-20 16:59:26');
 INSERT INTO `t_add_message`
-VALUES ('20', '69', '106', '3', '我是谁', '2', '0', '2017-04-12 16:59:47');
+VALUES ('20', '69', '100', '3', '我是谁', '2', '0', '2017-04-12 16:59:47');
 INSERT INTO `t_add_message`
-VALUES ('21', '95', '106', '8', '我是id95 思月', '1', '0', '2017-04-16 19:49:28');
+VALUES ('21', '95', '100', '8', '我是id95 思月', '1', '0', '2017-04-16 19:49:28');
 INSERT INTO `t_add_message`
 VALUES ('22', '35', '19', '10', '我是id 35', '1', '0', '2017-04-16 21:51:44');
 INSERT INTO `t_add_message`
 VALUES ('23', '35', '1', '10', '我是谁', '0', '0', '2017-04-16 21:54:02');
 INSERT INTO `t_add_message`
-VALUES ('24', '106', '53', '3', '我是王培坤', '1', '0', '2017-04-16 22:18:06');
+VALUES ('24', '100', '53', '3', '我是王培坤', '1', '0', '2017-04-16 22:18:06');
 
 INSERT INTO `t_friend_group`
-VALUES ('1', '106', '前端小组');
+VALUES ('1', '100', '前端小组');
 INSERT INTO `t_friend_group`
-VALUES ('2', '106', '大数据小组');
+VALUES ('2', '100', '大数据小组');
 INSERT INTO `t_friend_group`
-VALUES ('3', '106', '策划小组');
+VALUES ('3', '100', '策划小组');
 INSERT INTO `t_friend_group`
-VALUES ('4', '106', '产品小组');
+VALUES ('4', '100', '产品小组');
 INSERT INTO `t_friend_group`
 VALUES ('5', '100', '调研小组');
 INSERT INTO `t_friend_group`
@@ -188,7 +188,7 @@ VALUES ('12', '2', '12');
 INSERT INTO `t_friend_group_friends`
 VALUES ('57', '2', '95');
 INSERT INTO `t_friend_group_friends`
-VALUES ('72', '2', '106');
+VALUES ('72', '2', '100');
 INSERT INTO `t_friend_group_friends`
 VALUES ('13', '3', '13');
 INSERT INTO `t_friend_group_friends`
@@ -202,26 +202,26 @@ VALUES ('16', '4', '17');
 INSERT INTO `t_friend_group_friends`
 VALUES ('71', '4', '57');
 INSERT INTO `t_friend_group_friends`
-VALUES ('19', '5', '106');
+VALUES ('19', '5', '100');
 INSERT INTO `t_friend_group_friends`
-VALUES ('20', '6', '106');
+VALUES ('20', '6', '100');
 INSERT INTO `t_friend_group_friends`
-VALUES ('64', '8', '106');
+VALUES ('64', '8', '100');
 INSERT INTO `t_friend_group_friends`
 VALUES ('67', '9', '35');
 INSERT INTO `t_friend_group_friends`
-VALUES ('65', '9', '106');
+VALUES ('65', '9', '100');
 INSERT INTO `t_friend_group_friends`
 VALUES ('68', '10', '19');
 INSERT INTO `t_friend_group_friends`
-VALUES ('69', '11', '106');
+VALUES ('69', '11', '100');
 
 INSERT INTO `t_group`
-VALUES ('1', 'Java群', '/static/image/group/group_1.gif', '106', '2017-04-10 20:39:11');
+VALUES ('1', 'Java群', '/static/image/group/group_1.gif', '100', '2017-04-10 20:39:11');
 INSERT INTO `t_group`
-VALUES ('2', 'Scala群', '/static/image/group/group_2.gif', '106', '2017-04-10 20:39:22');
+VALUES ('2', 'Scala群', '/static/image/group/group_2.gif', '100', '2017-04-10 20:39:22');
 INSERT INTO `t_group`
-VALUES ('3', 'SpringBoot群', '/static/image/group/group_3.jpg', '106', '2017-04-10 20:40:44');
+VALUES ('3', 'SpringBoot群', '/static/image/group/group_3.jpg', '100', '2017-04-10 20:40:44');
 INSERT INTO `t_group`
 VALUES ('4', 'Redis群', '/static/image/group/group_4.jpg', '1', '2017-04-10 20:40:47');
 
@@ -248,7 +248,7 @@ VALUES ('10', '3', '23');
 INSERT INTO `t_group_members`
 VALUES ('11', '3', '55');
 INSERT INTO `t_group_members`
-VALUES ('12', '4', '106');
+VALUES ('12', '4', '100');
 INSERT INTO `t_group_members`
 VALUES ('13', '4', '1');
 INSERT INTO `t_group_members`
@@ -256,98 +256,98 @@ VALUES ('14', '4', '2');
 INSERT INTO `t_group_members`
 VALUES ('15', '4', '76');
 INSERT INTO `t_group_members`
-VALUES ('16', '1', '106');
+VALUES ('16', '1', '100');
 INSERT INTO `t_group_members`
-VALUES ('17', '2', '106');
+VALUES ('17', '2', '100');
 INSERT INTO `t_group_members`
-VALUES ('18', '3', '106');
+VALUES ('18', '3', '100');
 
 INSERT INTO `t_message`
-VALUES ('278', '100', '106', '106', 'can you see me', 'friend', '1492044311037', '1');
+VALUES ('278', '100', '100', '100', 'can you see me', 'friend', '1492044311037', '1');
 INSERT INTO `t_message`
-VALUES ('279', '106', '100', '100', 'yes i can', 'friend', '1492044336744', '1');
+VALUES ('279', '100', '100', '100', 'yes i can', 'friend', '1492044336744', '1');
 INSERT INTO `t_message`
-VALUES ('284', '100', '106', '106', 'face[鼓掌] ', 'friend', '1492044394069', '1');
+VALUES ('284', '100', '100', '100', 'face[鼓掌] ', 'friend', '1492044394069', '1');
 INSERT INTO `t_message`
-VALUES ('285', '100', '106', '106', 'img[/upload/image/2017-04-13/078f382fbb4d440d8fbf48af6c06f6a9.gif]', 'friend',
+VALUES ('285', '100', '100', '100', 'img[/upload/image/2017-04-13/078f382fbb4d440d8fbf48af6c06f6a9.gif]', 'friend',
         '1492044396894', '1');
 INSERT INTO `t_message`
-VALUES ('286', '100', '106', '106',
+VALUES ('286', '100', '100', '100',
         'file(/upload/file/2017-04-13/82b68e3fb3e84bb0b8907c4b3577debd/vaish.pdf)[vaish.pdf]', 'friend',
         '1492044402645', '1');
 INSERT INTO `t_message`
-VALUES ('287', '100', '106', '106', 'fdf', 'friend', '1492045672858', '1');
+VALUES ('287', '100', '100', '100', 'fdf', 'friend', '1492045672858', '1');
 INSERT INTO `t_message`
-VALUES ('288', '100', '106', '106', 'fdfdfd', 'friend', '1492045675434', '1');
+VALUES ('288', '100', '100', '100', 'fdfdfd', 'friend', '1492045675434', '1');
 INSERT INTO `t_message`
-VALUES ('289', '100', '106', '106', 'img[/upload/image/2017-04-13/938f4da10d394ac88092a162b74764b7.gif]', 'friend',
+VALUES ('289', '100', '100', '100', 'img[/upload/image/2017-04-13/938f4da10d394ac88092a162b74764b7.gif]', 'friend',
         '1492045686012', '1');
 INSERT INTO `t_message`
-VALUES ('290', '100', '106', '106', 'img[/upload/image/2017-04-13/44585b3a65284c519dd378e8b156f77a.gif]', 'friend',
+VALUES ('290', '100', '100', '100', 'img[/upload/image/2017-04-13/44585b3a65284c519dd378e8b156f77a.gif]', 'friend',
         '1492045693439', '1');
 INSERT INTO `t_message`
-VALUES ('291', '100', '106', '106', 'face[晕] face[晕] ', 'friend', '1492045697463', '1');
+VALUES ('291', '100', '100', '100', 'face[晕] face[晕] ', 'friend', '1492045697463', '1');
 INSERT INTO `t_message`
-VALUES ('292', '100', '106', '106', '有', 'friend', '1492059765813', '1');
+VALUES ('292', '100', '100', '100', '有', 'friend', '1492059765813', '1');
 INSERT INTO `t_message`
-VALUES ('293', '100', '106', '106', 'you are here', 'friend', '1492059770843', '1');
+VALUES ('293', '100', '100', '100', 'you are here', 'friend', '1492059770843', '1');
 INSERT INTO `t_message`
-VALUES ('294', '106', '100', '100', 'youy  fdfdfd', 'friend', '1492059891380', '1');
+VALUES ('294', '100', '100', '100', 'youy  fdfdfd', 'friend', '1492059891380', '1');
 INSERT INTO `t_message`
-VALUES ('299', '100', '106', '106', 'silfdnld', 'friend', '1492060061492', '1');
+VALUES ('299', '100', '100', '100', 'silfdnld', 'friend', '1492060061492', '1');
 INSERT INTO `t_message`
-VALUES ('304', '106', '100', '100', 'you are', 'friend', '1492063193913', '1');
+VALUES ('304', '100', '100', '100', 'you are', 'friend', '1492063193913', '1');
 INSERT INTO `t_message`
-VALUES ('305', '100', '106', '106', 'img[/upload/image/2017-04-13/aa6172e85c0948b9af449d8ffca49f8a.gif]', 'friend',
+VALUES ('305', '100', '100', '100', 'img[/upload/image/2017-04-13/aa6172e85c0948b9af449d8ffca49f8a.gif]', 'friend',
         '1492063200807', '1');
 INSERT INTO `t_message`
-VALUES ('306', '106', '100', '100', 'img[/upload/image/2017-04-13/5c8ed451cd934ebb82e7808792f40841.png]', 'friend',
+VALUES ('306', '100', '100', '100', 'img[/upload/image/2017-04-13/5c8ed451cd934ebb82e7808792f40841.png]', 'friend',
         '1492063207684', '1');
 INSERT INTO `t_message`
-VALUES ('307', '100', '106', '106', 'haha ', 'friend', '1492063218341', '1');
+VALUES ('307', '100', '100', '100', 'haha ', 'friend', '1492063218341', '1');
 INSERT INTO `t_message`
-VALUES ('308', '100', '106', '106', 'can you see', 'friend', '1492063277745', '1');
+VALUES ('308', '100', '100', '100', 'can you see', 'friend', '1492063277745', '1');
 INSERT INTO `t_message`
-VALUES ('309', '1', '106', '106', 'ni shi sha bi a ', 'friend', '1492063320353', '0');
+VALUES ('309', '1', '100', '100', 'ni shi sha bi a ', 'friend', '1492063320353', '0');
 INSERT INTO `t_message`
-VALUES ('314', '106', '100', '100', 'hell you are', 'friend', '1492065740132', '0');
+VALUES ('314', '100', '100', '100', 'hell you are', 'friend', '1492065740132', '0');
 INSERT INTO `t_message`
-VALUES ('315', '100', '106', '106', 'hahahahaahaha', 'friend', '1492065768066', '1');
+VALUES ('315', '100', '100', '100', 'hahahahaahaha', 'friend', '1492065768066', '1');
 INSERT INTO `t_message`
-VALUES ('316', '100', '106', '106', 'you care', 'friend', '1492066916971', '1');
+VALUES ('316', '100', '100', '100', 'you care', 'friend', '1492066916971', '1');
 INSERT INTO `t_message`
-VALUES ('317', '100', '106', '106', 'can you see', 'friend', '1492066920771', '1');
+VALUES ('317', '100', '100', '100', 'can you see', 'friend', '1492066920771', '1');
 INSERT INTO `t_message`
-VALUES ('318', '106', '100', '100', 'fgf', 'friend', '1492066970584', '1');
+VALUES ('318', '100', '100', '100', 'fgf', 'friend', '1492066970584', '1');
 INSERT INTO `t_message`
-VALUES ('319', '106', '100', '100', 'you fd', 'friend', '1492068412715', '1');
+VALUES ('319', '100', '100', '100', 'you fd', 'friend', '1492068412715', '1');
 INSERT INTO `t_message`
-VALUES ('320', '100', '106', '106', 'you can', 'friend', '1492086999497', '1');
+VALUES ('320', '100', '100', '100', 'you can', 'friend', '1492086999497', '1');
 INSERT INTO `t_message`
-VALUES ('321', '106', '100', '100', 'so you can', 'friend', '1492087007954', '1');
+VALUES ('321', '100', '100', '100', 'so you can', 'friend', '1492087007954', '1');
 INSERT INTO `t_message`
-VALUES ('334', '106', '100', '100', 'can you', 'friend', '1492091732776', '1');
+VALUES ('334', '100', '100', '100', 'can you', 'friend', '1492091732776', '1');
 INSERT INTO `t_message`
-VALUES ('335', '100', '106', '106', 'yes you can', 'friend', '1492091740621', '1');
+VALUES ('335', '100', '100', '100', 'yes you can', 'friend', '1492091740621', '1');
 INSERT INTO `t_message`
-VALUES ('340', '106', '100', '100', '12313', 'friend', '1492130436919', '0');
+VALUES ('340', '100', '100', '100', '12313', 'friend', '1492130436919', '0');
 INSERT INTO `t_message`
 VALUES ('397', '1', '1', '100', 'you are heere', 'group', '1492134078521', '0');
 INSERT INTO `t_message`
-VALUES ('398', '100', '106', '106', 'fdfd', 'friend', '1492134112114', '1');
+VALUES ('398', '100', '100', '100', 'fdfd', 'friend', '1492134112114', '1');
 INSERT INTO `t_message`
-VALUES ('399', '1', '1', '106', 'you are here too', 'group', '1492134126326', '1');
+VALUES ('399', '1', '1', '100', 'you are here too', 'group', '1492134126326', '1');
 INSERT INTO `t_message`
-VALUES ('400', '1', '1', '106', 'ni shi shabi a ', 'group', '1492138398473', '1');
+VALUES ('400', '1', '1', '100', 'ni shi shabi a ', 'group', '1492138398473', '1');
 INSERT INTO `t_message`
 VALUES ('401', '1', '1', '100', 'ni caishi shabi', 'group', '1492138410246', '1');
 INSERT INTO `t_message`
-VALUES ('402', '1', '1', '106', 'img[/upload/image/2017-04-14/3489a8d6f13d4f1386f40c7e4f1b1331.gif]', 'group',
+VALUES ('402', '1', '1', '100', 'img[/upload/image/2017-04-14/3489a8d6f13d4f1386f40c7e4f1b1331.gif]', 'group',
         '1492138415268', '1');
 INSERT INTO `t_message`
-VALUES ('403', '1', '1', '106', 'face[拜拜] ', 'group', '1492138419344', '1');
+VALUES ('403', '1', '1', '100', 'face[拜拜] ', 'group', '1492138419344', '1');
 INSERT INTO `t_message`
-VALUES ('404', '1', '1', '106', ' can you see me', 'group', '1492138432879', '1');
+VALUES ('404', '1', '1', '100', ' can you see me', 'group', '1492138432879', '1');
 INSERT INTO `t_message`
 VALUES ('405', '1', '1', '1', 'you', 'group', '1492138737038', '1');
 INSERT INTO `t_message`
@@ -356,89 +356,89 @@ INSERT INTO `t_message`
 VALUES ('407', '1', '1', '1', 'img[/upload/image/2017-04-14/2bbfdee13a454d8cb452eb8be10cec02.jpg]', 'group',
         '1492138746490', '1');
 INSERT INTO `t_message`
-VALUES ('408', '106', '100', '100', 'face[晕] ', 'friend', '1492138938078', '0');
+VALUES ('408', '100', '100', '100', 'face[晕] ', 'friend', '1492138938078', '0');
 INSERT INTO `t_message`
-VALUES ('409', '106', '100', '100', 'you are here', 'friend', '1492151190441', '1');
+VALUES ('409', '100', '100', '100', 'you are here', 'friend', '1492151190441', '1');
 INSERT INTO `t_message`
-VALUES ('410', '100', '106', '106', 'so you can see me?', 'friend', '1492151198992', '1');
+VALUES ('410', '100', '100', '100', 'so you can see me?', 'friend', '1492151198992', '1');
 INSERT INTO `t_message`
-VALUES ('411', '106', '100', '100', 'of course', 'friend', '1492151209763', '1');
+VALUES ('411', '100', '100', '100', 'of course', 'friend', '1492151209763', '1');
 INSERT INTO `t_message`
-VALUES ('412', '100', '106', '106', 'img[/upload/image/2017-04-14/b273ba2372c54ed5b8294948daea9aad.gif]', 'friend',
+VALUES ('412', '100', '100', '100', 'img[/upload/image/2017-04-14/b273ba2372c54ed5b8294948daea9aad.gif]', 'friend',
         '1492151213114', '1');
 INSERT INTO `t_message`
-VALUES ('413', '100', '106', '106',
+VALUES ('413', '100', '100', '100',
         'file(/upload/file/2017-04-14/a505714207a24208ba93609115d0d86b/railstutorial4th-sample.pdf)[railstutorial4th-sample.pdf]',
         'friend', '1492151222502', '1');
 INSERT INTO `t_message`
-VALUES ('414', '106', '100', '100', 'fdfd', 'friend', '1492151279802', '1');
+VALUES ('414', '100', '100', '100', 'fdfd', 'friend', '1492151279802', '1');
 INSERT INTO `t_message`
-VALUES ('415', '100', '106', '106', 'can', 'friend', '1492156031241', '1');
+VALUES ('415', '100', '100', '100', 'can', 'friend', '1492156031241', '1');
 INSERT INTO `t_message`
-VALUES ('416', '106', '100', '100', 'yes i can', 'friend', '1492156049674', '1');
+VALUES ('416', '100', '100', '100', 'yes i can', 'friend', '1492156049674', '1');
 INSERT INTO `t_message`
-VALUES ('417', '100', '106', '106', 'sorry you can?', 'friend', '1492167152813', '0');
+VALUES ('417', '100', '100', '100', 'sorry you can?', 'friend', '1492167152813', '0');
 INSERT INTO `t_message`
-VALUES ('418', '100', '106', '106', 'you can see  me?', 'friend', '1492221564710', '0');
+VALUES ('418', '100', '100', '100', 'you can see  me?', 'friend', '1492221564710', '0');
 INSERT INTO `t_message`
-VALUES ('419', '1', '1', '106', 'can', 'group', '1492233567749', '0');
+VALUES ('419', '1', '1', '100', 'can', 'group', '1492233567749', '0');
 INSERT INTO `t_message`
-VALUES ('420', '106', '100', '100', '123', 'friend', '1492233588308', '1');
+VALUES ('420', '100', '100', '100', '123', 'friend', '1492233588308', '1');
 INSERT INTO `t_message`
-VALUES ('421', '100', '106', '106', 'can you', 'friend', '1492244367611', '1');
+VALUES ('421', '100', '100', '100', 'can you', 'friend', '1492244367611', '1');
 INSERT INTO `t_message`
-VALUES ('422', '100', '106', '106', 'ca', 'friend', '1492244458305', '1');
+VALUES ('422', '100', '100', '100', 'ca', 'friend', '1492244458305', '1');
 INSERT INTO `t_message`
-VALUES ('423', '1', '1', '106', 'you see me?', 'group', '1492244469314', '1');
+VALUES ('423', '1', '1', '100', 'you see me?', 'group', '1492244469314', '1');
 INSERT INTO `t_message`
-VALUES ('424', '100', '106', '106', 'fdf', 'friend', '1492244570981', '1');
+VALUES ('424', '100', '100', '100', 'fdf', 'friend', '1492244570981', '1');
 INSERT INTO `t_message`
-VALUES ('425', '1', '1', '106', '3123', 'group', '1492244582373', '1');
+VALUES ('425', '1', '1', '100', '3123', 'group', '1492244582373', '1');
 INSERT INTO `t_message`
 VALUES ('426', '1', '1', '100', 'you aree here', 'group', '1492244589829', '1');
 INSERT INTO `t_message`
-VALUES ('427', '1', '1', '106', 'so you', 'group', '1492244593489', '1');
+VALUES ('427', '1', '1', '100', 'so you', 'group', '1492244593489', '1');
 INSERT INTO `t_message`
-VALUES ('428', '100', '106', '106', 'fd', 'friend', '1492244596254', '1');
+VALUES ('428', '100', '100', '100', 'fd', 'friend', '1492244596254', '1');
 INSERT INTO `t_message`
-VALUES ('429', '100', '106', '106', 'img[/upload/image/2017-04-15/83b8d86b1105487295b50f70210357b5.gif]', 'friend',
+VALUES ('429', '100', '100', '100', 'img[/upload/image/2017-04-15/83b8d86b1105487295b50f70210357b5.gif]', 'friend',
         '1492244600136', '1');
 INSERT INTO `t_message`
-VALUES ('430', '106', '100', '100', 'fdfd', 'friend', '1492322377739', '1');
+VALUES ('430', '100', '100', '100', 'fdfd', 'friend', '1492322377739', '1');
 INSERT INTO `t_message`
-VALUES ('431', '106', '100', '100', 'fdf', 'friend', '1492322384545', '1');
+VALUES ('431', '100', '100', '100', 'fdf', 'friend', '1492322384545', '1');
 INSERT INTO `t_message`
-VALUES ('432', '106', '100', '100', 'img[/upload/image/2017-04-16/9b0615d4aa834988bf06398495930cbe.gif]', 'friend',
+VALUES ('432', '100', '100', '100', 'img[/upload/image/2017-04-16/9b0615d4aa834988bf06398495930cbe.gif]', 'friend',
         '1492322389875', '1');
 INSERT INTO `t_message`
-VALUES ('433', '106', '100', '100', 'img[/upload/image/2017-04-16/ea9f884c214c45dd9025b1d872ff8baa.gif]', 'friend',
+VALUES ('433', '100', '100', '100', 'img[/upload/image/2017-04-16/ea9f884c214c45dd9025b1d872ff8baa.gif]', 'friend',
         '1492322402801', '1');
 INSERT INTO `t_message`
-VALUES ('434', '106', '100', '100', 'img[/upload/image/2017-04-16/8b8ba9e15d24492b8b3d344e47c3a90e.jpg]', 'friend',
+VALUES ('434', '100', '100', '100', 'img[/upload/image/2017-04-16/8b8ba9e15d24492b8b3d344e47c3a90e.jpg]', 'friend',
         '1492322415470', '1');
 INSERT INTO `t_message`
 VALUES ('435', '1', '1', '100', 'fddf', 'group', '1492322486128', '1');
 INSERT INTO `t_message`
-VALUES ('436', '106', '100', '100', 'fdfd', 'friend', '1492390696658', '1');
+VALUES ('436', '100', '100', '100', 'fdfd', 'friend', '1492390696658', '1');
 INSERT INTO `t_message`
-VALUES ('437', '100', '106', '106', 'fdfdfd', 'friend', '1492390732772', '1');
+VALUES ('437', '100', '100', '100', 'fdfdfd', 'friend', '1492390732772', '1');
 INSERT INTO `t_message`
-VALUES ('438', '106', '100', '100', 'img[/upload/image/2017-04-17/ac6a6ccb25a445e29908c256830f19d1.png]', 'friend',
+VALUES ('438', '100', '100', '100', 'img[/upload/image/2017-04-17/ac6a6ccb25a445e29908c256830f19d1.png]', 'friend',
         '1492390738798', '1');
 INSERT INTO `t_message`
-VALUES ('439', '106', '100', '100',
+VALUES ('439', '100', '100', '100',
         'file(/upload/file/2017-04-17/0a7e89e4c39045428cff192b13f3c7bc/vaish.pdf)[vaish.pdf]', 'friend',
         '1492390750063', '1');
 INSERT INTO `t_message`
 VALUES ('440', '1', '1', '100', 'fdfd', 'group', '1492390819118', '1');
 INSERT INTO `t_message`
-VALUES ('441', '1', '1', '106', 'img[/upload/image/2017-04-17/405636c995db4f6982f374bdf59d2418.gif]', 'group',
+VALUES ('441', '1', '1', '100', 'img[/upload/image/2017-04-17/405636c995db4f6982f374bdf59d2418.gif]', 'group',
         '1492390865176', '1');
 INSERT INTO `t_message`
-VALUES ('442', '1', '1', '106', 'file(/upload/file/2017-04-17/88e9c655485c4db9a5a925a1a6f7cc2c/vaish.pdf)[vaish.pdf]',
+VALUES ('442', '1', '1', '100', 'file(/upload/file/2017-04-17/88e9c655485c4db9a5a925a1a6f7cc2c/vaish.pdf)[vaish.pdf]',
         'group', '1492390869928', '1');
 INSERT INTO `t_message`
-VALUES ('443', '1', '1', '106', 'fdfd', 'group', '1492390925888', '1');
+VALUES ('443', '1', '1', '100', 'fdfd', 'group', '1492390925888', '1');
 
 insert into t_user(username, password, sign, email, avatar, sex, active, status, create_date)
 values ('边月', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', '梦境亦是美，醒来亦是空',

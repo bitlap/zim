@@ -16,12 +16,11 @@
 
 package org.bitlap.zim.server.configuration
 
-import org.bitlap.zim.infrastructure.InfrastructureConfiguration
-import org.bitlap.zim.infrastructure.InfrastructureConfiguration.ZInfrastructureConfiguration
-import org.bitlap.zim.api.service.{ ApiService, PaginationApiService, UserService }
-import zio._
-import org.bitlap.zim.server.service.{ APICombineService, ApiServiceImpl, UserServiceImpl }
+import org.bitlap.zim.api.service._
+import org.bitlap.zim.infrastructure._
 import org.bitlap.zim.infrastructure.repository.RStream
+import org.bitlap.zim.server.service._
+import zio._
 
 /** application configuration
  *
@@ -43,7 +42,7 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
     infrastructureConfiguration.addMessageRepository
   )
 
-  val apiService: APICombineService = new ApiServiceImpl(userService) with PaginationApiService[Task]
+  val apiService: ApiService[RStream, Task] = new ApiServiceImpl(userService)
 
 }
 
@@ -54,18 +53,19 @@ object ApplicationConfiguration {
   def apply(infrastructureConfiguration: InfrastructureConfiguration): ApplicationConfiguration =
     new ApplicationConfiguration(infrastructureConfiguration)
 
-  type ZApplicationConfiguration = Has[ApplicationConfiguration]
+  val userApplication: URIO[ApplicationConfiguration, UserService[RStream]] =
+    ZIO.environmentWith(_.get.userService)
 
-  val userApplication: URIO[ZApplicationConfiguration, UserService[RStream]] =
-    ZIO.access(_.get.userService)
+  val apiApplication: URIO[ApplicationConfiguration, ApiService[RStream, Task]] =
+    ZIO.environmentWith(_.get.apiService)
 
-  val apiApplication: URIO[ZApplicationConfiguration, ApiService[RStream]] =
-    ZIO.access(_.get.apiService)
+  val live: URLayer[InfrastructureConfiguration, ApplicationConfiguration] = ZLayer {
+    for {
+      infra <- ZIO.service[InfrastructureConfiguration]
+    } yield ApplicationConfiguration(infra)
+  }
 
-  val live: URLayer[ZInfrastructureConfiguration, ZApplicationConfiguration] =
-    ZLayer.fromService[InfrastructureConfiguration, ApplicationConfiguration](ApplicationConfiguration(_))
-
-  def make(infrastructureConfiguration: InfrastructureConfiguration): ULayer[ZApplicationConfiguration] =
+  def make(infrastructureConfiguration: InfrastructureConfiguration): ULayer[ApplicationConfiguration] =
     ZLayer.succeed(infrastructureConfiguration) >>> live
 
 }

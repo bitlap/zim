@@ -16,20 +16,23 @@
 
 package org.bitlap.zim.server.repository
 
-import org.bitlap.zim.domain.model.{ AddFriend, FriendGroup }
-import org.bitlap.zim.infrastructure.repository.{ TangibleFriendGroupFriendRepository, TangibleFriendGroupRepository }
-import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupFriendRepository.ZFriendGroupFriendRepository
-import org.bitlap.zim.infrastructure.repository.TangibleFriendGroupRepository.ZFriendGroupRepository
-import org.bitlap.zim.server.BaseSuit
+import org.bitlap.zim.api.repository._
+import org.bitlap.zim.domain.model._
+import org.bitlap.zim.infrastructure.repository.{
+  RStream,
+  TangibleFriendGroupFriendRepository,
+  TangibleFriendGroupRepository
+}
+import org.bitlap.zim.server.ZIOBaseSuit
 import org.bitlap.zim.server.repository.TangibleFriendGroupFriendRepositorySpec.TangibleFriendGroupFriendRepositorySpec
 import scalikejdbc._
 import zio._
-import zio.test._
 import zio.test.Assertion._
+import zio.test._
 
 object TangibleFriendGroupFriendRepositoryMainSpec extends TangibleFriendGroupFriendRepositorySpec {
-  override def spec: ZSpec[Environment, Failure] = suite("Tangible friendGroupFriend repository")(
-    testM("find user group") {
+  def spec: Spec[Any, Throwable] = suite("Tangible friendGroupFriend repository")(
+    test("find user group") {
       for {
         _ <- TangibleFriendGroupFriendRepository
           .addFriend(AddFriend(id = 1, uid = 1, fgid = 2), AddFriend(id = 2, uid = 2, fgid = 1))
@@ -38,18 +41,18 @@ object TangibleFriendGroupFriendRepositoryMainSpec extends TangibleFriendGroupFr
         id <- TangibleFriendGroupFriendRepository.findUserGroup(1, 1).runHead
       } yield assert(id)(equalTo(Some(2)))
     } @@ TestAspect.before(ZIO.succeed(before)),
-    testM("find by id ") {
+    test("find by id ") {
       for {
         af <- TangibleFriendGroupFriendRepository.findById(2).runHead
       } yield assert(af.map(_.fgid))(equalTo(Some(1)))
     },
-    testM("remove friend") {
+    test("remove friend") {
       for {
         _  <- TangibleFriendGroupFriendRepository.removeFriend(1, 1).runHead
         af <- TangibleFriendGroupFriendRepository.findById(2).runHead
       } yield assert(af)(equalTo(None))
     },
-    testM("change group ") {
+    test("change group ") {
       for {
         _  <- TangibleFriendGroupFriendRepository.changeGroup(3, 1).runHead
         af <- TangibleFriendGroupFriendRepository.findById(1).runHead
@@ -59,7 +62,7 @@ object TangibleFriendGroupFriendRepositoryMainSpec extends TangibleFriendGroupFr
 }
 
 object TangibleFriendGroupFriendRepositorySpec {
-  trait TangibleFriendGroupFriendRepositorySpec extends BaseSuit {
+  trait TangibleFriendGroupFriendRepositorySpec extends ZIOBaseSuit {
     override val sqlAfter: SQL[_, NoExtractor] =
       sql"""
           |        drop table if exists t_friend_group_friends;
@@ -89,7 +92,7 @@ object TangibleFriendGroupFriendRepositorySpec {
     val friendGroupFriendLayer = TangibleFriendGroupFriendRepository.make(h2ConfigurationProperties.databaseName)
     val friendGroupLayer       = TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
 
-    val env: ULayer[ZFriendGroupRepository with ZFriendGroupFriendRepository] =
+    val env: ULayer[FriendGroupRepository[RStream] with FriendGroupFriendRepository[RStream]] =
       friendGroupFriendLayer ++ friendGroupLayer
   }
 }

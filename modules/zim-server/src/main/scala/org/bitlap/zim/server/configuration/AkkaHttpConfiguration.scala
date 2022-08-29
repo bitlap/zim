@@ -16,23 +16,18 @@
 
 package org.bitlap.zim.server.configuration
 
-import akka.actor
+import akka._
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.settings.ServerSettings
-import akka.stream.Materializer
-import akka.util.ByteString
-import org.bitlap.zim.domain.ws.protocol.OnlineUserMessage
-import org.bitlap.zim.server.ZMaterializer
-import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
-import org.bitlap.zim.server.route.ZimOpenApi
+import akka.http.scaladsl._
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.settings._
+import akka.stream._
+import akka.util._
+import org.bitlap.zim.infrastructure._
+import org.bitlap.zim.server.route._
 import zio._
-import zio.clock.Clock
 
-import java.util.concurrent.atomic.AtomicInteger
-import org.bitlap.zim.infrastructure.InfrastructureConfiguration
-import org.bitlap.zim.infrastructure.util.LogUtil
+import java.util.concurrent.atomic._
 
 /** akka http configuration
  *
@@ -55,7 +50,7 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
   def httpServer(route: Route): Task[Unit] =
     for {
       infoConf <- InfrastructureConfiguration.zimConfigurationProperties
-      eventualBinding <- Task {
+      eventualBinding <- ZIO.attempt {
         implicit lazy val untypedSystem: actor.ActorSystem = actorSystem
         Http()
           .newServerAt(
@@ -65,10 +60,10 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
           .withSettings(imServerSettings)
           .bind(route)
       }
-      server <- Task
-        .fromFuture(_ => eventualBinding)
+      server <- ZIO
+        .fromFuture(implicit ec => eventualBinding)
         .tapError(exception =>
-          UIO(
+          ZIO.attempt(
             actorSystem.log.error(
               s"Server could not start with parameters [host:port]=[${infoConf.interface},${infoConf.port}]",
               exception
@@ -77,7 +72,7 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
         )
         .forever
         .fork
-      _ <- UIO(
+      _ <- ZIO.attempt(
         actorSystem.log.info(
           s"""
              |Server online at http://${infoConf.webHost}:${infoConf.port}/${ZimOpenApi.zimOpenApiInstance.openapi}
@@ -85,21 +80,22 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
              |""".stripMargin
         )
       )
-      _ <- scheduleTask
+//      _ <- scheduleTask
       _ <- server.join
     } yield ()
 
-  def scheduleTask: Task[Unit] = {
-    val task = ZioActorSystemConfiguration.scheduleActor
-      .flatMap(f => f ! OnlineUserMessage(Some("scheduleTask"))) repeat Schedule.secondOfMinute(0)
-
-    task
-      .foldM(
-        e => LogUtil.error(s"error => $e").unit,
-        _ => UIO.unit
-      )
-      .provideLayer(Clock.live)
-  }
+  // zio-actors不支持zio2.0
+//  def scheduleTask: Task[Unit] = {
+//    val task = ZioActorSystemConfiguration.scheduleActor
+//      .flatMap(f => f ! OnlineUserMessage(Some("scheduleTask"))) repeat Schedule.secondOfMinute(0)
+//
+//    task
+//      .foldM(
+//        e => LogUtil.error(s"error => $e").unit,
+//        _ => UIO.unit
+//      )
+//      .provideLayer(Clock.live)
+//  }
 }
 
 object AkkaHttpConfiguration {
@@ -107,15 +103,15 @@ object AkkaHttpConfiguration {
   def apply(actorSystem: ActorSystem): AkkaHttpConfiguration =
     new AkkaHttpConfiguration(actorSystem)
 
-  type ZAkkaHttpConfiguration = Has[AkkaHttpConfiguration]
+  def httpServer(route: Route): RIO[AkkaHttpConfiguration, Unit] =
+    ZIO.environmentWithZIO(_.get.httpServer(route))
 
-  def httpServer(route: Route): RIO[ZAkkaHttpConfiguration with ZAkkaActorSystemConfiguration, Unit] =
-    ZIO.accessM(_.get.httpServer(route))
+  lazy val materializerLive: URLayer[ActorSystem, Materializer] = ZLayer {
+    ZIO.service[ActorSystem].map(implicit actor => Materializer.matFromSystem)
+  }
 
-  val materializerLive: URLayer[ZAkkaActorSystemConfiguration, ZMaterializer] =
-    ZLayer.fromService[ActorSystem, Materializer](Materializer.matFromSystem(_))
-
-  val live: URLayer[ZAkkaActorSystemConfiguration, ZAkkaHttpConfiguration] =
-    ZLayer.fromService[ActorSystem, AkkaHttpConfiguration](AkkaHttpConfiguration(_))
+  lazy val live: URLayer[ActorSystem, AkkaHttpConfiguration] = ZLayer {
+    ZIO.service[ActorSystem].map(AkkaHttpConfiguration.apply)
+  }
 
 }

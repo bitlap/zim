@@ -16,15 +16,13 @@
 
 package org.bitlap.zim.server.service
 
-import org.bitlap.zim.infrastructure.properties.MailConfigurationProperties
-import org.bitlap.zim.infrastructure.properties.MailConfigurationProperties.ZMailConfigurationProperties
-import org.simplejavamail.api.mailer.Mailer
-import org.simplejavamail.config.ConfigLoader
-import org.simplejavamail.email.EmailBuilder
-import org.simplejavamail.mailer.MailerBuilder
-import zio.{ Has, UIO, ULayer, URIO, URLayer, ZIO, ZLayer }
+import org.bitlap.zim.infrastructure.properties._
+import org.simplejavamail.api.mailer._
+import org.simplejavamail.config._
+import org.simplejavamail.email._
+import org.simplejavamail.mailer._
+import zio._
 
-import scala.concurrent.duration._
 import scala.jdk.FutureConverters.CompletionStageOps
 
 /** 邮件发送服务
@@ -39,7 +37,7 @@ final class MailServiceImpl(mailConfigurationProperties: MailConfigurationProper
 
   private lazy val mailer: Mailer = MailerBuilder
     .withDebugLogging(mailConfigurationProperties.debug)
-    .withSessionTimeout(3000.millis._1.toInt)
+    .withSessionTimeout(3000.millis.toMillis.toInt)
     .withThreadPoolSize(mailConfigurationProperties.threadPoolSize)
     .withConnectionPoolCoreSize(mailConfigurationProperties.connectionPoolCoreSize)
     .buildMailer()
@@ -57,25 +55,23 @@ final class MailServiceImpl(mailConfigurationProperties: MailConfigurationProper
 
     ZIO
       .fromFuture(_ => future)
-      .catchAll(_ => ZIO.unit)
+      .ignore
     // catch all exception
   }
 }
 
 object MailServiceImpl {
 
-  type ZMailService = Has[MailServiceImpl]
-
   def apply(mailConfigurationProperties: MailConfigurationProperties): MailServiceImpl = new MailServiceImpl(
     mailConfigurationProperties
   )
+  def sendHtmlMail(to: String, subject: String, content: String): URIO[MailServiceImpl, Any] =
+    ZIO.environmentWithZIO(_.get.sendHtmlMail(to, subject, content))
 
-  def sendHtmlMail(to: String, subject: String, content: String): URIO[ZMailService, Any] =
-    ZIO.access(_.get.sendHtmlMail(to, subject, content))
+  lazy val live: URLayer[MailConfigurationProperties, MailServiceImpl] = ZLayer(
+    ZIO.service[MailConfigurationProperties].map(MailServiceImpl.apply)
+  )
 
-  val live: URLayer[ZMailConfigurationProperties, ZMailService] =
-    ZLayer.fromService[MailConfigurationProperties, MailServiceImpl](MailServiceImpl(_))
-
-  def make(mailConfigurationProperties: MailConfigurationProperties): ULayer[ZMailService] =
+  def make(mailConfigurationProperties: MailConfigurationProperties): ULayer[MailServiceImpl] =
     ZLayer.succeed(mailConfigurationProperties) >>> MailServiceImpl.live
 }

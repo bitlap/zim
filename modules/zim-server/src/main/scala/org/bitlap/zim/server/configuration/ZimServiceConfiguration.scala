@@ -16,45 +16,27 @@
 
 package org.bitlap.zim.server.configuration
 
-import org.bitlap.zim.infrastructure.InfrastructureConfiguration
-import org.bitlap.zim.server.ZMaterializer
-import org.bitlap.zim.server.configuration.AkkaActorSystemConfiguration.ZAkkaActorSystemConfiguration
-import org.bitlap.zim.server.configuration.AkkaHttpConfiguration.ZAkkaHttpConfiguration
-import org.bitlap.zim.server.configuration.ApiConfiguration.ZApiConfiguration
-import org.bitlap.zim.server.configuration.ApplicationConfiguration.ZApplicationConfiguration
-import zio.{ TaskLayer, ULayer }
+import akka.actor.ActorSystem
+import org.bitlap.zim.infrastructure._
+import zio._
 
 /** global configuration to collect all service or system layer
  *
  *  @author
  *    梦境迷离
  *  @since 2021/12/25
- *  @version 1.0
+ *  @version 2.0
  */
 trait ZimServiceConfiguration {
 
-  protected lazy val akkaActorSystemLayer: TaskLayer[ZAkkaActorSystemConfiguration] =
-    InfrastructureConfiguration.live >>>
-      AkkaActorSystemConfiguration.live
+  protected lazy val applicationConfigurationLayer: ULayer[ApplicationConfiguration] =
+    ZLayer.make[ApplicationConfiguration](InfrastructureConfiguration.live, ApplicationConfiguration.live)
 
-  protected lazy val akkaHttpConfigurationLayer: TaskLayer[ZAkkaHttpConfiguration] =
-    akkaActorSystemLayer >>> AkkaHttpConfiguration.live
-
-  protected lazy val materializerLayer: TaskLayer[ZMaterializer] =
-    akkaActorSystemLayer >>>
-      AkkaHttpConfiguration.materializerLive
-
-  protected lazy val applicationConfigurationLayer: ULayer[ZApplicationConfiguration] =
-    InfrastructureConfiguration.live >>>
-      ApplicationConfiguration.live
-
-  protected lazy val apiConfigurationLayer: TaskLayer[ZApiConfiguration] =
-    (applicationConfigurationLayer ++
-      akkaHttpConfigurationLayer ++
-      materializerLayer) >>>
+  protected lazy val apiConfigurationLayer: RLayer[ActorSystem, ApiConfiguration with AkkaHttpConfiguration] =
+    ZLayer.makeSome[ActorSystem, ApiConfiguration](
+      applicationConfigurationLayer,
+      AkkaHttpConfiguration.materializerLive,
       ApiConfiguration.live
-
-  val ZimEnv: TaskLayer[ZApiConfiguration with ZAkkaActorSystemConfiguration with ZAkkaHttpConfiguration] =
-    apiConfigurationLayer ++ akkaActorSystemLayer ++ akkaHttpConfigurationLayer
+    ) ++ AkkaHttpConfiguration.live
 
 }

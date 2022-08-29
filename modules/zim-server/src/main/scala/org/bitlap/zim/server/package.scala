@@ -15,8 +15,6 @@
  */
 
 package org.bitlap.zim
-import akka.stream.Materializer
-import zio.Has
 
 /** @author
  *    梦境迷离
@@ -24,11 +22,7 @@ import zio.Has
  */
 package object server {
 
-  type ZMaterializer = Has[Materializer]
-
-  lazy val zioRuntime: zio.Runtime[zio.ZEnv] = zio.Runtime.default
-
-  // default cache
-  implicit val defaultCache: CacheType = CacheType.CatsCache
+  // default cache, now we use zio-redis
+  implicit val defaultCache: CacheType = CacheType.ZioCache
 
 }

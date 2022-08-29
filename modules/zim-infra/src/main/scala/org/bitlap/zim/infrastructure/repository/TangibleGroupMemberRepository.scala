@@ -45,23 +45,22 @@ object TangibleGroupMemberRepository {
   def apply(databaseName: String): GroupMemberRepository[RStream] =
     new TangibleGroupMemberRepository(databaseName)
 
-  type ZGroupMemberRepository = Has[GroupMemberRepository[RStream]]
+  def findById(id: Int): stream.ZStream[GroupMemberRepository[RStream], Throwable, GroupMember] =
+    stream.ZStream.environmentWithStream(_.get.findById(id))
 
-  def findById(id: Int): stream.ZStream[ZGroupMemberRepository, Throwable, GroupMember] =
-    stream.ZStream.accessStream(_.get.findById(id))
+  def leaveOutGroup(groupMember: GroupMember): ZStream[GroupMemberRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.leaveOutGroup(groupMember))
 
-  def leaveOutGroup(groupMember: GroupMember): ZStream[ZGroupMemberRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.leaveOutGroup(groupMember))
+  def findGroupMembers(gid: Int): ZStream[GroupMemberRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.findGroupMembers(gid))
 
-  def findGroupMembers(gid: Int): ZStream[ZGroupMemberRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.findGroupMembers(gid))
+  def addGroupMember(groupMember: GroupMember): ZStream[GroupMemberRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.addGroupMember(groupMember))
 
-  def addGroupMember(groupMember: GroupMember): ZStream[ZGroupMemberRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.addGroupMember(groupMember))
+  val live: URLayer[String, GroupMemberRepository[RStream]] = ZLayer(
+    ZIO.service[String].map(TangibleGroupMemberRepository.apply)
+  )
 
-  val live: URLayer[Has[String], ZGroupMemberRepository] =
-    ZLayer.fromService[String, GroupMemberRepository[RStream]](TangibleGroupMemberRepository(_))
-
-  def make(databaseName: String): ULayer[ZGroupMemberRepository] =
+  def make(databaseName: String): ULayer[GroupMemberRepository[RStream]] =
     ZLayer.succeed(databaseName) >>> live
 }

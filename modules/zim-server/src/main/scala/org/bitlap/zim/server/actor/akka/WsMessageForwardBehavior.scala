@@ -22,8 +22,7 @@ import io.circe.syntax.EncoderOps
 import org.bitlap.zim.domain.ws.protocol.{ Command, Protocol, TransmitMessageProxy }
 import org.bitlap.zim.infrastructure.util.LogUtil
 import org.bitlap.zim.server.service.ws.WsService
-import zio.{ UIO, ZIO }
-import org.bitlap.zim.server.zioRuntime
+import zio._
 
 /** akka typed actor
  *
@@ -37,13 +36,15 @@ object WsMessageForwardBehavior {
     Behaviors.receiveMessage {
       case tm: TransmitMessageProxy =>
         val tpe = Protocol.unStringify(Option(tm.getMessage).map(_.`type`).getOrElse(Protocol.unHandMessage.stringify))
-        zioRuntime.unsafeRun(LogUtil.info(s"TransmitMessageProxy=>$tm, type=>$tpe"))
+        Unsafe.unsafe { implicit runtime =>
+          Runtime.default.unsafe.run(LogUtil.info(s"TransmitMessageProxy=>$tm, type=>$tpe")).getOrThrowFiberFailure()
+        }
         val zio = tpe match {
           case Protocol.readOfflineMessage => WsService.readOfflineMessage(tm.getMessage)
           case Protocol.message            => WsService.sendMessage(tm.getMessage)
           case Protocol.checkOnline =>
             WsService.checkOnline(tm.getMessage).flatMap { f =>
-              tm.originActorRef.fold(ZIO.effect(()))(a => WsService.sendMessage(f.asJson.noSpaces, a))
+              tm.originActorRef.fold(ZIO.attempt(()))(a => WsService.sendMessage(f.asJson.noSpaces, a))
             }
           case Protocol.addGroup => WsService.addGroup(tm.uId, tm.getMessage)
           case Protocol.changOnline =>
@@ -56,13 +57,16 @@ object WsMessageForwardBehavior {
           case Protocol.refuseAddGroup => WsService.refuseAddGroup(tm.getMessage)
           case Protocol.unHandMessage =>
             WsService.countUnHandMessage(tm.uId).flatMap { f =>
-              tm.originActorRef.fold(ZIO.effect(()))(a => WsService.sendMessage(f.asJson.noSpaces, a))
+              tm.originActorRef.fold(ZIO.attempt(()))(a => WsService.sendMessage(f.asJson.noSpaces, a))
             }
           case Protocol.delFriend => WsService.removeFriend(tm.uId, tm.getMessage.to.id)
           case _ =>
-            UIO.unit
+            ZIO.unit
         }
-        zioRuntime.unsafeRun(zio)
+
+        Unsafe.unsafe { implicit runtime =>
+          Runtime.default.unsafe.run(zio).getOrThrowFiberFailure()
+        }
         Behaviors.same
       case _ =>
         Behaviors.same

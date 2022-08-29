@@ -58,7 +58,7 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
     val agree = decode[RefuseOrAgreeMessage](msg.msg).getOrElse(null)
     agree.messageBoxId.synchronized {
       agreeAddGroupHandler(userService)(agree)
-    }.unless(agree == null)
+    }.unless(agree == null).map(_.getOrElse(()))
   }
 
   override def refuseAddGroup(msg: domain.Message): Task[Unit] = {
@@ -72,7 +72,7 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
           sendMessage(result.asJson.noSpaces, actor)
         }.unless(actor == null)
       } yield r
-    }.unless(refuse == null)
+    }.unless(refuse == null).map(_.getOrElse(()))
   }
 
   override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean] =
@@ -92,24 +92,28 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
           "gid"       -> s"$gid"
         )
         sendMessage(result.asJson.noSpaces, actor)
-      }.when(actor != null && uid != master.id)
+      }.when(actor != null && uid != master.id).map(_.getOrElse(()))
     }
 
   override def removeFriend(uId: Int, friendId: Int): Task[Unit] =
     uId.synchronized {
       // 对方是否在线，在线则处理，不在线则不处理
       val actor = WsService.actorRefSessions.get(friendId)
-      app.userService.findUserById(uId).runHead.flatMap { u =>
-        {
-          val result = Map(
-            "type"     -> Protocol.delFriend.stringify,
-            "uId"      -> s"$uId",
-            "username" -> u.map(_.username).getOrElse("undefined")
-          )
-          sendMessage(result.asJson.noSpaces, actor)
+      app.userService
+        .findUserById(uId)
+        .runHead
+        .flatMap { u =>
+          {
+            val result = Map(
+              "type"     -> Protocol.delFriend.stringify,
+              "uId"      -> s"$uId",
+              "username" -> u.map(_.username).getOrElse("undefined")
+            )
+            sendMessage(result.asJson.noSpaces, actor)
 
-        }.when(actor != null && u.isDefined)
-      }
+          }.when(actor != null && u.isDefined)
+        }
+        .map(_.getOrElse(()))
     }
 
   override def addGroup(uId: Int, message: domain.Message): Task[Unit] =
@@ -137,7 +141,7 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
           )
           sendMessage(result.asJson.noSpaces, actorRef)
         }.when(actorRef != null)
-      }
+      }.map(_.getOrElse(()))
     }
 
   override def addFriend(uId: Int, message: domain.Message): Task[Unit] =
@@ -159,7 +163,7 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
         sendMessage(
           Map("type" -> Protocol.addFriend.stringify).asJson.noSpaces,
           actorRef = actorRef
-        ).when(actorRef != null)
+        ).when(actorRef != null).map(_.getOrElse(()))
     }
 
   override def countUnHandMessage(uId: Int): Task[Map[String, String]] =
@@ -186,6 +190,7 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
       .info(s"sendMessage message=>$message actorRef=>${actorRef.path}")
       .as(actorRef ! message)
       .when(actorRef != null)
+      .map(_.getOrElse(()))
 
   override def changeOnline(uId: Int, status: String): Task[Boolean] =
     changeOnlineHandler(userService)(uId, status)
@@ -193,6 +198,6 @@ case class WsServiceLive(private val app: ApplicationConfiguration) extends WsSe
   override def readOfflineMessage(message: domain.Message): Task[Unit] =
     readOfflineMessageHandler(userService)(message)
 
-  override def getConnections: Task[Int] = ZIO.effect(WsService.actorRefSessions.size())
+  override def getConnections: Task[Int] = ZIO.attempt(WsService.actorRefSessions.size())
 
 }

@@ -16,25 +16,25 @@
 
 package org.bitlap.zim.server.api
 
-import akka.http.scaladsl.marshalling.{ Marshaller, ToEntityMarshaller }
-import akka.http.scaladsl.model.HttpEntity
-import akka.http.scaladsl.model.MediaTypes.`application/json`
-import akka.http.scaladsl.model.headers.Cookie
+import akka.http.scaladsl.marshalling._
+import akka.http.scaladsl.model.MediaTypes._
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.server._
-import akka.http.scaladsl.testkit.{ RouteTestTimeout, ScalatestRouteTest }
+import akka.http.scaladsl.testkit._
 import akka.testkit.TestDuration
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.api.service.UserService
+import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain.input._
-import org.bitlap.zim.domain.model.{ GroupList, GroupMember, User }
+import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository._
-import org.bitlap.zim.server.configuration.ZimServiceConfiguration
-import org.bitlap.zim.server.route.ZimUserApi
-import org.bitlap.zim.server.route.ZimUserApi.ZZimUserApi
-import org.bitlap.zim.server.service.{ ApiServiceImpl, TestService }
-import zio.{ TaskLayer, ZIO }
+import org.bitlap.zim.server.configuration._
+import org.bitlap.zim.server.route._
+import org.bitlap.zim.server.service._
+import zio._
 
-import scala.concurrent.duration._
+import java.util.concurrent._
+import scala.concurrent.duration.FiniteDuration
 
 /** 测试akka-http route
  *
@@ -45,19 +45,24 @@ import scala.concurrent.duration._
  */
 class ZimUserApiSpec extends TestService with ZimServiceConfiguration with ScalatestRouteTest {
 
-  implicit val timeout = RouteTestTimeout(15.seconds.dilated)
+  implicit val timeout = RouteTestTimeout(FiniteDuration(15, TimeUnit.SECONDS).dilated)
+
   val authorityHeaders = Seq(Cookie("Authorization", "ZHJlYW15bG9zdEBvdXRsb29rLmNvbToxMjM0NTY="))
   val pwdUser          = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
 
-  val api: TaskLayer[ZZimUserApi] = ZimUserApi.make(ApiServiceImpl.make(userApplicationLayer), materializerLayer)
+  val api: TaskLayer[ZimUserApi] =
+    ZimUserApi.make(
+      ApiServiceImpl.make(userServiceLayer),
+      AkkaActorSystemConfiguration.layer >>> AkkaHttpConfiguration.materializerLive
+    )
 
   def getRoute(zapi: ZimUserApi => Route): Route = {
-    val s = ZIO.serviceWith[ZimUserApi](api => ZIO.effect(zapi(api))).provideLayer(api)
+    val s = ZIO.serviceWithZIO[ZimUserApi](api => ZIO.attempt(zapi(api))).provideLayer(api)
     unsafeRun(s)
   }
 
   def createRegisterUser(user: User = mockUser): Option[Boolean] =
-    unsafeRun(ZIO.serviceWith[UserService[RStream]](_.saveUser(user).runHead).provideLayer(userApplicationLayer))
+    unsafeRun(ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(user).runHead).provideLayer(userServiceLayer))
 
   // 对于需要使用插入后ID的，根据名字查询用户，避免并发跑单测时串数据。与createRegisterUser同时使用
   def findUserByName(name: String): Option[User] =
@@ -69,11 +74,11 @@ class ZimUserApiSpec extends TestService with ZimServiceConfiguration with Scala
   def createGroup(uid: Int = 1, gid: Int = 1): Option[Boolean] = {
     unsafeRun(
       ZIO
-        .serviceWith[UserService[RStream]](_.createGroup(GroupList(0, "梦境迷离", "", uid)).runHead)
-        .provideLayer(userApplicationLayer)
+        .serviceWithZIO[UserService[RStream]](_.createGroup(GroupList(0, "梦境迷离", "", uid)).runHead)
+        .provideLayer(userServiceLayer)
     )
     unsafeRun(
-      ZIO.serviceWith[UserService[RStream]](_.addGroupMember(gid, uid).runHead).provideLayer(userApplicationLayer)
+      ZIO.serviceWithZIO[UserService[RStream]](_.addGroupMember(gid, uid).runHead).provideLayer(userServiceLayer)
     )
   }
 

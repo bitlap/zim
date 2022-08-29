@@ -16,17 +16,17 @@
 
 package org.bitlap.zim.server.route
 
-import akka.NotUsed
-import akka.http.scaladsl.model.ws.Message
-import akka.http.scaladsl.server.Route
-import akka.stream.Materializer
+import akka._
+import akka.http.scaladsl.model.ws._
+import akka.http.scaladsl.server._
+import akka.stream._
 import akka.stream.scaladsl.Flow
-import org.bitlap.zim.server.service.ws.WsService
-import org.bitlap.zim.server.zioRuntime
-import org.bitlap.zim.api.WsEndpoint
-import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
+import org.bitlap.zim.api._
+import org.bitlap.zim.server.service.ws._
+import sttp.tapir.server.akkahttp._
+import zio._
 
-import scala.concurrent.{ ExecutionContextExecutor, Future }
+import scala.concurrent._
 
 /** @author
  *    梦境迷离
@@ -35,11 +35,14 @@ import scala.concurrent.{ ExecutionContextExecutor, Future }
  */
 final class ZimWsApi()(implicit materializer: Materializer) {
 
-  implicit val ec: ExecutionContextExecutor = materializer.executionContext
+  implicit val ec: ExecutionContext = materializer.executionContext
 
   lazy val route: Route = AkkaHttpServerInterpreter().toRoute(WsEndpoint.wsEndpoint.serverLogic[Future] { uid =>
     val ret: Either[Unit, Flow[Message, String, NotUsed]] =
-      try Right(zioRuntime.unsafeRun(WsService.openConnection(uid)))
+      try
+        Unsafe.unsafe { implicit runtime =>
+          Right(Runtime.default.unsafe.run(WsService.openConnection(uid)).getOrThrowFiberFailure())
+        }
       catch { case _: Exception => Left(()) }
     Future.successful(ret)
   })

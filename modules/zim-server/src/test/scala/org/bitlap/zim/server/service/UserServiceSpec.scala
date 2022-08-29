@@ -31,30 +31,30 @@ final class UserServiceSpec extends TestService {
 
   "UserApplication" should "saveUser ok" in {
     val stream = (for {
-      _    <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      user <- ZIO.serviceWith[UserService[RStream]](_.findUserById(mockUser.id).runHead)
-    } yield user).provideLayer(userApplicationLayer)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
+      user <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(mockUser.id).runHead)
+    } yield user).provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
     ret.map(_.username) shouldBe Some(mockUser.username)
   }
 
   "UserApplication" should "matchUser ok" in {
     val stream = (for {
-      _    <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      user <- ZIO.serviceWith[UserService[RStream]](_.matchUser(mockUser).runHead)
-    } yield user).provideLayer(userApplicationLayer)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
+      user <- ZIO.serviceWithZIO[UserService[RStream]](_.matchUser(mockUser).runHead)
+    } yield user).provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
     ret.map(_.password) shouldBe Some("jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
   }
 
   "UserApplication" should "creator leaveOutGroup ok" in {
     val stream = (for {
-      _     <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      _     <- ZIO.serviceWith[UserService[RStream]](_.createGroup(GroupList(1, "g", "", 1)).runHead)
-      _     <- ZIO.serviceWith[UserService[RStream]](_.addGroupMember(1, 1).runHead)
-      leave <- ZIO.serviceWith[UserService[RStream]](_.leaveOutGroup(1, 1).runHead)
-      group <- ZIO.serviceWith[UserService[RStream]](_.findGroupById(1).runCount)
-    } yield leave.contains(true) && group == 0).provideLayer(userApplicationLayer)
+      _     <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
+      _     <- ZIO.serviceWithZIO[UserService[RStream]](_.createGroup(GroupList(1, "g", "", 1)).runHead)
+      _     <- ZIO.serviceWithZIO[UserService[RStream]](_.addGroupMember(1, 1).runHead)
+      leave <- ZIO.serviceWithZIO[UserService[RStream]](_.leaveOutGroup(1, 1).runHead)
+      group <- ZIO.serviceWithZIO[UserService[RStream]](_.findGroupById(1).runCount)
+    } yield leave.contains(true) && group == 0).provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
 
     ret shouldBe true
@@ -62,13 +62,13 @@ final class UserServiceSpec extends TestService {
 
   "UserApplication" should "leaveOutGroup ok" in {
     val stream = (for {
-      _     <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      _     <- ZIO.serviceWith[UserService[RStream]](_.createGroup(GroupList(1, "g", "", 1)).runHead)
-      _     <- ZIO.serviceWith[UserService[RStream]](_.addGroupMember(1, 1).runHead)
-      _     <- ZIO.serviceWith[UserService[RStream]](_.addGroupMember(1, 2).runHead)
-      leave <- ZIO.serviceWith[UserService[RStream]](_.leaveOutGroup(1, 2).runHead)
-      group <- ZIO.serviceWith[UserService[RStream]](_.findGroupById(1).runCount)
-    } yield leave.contains(true) && group == 1).provideLayer(userApplicationLayer)
+      _     <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
+      _     <- ZIO.serviceWithZIO[UserService[RStream]](_.createGroup(GroupList(1, "g", "", 1)).runHead)
+      _     <- ZIO.serviceWithZIO[UserService[RStream]](_.addGroupMember(1, 1).runHead)
+      _     <- ZIO.serviceWithZIO[UserService[RStream]](_.addGroupMember(1, 2).runHead)
+      leave <- ZIO.serviceWithZIO[UserService[RStream]](_.leaveOutGroup(1, 2).runHead)
+      group <- ZIO.serviceWithZIO[UserService[RStream]](_.findGroupById(1).runCount)
+    } yield leave.contains(true) && group == 1).provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
     ret shouldBe true
   }
@@ -76,29 +76,29 @@ final class UserServiceSpec extends TestService {
   "UserApplication" should "changeGroup ok" in {
     val stream = (for {
       // save时创建了默认的好友分组 gid=1 uid=1
-      saveU1 <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
+      saveU1 <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
       // 创建第二个分组 gid=2
-      saveG1 <- ZIO.serviceWith[UserService[RStream]](_.createFriendGroup("myfgroup1", 1).runHead)
+      saveG1 <- ZIO.serviceWithZIO[UserService[RStream]](_.createFriendGroup("myfgroup1", 1).runHead)
       // gid=3 uid=2
-      saveU2 <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
-      addMsg <- ZIO.serviceWith[UserService[RStream]](_.saveAddMessage(model.AddMessage(1, 2, 1, "", 0)).runHead)
-      addF   <- ZIO.serviceWith[UserService[RStream]](_.addFriend(1, 1, 2, 3, 1).runHead)
-      change <- ZIO.serviceWith[UserService[RStream]](_.changeGroup(2, 2, 1).runHead)
-      ret    <- ZIO.serviceWith[UserService[RStream]](_.findFriendGroupsById(1).runCollect)
+      saveU2 <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
+      addMsg <- ZIO.serviceWithZIO[UserService[RStream]](_.saveAddMessage(model.AddMessage(1, 2, 1, "", 0)).runHead)
+      addF   <- ZIO.serviceWithZIO[UserService[RStream]](_.addFriend(1, 1, 2, 3, 1).runHead)
+      change <- ZIO.serviceWithZIO[UserService[RStream]](_.changeGroup(2, 2, 1).runHead)
+      ret    <- ZIO.serviceWithZIO[UserService[RStream]](_.findFriendGroupsById(1).runCollect)
     } yield (saveU1, saveG1, saveU2, addMsg, addF, change, ret.map(_.list.map(_.username)).toList.flatten))
-      .provideLayer(userApplicationLayer)
+      .provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
     ret shouldBe (Some(true), Some(1), Some(true), Some(1), Some(true), Some(true), List("lisi"))
   }
 
   "UserApplication" should "friend findAddInfo ok" in {
     val stream = (for {
-      saveU1  <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      _       <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
-      addMsg  <- ZIO.serviceWith[UserService[RStream]](_.saveAddMessage(model.AddMessage(1, 2, 1, "", 0)).runHead)
-      addInfo <- ZIO.serviceWith[UserService[RStream]](_.findAddInfo(2).runHead)
+      saveU1  <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
+      _       <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
+      addMsg  <- ZIO.serviceWithZIO[UserService[RStream]](_.saveAddMessage(model.AddMessage(1, 2, 1, "", 0)).runHead)
+      addInfo <- ZIO.serviceWithZIO[UserService[RStream]](_.findAddInfo(2).runHead)
     } yield (saveU1, addMsg, addInfo.map(a => a.uid -> a.content)))
-      .provideLayer(userApplicationLayer)
+      .provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
     ret shouldBe (Some(true), Some(1), Some((2, "申请添加你为好友")))
   }
@@ -106,12 +106,12 @@ final class UserServiceSpec extends TestService {
   "UserApplication" should "friend findHistoryMessage ok" in {
     val stream = (for {
       // save时创建了默认的好友分组 gid=1 uid=1
-      saveU1     <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      _          <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
-      addMsg     <- ZIO.serviceWith[UserService[RStream]](_.saveMessage(mockReceive).runHead)
-      msgHistory <- ZIO.serviceWith[UserService[RStream]](_.findHistoryMessage(mockUser, 2, "friend").runHead)
+      saveU1 <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
+      _      <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
+      addMsg <- ZIO.serviceWithZIO[UserService[RStream]](_.saveMessage(mockReceive).runHead)
+      msgHistory <- ZIO.serviceWithZIO[UserService[RStream]](_.findHistoryMessage(mockUser, 2, "friend").runHead)
     } yield (saveU1, addMsg, msgHistory.map(a => a.username -> a.content)))
-      .provideLayer(userApplicationLayer)
+      .provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
     ret shouldBe (Some(true), Some(1), Some(("lisi", "receive")))
   }
@@ -119,12 +119,12 @@ final class UserServiceSpec extends TestService {
   "UserApplication" should "group findHistoryMessage ok" in {
     val stream = (for {
       // save时创建了默认的好友分组 gid=1 uid=1
-      saveU1     <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      _          <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
-      addMsg     <- ZIO.serviceWith[UserService[RStream]](_.saveMessage(mockReceive.copy(`type` = "group")).runHead)
-      msgHistory <- ZIO.serviceWith[UserService[RStream]](_.findHistoryMessage(mockUser, 2, "group").runHead)
+      saveU1 <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
+      _      <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
+      addMsg <- ZIO.serviceWithZIO[UserService[RStream]](_.saveMessage(mockReceive.copy(`type` = "group")).runHead)
+      msgHistory <- ZIO.serviceWithZIO[UserService[RStream]](_.findHistoryMessage(mockUser, 2, "group").runHead)
     } yield (saveU1, addMsg, msgHistory.map(a => a.username -> a.content)))
-      .provideLayer(userApplicationLayer)
+      .provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
     ret shouldBe (Some(true), Some(1), Some(("lisi", "receive")))
   }
@@ -132,70 +132,70 @@ final class UserServiceSpec extends TestService {
   "UserApplication" should "group countHistoryMessage ok" in {
     val stream = (for {
       // save时创建了默认的好友分组 gid=1 uid=1
-      saveU1 <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      _      <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
-      addMsg <- ZIO.serviceWith[UserService[RStream]](_.saveMessage(mockReceive.copy(`type` = "group")).runHead)
-      ret    <- ZIO.serviceWith[UserService[RStream]](_.countHistoryMessage(1, 2, "group").runHead)
+      saveU1 <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
+      _      <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
+      addMsg <- ZIO.serviceWithZIO[UserService[RStream]](_.saveMessage(mockReceive.copy(`type` = "group")).runHead)
+      ret    <- ZIO.serviceWithZIO[UserService[RStream]](_.countHistoryMessage(1, 2, "group").runHead)
     } yield (saveU1, addMsg, ret))
-      .provideLayer(userApplicationLayer)
+      .provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
     ret shouldBe (Some(true), Some(1), Some(1))
   }
 
   "UserApplication" should "findById ok" in {
     val stream = (for {
-      _   <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      ret <- ZIO.serviceWith[UserService[RStream]](_.findUserById(1).runHead)
+      _   <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
+      ret <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(1).runHead)
     } yield ret)
-      .provideLayer(userApplicationLayer)
+      .provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
     ret.map(_.username) shouldBe Some(mockUser.username)
   }
 
   "UserApplication" should "removeFriend and findAddInfo ok" in {
     val stream = (for {
-      _    <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser).runHead)
-      _    <- ZIO.serviceWith[UserService[RStream]](_.saveUser(mockUser.copy(username = "lisi")).runHead)
-      _    <- ZIO.serviceWith[UserService[RStream]](_.createGroup(GroupList(0, "gn1", "", 1)).runHead)
-      _    <- ZIO.serviceWith[UserService[RStream]](_.createGroup(GroupList(0, "gn2", "", 2)).runHead)
-      _    <- ZIO.serviceWith[UserService[RStream]](_.saveAddMessage(mockAddMessage).runHead)
-      _    <- ZIO.serviceWith[UserService[RStream]](_.addFriend(1, 1, 2, 2, 1).runHead)
-      ret1 <- ZIO.serviceWith[UserService[RStream]](_.findAddInfo(2).runHead)
-      ret2 <- ZIO.serviceWith[UserService[RStream]](_.removeFriend(2, 1).runHead)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser.copy(username = "lisi")).runHead)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.createGroup(GroupList(0, "gn1", "", 1)).runHead)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.createGroup(GroupList(0, "gn2", "", 2)).runHead)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.saveAddMessage(mockAddMessage).runHead)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.addFriend(1, 1, 2, 2, 1).runHead)
+      ret1 <- ZIO.serviceWithZIO[UserService[RStream]](_.findAddInfo(2).runHead)
+      ret2 <- ZIO.serviceWithZIO[UserService[RStream]](_.removeFriend(2, 1).runHead)
     } yield ret1.map(_.uid) -> ret2)
-      .provideLayer(userApplicationLayer)
+      .provideLayer(userServiceLayer)
     val ret = unsafeRun(stream)
     ret shouldBe Some(2) -> Some(true)
   }
 
   "UserApplication" should "updateUserInfo, sign, avatar, should success" in {
     val saveUser = ZIO
-      .serviceWith[UserService[RStream]](_.saveUser(mockUser.copy(username = "world")).runHead)
-      .provideLayer(userApplicationLayer)
+      .serviceWithZIO[UserService[RStream]](_.saveUser(mockUser.copy(username = "world")).runHead)
+      .provideLayer(userServiceLayer)
     val user = unsafeRun(saveUser)
 
     println("saveUser:" + user)
 
     val stream1 = (for {
-      findU <- ZIO.serviceWith[UserService[RStream]](_.findUserById(1).runHead)
+      findU <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(1).runHead)
       uid = findU.map(_.id).getOrElse(1)
-      _    <- ZIO.serviceWith[UserService[RStream]](_.updateUserInfo(mockUser.copy(id = uid, sign = "梦境迷离")).runHead)
-      user <- ZIO.serviceWith[UserService[RStream]](_.findUserById(uid).runHead)
-    } yield user.map(_.sign)).provideLayer(userApplicationLayer)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.updateUserInfo(mockUser.copy(id = uid, sign = "梦境迷离")).runHead)
+      user <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(uid).runHead)
+    } yield user.map(_.sign)).provideLayer(userServiceLayer)
 
     val stream2 = (for {
-      findU <- ZIO.serviceWith[UserService[RStream]](_.findUserById(1).runHead)
+      findU <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(1).runHead)
       uid = findU.map(_.id).getOrElse(1)
-      _    <- ZIO.serviceWith[UserService[RStream]](_.updateUserStatus("offline", uid).runHead)
-      user <- ZIO.serviceWith[UserService[RStream]](_.findUserById(uid).runHead)
-    } yield user.map(_.status)).provideLayer(userApplicationLayer)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.updateUserStatus("offline", uid).runHead)
+      user <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(uid).runHead)
+    } yield user.map(_.status)).provideLayer(userServiceLayer)
 
     val stream3 = (for {
-      findU <- ZIO.serviceWith[UserService[RStream]](_.findUserById(1).runHead)
+      findU <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(1).runHead)
       uid = findU.map(_.id).getOrElse(1)
-      _    <- ZIO.serviceWith[UserService[RStream]](_.updateAvatar(uid, "sss").runHead)
-      user <- ZIO.serviceWith[UserService[RStream]](_.findUserById(uid).runHead)
-    } yield user.map(_.avatar)).provideLayer(userApplicationLayer)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.updateAvatar(uid, "sss").runHead)
+      user <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(uid).runHead)
+    } yield user.map(_.avatar)).provideLayer(userServiceLayer)
 
     val stream = for {
       ret1 <- stream1

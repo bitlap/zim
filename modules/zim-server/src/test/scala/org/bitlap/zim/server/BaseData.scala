@@ -17,26 +17,25 @@
 package org.bitlap.zim.server
 
 import org.bitlap.zim.domain.model
-import org.bitlap.zim.domain.model.{ AddMessage, GroupList, User }
-import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
-import org.bitlap.zim.server.util.DateHelper
-import org.scalatest.BeforeAndAfter
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import org.bitlap.zim.domain.model._
+import org.bitlap.zim.infrastructure.properties._
+import org.bitlap.zim.server.util._
+import org.scalatest._
+import org.scalatest.flatspec._
+import org.scalatest.matchers.should._
 import scalikejdbc._
-import zio.BootstrapRuntime
 
 /** @author
  *    梦境迷离
  *  @since 2022/1/2
  *  @version 1.0
  */
-trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with BootstrapRuntime {
+trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with CommonTestSupport {
 
   // test SQL for unittest suit
-  val sqlBefore: SQL[_, NoExtractor]
+  def sqlBefore: SQL[_, NoExtractor]
 
-  val sqlAfter: SQL[_, NoExtractor]
+  def sqlAfter: SQL[_, NoExtractor]
 
   val h2ConfigurationProperties: MysqlConfigurationProperties = MysqlConfigurationProperties()
 
@@ -101,12 +100,16 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Bootst
   )
 
   before {
+    //  val stmt = NamedDB(Symbol(h2ConfigurationProperties.databaseName)).conn.createStatement()
+    //  sqlBefore.statement.split(";").toList.foreach(stmt.addBatch)
+    //  stmt.executeBatch()
     NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
       sqlBefore.execute().apply()
     }
   }
 
   after {
+
     NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
       sqlAfter.execute().apply()
     }

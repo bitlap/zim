@@ -75,52 +75,52 @@ object TangibleUserRepository {
   def apply(databaseName: String): UserRepository[RStream] =
     new TangibleUserRepository(databaseName)
 
-  type ZUserRepository = Has[UserRepository[RStream]]
-
   /** 下面的测试很有用，对外提供
    *
    *  @return
    */
-  def findById(id: Int): stream.ZStream[ZUserRepository, Throwable, model.User] =
-    stream.ZStream.accessStream(_.get.findById(id))
+  def findById(id: Int): stream.ZStream[UserRepository[RStream], Throwable, model.User] =
+    stream.ZStream.environmentWithStream(_.get.findById(id))
 
-  def saveUser(user: model.User): stream.ZStream[ZUserRepository, Throwable, Long] =
-    stream.ZStream.accessStream(_.get.saveUser(user))
+  def saveUser(user: model.User): stream.ZStream[UserRepository[RStream], Throwable, Long] =
+    stream.ZStream.environmentWithStream(_.get.saveUser(user))
 
-  def matchUser(email: String): stream.ZStream[ZUserRepository, Throwable, model.User] =
-    stream.ZStream.accessStream(_.get.matchUser(email))
+  def matchUser(email: String): stream.ZStream[UserRepository[RStream], Throwable, model.User] =
+    stream.ZStream.environmentWithStream(_.get.matchUser(email))
 
-  def activeUser(activeCode: String): stream.ZStream[ZUserRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.activeUser(activeCode))
+  def activeUser(activeCode: String): stream.ZStream[UserRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.activeUser(activeCode))
 
-  def countUser(username: Option[String], sex: Option[Int]): stream.ZStream[ZUserRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.countUser(username, sex))
+  def countUser(username: Option[String], sex: Option[Int]): stream.ZStream[UserRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.countUser(username, sex))
 
-  def findUsers(username: Option[String], sex: Option[Int]): stream.ZStream[ZUserRepository, Throwable, model.User] =
-    stream.ZStream.accessStream(_.get.findUsers(username, sex))
+  def findUsers(
+    username: Option[String],
+    sex: Option[Int]
+  ): stream.ZStream[UserRepository[RStream], Throwable, model.User] =
+    stream.ZStream.environmentWithStream(_.get.findUsers(username, sex))
 
-  def findUserByGroupId(gid: Int): stream.ZStream[ZUserRepository, Throwable, model.User] =
-    stream.ZStream.accessStream(_.get.findUserByGroupId(gid))
+  def findUserByGroupId(gid: Int): stream.ZStream[UserRepository[RStream], Throwable, model.User] =
+    stream.ZStream.environmentWithStream(_.get.findUserByGroupId(gid))
 
-  def findUsersByFriendGroupIds(fgid: Int): stream.ZStream[ZUserRepository, Throwable, model.User] =
-    stream.ZStream.accessStream(_.get.findUsersByFriendGroupIds(fgid))
+  def findUsersByFriendGroupIds(fgid: Int): stream.ZStream[UserRepository[RStream], Throwable, model.User] =
+    stream.ZStream.environmentWithStream(_.get.findUsersByFriendGroupIds(fgid))
 
-  def updateAvatar(avatar: String, uid: Int): stream.ZStream[ZUserRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.updateAvatar(avatar, uid))
+  def updateAvatar(avatar: String, uid: Int): stream.ZStream[UserRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.updateAvatar(avatar, uid))
 
-  def updateSign(sign: String, uid: Int): stream.ZStream[ZUserRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.updateSign(sign, uid))
+  def updateSign(sign: String, uid: Int): stream.ZStream[UserRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.updateSign(sign, uid))
 
-  def updateUserInfo(id: Int, user: model.User): stream.ZStream[ZUserRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.updateUserInfo(id, user))
+  def updateUserInfo(id: Int, user: model.User): stream.ZStream[UserRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.updateUserInfo(id, user))
 
-  def updateUserStatus(status: String, uid: Int): stream.ZStream[ZUserRepository, Throwable, Int] =
-    stream.ZStream.accessStream(_.get.updateUserStatus(status, uid))
+  def updateUserStatus(status: String, uid: Int): stream.ZStream[UserRepository[RStream], Throwable, Int] =
+    stream.ZStream.environmentWithStream(_.get.updateUserStatus(status, uid))
 
-  val live: URLayer[Has[String], ZUserRepository] =
-    ZLayer.fromService[String, UserRepository[RStream]](TangibleUserRepository(_))
+  val live: URLayer[String, UserRepository[RStream]] = ZLayer(ZIO.service[String].map(TangibleUserRepository.apply))
 
-  def make(databaseName: String): ULayer[ZUserRepository] =
+  def make(databaseName: String): ULayer[UserRepository[RStream]] =
     ZLayer.succeed(databaseName) >>> live
 
 }
