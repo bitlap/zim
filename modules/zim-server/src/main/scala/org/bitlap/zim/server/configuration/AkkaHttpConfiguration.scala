@@ -61,7 +61,7 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
           .bind(route)
       }
       server <- ZIO
-        .fromFuture(_ => eventualBinding)
+        .fromFuture(implicit ec => eventualBinding)
         .tapError(exception =>
           ZIO.attempt(
             actorSystem.log.error(
@@ -104,13 +104,13 @@ object AkkaHttpConfiguration {
     new AkkaHttpConfiguration(actorSystem)
 
   def httpServer(route: Route): RIO[AkkaHttpConfiguration, Unit] =
-    ZIO.environmentWith(_.get.httpServer(route))
+    ZIO.environmentWithZIO(_.get.httpServer(route))
 
-  val materializerLive: URLayer[ActorSystem, Materializer] = ZLayer {
+  lazy val materializerLive: URLayer[ActorSystem, Materializer] = ZLayer {
     ZIO.service[ActorSystem].map(implicit actor => Materializer.matFromSystem)
   }
 
-  val live: URLayer[ActorSystem, AkkaHttpConfiguration] = ZLayer {
+  lazy val live: URLayer[ActorSystem, AkkaHttpConfiguration] = ZLayer {
     ZIO.service[ActorSystem].map(AkkaHttpConfiguration.apply)
   }
 

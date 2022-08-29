@@ -52,13 +52,9 @@ final case class MailConfigurationProperties(
 
 object MailConfigurationProperties {
 
-  lazy val config: Config = ConfigFactory.load().getConfig("infrastructure.javamail")
+  private lazy val config: Config = ConfigFactory.load().getConfig("infrastructure.javamail")
 
-  val live: ULayer[MailConfigurationProperties] =
-    ZLayer.succeed(config) >>> ZLayer(ZIO.service[Config].map(MailConfigurationProperties.apply))
-
-  def make: UIO[MailConfigurationProperties] =
-    ZIO.serviceWithZIO[MailConfigurationProperties](c => ZIO.succeed(c)).provideLayer(live)
+  def make: UIO[MailConfigurationProperties] = ZIO.succeed(MailConfigurationProperties(config))
 
   def apply(config: Config = config): MailConfigurationProperties =
     MailConfigurationProperties(

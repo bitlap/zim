@@ -50,7 +50,11 @@ class ZimUserApiSpec extends TestService with ZimServiceConfiguration with Scala
   val authorityHeaders = Seq(Cookie("Authorization", "ZHJlYW15bG9zdEBvdXRsb29rLmNvbToxMjM0NTY="))
   val pwdUser          = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
 
-  val api: TaskLayer[ZimUserApi] = ZimUserApi.make(ApiServiceImpl.make(userServiceLayer), materializerLayer)
+  val api: TaskLayer[ZimUserApi] =
+    ZimUserApi.make(
+      ApiServiceImpl.make(userServiceLayer),
+      AkkaActorSystemConfiguration.layer >>> AkkaHttpConfiguration.materializerLive
+    )
 
   def getRoute(zapi: ZimUserApi => Route): Route = {
     val s = ZIO.serviceWithZIO[ZimUserApi](api => ZIO.attempt(zapi(api))).provideLayer(api)

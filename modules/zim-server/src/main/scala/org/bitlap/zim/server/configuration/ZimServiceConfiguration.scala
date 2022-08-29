@@ -17,38 +17,26 @@
 package org.bitlap.zim.server.configuration
 
 import akka.actor.ActorSystem
-import akka.stream._
 import org.bitlap.zim.infrastructure._
-import zio.{ TaskLayer, ULayer, ZLayer }
+import zio._
 
 /** global configuration to collect all service or system layer
  *
  *  @author
  *    梦境迷离
  *  @since 2021/12/25
- *  @version 1.0
+ *  @version 2.0
  */
 trait ZimServiceConfiguration {
-
-  protected lazy val akkaActorSystemLayer: TaskLayer[ActorSystem] =
-    InfrastructureConfiguration.live >>>
-      AkkaActorSystemConfiguration.live
-
-  protected lazy val akkaHttpConfigurationLayer: TaskLayer[AkkaHttpConfiguration] =
-    akkaActorSystemLayer >>> AkkaHttpConfiguration.live
-
-  protected lazy val materializerLayer: TaskLayer[Materializer] =
-    akkaActorSystemLayer >>>
-      AkkaHttpConfiguration.materializerLive
 
   protected lazy val applicationConfigurationLayer: ULayer[ApplicationConfiguration] =
     ZLayer.make[ApplicationConfiguration](InfrastructureConfiguration.live, ApplicationConfiguration.live)
 
-  protected lazy val apiConfigurationLayer: TaskLayer[ApiConfiguration with AkkaHttpConfiguration] =
-    ZLayer.make[ApiConfiguration with AkkaHttpConfiguration](
+  protected lazy val apiConfigurationLayer: RLayer[ActorSystem, ApiConfiguration with AkkaHttpConfiguration] =
+    ZLayer.makeSome[ActorSystem, ApiConfiguration](
       applicationConfigurationLayer,
-      akkaHttpConfigurationLayer,
-      materializerLayer,
+      AkkaHttpConfiguration.materializerLive,
       ApiConfiguration.live
-    )
+    ) ++ AkkaHttpConfiguration.live
+
 }

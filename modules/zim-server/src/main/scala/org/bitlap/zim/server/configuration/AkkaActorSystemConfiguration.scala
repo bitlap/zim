@@ -32,11 +32,13 @@ object AkkaActorSystemConfiguration {
   /** create actorSystem，convert to classic actor when use it in akkahttp
    */
   private lazy val actorSystem: RIO[InfrastructureConfiguration, ActorSystem] =
-    ZIO.attempt(ActorSystem("akkaActorSystem"))
+    ZIO.succeed(ActorSystem("akkaActorSystem"))
 
-  val live: RLayer[InfrastructureConfiguration, ActorSystem] = ZLayer(ZIO.scoped {
-    ZIO.acquireRelease(actorSystem)(actorSystem => ZIO.succeed(actorSystem.terminate()).ignore)
-  })
+  lazy val layer: TaskLayer[ActorSystem] =
+    InfrastructureConfiguration.live >>> ZLayer.scoped {
+      import scala.concurrent.Future
+      ZIO.acquireReleaseExit(make)((release, _) => ZIO.fromFuture(_ => Future.successful(())).ignoreLogged)
+    }
 
   def make: Task[ActorSystem] = AkkaActorSystemConfiguration.actorSystem.provideLayer(InfrastructureConfiguration.live)
 }

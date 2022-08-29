@@ -126,7 +126,7 @@ object InfrastructureConfiguration {
   val addMessageRepository: URIO[InfrastructureConfiguration, AddMessageRepository[RStream]] =
     ZIO.environmentWith(_.get.addMessageRepository)
 
-  val live: ULayer[InfrastructureConfiguration] =
+  lazy val live: ULayer[InfrastructureConfiguration] =
     ZLayer.succeed[InfrastructureConfiguration](InfrastructureConfiguration())
 
 }

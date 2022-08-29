@@ -37,9 +37,6 @@ object ZimConfigurationProperties {
 
   lazy val config: Config = ConfigFactory.load().getConfig("application")
 
-  val live: ULayer[ZimConfigurationProperties] =
-    ZLayer.succeed(config) >>> ZLayer(ZIO.service[Config].map(ZimConfigurationProperties.apply))
-
   def make: UIO[ZimConfigurationProperties] = ZIO.succeed(ZimConfigurationProperties(config))
 
   def apply(config: Config = config): ZimConfigurationProperties =

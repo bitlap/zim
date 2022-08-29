@@ -66,9 +66,9 @@ object MailServiceImpl {
     mailConfigurationProperties
   )
   def sendHtmlMail(to: String, subject: String, content: String): URIO[MailServiceImpl, Any] =
-    ZIO.environmentWith(_.get.sendHtmlMail(to, subject, content))
+    ZIO.environmentWithZIO(_.get.sendHtmlMail(to, subject, content))
 
-  val live: URLayer[MailConfigurationProperties, MailServiceImpl] = ZLayer(
+  lazy val live: URLayer[MailConfigurationProperties, MailServiceImpl] = ZLayer(
     ZIO.service[MailConfigurationProperties].map(MailServiceImpl.apply)
   )
 
