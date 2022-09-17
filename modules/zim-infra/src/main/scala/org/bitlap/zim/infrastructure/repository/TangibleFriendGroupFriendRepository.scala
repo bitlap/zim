@@ -69,11 +69,9 @@ object TangibleFriendGroupFriendRepository {
   def addFriend(from: AddFriend, to: AddFriend): ZStream[FriendGroupFriendRepository[RStream], Throwable, Int] =
     ZStream.environmentWithStream(_.get.addFriend(from, to))
 
-  val live: URLayer[String, FriendGroupFriendRepository[RStream]] = ZLayer(
-    ZIO.service[String].map(TangibleFriendGroupFriendRepository.apply)
-  )
-
   def make(databaseName: String): ULayer[FriendGroupFriendRepository[RStream]] =
-    ZLayer.succeed(databaseName) >>> live
+    ZLayer.succeed(databaseName) >>> ZLayer(
+      ZIO.service[String].map(TangibleFriendGroupFriendRepository.apply)
+    )
 
 }

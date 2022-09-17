@@ -80,7 +80,7 @@ trait ApiJsonCodec {
         ("code", Json.fromInt(a.code))
       )
 
-  implicit def encodeBooleanResultSet: Encoder[ResultSet[Boolean]] =
+  implicit val encodeBooleanResultSet: Encoder[ResultSet[Boolean]] =
     (a: ResultSet[Boolean]) =>
       Json.obj(
         ("data", a.data.asJson),
@@ -88,7 +88,7 @@ trait ApiJsonCodec {
         ("code", Json.fromInt(a.code))
       )
 
-  implicit def encodeIntResultSet: Encoder[ResultSet[Int]] =
+  implicit val encodeIntResultSet: Encoder[ResultSet[Int]] =
     (a: ResultSet[Int]) =>
       Json.obj(
         ("data", a.data.asJson),
