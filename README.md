@@ -29,7 +29,7 @@
 ## 环境
 
 - scala 2.12/2.13
-- java 8/11
+- java 11/17
 - redis 4/5/6
 - mysql 8
 - docker-compose
