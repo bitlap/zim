@@ -19,6 +19,7 @@ package org.bitlap.zim.server.configuration
 import akka.actor.ActorSystem
 import zio._
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
+import scala.concurrent.Future
 
 /** akka actor configuration
  *
@@ -29,16 +30,13 @@ import org.bitlap.zim.infrastructure.InfrastructureConfiguration
  */
 object AkkaActorSystemConfiguration {
 
-  /** create actorSystem，convert to classic actor when use it in akkahttp
-   */
-  private lazy val actorSystem: RIO[InfrastructureConfiguration, ActorSystem] =
-    ZIO.succeed(ActorSystem("akkaActorSystem"))
-
   lazy val layer: TaskLayer[ActorSystem] =
     InfrastructureConfiguration.live >>> ZLayer.scoped {
-      import scala.concurrent.Future
       ZIO.acquireReleaseExit(make)((release, _) => ZIO.fromFuture(_ => Future.successful(())).ignoreLogged)
     }
 
-  def make: Task[ActorSystem] = AkkaActorSystemConfiguration.actorSystem.provideLayer(InfrastructureConfiguration.live)
+  /** create actorSystem，convert to classic actor when use it in akkahttp
+   */
+  def make: Task[ActorSystem] =
+    ZIO.succeed(ActorSystem("akkaActorSystem")).provideLayer(InfrastructureConfiguration.live)
 }

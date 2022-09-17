@@ -35,7 +35,7 @@ import java.time._
  *  @since 2022/1/8
  *  @version 1.0
  */
-class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStream, Task] {
+final class ApiServiceImpl(userService: UserService[RStream]) extends ApiService[RStream, Task] {
 
   override def existEmail(email: String): RStream[Boolean] =
     if (email.isEmpty) ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))

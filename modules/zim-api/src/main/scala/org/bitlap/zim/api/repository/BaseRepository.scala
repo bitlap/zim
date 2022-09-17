@@ -28,8 +28,4 @@ trait BaseRepository[F[_], T] {
   /** find by id
    */
   def findById(id: Long): F[T]
-
-  /** find by params
-   */
-//  def find(params: Condition*): F[T]
 }

@@ -62,10 +62,8 @@ object TangibleAddMessageRepository {
   def saveAddMessage(addMessage: AddMessage): ZStream[AddMessageRepository[RStream], Throwable, Int] =
     stream.ZStream.environmentWithStream(_.get.saveAddMessage(addMessage))
 
-  val live: URLayer[String, AddMessageRepository[RStream]] = ZLayer(
-    ZIO.service[String].map(TangibleAddMessageRepository.apply)
-  )
-
   def make(databaseName: String): ULayer[AddMessageRepository[RStream]] =
-    ZLayer.succeed(databaseName) >>> live
+    ZLayer.succeed(databaseName) >>> ZLayer(
+      ZIO.service[String].map(TangibleAddMessageRepository.apply)
+    )
 }

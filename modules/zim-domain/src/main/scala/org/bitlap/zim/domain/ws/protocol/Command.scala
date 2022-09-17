@@ -30,7 +30,7 @@ sealed trait Command[+T]
  *  @param originActorRef
  *    The message comes from user, who send message to server flow by akka.
  */
-case class TransmitMessageProxy(
+final case class TransmitMessageProxy(
   uId: Int,
   msg: String,
   originActorRef: Option[ActorRef]
@@ -42,8 +42,9 @@ case class TransmitMessageProxy(
 
 /** 在线用户
  */
-case class OnlineUserMessage(description: Option[String]) extends Command[Unit]
+final case class OnlineUserMessage(description: Option[String]) extends Command[Unit]
 
 /** 用户状态变更
  */
-case class UserStatusChangeMessage(uId: Int, typ: String, description: Option[String] = None) extends Command[Unit]
+final case class UserStatusChangeMessage(uId: Int, typ: String, description: Option[String] = None)
+    extends Command[Unit]

@@ -90,11 +90,9 @@ object TangibleReceiveRepository {
   def findById(id: Int): stream.ZStream[ReceiveRepository[RStream], Throwable, Receive] =
     stream.ZStream.environmentWithStream(_.get.findById(id))
 
-  val live: URLayer[String, ReceiveRepository[RStream]] = ZLayer(
-    ZIO.service[String].map(TangibleReceiveRepository.apply)
-  )
-
   def make(databaseName: String): ULayer[ReceiveRepository[RStream]] =
-    ZLayer.succeed(databaseName) >>> live
+    ZLayer.succeed(databaseName) >>> ZLayer(
+      ZIO.service[String].map(TangibleReceiveRepository.apply)
+    )
 
 }
