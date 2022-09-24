@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sbt clean
+
 sbt assembly
 
 version=$1
