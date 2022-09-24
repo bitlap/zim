@@ -1,7 +1,6 @@
-import ProjectSetting.optimizerOptions
-import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
+import org.scalafmt.sbt.ScalafmtPlugin.autoImport._
 import sbt.Keys._
-import sbt.{ CrossVersion, Def, _ }
+import sbt.{ Def, _ }
 
 /** @author
  *    梦境迷离
@@ -9,25 +8,14 @@ import sbt.{ CrossVersion, Def, _ }
  */
 object ProjectSetting {
 
-  lazy val scala213 = "2.13.8"
+  lazy val scala213 = "2.13.9"
 
   def extraOptions(optimize: Boolean): List[String] = List("-Wunused:imports") ++ optimizerOptions(optimize)
 
   def optimizerOptions(optimize: Boolean): List[String] =
     if (optimize) List("-opt:l:inline", "-opt-inline-from:zio.internal.**") else Nil
 
-  lazy val stdOptions = List("-deprecation", "-encoding", "UTF-8", "-feature", "-unchecked", "-Xfatal-warnings")
-
-  lazy val std2xOptions =
-    List(
-      "-language:higherKinds",
-      "-language:existentials",
-      "-explaintypes",
-      "-Yrangepos",
-      "-Xlint:_,-missing-interpolator,-type-parameter-shadow",
-      "-Ywarn-numeric-widen",
-      "-Ywarn-value-discard"
-    )
+  lazy val stdOptions = List("-deprecation", "-encoding", "UTF-8", "-feature", "-unchecked")
 
   val value: Seq[Def.Setting[_]] = Seq(
     scalaVersion             := scala213,

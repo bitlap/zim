@@ -22,12 +22,7 @@ Global / onLoad := {
   (Global / onLoad).value
 }
 
-ThisBuild / resolvers ++= Seq(
-  Resolver.mavenLocal,
-  Resolver.sonatypeRepo("public"),
-  Resolver.sonatypeRepo("snapshots"),
-  "New snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-)
+ThisBuild / resolvers ++= Seq(Resolver.sonatypeRepo("snapshots")) ++ Resolver.sonatypeOssRepos("snapshots")
 
 // sbt-assembly, not support build docker image by sbt task, so we use sbt-native-packager
 //lazy val assemblySettings = Seq(
