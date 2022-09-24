@@ -118,9 +118,7 @@ object TangibleUserRepository {
   def updateUserStatus(status: String, uid: Int): stream.ZStream[UserRepository[RStream], Throwable, Int] =
     stream.ZStream.environmentWithStream(_.get.updateUserStatus(status, uid))
 
-  val live: URLayer[String, UserRepository[RStream]] = ZLayer(ZIO.service[String].map(TangibleUserRepository.apply))
-
   def make(databaseName: String): ULayer[UserRepository[RStream]] =
-    ZLayer.succeed(databaseName) >>> live
+    ZLayer.succeed(databaseName) >>> ZLayer(ZIO.service[String].map(TangibleUserRepository.apply))
 
 }

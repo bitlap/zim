@@ -15,7 +15,7 @@ object Dependencies {
     val akka                          = "2.6.20"
     val circe                         = "0.14.2"
     val scalikejdbc                   = "3.5.0"
-    val logback                       = "1.2.11"
+    val logback                       = "1.4.1"
     val config                        = "1.4.1"
     val `zio-interop-reactiveStreams` = "2.0.0"
     val mysql                         = "8.0.30"
@@ -28,7 +28,7 @@ object Dependencies {
     val `sttp-apispec`     = "0.2.1"
     val redis4cats         = "1.2.0"
     val `zio-interop-cats` = "3.3.0"
-    val `log4cats-slf4j`   = "2.4.0"
+    val `log4cats-slf4j`   = "2.5.0"
     val `zio-redis`        = "0.0.0+430-3646b337-SNAPSHOT" // Experimental
     val `zio-crypto`       = "0.0.0+102-23de4b47-SNAPSHOT" // Experimental
   }

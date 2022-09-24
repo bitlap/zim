@@ -57,10 +57,8 @@ object TangibleFriendGroupRepository {
   def findFriendGroupsById(uid: Int): stream.ZStream[FriendGroupRepository[RStream], Throwable, FriendGroup] =
     stream.ZStream.environmentWithStream(_.get.findFriendGroupsById(uid))
 
-  val live: URLayer[String, FriendGroupRepository[RStream]] = ZLayer(
+  def make(databaseName: String): ULayer[FriendGroupRepository[RStream]] = ZLayer.succeed(databaseName) >>> ZLayer(
     ZIO.service[String].map(TangibleFriendGroupRepository.apply)
   )
-
-  def make(databaseName: String): ULayer[FriendGroupRepository[RStream]] = ZLayer.succeed(databaseName) >>> live
 
 }

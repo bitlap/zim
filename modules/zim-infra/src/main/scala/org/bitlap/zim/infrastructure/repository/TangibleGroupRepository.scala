@@ -80,9 +80,7 @@ object TangibleGroupRepository {
   def findGroupsById(uid: Int): stream.ZStream[GroupRepository[RStream], Throwable, GroupList] =
     stream.ZStream.environmentWithStream(_.get.findGroupsById(uid))
 
-  val live: URLayer[String, GroupRepository[RStream]] = ZLayer(ZIO.service[String].map(TangibleGroupRepository.apply))
-
   def make(databaseName: String): ULayer[GroupRepository[RStream]] =
-    ZLayer.succeed(databaseName) >>> live
+    ZLayer.succeed(databaseName) >>> ZLayer(ZIO.service[String].map(TangibleGroupRepository.apply))
 
 }

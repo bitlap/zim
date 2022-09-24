@@ -33,7 +33,7 @@ import sttp.tapir.json.circe._
  */
 trait ActuatorEndpoint {
 
-  type HealthInfo = Map[String, Any]
+  private[api] type HealthInfo = Map[String, Any]
   private[api] lazy val healthResource: String            = "health"
   private[api] lazy val healthNameResource: String        = "health-resource"
   private[api] lazy val healthDescriptionResource: String = "Zim Service Health Check Endpoint"

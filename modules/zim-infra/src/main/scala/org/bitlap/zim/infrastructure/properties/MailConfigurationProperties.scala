@@ -40,7 +40,7 @@ final case class MailConfigurationProperties(
   connectionPoolCoreSize: Int,
   debug: Boolean
 ) {
-  lazy val toProperties: Properties = {
+  def toProperties: Properties = {
     val properties = new Properties()
     properties.setProperty(ConfigLoader.Property.SMTP_HOST.key(), this.host)
     properties.setProperty(ConfigLoader.Property.SMTP_USERNAME.key(), this.username)
