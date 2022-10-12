@@ -53,7 +53,7 @@ class ZimUserApiSpec extends TestService with ZimServiceConfiguration with Scala
   val api: TaskLayer[ZimUserApi] =
     ZimUserApi.make(
       ApiServiceImpl.make(userServiceLayer),
-      AkkaActorSystemConfiguration.layer >>> AkkaHttpConfiguration.materializerLive
+      AkkaActorSystemConfiguration.live >>> AkkaHttpConfiguration.materializerLive
     )
 
   def getRoute(zapi: ZimUserApi => Route): Route = {

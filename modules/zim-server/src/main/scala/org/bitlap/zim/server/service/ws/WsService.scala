@@ -33,6 +33,7 @@ import org.bitlap.zim.server.configuration._
 import org.bitlap.zim.server.service._
 import org.reactivestreams._
 import zio._
+import zio.actors.akka.AkkaTypedActor
 
 import java.util.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -117,7 +118,7 @@ object WsService extends ZimServiceConfiguration {
           else SystemConstant.status.HIDE
       ).asJson.noSpaces
       akkaSystem <- AkkaActorSystemConfiguration.make
-      akkaTypedActor = akkaSystem.spawn(
+      akkaTypedActor = akkaSystem.classicSystem.spawn(
         WsMessageForwardBehavior.apply(),
         Constants.WS_MESSAGE_FORWARD_ACTOR,
         customDispatcher
@@ -157,14 +158,19 @@ object WsService extends ZimServiceConfiguration {
       // we need forward to akka typed actor for sending message to akka classic actor which return by akka http.
       // so we only use akka here
       akkaSystem <- AkkaActorSystemConfiguration.make
-      akkaTypedActor = akkaSystem.spawn(WsMessageForwardBehavior(), Constants.WS_MESSAGE_FORWARD_ACTOR)
-      _ <- changeStatus(uId, SystemConstant.status.ONLINE)
-//      akkaActor <- AkkaTypedActor.make(akkaTypedActor)
+      akkaTypedActor = akkaSystem.classicSystem.spawn(WsMessageForwardBehavior(), Constants.WS_MESSAGE_FORWARD_ACTOR)
+      _         <- changeStatus(uId, SystemConstant.status.ONLINE)
+      akkaActor <- AkkaTypedActor.make(akkaTypedActor)
       in = Flow[Message]
         .watchTermination()((_, ft) => ft.foreach(_ => closeConnection(uId)))
         .mapConcat {
           case TextMessage.Strict(message) =>
-            akkaTypedActor ! TransmitMessageProxy(uId, message, Some(actorRef))
+            // Using it only for using zio-actors.
+            Unsafe.unsafe { implicit runtime =>
+              Runtime.default.unsafe
+                .run(akkaActor ! TransmitMessageProxy(uId, message, Some(actorRef)))
+                .getOrThrowFiberFailure()
+            }
             Nil
           case _ => Nil
         }
@@ -189,6 +195,7 @@ object WsService extends ZimServiceConfiguration {
       ar ! Status.Success(Done)
     }
 
-  // FIXME: until zio-actors support zio 2.0
-  def userStatusChangeByServer(uId: Int, status: String): ZIO[Any, Throwable, Unit] = ZIO.unit
+  def userStatusChangeByServer(uId: Int, status: String): ZIO[Any, Throwable, Unit] = ZIO.scoped {
+    ZioActorSystemConfiguration.userStatusActor.flatMap(actor => actor ! UserStatusChangeMessage(uId, status))
+  }
 }
