@@ -9,7 +9,7 @@ import sbt.{ CrossVersion, Def, _ }
  */
 object ProjectSetting {
 
-  lazy val scala213 = "2.13.8"
+  lazy val scala213 = "2.13.10"
 
   def extraOptions(optimize: Boolean): List[String] = List("-Wunused:imports") ++ optimizerOptions(optimize)
 
