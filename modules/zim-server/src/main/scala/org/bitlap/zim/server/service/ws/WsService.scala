@@ -15,17 +15,16 @@
  */
 
 package org.bitlap.zim.server.service.ws
+import _root_.io.circe.syntax.EncoderOps
+import akka._
 import akka.actor.typed._
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.{ ActorRef, Status }
+import akka.actor.{ typed, ActorRef, Status }
 import akka.http.scaladsl.model.ws._
-import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
 import akka.stream._
-import akka._
-import _root_.io.circe.syntax.EncoderOps
-import org.bitlap.zim.api.service.WsService
+import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
 import org.bitlap.zim._
-import org.bitlap.zim.domain.ws._
+import org.bitlap.zim.api.service.WsService
 import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.domain.{ Message => IMMessage, SystemConstant }
 import org.bitlap.zim.server.actor.akka._
@@ -97,6 +96,18 @@ object WsService extends ZimServiceConfiguration {
   def getConnections: Task[Int] =
     ZIO.serviceWithZIO[WsService[Task]](_.getConnections).provideLayer(wsLayer)
 
+  private val actorRefs = new scala.collection.mutable.HashMap[String, akka.actor.typed.ActorRef[Command[_]]]
+
+  private def getActorRef(akkaSystem: ActorSystem[_], uid: Long): typed.ActorRef[Command[_]] =
+    actorRefs.getOrElseUpdate(
+      s"$uid",
+      akkaSystem.classicSystem.spawn(
+        WsMessageForwardBehavior.apply(),
+        s"wsMessageForwardActor_$uid",
+        customDispatcher
+      )
+    )
+
   private final lazy val wsConnections: ConcurrentHashMap[Integer, ActorRef] =
     WsService.actorRefSessions
 
@@ -118,11 +129,7 @@ object WsService extends ZimServiceConfiguration {
           else SystemConstant.status.HIDE
       ).asJson.noSpaces
       akkaSystem <- AkkaActorSystemConfiguration.make
-      akkaTypedActor = akkaSystem.classicSystem.spawn(
-        WsMessageForwardBehavior.apply(),
-        Constants.WS_MESSAGE_FORWARD_ACTOR,
-        customDispatcher
-      )
+      akkaTypedActor = getActorRef(akkaSystem, uId)
       // FIXME: until zio-actors support zio 2.0
       _ <- ZIO.attempt(akkaTypedActor ! TransmitMessageProxy(uId, msg, None))
     } yield ()
@@ -158,7 +165,7 @@ object WsService extends ZimServiceConfiguration {
       // we need forward to akka typed actor for sending message to akka classic actor which return by akka http.
       // so we only use akka here
       akkaSystem <- AkkaActorSystemConfiguration.make
-      akkaTypedActor = akkaSystem.classicSystem.spawn(WsMessageForwardBehavior(), Constants.WS_MESSAGE_FORWARD_ACTOR)
+      akkaTypedActor = getActorRef(akkaSystem, uId)
       _         <- changeStatus(uId, SystemConstant.status.ONLINE)
       akkaActor <- AkkaTypedActor.make(akkaTypedActor)
       in = Flow[Message]
