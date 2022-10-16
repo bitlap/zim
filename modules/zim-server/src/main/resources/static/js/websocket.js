@@ -305,6 +305,12 @@ layui.use(['layim', 'jquery', 'laytpl'], function (layim) {
     layim.on('sendMessage', function (data) {
         var mine = data.mine
         var To = data.to;
+        // FIXME 当好友已经被自己删除，由于浏览器的本地缓存还有会话，可以通过该会话继续向其发送消息。此时layim 的To.status和type拿的的有问题。
+        // 群消息似乎没有问题？
+        if (To != null && To.status == 0) {
+            To.status = "hide"
+            To.type = "friend"
+        }
         socket.send(JSON.stringify({
             type: "message",
             mine: mine,

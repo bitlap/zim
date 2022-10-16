@@ -66,11 +66,10 @@ package object ws {
           val msg = if (WsService.actorRefSessions.containsKey(uid)) {
             val actorRef          = WsService.actorRefSessions.get(uid)
             val tmpReceiveArchive = receive.copy(status = 1)
-            WsService.sendMessage(tmpReceiveArchive.asJson.noSpaces, actorRef)
-            tmpReceiveArchive
-          } else receive
+            WsService.sendMessage(tmpReceiveArchive.asJson.noSpaces, actorRef) *> ZIO.succeed(tmpReceiveArchive)
+          } else ZIO.succeed(receive)
           // 由于都返回了stream，使用时都转成非stream
-          userService.saveMessage(msg).runHead.unit
+          msg.flatMap(m => userService.saveMessage(m).runHead.unit)
         }.unless(us.isEmpty)
       }
       .map(_.getOrElse(()))
@@ -80,23 +79,29 @@ package object ws {
   private[ws] def groupMessageHandler(userService: UserService[RStream])(message: Message): IO[Throwable, Unit] = {
     val gid                     = message.to.id
     val receive                 = getReceive(message)
-    var receiveArchive: Receive = receive.copy(mid = gid)
-    val sending = userService.findGroupById(gid).runHead.flatMap { group =>
-      userService
-        .findUserByGroupId(gid)
-        .filter(_.id != message.mine.id)
-        .foreach { user =>
-          {
-            // 是否在线
-            val actorRef = WsService.actorRefSessions.get(user.id)
-            receiveArchive = receiveArchive.copy(status = 1)
-            WsService.sendMessage(receiveArchive.asJson.noSpaces, actorRef)
-          }.when(WsService.actorRefSessions.containsKey(user.id))
-        }
-        .unless(group.isEmpty)
-    }
+    val receiveArchive: Receive = receive.copy(mid = gid)
+    userService
+      .findGroupById(gid)
+      .runHead
+      .flatMap { group =>
+        userService
+          .findUserByGroupId(gid)
+          .filter(_.id != message.mine.id)
+          .foreach { user =>
+            {
+              // 是否在线
+              val actorRef = WsService.actorRefSessions.get(user.id)
+              WsService.sendMessage(receiveArchive.copy(status = 1).asJson.noSpaces, actorRef) *>
+                userService
+                  .saveMessage(if (receiveArchive != null) receiveArchive.copy(status = 1) else receiveArchive)
+                  .runHead
+                  .unit
+            }.when(WsService.actorRefSessions.containsKey(user.id))
+          }
+          .unless(group.isEmpty)
+      }
+      .map(_.getOrElse(()))
 
-    sending *> userService.saveMessage(receiveArchive).runHead.unit
   }
 
   private[ws] def agreeAddGroupHandler(
