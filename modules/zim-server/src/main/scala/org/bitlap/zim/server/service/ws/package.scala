@@ -79,7 +79,7 @@ package object ws {
   private[ws] def groupMessageHandler(userService: UserService[RStream])(message: Message): IO[Throwable, Unit] = {
     val gid                     = message.to.id
     val receive                 = getReceive(message)
-    var receiveArchive: Receive = receive.copy(mid = gid)
+    val receiveArchive: Receive = receive.copy(mid = gid)
     userService
       .findGroupById(gid)
       .runHead
@@ -91,9 +91,11 @@ package object ws {
             {
               // 是否在线
               val actorRef = WsService.actorRefSessions.get(user.id)
-              receiveArchive = receiveArchive.copy(status = 1)
-              WsService.sendMessage(receiveArchive.asJson.noSpaces, actorRef) *>
-                userService.saveMessage(receiveArchive).runHead.unit
+              WsService.sendMessage(receiveArchive.copy(status = 1).asJson.noSpaces, actorRef) *>
+                userService
+                  .saveMessage(if (receiveArchive != null) receiveArchive.copy(status = 1) else receiveArchive)
+                  .runHead
+                  .unit
             }.when(WsService.actorRefSessions.containsKey(user.id))
           }
           .unless(group.isEmpty)
