@@ -9,28 +9,28 @@ object Dependencies {
 
   object Version {
     val zio                           = "2.0.2"
-    val `zio-logging`                 = "2.1.1"
-    val tapir                         = "1.1.0"
+    val `zio-logging`                 = "2.1.2"
+    val tapir                         = "1.1.2"
     val `akka-http`                   = "10.2.10"
     val akka                          = "2.6.20"
     val circe                         = "0.14.2"
     val scalikejdbc                   = "3.5.0"
-    val logback                       = "1.4.1"
+    val logback                       = "1.4.4"
     val config                        = "1.4.1"
     val `zio-interop-reactiveStreams` = "2.0.0"
     val mysql                         = "8.0.30"
     val `simple-java-mail`            = "7.5.0"
     val h2                            = "2.1.214"
     val scalaTest                     = "3.2.13"
-//    val `zio-actors`                  = "0.0.9" not support zio 2.0
-    val refined            = "0.10.1"
-    val `zio-schema`       = "0.2.1"
-    val `sttp-apispec`     = "0.2.1"
-    val redis4cats         = "1.2.0"
-    val `zio-interop-cats` = "3.3.0"
-    val `log4cats-slf4j`   = "2.5.0"
-    val `zio-redis`        = "0.0.0+430-3646b337-SNAPSHOT" // Experimental
-    val `zio-crypto`       = "0.0.0+102-23de4b47-SNAPSHOT" // Experimental
+    val `zio-actors`                  = "0.1.0"
+    val refined                       = "0.10.1"
+    val `zio-schema`                  = "0.2.1"
+    val `sttp-apispec`                = "0.2.1"
+    val redis4cats                    = "1.2.0"
+    val `zio-interop-cats`            = "3.3.0"
+    val `log4cats-slf4j`              = "2.5.0"
+    val `zio-redis`                   = "0.0.0+430-3646b337-SNAPSHOT" // Experimental
+    val `zio-crypto`                  = "0.0.0+102-23de4b47-SNAPSHOT" // Experimental
   }
 
   lazy val zioDeps: Seq[ModuleID] = Seq(
@@ -84,10 +84,10 @@ object Dependencies {
 
   /** ----------------Module deps------------------ */
   lazy val serverDeps: Seq[ModuleID] = Seq(
-//    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`, // FIXME
-//    "dev.zio" %% "zio-actors"              % Version.`zio-actors`, // FIXME
-    "dev.zio" %% "zio-interop-cats" % Version.`zio-interop-cats`,
-    "dev.zio" %% "zio-redis"        % Version.`zio-redis`
+    "dev.zio" %% "zio-actors-akka-interop" % Version.`zio-actors`,
+    "dev.zio" %% "zio-actors"              % Version.`zio-actors`,
+    "dev.zio" %% "zio-interop-cats"        % Version.`zio-interop-cats`,
+    "dev.zio" %% "zio-redis"               % Version.`zio-redis`
   ) ++ domainDeps ++ akkaDeps ++ otherDeps ++ zioDeps ++ tapirDeps
 
   lazy val apiDeps: Seq[ModuleID] = Seq(

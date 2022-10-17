@@ -42,6 +42,6 @@ object ZimServer extends ZimServiceConfiguration with zio.ZIOAppDefault {
         | ;   |  .'    ;  :    ;|   ;/
         | `---'        |  ,   / '---'""".stripMargin)
     _ <- AkkaHttpConfiguration.httpServer(routes)
-  } yield ()).provideLayer(AkkaActorSystemConfiguration.layer >>> apiConfigurationLayer)
+  } yield ()).provideLayer(AkkaActorSystemConfiguration.live >>> apiConfigurationLayer)
 
 }

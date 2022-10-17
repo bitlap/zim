@@ -16,9 +16,10 @@
 
 package org.bitlap.zim.server.configuration
 
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
+import org.bitlap.zim.infrastructure._
 import zio._
-import org.bitlap.zim.infrastructure.InfrastructureConfiguration
+
 import scala.concurrent.Future
 
 /** akka actor configuration
@@ -26,17 +27,20 @@ import scala.concurrent.Future
  *  @author
  *    梦境迷离
  *  @since 2021/12/25
- *  @version 1.0
+ *  @version 2.0
  */
 object AkkaActorSystemConfiguration {
 
-  lazy val layer: TaskLayer[ActorSystem] =
-    InfrastructureConfiguration.live >>> ZLayer.scoped {
-      ZIO.acquireReleaseExit(make)((release, _) => ZIO.fromFuture(_ => Future.successful(())).ignoreLogged)
+  // we do not need guardian actor.
+  private lazy val akkaActorSystem = ActorSystem.wrap(akka.actor.ActorSystem("akkaActorSystem"))
+
+  // akka http
+  lazy val live: TaskLayer[ActorSystem[_]] =
+    InfrastructureConfiguration.layer >>> ZLayer.scoped {
+      ZIO.acquireReleaseExit(ZIO.attempt(akkaActorSystem))((release, _) =>
+        ZIO.fromFuture(implicit ec => Future(release.terminate())).ignore
+      )
     }
 
-  /** create actorSystem，convert to classic actor when use it in akkahttp
-   */
-  def make: Task[ActorSystem] =
-    ZIO.succeed(ActorSystem("akkaActorSystem")).provideLayer(InfrastructureConfiguration.live)
+  def make: Task[ActorSystem[_]] = ZIO.succeed(akkaActorSystem)
 }

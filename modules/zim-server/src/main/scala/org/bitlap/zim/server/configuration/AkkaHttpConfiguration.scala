@@ -16,14 +16,15 @@
 
 package org.bitlap.zim.server.configuration
 
-import akka._
-import akka.actor.ActorSystem
+import akka.actor.typed._
 import akka.http.scaladsl._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.settings._
 import akka.stream._
 import akka.util._
+import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.infrastructure._
+import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.route._
 import zio._
 
@@ -36,7 +37,7 @@ import java.util.concurrent.atomic._
  *  @since 2021/12/25
  *  @version 1.0
  */
-final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
+final class AkkaHttpConfiguration()(implicit actorSystem: ActorSystem[_]) {
 
   private lazy val imServerSettings: ServerSettings = {
     val defaultSettings = ServerSettings(actorSystem)
@@ -51,7 +52,6 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
     for {
       infoConf <- InfrastructureConfiguration.zimConfigurationProperties
       eventualBinding <- ZIO.attempt {
-        implicit lazy val untypedSystem: actor.ActorSystem = actorSystem
         Http()
           .newServerAt(
             infoConf.interface,
@@ -80,38 +80,35 @@ final class AkkaHttpConfiguration(actorSystem: ActorSystem) {
              |""".stripMargin
         )
       )
-//      _ <- scheduleTask
+      _ <- scheduleTask()
       _ <- server.join
     } yield ()
 
-  // zio-actors不支持zio2.0
-//  def scheduleTask: Task[Unit] = {
-//    val task = ZioActorSystemConfiguration.scheduleActor
-//      .flatMap(f => f ! OnlineUserMessage(Some("scheduleTask"))) repeat Schedule.secondOfMinute(0)
-//
-//    task
-//      .foldM(
-//        e => LogUtil.error(s"error => $e").unit,
-//        _ => UIO.unit
-//      )
-//      .provideLayer(Clock.live)
-//  }
+  def scheduleTask(): Task[Unit] = ZIO.scoped {
+    val task = ZioActorSystemConfiguration.scheduleActor
+      .flatMap(f => f ! OnlineUserMessage(Some("scheduleTask"))) repeat Schedule.secondOfMinute(0)
+    task
+      .foldZIO(
+        e => LogUtil.error(s"Found error => $e").unit,
+        _ => ZIO.unit
+      )
+  }
 }
 
 object AkkaHttpConfiguration {
 
-  def apply(actorSystem: ActorSystem): AkkaHttpConfiguration =
-    new AkkaHttpConfiguration(actorSystem)
+  def apply(actorSystem: ActorSystem[_]): AkkaHttpConfiguration =
+    new AkkaHttpConfiguration()(actorSystem)
 
   def httpServer(route: Route): RIO[AkkaHttpConfiguration, Unit] =
     ZIO.environmentWithZIO(_.get.httpServer(route))
 
-  lazy val materializerLive: URLayer[ActorSystem, Materializer] = ZLayer {
-    ZIO.service[ActorSystem].map(implicit actor => Materializer.matFromSystem)
+  lazy val materializerLive: URLayer[ActorSystem[_], Materializer] = ZLayer {
+    ZIO.service[ActorSystem[_]].map(implicit actor => Materializer.matFromSystem)
   }
 
-  lazy val live: URLayer[ActorSystem, AkkaHttpConfiguration] = ZLayer {
-    ZIO.service[ActorSystem].map(AkkaHttpConfiguration.apply)
+  lazy val live: URLayer[ActorSystem[_], AkkaHttpConfiguration] = ZLayer {
+    ZIO.service[ActorSystem[_]].map(AkkaHttpConfiguration.apply)
   }
 
 }

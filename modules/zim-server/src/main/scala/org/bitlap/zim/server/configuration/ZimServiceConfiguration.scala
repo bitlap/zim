@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.server.configuration
 
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
 import org.bitlap.zim.infrastructure._
 import zio._
 
@@ -30,10 +30,10 @@ import zio._
 trait ZimServiceConfiguration {
 
   protected lazy val applicationConfigurationLayer: ULayer[ApplicationConfiguration] =
-    ZLayer.make[ApplicationConfiguration](InfrastructureConfiguration.live, ApplicationConfiguration.live)
+    ZLayer.make[ApplicationConfiguration](InfrastructureConfiguration.layer, ApplicationConfiguration.live)
 
-  protected lazy val apiConfigurationLayer: RLayer[ActorSystem, ApiConfiguration with AkkaHttpConfiguration] =
-    ZLayer.makeSome[ActorSystem, ApiConfiguration](
+  protected lazy val apiConfigurationLayer: RLayer[ActorSystem[_], ApiConfiguration with AkkaHttpConfiguration] =
+    ZLayer.makeSome[ActorSystem[_], ApiConfiguration](
       applicationConfigurationLayer,
       AkkaHttpConfiguration.materializerLive,
       ApiConfiguration.live
