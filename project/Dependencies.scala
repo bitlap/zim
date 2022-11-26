@@ -8,14 +8,14 @@ import sbt._
 object Dependencies {
 
   object Version {
-    val zio                           = "2.0.2"
-    val `zio-logging`                 = "2.1.3"
+    val zio                           = "2.0.4"
+    val `zio-logging`                 = "2.1.5"
     val tapir                         = "1.1.2"
     val `akka-http`                   = "10.2.10"
     val akka                          = "2.6.20"
     val circe                         = "0.14.3"
     val scalikejdbc                   = "3.5.0"
-    val logback                       = "1.4.4"
+    val logback                       = "1.4.5"
     val config                        = "1.4.1"
     val `zio-interop-reactiveStreams` = "2.0.0"
     val mysql                         = "8.0.30"
