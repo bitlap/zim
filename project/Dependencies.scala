@@ -10,7 +10,7 @@ object Dependencies {
   object Version {
     val zio                           = "2.0.4"
     val `zio-logging`                 = "2.1.5"
-    val tapir                         = "1.1.2"
+    val tapir                         = "1.2.3"
     val `akka-http`                   = "10.2.10"
     val akka                          = "2.6.20"
     val circe                         = "0.14.3"
@@ -24,12 +24,12 @@ object Dependencies {
     val scalaTest                     = "3.2.14"
     val `zio-actors`                  = "0.1.0"
     val refined                       = "0.10.1"
-    val `zio-schema`                  = "0.2.1"
-    val `sttp-apispec`                = "0.2.1"
+    val `zio-schema`                  = "0.3.1"
+    val `sttp-apispec`                = "0.3.1"
     val redis4cats                    = "1.3.0"
     val `zio-interop-cats`            = "3.3.0"
     val `log4cats-slf4j`              = "2.5.0"
-    val `zio-redis`                   = "0.0.0+430-3646b337-SNAPSHOT" // Experimental
+    val `zio-redis`                   = "0.0.0+453-a4649d3b-SNAPSHOT" // Experimental
     val `zio-crypto`                  = "0.0.0+102-23de4b47-SNAPSHOT" // Experimental
   }
 
