@@ -1,7 +1,7 @@
 version: '3'
 services:
   zim_server:
-    image: liguobin/zim:0.4.0
+    image: liguobin/zim:0.6.0
     container_name: zim_server
     depends_on:
       - zim_mysql_server
@@ -18,11 +18,13 @@ services:
       - "3306:3306"
     # FIXME The MySQL host directory must already exist, change it to your own MySQL location
     volumes:
-      - /var/mysql/datadir:/var/lib/mysql
+      - /usr/local/mysql/data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       - MYSQL_DATABASE=trace
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - TZ=Asia/Shanghai
   
   zim_redis_server:
     image: redis
