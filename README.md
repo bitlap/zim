@@ -22,7 +22,7 @@
 - `zim-infra` 配置和基础设施，包括系统基础配置、工具类、部分领域对象及核心CRUD实现。
 - `zim-api` tapir API 描述定义和 service、repository 接口定义（tagless final），repository 具体实现在`zim-infra`，service 具体实现在`zim-server`。
 
-### 架构图
+### 项目结构
 
 ![](./zim-1.drawio.png)
 
