@@ -200,7 +200,7 @@ package object repository {
    *  @return
    */
   private[repository] def _saveUser(user: User): SQLUpdateWithGeneratedKey =
-    sql"insert into ${User.table}(username,password,sign,email,create_date,status,active) values(${user.username},${user.password},${user.sign},${user.email},${user.createDate},${user.active}, ${user.status});"
+    sql"insert into ${User.table}(username,password,sign,email,create_date,active,status) values(${user.username},${user.password},${user.sign},${user.email},${user.createDate},${user.active},${user.status});"
       .updateAndReturnGeneratedKey("id")
 
   // ==============================群组 SQL实现========================================
