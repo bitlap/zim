@@ -126,7 +126,7 @@ final class ApiServiceImpl(userService: UserService[RStream]) extends ApiService
           email = user.email,
           createDate = ZonedDateTime.now(),
           sex = 0,
-          status = null,
+          status = "nonactivated",
           active = null
         )
       )

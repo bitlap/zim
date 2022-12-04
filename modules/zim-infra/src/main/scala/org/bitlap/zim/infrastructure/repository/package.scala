@@ -169,7 +169,7 @@ package object repository {
    *  @return
    */
   private[repository] def _activeUser(activeCode: String): SQLUpdate =
-    sql"update ${User.table} set status = 'offline' where active = $activeCode;".update()
+    sql"update ${User.table} set status = 'hide' where active = $activeCode;".update()
 
   /** 根据群组ID查询群里用户的信息
    *
@@ -200,7 +200,7 @@ package object repository {
    *  @return
    */
   private[repository] def _saveUser(user: User): SQLUpdateWithGeneratedKey =
-    sql"insert into ${User.table}(username,password,sign,email,create_date,active) values(${user.username},${user.password},${user.sign},${user.email},${user.createDate},${user.active});"
+    sql"insert into ${User.table}(username,password,sign,email,create_date,status,active) values(${user.username},${user.password},${user.sign},${user.email},${user.createDate},${user.active}, ${user.status});"
       .updateAndReturnGeneratedKey("id")
 
   // ==============================群组 SQL实现========================================

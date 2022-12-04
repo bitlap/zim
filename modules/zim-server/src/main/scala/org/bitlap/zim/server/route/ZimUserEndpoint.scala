@@ -56,14 +56,12 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
             .map(user => UserSecurityInfo(user.id, user.email, user.password, user.username))
             .runHead
             .provideLayer(TangibleUserRepository.make(MysqlConfigurationProperties().databaseName))
+            .tap(f => if (f.isDefined) RedisCache.set[String](email, f.get.asJson.noSpaces) else ZIO.succeed(false))
         else ZIO.succeed(userSecurityInfo)
       check <- SecurityUtil.matched(passwd, user.map(_.password).getOrElse(""))
       _ <- LogUtil.info(
         s"verifyUserAuth email=>$email passwd=>$passwd redis user=>$userSecurityInfo user=>$user check=>$check"
       )
-      _ <-
-        if (check && user.isDefined) RedisCache.set[String](email, user.get.asJson.noSpaces)
-        else ZIO.succeed(false)
     } yield check -> user
 
   override val secureEndpoint

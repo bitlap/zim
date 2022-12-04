@@ -270,7 +270,7 @@ private final class UserServiceImpl(
       ret <-
         if (!isMath) {
           ZStream.fail(BusinessException(msg = SystemConstant.LOGIN_ERROR))
-        } else if (user.status.equals("nonactivated")) {
+        } else if (u.status.equals("nonactivated")) {
           ZStream.fail(BusinessException(msg = SystemConstant.NON_ACTIVE))
         } else {
           ZStream.succeed(u)
