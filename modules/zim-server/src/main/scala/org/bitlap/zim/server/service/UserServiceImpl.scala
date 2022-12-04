@@ -95,7 +95,9 @@ private final class UserServiceImpl(
     userRepository.updateAvatar(avatar, userId).map(_ == 1)
 
   override def updateUserInfo(user: User): RStream[Boolean] =
-    userRepository.updateUserInfo(user.id, user).map(_ == 1)
+    userRepository.updateUserInfo(user.id, user).map(_ == 1).tap { r =>
+      LogUtil.info("remove redis user") *> RedisCache.del(user.email).as(r)
+    }
 
   override def updateUserStatus(status: String, uid: Int): RStream[Boolean] =
     userRepository.updateUserStatus(status, uid).map(_ == 1)
@@ -268,7 +270,7 @@ private final class UserServiceImpl(
       ret <-
         if (!isMath) {
           ZStream.fail(BusinessException(msg = SystemConstant.LOGIN_ERROR))
-        } else if (user.status.equals("nonactivated")) {
+        } else if (u.status.equals("nonactivated")) {
           ZStream.fail(BusinessException(msg = SystemConstant.NON_ACTIVE))
         } else {
           ZStream.succeed(u)

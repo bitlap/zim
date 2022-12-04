@@ -37,6 +37,7 @@ import sttp.tapir.server.akkahttp._
 import zio._
 import zio.stream._
 
+import java.time.Instant
 import scala.concurrent._
 import scala.util.Try
 
@@ -256,7 +257,23 @@ final class ZimUserApi(apiService: ApiService[RStream, Task])(implicit
   lazy val updateInfoRoute: Route =
     AkkaHttpServerInterpreter().toRoute(ZimUserEndpoint.updateInfoEndpoint.serverLogic { _ => input =>
       val resultStream = apiService.updateInfo(input)
-      buildBooleanMonoResponse()(resultStream)
+      val ret          = buildBooleanMonoResponse()(resultStream)
+      ret.map {
+        case Right(s) =>
+          Right(
+            Tuple2(
+              CookieValueWithMeta.unsafeApply(
+                value = "deleted",
+                expires = Some(Instant.ofEpochMilli(DateTime.MinValue.clicks)),
+                httpOnly = true,
+                secure = false
+              ),
+              s
+            )
+          )
+        case Left(value) => Left(value)
+
+      }
     })
 
   lazy val loginRoute: Route = AkkaHttpServerInterpreter().toRoute(
@@ -329,7 +346,10 @@ final class ZimUserApi(apiService: ApiService[RStream, Task])(implicit
               )
             val httpResp = HttpResponse(OK, entity = resp) /*.addAttribute(AttributeKey("uid"), u.id)*/
             complete(httpResp)
-          case _ => getFromResource("static/html/403.html")
+          case _ =>
+            deleteCookie(Authorization) {
+              getFromResource("static/html/403.html")
+            }
 
         }
       }
@@ -367,7 +387,10 @@ final class ZimUserApi(apiService: ApiService[RStream, Task])(implicit
                 case _: Exception =>
                   getFromResource("static/html/404.html")
               }
-            case _ => getFromResource("static/html/403.html")
+            case _ =>
+              deleteCookie(Authorization) {
+                getFromResource("static/html/403.html")
+              }
           }
         }
       }

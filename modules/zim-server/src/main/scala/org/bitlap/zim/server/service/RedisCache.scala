@@ -67,6 +67,7 @@ object RedisCache {
         }
     }
 
+  // zio-redis没有真正使用Schema，因为存在cats redis
   def get[T: Schema](key: String)(implicit
     cacheType: CacheType,
     decoder: Decoder[T]
@@ -85,6 +86,15 @@ object RedisCache {
     case CatsCache =>
       ZIO.runtime[Any].flatMap { implicit runtime =>
         LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.exists(key))
+      }
+  }
+
+  def del(key: String)(implicit cacheType: CacheType): Task[Boolean] = cacheType match {
+    case ZioCache =>
+      ZIO.serviceWithZIO[ZRedis](_.del(key)).provideLayer(ZioRedisConfiguration.zimRedisLayer)
+    case CatsCache =>
+      ZIO.runtime[Any].flatMap { implicit runtime =>
+        LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.del(key))
       }
   }
 }

@@ -22,7 +22,7 @@ package org.bitlap.zim
  */
 package object server {
 
-  // default cache, now we use zio-redis
-  implicit val defaultCache: CacheType = CacheType.ZioCache
+  // default cache
+  implicit val defaultCache: CacheType = CacheType.CatsCache
 
 }

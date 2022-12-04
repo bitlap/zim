@@ -186,7 +186,7 @@ final class UserServiceSpec extends TestService {
     val stream2 = (for {
       findU <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(1).runHead)
       uid = findU.map(_.id).getOrElse(1)
-      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.updateUserStatus("offline", uid).runHead)
+      _    <- ZIO.serviceWithZIO[UserService[RStream]](_.updateUserStatus("hide", uid).runHead)
       user <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(uid).runHead)
     } yield user.map(_.status)).provideLayer(userServiceLayer)
 
@@ -205,7 +205,7 @@ final class UserServiceSpec extends TestService {
 
     val Tuple3(ret1, ret2, ret3) = unsafeRun(stream)
     ret1 shouldBe Some("梦境迷离")
-    ret2 shouldBe Some("offline")
+    ret2 shouldBe Some("hide")
     ret3 shouldBe Some("sss")
 
   }
