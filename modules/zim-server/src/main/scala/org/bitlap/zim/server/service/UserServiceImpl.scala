@@ -95,7 +95,9 @@ private final class UserServiceImpl(
     userRepository.updateAvatar(avatar, userId).map(_ == 1)
 
   override def updateUserInfo(user: User): RStream[Boolean] =
-    userRepository.updateUserInfo(user.id, user).map(_ == 1)
+    userRepository.updateUserInfo(user.id, user).map(_ == 1).tap { r =>
+      LogUtil.info("remove redis user") *> RedisCache.del(user.email).as(r)
+    }
 
   override def updateUserStatus(status: String, uid: Int): RStream[Boolean] =
     userRepository.updateUserStatus(status, uid).map(_ == 1)

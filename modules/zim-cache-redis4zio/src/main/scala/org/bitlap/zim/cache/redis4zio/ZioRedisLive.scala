@@ -69,4 +69,6 @@ final case class ZioRedisLive(private val rs: Redis) extends RedisService[Task] 
   override def exists(key: String): Task[Boolean] =
     redis.exists(key).provideLayer(redisLayer).map(_ > 0)
 
+  override def del(key: String): Task[Boolean] =
+    redis.del[String](key).provideLayer(redisLayer).map(_ > 0)
 }

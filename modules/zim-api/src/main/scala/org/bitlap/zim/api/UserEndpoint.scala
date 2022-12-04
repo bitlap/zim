@@ -254,7 +254,15 @@ trait UserEndpoint extends ApiErrorMapping {
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SInteger()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
-  lazy val updateInfoEndpoint: ZimSecurityOut[UpdateUserInput] =
+  lazy val updateInfoEndpoint: PartialServerEndpoint[
+    UserSecurity,
+    UserSecurityInfo,
+    UpdateUserInput,
+    ZimError,
+    (CookieValueWithMeta, Source[ByteString, Any]),
+    Any with AkkaStreams,
+    Future
+  ] =
     secureEndpoint.post
       .in(userResource / "updateInfo")
       .in(
@@ -264,6 +272,7 @@ trait UserEndpoint extends ApiErrorMapping {
       )
       .name("更新信息个人信息")
       .description(userResourceDescription)
+      .out(setCookie(Authorization))
       .out(streamBody(AkkaStreams)(Schema(SchemaType.SBoolean()), CodecFormat.Json()))
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 

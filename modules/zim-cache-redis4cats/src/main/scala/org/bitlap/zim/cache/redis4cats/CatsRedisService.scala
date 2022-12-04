@@ -31,7 +31,7 @@ import org.typelevel.log4cats.Logger
  *    梦境迷离
  *  @version 1.0,2022/8/18
  */
-case class CatsRedisService()(implicit logger: Logger[IO]) extends RedisService[IO] {
+final case class CatsRedisService()(implicit logger: Logger[IO]) extends RedisService[IO] {
 
   override def getSets(k: String): IO[List[String]] =
     logger.info(s"Redis sMembers command: $k") *> CatsRedisConfiguration.api.use { redis =>
@@ -70,5 +70,10 @@ case class CatsRedisService()(implicit logger: Logger[IO]) extends RedisService[
   override def exists(key: String): IO[Boolean] =
     logger.info(s"Redis exists command: $key") *> CatsRedisConfiguration.api.use { redis =>
       redis.exists(key)
+    }
+
+  override def del(key: String): IO[Boolean] =
+    logger.info(s"Redis del command: $key") *> CatsRedisConfiguration.api.use { redis =>
+      redis.del(key).map(_ > 0)
     }
 }

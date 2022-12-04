@@ -81,4 +81,11 @@ trait RedisService[F[_]] {
    */
   def exists(key: String): F[Boolean]
 
+  /** 删除key
+   *
+   *  @param key
+   *  @return
+   */
+  def del(key: String): F[Boolean]
+
 }

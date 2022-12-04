@@ -50,7 +50,7 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
         .get[String](email)
         .map(_.map(s => jawn.decode[UserSecurityInfo](s).getOrElse(null)))
       user <-
-        if (userSecurityInfo.isEmpty || userSecurityInfo.get == null)
+        if (userSecurityInfo.isEmpty || userSecurityInfo.contains(null))
           TangibleUserRepository
             .matchUser(email)
             .map(user => UserSecurityInfo(user.id, user.email, user.password, user.username))
@@ -59,7 +59,7 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
         else ZIO.succeed(userSecurityInfo)
       check <- SecurityUtil.matched(passwd, user.map(_.password).getOrElse(""))
       _ <- LogUtil.info(
-        s"verifyUserAuth email=>$email passwd=>$passwd userSecurityInfo=>$userSecurityInfo user=>$user check=>$check"
+        s"verifyUserAuth email=>$email passwd=>$passwd redis user=>$userSecurityInfo user=>$user check=>$check"
       )
       _ <-
         if (check && user.isDefined) RedisCache.set[String](email, user.get.asJson.noSpaces)
