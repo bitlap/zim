@@ -16,10 +16,12 @@
 
 package org.bitlap.zim.server.service
 
+import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api._
 import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
+import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository.RStream
@@ -74,7 +76,10 @@ final class ApiServiceImpl(userService: UserService[RStream]) extends ApiService
   override def login(user: UserSecurity.UserSecurityInfo): RStream[User] =
     if (user.email.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
-    } else userService.matchUser(User(user.id, user.email, user.password))
+    } else
+      userService.matchUser(User(user.id, user.email, user.password)).tap { u =>
+        RedisCache.set[String](u.email, UserSecurityInfo(u.id, u.email, u.password, u.username).asJson.noSpaces).as(u)
+      }
 
   override def init(userId: Int): RStream[FriendAndGroupInfo] =
     ZStream.fromZIO {
