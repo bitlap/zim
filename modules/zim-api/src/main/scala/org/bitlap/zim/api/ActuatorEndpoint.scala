@@ -20,8 +20,8 @@ import io.circe.Json
 import io.circe.parser._
 import org.bitlap.zim.ZimBuildInfo
 import sttp.model.StatusCode
-import sttp.tapir._
 import sttp.tapir.Codec.JsonCodec
+import sttp.tapir._
 import sttp.tapir.json.circe._
 
 /** Actuator的端点

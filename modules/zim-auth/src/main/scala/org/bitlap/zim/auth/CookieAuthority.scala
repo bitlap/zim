@@ -17,8 +17,8 @@
 package org.bitlap.zim.auth
 
 import org.bitlap.zim.domain.ZimError._
+import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.bitlap.zim.domain.input._
-import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
 import zio._
 
 import java.util._
@@ -40,7 +40,7 @@ trait CookieAuthority {
    *  @return
    */
   def authenticate(
-    token: UserSecurity
+    token: UserToken
   )(
     authorityFunction: AuthorityFunction
   )(implicit ec: ExecutionContext): Future[Either[Unauthorized, UserSecurityInfo]] =

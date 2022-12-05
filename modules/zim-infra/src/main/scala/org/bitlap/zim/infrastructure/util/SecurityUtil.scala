@@ -16,8 +16,8 @@
 
 package org.bitlap.zim.infrastructure.util
 
-import zio.crypto.hash.{ Hash, HashAlgorithm, MessageDigest }
 import zio._
+import zio.crypto.hash.{ Hash, HashAlgorithm, MessageDigest }
 
 import java.nio.charset.StandardCharsets.US_ASCII
 

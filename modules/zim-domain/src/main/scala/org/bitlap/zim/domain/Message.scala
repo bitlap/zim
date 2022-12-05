@@ -16,8 +16,8 @@
 
 package org.bitlap.zim.domain
 
+import io.circe._
 import io.circe.syntax.EncoderOps
-import io.circe.{ Decoder, Encoder, HCursor, Json }
 
 /** 消息
  *

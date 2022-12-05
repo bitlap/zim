@@ -16,8 +16,8 @@
 
 package org.bitlap.zim.infrastructure.repository
 
-import org.bitlap.zim.domain.model.GroupList
 import org.bitlap.zim.api.repository.GroupRepository
+import org.bitlap.zim.domain.model.GroupList
 import scalikejdbc._
 import zio._
 

@@ -19,7 +19,7 @@ package org.bitlap.zim.domain.model
 import io.circe._
 import io.circe.generic.semiauto._
 import scalikejdbc.{ WrappedResultSet, _ }
-import zio.schema.{ DeriveSchema, Schema }
+import zio.schema._
 
 import java.time.ZonedDateTime
 
@@ -63,7 +63,6 @@ final case class User(
 object User extends BaseModel[User] {
 
   // 日期格式化
-  // scalafix:off
   import org.bitlap.zim.domain._
 
   // for dsl query

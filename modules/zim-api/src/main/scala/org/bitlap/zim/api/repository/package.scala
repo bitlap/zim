@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.api
 
-import eu.timepit.refined.api.{ Refined, Validate }
+import eu.timepit.refined.api._
 import scalikejdbc.SQLSyntax
 
 package object repository {

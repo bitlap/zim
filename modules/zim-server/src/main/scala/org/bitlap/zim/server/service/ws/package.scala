@@ -18,13 +18,13 @@ package org.bitlap.zim.server.service
 
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api.service.UserService
+import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.domain.ws.RefuseOrAgreeMessage
 import org.bitlap.zim.domain.ws.protocol.Protocol
-import org.bitlap.zim.domain.{ Message, SystemConstant }
 import org.bitlap.zim.infrastructure.repository.RStream
+import zio._
 import zio.stream.ZStream
-import zio.{ IO, ZIO }
 
 import java.time.ZonedDateTime
 

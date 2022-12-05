@@ -21,14 +21,14 @@ import org.bitlap.zim.api._
 import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
+import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.FileUtil
+import zio._
 import zio.stream._
-import zio.{ stream, IO, Task, TaskLayer, URLayer, ZIO, ZLayer }
 
 import java.time._
 
@@ -73,7 +73,7 @@ final class ApiServiceImpl(userService: UserService[RStream]) extends ApiService
     } yield checkAndUpdate
   }
 
-  override def login(user: UserSecurity.UserSecurityInfo): RStream[User] =
+  override def login(user: UserToken.UserSecurityInfo): RStream[User] =
     if (user.email.isEmpty) {
       ZStream.fail(BusinessException(msg = SystemConstant.PARAM_ERROR))
     } else

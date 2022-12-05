@@ -15,9 +15,9 @@
  */
 
 package org.bitlap.zim.domain.input
-import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
-import io.circe.{ Decoder, Encoder, HCursor }
-import zio.schema.{ DeriveSchema, Schema }
+import io.circe._
+import io.circe.generic.semiauto._
+import zio.schema._
 
 import java.nio.charset.Charset
 import java.util.Base64
@@ -26,11 +26,11 @@ import java.util.Base64
  *  @param cookie
  *    token 目前是邮箱+密码
  */
-final case class UserSecurity(cookie: String)
+final case class UserToken(cookie: String)
 
-object UserSecurity {
+object UserToken {
 
-  implicit val decoder: Decoder[UserSecurity] = deriveDecoder[UserSecurity]
+  implicit val decoder: Decoder[UserToken] = deriveDecoder[UserToken]
 
   case class UserSecurityInfo(id: Int, email: String, password: String, username: String) {
     def toCookieValue: String = {

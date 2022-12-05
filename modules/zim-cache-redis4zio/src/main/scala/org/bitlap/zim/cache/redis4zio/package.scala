@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.cache
 
-import zio.Task
+import zio._
 
 /** @author
  *    梦境迷离

@@ -36,7 +36,7 @@ trait ApiService[F[_], S[_]] extends PaginationApiService[S] {
 
   def updateInfo(user: UpdateUserInput): F[Boolean]
 
-  def login(user: UserSecurity.UserSecurityInfo): F[User]
+  def login(user: UserToken.UserSecurityInfo): F[User]
 
   def init(userId: Int): F[FriendAndGroupInfo]
 

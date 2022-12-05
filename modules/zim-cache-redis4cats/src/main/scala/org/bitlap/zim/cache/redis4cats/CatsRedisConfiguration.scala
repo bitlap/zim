@@ -15,8 +15,8 @@
  */
 
 package org.bitlap.zim.cache.redis4cats
-import cats.effect.{ IO, Resource }
-import com.typesafe.config.{ Config, ConfigFactory }
+import cats.effect._
+import com.typesafe.config._
 import dev.profunktor.redis4cats._
 import dev.profunktor.redis4cats.connection._
 import dev.profunktor.redis4cats.data.RedisCodec

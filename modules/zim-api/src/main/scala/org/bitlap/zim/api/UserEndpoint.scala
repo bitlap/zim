@@ -21,13 +21,13 @@ import akka.util.ByteString
 import org.bitlap.zim.domain
 import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
+import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.bitlap.zim.domain.input._
-import org.bitlap.zim.domain.model.{ GroupList, User }
+import org.bitlap.zim.domain.model._
 import sttp.capabilities.akka.AkkaStreams
 import sttp.model.HeaderNames.Authorization
+import sttp.model._
 import sttp.model.headers.CookieValueWithMeta
-import sttp.model.{ HeaderNames, Uri }
 import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe._
@@ -50,7 +50,7 @@ trait UserEndpoint extends ApiErrorMapping {
   private[api] lazy val userResourceDescription: String = "User Endpoint"
 
   type ZimSecurityOut[In] = PartialServerEndpoint[
-    UserSecurity,
+    UserToken,
     UserSecurityInfo,
     In,
     ZimError,
@@ -60,12 +60,12 @@ trait UserEndpoint extends ApiErrorMapping {
   ]
   type ZimOut[In] = PublicEndpoint[In, ZimError, Source[ByteString, Any], Any with AkkaStreams]
 
-  type ZimFileOut = PartialServerEndpoint[UserSecurity, UserSecurityInfo, MultipartInput, ZimError, Source[
+  type ZimFileOut = PartialServerEndpoint[UserToken, UserSecurityInfo, MultipartInput, ZimError, Source[
     ByteString,
     Any
   ], Any with AkkaStreams, Future]
 
-  val secureEndpoint: PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, Unauthorized, Unit, Any, Future]
+  val secureEndpoint: PartialServerEndpoint[UserToken, UserSecurityInfo, Unit, Unauthorized, Unit, Any, Future]
 
   // ================================================用户API定义（这是用于测试的接口）===============================================================
   lazy val userGetOneEndpoint: ZimOut[Long] =
@@ -255,7 +255,7 @@ trait UserEndpoint extends ApiErrorMapping {
       .errorOutVariants[ZimError](errorOutVar.head, errorOutVar.tail: _*)
 
   lazy val updateInfoEndpoint: PartialServerEndpoint[
-    UserSecurity,
+    UserToken,
     UserSecurityInfo,
     UpdateUserInput,
     ZimError,

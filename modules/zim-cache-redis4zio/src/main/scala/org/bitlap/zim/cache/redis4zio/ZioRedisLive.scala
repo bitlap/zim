@@ -16,11 +16,11 @@
 
 package org.bitlap.zim.cache.redis4zio
 
-import io.circe.{ Decoder, Encoder }
+import io.circe._
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.cache.{ JavaDuration, RedisService }
-import zio.{ redis, Task, ULayer, ZLayer }
+import org.bitlap.zim.cache._
+import zio._
 import zio.redis.Redis
 import zio.schema.DeriveSchema.gen
 

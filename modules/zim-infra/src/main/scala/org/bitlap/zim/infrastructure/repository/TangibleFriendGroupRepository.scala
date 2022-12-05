@@ -16,8 +16,8 @@
 
 package org.bitlap.zim.infrastructure.repository
 
-import org.bitlap.zim.domain.model.FriendGroup
 import org.bitlap.zim.api.repository.FriendGroupRepository
+import org.bitlap.zim.domain.model.FriendGroup
 import scalikejdbc._
 import zio._
 

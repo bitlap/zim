@@ -16,9 +16,9 @@
 
 package org.bitlap.zim.server.service
 
+import org.bitlap.zim._
 import org.bitlap.zim.api.repository._
 import org.bitlap.zim.api.service._
-import org.bitlap.zim._
 import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
@@ -26,8 +26,8 @@ import org.bitlap.zim.infrastructure._
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.service.ws.WsService
-import zio.stream._
 import zio._
+import zio.stream._
 
 import java.time._
 

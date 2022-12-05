@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.api.repository
 
-import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.model._
 
 /** 用户的操作定义
  *

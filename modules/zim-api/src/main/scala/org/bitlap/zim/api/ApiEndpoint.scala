@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.api
 
-import sttp.tapir.{ EndpointInput, _ }
+import sttp.tapir._
 
 /** Open API的端点
  *

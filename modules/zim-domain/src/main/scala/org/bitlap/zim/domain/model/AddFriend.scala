@@ -16,8 +16,8 @@
 
 package org.bitlap.zim.domain.model
 
+import io.circe._
 import io.circe.generic.semiauto._
-import io.circe.{ Decoder, Encoder }
 import scalikejdbc.{ WrappedResultSet, _ }
 
 /** 添加好友

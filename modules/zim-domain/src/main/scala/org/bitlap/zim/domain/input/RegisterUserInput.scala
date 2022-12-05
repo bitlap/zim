@@ -15,10 +15,9 @@
  */
 
 package org.bitlap.zim.domain.input
-import io.circe.Decoder
-import io.circe.generic.semiauto.deriveDecoder
-import io.circe.Encoder
-import io.circe.generic.semiauto.deriveEncoder
+
+import io.circe._
+import io.circe.generic.semiauto._
 
 /** 注册用户信息提交 输入
  *

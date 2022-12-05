@@ -26,7 +26,7 @@ import zio._
  *  @version 1.0,2021/12/24
  */
 object ZimServer extends ZimServiceConfiguration with zio.ZIOAppDefault {
-  override def run = (for {
+  override def run: ZIO[Any,Throwable,Unit] = (for {
     routes <- ApiConfiguration.routes
     _ <- Console.printLine("""
         |                                 ____

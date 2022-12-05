@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.api.repository
 
-import org.bitlap.zim.domain.model.AddMessage
+import org.bitlap.zim.domain.model._
 
 /** @author
  *    梦境迷离

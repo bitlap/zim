@@ -16,9 +16,9 @@
 
 package org.bitlap.zim.infrastructure.repository
 
+import org.bitlap.zim.api.repository.UserRepository
 import org.bitlap.zim.domain.model
 import org.bitlap.zim.domain.model.User
-import org.bitlap.zim.api.repository.UserRepository
 import scalikejdbc._
 import zio._
 

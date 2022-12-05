@@ -16,8 +16,8 @@
 
 package org.bitlap.zim
 
-import io.circe.{ Decoder, Encoder }
-import zio.schema.Schema
+import io.circe._
+import zio.schema._
 
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
