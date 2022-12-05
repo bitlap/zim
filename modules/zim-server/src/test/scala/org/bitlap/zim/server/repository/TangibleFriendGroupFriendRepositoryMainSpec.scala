@@ -65,9 +65,9 @@ object TangibleFriendGroupFriendRepositorySpec {
   trait TangibleFriendGroupFriendRepositorySpec extends ZIOBaseSuit {
     override val sqlAfter: SQL[_, NoExtractor] =
       sql"""
-          |        drop table if exists t_friend_group_friends;
-          |        drop table if exists t_friend_group;
-          |""".stripMargin
+           |        drop table if exists t_friend_group_friends;
+           |        drop table if exists t_friend_group;
+           |""".stripMargin
 
     override val sqlBefore: SQL[_, NoExtractor] =
       sql"""

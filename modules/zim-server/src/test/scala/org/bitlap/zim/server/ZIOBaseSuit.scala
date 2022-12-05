@@ -17,10 +17,10 @@
 package org.bitlap.zim.server
 
 import org.bitlap.zim.domain.model
-import org.bitlap.zim.domain.model.{ AddMessage, GroupList, User }
+import org.bitlap.zim.domain.model.{AddMessage, GroupList, User}
 import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
 import org.bitlap.zim.server.util.DateHelper
-import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings, NamedDB, NoExtractor, SQL }
+import scalikejdbc.{ConnectionPool, ConnectionPoolSettings, NamedDB, NoExtractor, SQL}
 import zio.test.ZIOSpecDefault
 
 trait ZIOBaseSuit extends ZIOSpecDefault {

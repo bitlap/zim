@@ -49,11 +49,11 @@ lazy val commonConfiguration: Project => Project =
     .settings(commands ++= Commands.value)
 //    .settings(assemblySettings)
     .settings(
-      semanticdbEnabled                              := true, // enable SemanticDB
-      semanticdbVersion                              := scalafixSemanticdb.revision,
+      semanticdbEnabled                                          := true, // enable SemanticDB
+      semanticdbVersion                                          := scalafixSemanticdb.revision,
       ThisBuild / scalafixScalaBinaryVersion                     := CrossVersion.binaryScalaVersion(scalaVersion.value),
       ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0",
-      scalafixOnCompile                              := true
+      scalafixOnCompile                                          := true
     )
 
 lazy val zim = (project in file("."))

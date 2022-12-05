@@ -20,7 +20,7 @@ import org.bitlap.zim.infrastructure.util.SecurityUtil
 import zio._
 
 import java.text.SimpleDateFormat
-import java.util.{ Calendar, Date }
+import java.util.{Calendar, Date}
 import scala.util.Random
 
 /** 造数据

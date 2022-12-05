@@ -18,7 +18,7 @@ package org.bitlap.zim.domain.model
 
 import io.circe._
 import io.circe.generic.semiauto._
-import scalikejdbc.{ WrappedResultSet, _ }
+import scalikejdbc.{WrappedResultSet, _}
 
 /** 群组成员
  *

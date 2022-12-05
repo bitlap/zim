@@ -16,10 +16,10 @@
 
 package org.bitlap.zim.infrastructure.util
 
-import zio._
-import zio.crypto.hash.{ Hash, HashAlgorithm, MessageDigest }
-
 import java.nio.charset.StandardCharsets.US_ASCII
+
+import zio._
+import zio.crypto.hash.{Hash, HashAlgorithm, MessageDigest}
 
 /** SpringSecurity加密工具 PasswordEncoder
  *

@@ -16,6 +16,8 @@
 
 package org.bitlap.zim.api
 
+import scala.concurrent.Future
+
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import org.bitlap.zim.domain
@@ -32,8 +34,6 @@ import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe._
 import sttp.tapir.server.PartialServerEndpoint
-
-import scala.concurrent.Future
 
 /** 用户接口的端点
  *

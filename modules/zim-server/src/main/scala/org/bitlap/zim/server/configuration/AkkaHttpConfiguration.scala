@@ -16,6 +16,8 @@
 
 package org.bitlap.zim.server.configuration
 
+import java.util.concurrent.atomic._
+
 import akka.actor.typed._
 import akka.http.scaladsl._
 import akka.http.scaladsl.server._
@@ -27,8 +29,6 @@ import org.bitlap.zim.infrastructure._
 import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.route._
 import zio._
-
-import java.util.concurrent.atomic._
 
 /** akka http configuration
  *
@@ -75,9 +75,9 @@ final class AkkaHttpConfiguration()(implicit actorSystem: ActorSystem[_]) {
       _ <- ZIO.attempt(
         actorSystem.log.info(
           s"""
-             |Server online at http://${infoConf.webHost}:${infoConf.port}/${ZimOpenApi.zimOpenApiInstance.openapi}
-             |Websocket Server online at http://${infoConf.webHost}:${infoConf.port}/api/v1.0/wsDocs
-             |""".stripMargin
+                  |Server online at http://${infoConf.webHost}:${infoConf.port}/${ZimOpenApi.zimOpenApiInstance.openapi}
+                  |Websocket Server online at http://${infoConf.webHost}:${infoConf.port}/api/v1.0/wsDocs
+                  |""".stripMargin
         )
       )
       _ <- scheduleTask()

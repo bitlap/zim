@@ -17,7 +17,7 @@
 package org.bitlap.zim.server.repository
 
 import org.bitlap.zim.api.repository.FriendGroupRepository
-import org.bitlap.zim.infrastructure.repository.{ RStream, TangibleFriendGroupRepository }
+import org.bitlap.zim.infrastructure.repository.{RStream, TangibleFriendGroupRepository}
 import org.bitlap.zim.server.ZIOBaseSuit
 import org.bitlap.zim.server.repository.TangibleFriendGroupRepositorySpec.TangibleFriendGroupRepositorySpec
 import scalikejdbc._

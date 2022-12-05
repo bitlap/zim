@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.cache.redis4zio
 
-import com.typesafe.config.{ Config, _ }
+import com.typesafe.config.{Config, _}
 import zio._
 import zio.redis._
 import zio.schema.codec._

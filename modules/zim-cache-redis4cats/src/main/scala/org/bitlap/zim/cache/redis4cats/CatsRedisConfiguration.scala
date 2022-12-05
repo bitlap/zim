@@ -15,17 +15,17 @@
  */
 
 package org.bitlap.zim.cache.redis4cats
+import java.time.Duration
+
 import cats.effect._
 import com.typesafe.config._
 import dev.profunktor.redis4cats._
 import dev.profunktor.redis4cats.connection._
 import dev.profunktor.redis4cats.data.RedisCodec
 import dev.profunktor.redis4cats.log4cats._
-import io.lettuce.core.{ ClientOptions, TimeoutOptions }
+import io.lettuce.core.{ClientOptions, TimeoutOptions}
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-
-import java.time.Duration
 
 /** redis configuration
  *

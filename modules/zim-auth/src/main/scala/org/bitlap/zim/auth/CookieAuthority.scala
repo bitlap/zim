@@ -16,14 +16,15 @@
 
 package org.bitlap.zim.auth
 
+import java.util._
+
+import scala.concurrent._
+import scala.util.Try
+
 import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.bitlap.zim.domain.input._
 import zio._
-
-import java.util._
-import scala.concurrent._
-import scala.util.Try
 
 /** Cookie based authentication
  *

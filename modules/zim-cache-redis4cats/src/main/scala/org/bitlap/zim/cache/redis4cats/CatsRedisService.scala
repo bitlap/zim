@@ -16,6 +16,8 @@
 
 package org.bitlap.zim.cache.redis4cats
 
+import scala.concurrent.duration._
+
 import cats.effect.IO
 import dev.profunktor.redis4cats.effects._
 import io.circe._
@@ -23,8 +25,6 @@ import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.cache.{JavaDuration, RedisService}
 import org.typelevel.log4cats.Logger
-
-import scala.concurrent.duration._
 
 /** @author
  *    梦境迷离

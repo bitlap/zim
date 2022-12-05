@@ -16,6 +16,8 @@
 
 package org.bitlap.zim.server.route
 
+import scala.concurrent._
+
 import io.circe.jawn
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api._
@@ -31,8 +33,6 @@ import sttp.model.HeaderNames.Authorization
 import sttp.tapir._
 import sttp.tapir.server.PartialServerEndpoint
 import zio._
-
-import scala.concurrent._
 
 /** 用户接口的端点
  *

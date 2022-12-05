@@ -16,6 +16,8 @@
 
 package org.bitlap.zim.api
 
+import scala.concurrent.Future
+
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import io.circe._
@@ -33,8 +35,6 @@ import sttp.tapir.json.circe._
 import zio._
 import zio.interop.reactivestreams.streamToPublisher
 import zio.stream.ZStream
-
-import scala.concurrent.Future
 
 /** API的circe解码器
  *
@@ -170,11 +170,12 @@ trait ApiJsonCodec {
   ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = (for {
       ret <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
-      result = (
-        if (ret == null && returnError)
-          ResultSet[T](data = null.asInstanceOf[T], code = SystemConstant.ERROR, msg = SystemConstant.ERROR_MESSAGE)
-        else ResultSet[T](data = ret)
-      ).asJson.noSpaces
+      result =
+        (
+          if (ret == null && returnError)
+            ResultSet[T](data = null.asInstanceOf[T], code = SystemConstant.ERROR, msg = SystemConstant.ERROR_MESSAGE)
+          else ResultSet[T](data = ret)
+        ).asJson.noSpaces
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r).catchSome(catchStreamError)
     Future.successful(

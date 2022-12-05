@@ -16,11 +16,11 @@
 
 package org.bitlap.zim.domain.model
 
+import java.time.ZonedDateTime
+
 import io.circe._
 import io.circe.generic.semiauto._
-import scalikejdbc.{ WrappedResultSet, _ }
-
-import java.time.ZonedDateTime
+import scalikejdbc.{WrappedResultSet, _}
 
 /** 添加消息
  *

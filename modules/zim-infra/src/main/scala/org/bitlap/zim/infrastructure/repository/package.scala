@@ -16,15 +16,15 @@
 
 package org.bitlap.zim.infrastructure
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import org.bitlap.zim.api.repository.Condition
 import org.bitlap.zim.domain.model._
 import scalikejdbc.streams._
-import scalikejdbc.{ SQL, _ }
+import scalikejdbc.{SQL, _}
 import zio._
 import zio.interop.reactivestreams._
 import zio.stream.ZStream
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import sqls.count
 

@@ -16,6 +16,9 @@
 
 package org.bitlap.zim.server.route
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import org.bitlap.zim.ZimBuildInfo
@@ -28,9 +31,6 @@ import sttp.tapir.docs.asyncapi.AsyncAPIInterpreter
 import sttp.tapir.docs.openapi._
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import sttp.tapir.swagger._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 /** Open API
  *  @see

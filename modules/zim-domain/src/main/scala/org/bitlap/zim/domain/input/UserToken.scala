@@ -15,12 +15,12 @@
  */
 
 package org.bitlap.zim.domain.input
+import java.nio.charset.Charset
+import java.util.Base64
+
 import io.circe._
 import io.circe.generic.semiauto._
 import zio.schema._
-
-import java.nio.charset.Charset
-import java.util.Base64
 
 /** 用户登录 输入 cookie
  *  @param cookie

@@ -15,6 +15,10 @@
  */
 
 package org.bitlap.zim.server.service.ws
+import java.util.concurrent._
+
+import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
+
 import _root_.io.circe.syntax.EncoderOps
 import akka._
 import akka.actor.typed._
@@ -22,20 +26,17 @@ import akka.actor.typed.scaladsl.adapter._
 import akka.actor.{ActorRef, Status, typed}
 import akka.http.scaladsl.model.ws._
 import akka.stream._
-import akka.stream.scaladsl.{ Flow, Keep, Sink, Source }
+import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import org.bitlap.zim._
 import org.bitlap.zim.api.service.WsService
 import org.bitlap.zim.domain.ws.protocol._
-import org.bitlap.zim.domain.{ Message => IMMessage, SystemConstant }
+import org.bitlap.zim.domain.{Message => IMMessage, SystemConstant}
 import org.bitlap.zim.server.actor.akka._
 import org.bitlap.zim.server.configuration._
 import org.bitlap.zim.server.service._
 import org.reactivestreams._
 import zio._
 import zio.actors.akka.AkkaTypedActor
-
-import java.util.concurrent._
-import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
 
 /** @author
  *    梦境迷离
