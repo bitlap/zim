@@ -16,6 +16,11 @@
 
 package org.bitlap.zim.server.route
 
+import java.time.Instant
+
+import scala.concurrent._
+import scala.util.Try
+
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directive.addDirectiveApply
@@ -24,9 +29,9 @@ import akka.http.scaladsl.server._
 import akka.stream._
 import org.bitlap.zim.api._
 import org.bitlap.zim.api.service._
+import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model._
-import org.bitlap.zim.domain.{ FriendAndGroupInfo, SystemConstant }
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.server.FileUtil
 import org.bitlap.zim.server.route.ZimUserEndpoint._
@@ -36,10 +41,6 @@ import sttp.model.headers._
 import sttp.tapir.server.akkahttp._
 import zio._
 import zio.stream._
-
-import java.time.Instant
-import scala.concurrent._
-import scala.util.Try
 
 /** 用户API
  *
@@ -331,7 +332,7 @@ final class ZimUserApi(apiService: ApiService[RStream, Task])(implicit
   lazy val indexRoute: Route = get {
     pathPrefix(USER / "index") {
       cookie(Authorization) { user =>
-        val checkFuture = authenticate(UserSecurity(user.value))(authorityCacheFunction).map(_.getOrElse(null))
+        val checkFuture = authenticate(UserToken(user.value))(authorityCacheFunction).map(_.getOrElse(null))
         onComplete(checkFuture) {
           case scala.util.Success(u) if u != null =>
             // 这是不使用任何渲染模板
@@ -361,7 +362,7 @@ final class ZimUserApi(apiService: ApiService[RStream, Task])(implicit
     pathPrefix(USER / "chatLogIndex") {
       parameters("id".as[Int], "type".as[String].withDefault(SystemConstant.FRIEND_TYPE)) { (id, `type`) =>
         cookie(Authorization) { user =>
-          val checkFuture = authenticate(UserSecurity(user.value))(authorityCacheFunction).map(_.getOrElse(null))
+          val checkFuture = authenticate(UserToken(user.value))(authorityCacheFunction).map(_.getOrElse(null))
           onComplete(checkFuture) {
             case scala.util.Success(u) if u != null =>
               try {

@@ -15,11 +15,12 @@
  */
 
 package org.bitlap.zim.domain.model
+
 import io.circe._
 import io.circe.generic.semiauto._
 import org.bitlap.zim.domain.Group
-import scalikejdbc.{ WrappedResultSet, _ }
-import zio.schema.{ DeriveSchema, Schema }
+import scalikejdbc.{WrappedResultSet, _}
+import zio.schema._
 
 /** 群组信息
  *

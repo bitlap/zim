@@ -1,6 +1,6 @@
 import com.typesafe.sbt.GitPlugin.autoImport.git
 import sbt.Keys._
-import sbt.{ Compile, Def, SettingKey }
+import sbt.{Compile, Def, SettingKey}
 import sbtbuildinfo.BuildInfoKeys.buildInfoKeys
 import sbtbuildinfo.BuildInfoPlugin.autoImport._
 

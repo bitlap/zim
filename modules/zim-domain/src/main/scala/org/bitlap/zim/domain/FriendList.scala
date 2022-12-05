@@ -16,11 +16,11 @@
 
 package org.bitlap.zim.domain
 
+import io.circe._
 import io.circe.generic.semiauto._
 import io.circe.syntax.EncoderOps
-import io.circe.{ Decoder, Encoder, Json }
 import org.bitlap.zim.domain.model.User
-import zio.schema.{ DeriveSchema, Schema }
+import zio.schema._
 
 /** 好友列表
  *

@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.cache
 
-import io.circe.{ Decoder, Encoder }
+import io.circe._
 
 /** Redis缓存服务
  *

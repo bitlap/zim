@@ -18,7 +18,7 @@ package org.bitlap.zim.api.service
 
 import akka.actor.ActorRef
 import org.bitlap.zim.domain
-import org.bitlap.zim.domain.model.User
+import org.bitlap.zim.domain.model._
 
 trait WsService[F[_]] {
 

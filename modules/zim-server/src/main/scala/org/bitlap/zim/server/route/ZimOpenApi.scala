@@ -16,22 +16,21 @@
 
 package org.bitlap.zim.server.route
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import org.bitlap.zim.ZimBuildInfo
-import org.bitlap.zim.api.{ ActuatorEndpoint, ApiEndpoint, WsEndpoint }
+import org.bitlap.zim.api._
+import sttp.apispec.asyncapi.circe.yaml.RichAsyncAPI
+import sttp.apispec.openapi._
+import sttp.apispec.openapi.circe.yaml.RichOpenAPI
 import sttp.tapir.AnyEndpoint
 import sttp.tapir.docs.asyncapi.AsyncAPIInterpreter
 import sttp.tapir.docs.openapi._
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
-import sttp.tapir.swagger.{ SwaggerUI, SwaggerUIOptions }
-
-import scala.concurrent.Future
-import akka.http.scaladsl.server.Directives._
-import sttp.apispec.asyncapi.circe.yaml.RichAsyncAPI
-import sttp.apispec.openapi.circe.yaml.RichOpenAPI
-import sttp.apispec.openapi.{ Contact, Info, License }
-
-import scala.concurrent.ExecutionContext.Implicits.global
+import sttp.tapir.swagger._
 
 /** Open API
  *  @see

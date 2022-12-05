@@ -18,12 +18,12 @@ package org.bitlap.zim.server.service
 
 import cats.effect._
 import cats.effect.unsafe.implicits.global
-import io.circe.{ Decoder, Encoder }
+import io.circe._
 import org.bitlap.zim.cache.redis4cats.CatsRedisConfiguration
-import org.bitlap.zim.cache.redis4zio.{ ZRedis, ZioRedisConfiguration }
+import org.bitlap.zim.cache.redis4zio._
 import org.bitlap.zim.server.CacheType
 import org.bitlap.zim.server.CacheType._
-import zio.{ Task, ZIO }
+import zio._
 import zio.interop.catz._
 import zio.schema.Schema
 

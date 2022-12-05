@@ -16,32 +16,11 @@
 
 package org.bitlap.zim.infrastructure
 
-import org.bitlap.zim.api.repository.{
-  AddMessageRepository,
-  FriendGroupFriendRepository,
-  FriendGroupRepository,
-  GroupMemberRepository,
-  GroupRepository,
-  ReceiveRepository,
-  UserRepository
-}
-import org.bitlap.zim.infrastructure.properties.{
-  MailConfigurationProperties,
-  MysqlConfigurationProperties,
-  ZimConfigurationProperties
-}
-import org.bitlap.zim.infrastructure.repository.{
-  TangibleAddMessageRepository,
-  TangibleFriendGroupFriendRepository,
-  TangibleFriendGroupRepository,
-  TangibleGroupMemberRepository,
-  TangibleGroupRepository,
-  TangibleReceiveRepository,
-  TangibleUserRepository
-}
-import scalikejdbc.{ ConnectionPool, ConnectionPoolSettings }
+import org.bitlap.zim.api.repository._
+import org.bitlap.zim.infrastructure.properties._
+import org.bitlap.zim.infrastructure.repository.{RStream, _}
+import scalikejdbc._
 import zio._
-import org.bitlap.zim.infrastructure.repository.RStream
 
 /** infrastructure configuration
  *

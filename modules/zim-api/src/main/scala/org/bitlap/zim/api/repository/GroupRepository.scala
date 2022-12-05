@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.api.repository
 
-import org.bitlap.zim.domain.model.GroupList
+import org.bitlap.zim.domain.model._
 
 /** 群组的操作定义
  *

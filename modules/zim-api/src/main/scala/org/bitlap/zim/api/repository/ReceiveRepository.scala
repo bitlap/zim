@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.api.repository
 
-import org.bitlap.zim.domain.model.Receive
+import org.bitlap.zim.domain.model._
 
 /** 消息的操作定义
  *

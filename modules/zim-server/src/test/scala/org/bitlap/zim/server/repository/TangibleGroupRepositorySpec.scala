@@ -15,10 +15,10 @@
  */
 
 package org.bitlap.zim.server.repository
-import org.bitlap.zim.api.repository.{ GroupMemberRepository, GroupRepository }
+import org.bitlap.zim.api.repository.{GroupMemberRepository, GroupRepository}
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
-import org.bitlap.zim.infrastructure.repository.{ RStream, TangibleGroupMemberRepository, TangibleGroupRepository }
+import org.bitlap.zim.infrastructure.repository.{RStream, TangibleGroupMemberRepository, TangibleGroupRepository}
 import org.bitlap.zim.server.BaseData
 import org.bitlap.zim.server.repository.TangibleGroupRepositorySpec.TangibleGroupRepositoryConfigurationSpec
 import scalikejdbc._

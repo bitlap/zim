@@ -16,23 +16,23 @@
 
 package org.bitlap.zim.server.route
 
+import scala.concurrent._
+
 import io.circe.jawn
 import io.circe.syntax.EncoderOps
+import org.bitlap.zim.api._
 import org.bitlap.zim.auth.CookieAuthority
-import org.bitlap.zim.domain.input.UserSecurity
 import org.bitlap.zim.domain.ZimError.Unauthorized
-import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
+import org.bitlap.zim.domain.input.UserToken
+import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepository
-import org.bitlap.zim.infrastructure.util.{ LogUtil, SecurityUtil }
+import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.service.RedisCache
-import org.bitlap.zim.api.{ ApiErrorMapping, UserEndpoint }
 import sttp.model.HeaderNames.Authorization
 import sttp.tapir._
 import sttp.tapir.server.PartialServerEndpoint
 import zio._
-
-import scala.concurrent.{ ExecutionContext, Future }
 
 /** 用户接口的端点
  *
@@ -65,8 +65,8 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
     } yield check -> user
 
   override val secureEndpoint
-    : PartialServerEndpoint[UserSecurity, UserSecurityInfo, Unit, Unauthorized, Unit, Any, Future] = endpoint
-    .securityIn(cookie[String](Authorization).mapTo[UserSecurity])
+    : PartialServerEndpoint[UserToken, UserSecurityInfo, Unit, Unauthorized, Unit, Any, Future] = endpoint
+    .securityIn(cookie[String](Authorization).mapTo[UserToken])
     .errorOut(customCodecJsonBody[Unauthorized])
     .serverSecurityLogic(token => authenticate(token)(authorityCacheFunction))
 }

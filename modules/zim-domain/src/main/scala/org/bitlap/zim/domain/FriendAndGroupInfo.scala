@@ -16,10 +16,10 @@
 
 package org.bitlap.zim.domain
 
+import io.circe._
 import io.circe.generic.semiauto._
-import io.circe.{ Decoder, Encoder }
-import org.bitlap.zim.domain.model.{ GroupList, User }
-import zio.schema.{ DeriveSchema, Schema }
+import org.bitlap.zim.domain.model._
+import zio.schema._
 
 /** 好友和群组整个信息集
  *

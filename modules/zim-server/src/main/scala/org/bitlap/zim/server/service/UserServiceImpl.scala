@@ -16,9 +16,11 @@
 
 package org.bitlap.zim.server.service
 
+import java.time._
+
+import org.bitlap.zim._
 import org.bitlap.zim.api.repository._
 import org.bitlap.zim.api.service._
-import org.bitlap.zim._
 import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
@@ -26,10 +28,8 @@ import org.bitlap.zim.infrastructure._
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.service.ws.WsService
-import zio.stream._
 import zio._
-
-import java.time._
+import zio.stream._
 
 /** 用户服务
  *
@@ -217,9 +217,10 @@ private final class UserServiceImpl(
           } else {
             domain.ChatHistory(history.mid, user.username, user.avatar, history.content, history.timestamp)
           }
-        _ <- LogUtil.infoS(
-          s"findHistoryMessage.userHistory user=>$user, mid=>${mid}, type=>${`type`}, toUser=>$toUser, newHistory=>$newHistory"
-        )
+        _ <-
+          LogUtil.infoS(
+            s"findHistoryMessage.userHistory user=>$user, mid=>${mid}, type=>${`type`}, toUser=>$toUser, newHistory=>$newHistory"
+          )
 
       } yield newHistory
 
@@ -234,9 +235,10 @@ private final class UserServiceImpl(
           } else {
             domain.ChatHistory(history.mid, u.username, u.avatar, history.content, history.timestamp)
           }
-        _ <- LogUtil.infoS(
-          s"findHistoryMessage.groupHistory user=>$user, mid=>$mid, type=>${`type`}, toUser=>$u, newHistory=>$newHistory"
-        )
+        _ <-
+          LogUtil.infoS(
+            s"findHistoryMessage.groupHistory user=>$user, mid=>$mid, type=>${`type`}, toUser=>$u, newHistory=>$newHistory"
+          )
       } yield newHistory
     `type` match {
       case SystemConstant.FRIEND_TYPE => userHistory()
@@ -321,9 +323,10 @@ private final class UserServiceImpl(
             s"${userCopy.username} 请确定这是你本人注册的账号, http://$host/user/active/" + activeCode
           )
           .provideLayer(MailServiceImpl.make(mailConf))
-        _ <- LogUtil.info(
-          s"saveUser uid=$id, user=>$user, activeCode=>$activeCode, userCopy=>$userCopy, zimConf=>$zimConf, mailConf=>$mailConf"
-        )
+        _ <-
+          LogUtil.info(
+            s"saveUser uid=$id, user=>$user, activeCode=>$activeCode, userCopy=>$userCopy, zimConf=>$zimConf, mailConf=>$mailConf"
+          )
       } yield true
     }
 

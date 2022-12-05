@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.infrastructure.properties
 
-import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.config._
 
 /** mysql configuration
  *

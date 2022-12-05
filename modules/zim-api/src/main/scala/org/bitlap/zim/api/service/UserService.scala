@@ -17,8 +17,8 @@
 package org.bitlap.zim.api.service
 
 import org.bitlap.zim.domain
-import org.bitlap.zim.domain.model.{ GroupList, Receive, User }
-import org.bitlap.zim.domain.{ model, AddInfo, FriendList }
+import org.bitlap.zim.domain._
+import org.bitlap.zim.domain.model._
 
 /** 用户应用定义 这不是最终接口，参数和返回值可能后面需要修改 注意：sim项目controller层的逻辑都需要下沉到ApiService，而不只是直接使用UserService的逻辑
  *

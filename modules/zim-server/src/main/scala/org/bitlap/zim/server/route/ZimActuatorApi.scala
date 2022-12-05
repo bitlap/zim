@@ -16,14 +16,14 @@
 
 package org.bitlap.zim.server.route
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.DebuggingDirectives
 import org.bitlap.zim.ZimBuildInfo
-import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 import org.bitlap.zim.api.ActuatorEndpoint
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 
 /** Actuator端点的API http://host:port/api/v1.0/health
  *

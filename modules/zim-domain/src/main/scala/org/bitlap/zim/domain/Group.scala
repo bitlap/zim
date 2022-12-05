@@ -16,8 +16,8 @@
 
 package org.bitlap.zim.domain
 
+import io.circe._
 import io.circe.generic.semiauto._
-import io.circe.{ Decoder, Encoder, Json }
 
 /** 群组
  *

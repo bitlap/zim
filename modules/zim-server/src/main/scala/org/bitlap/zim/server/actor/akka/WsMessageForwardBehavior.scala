@@ -19,7 +19,7 @@ package org.bitlap.zim.server.actor.akka
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.domain.ws.protocol.{ Command, Protocol, TransmitMessageProxy }
+import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.infrastructure.util.LogUtil
 import org.bitlap.zim.server.service.ws.WsService
 import zio._

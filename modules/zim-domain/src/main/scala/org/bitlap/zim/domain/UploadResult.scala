@@ -16,8 +16,8 @@
 
 package org.bitlap.zim.domain
 
-import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
-import io.circe.{ Decoder, Encoder }
+import io.circe._
+import io.circe.generic.semiauto._
 
 /** @author
  *    梦境迷离

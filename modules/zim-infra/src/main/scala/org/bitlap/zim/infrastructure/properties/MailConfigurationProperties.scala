@@ -16,12 +16,13 @@
 
 package org.bitlap.zim.infrastructure.properties
 
-import com.typesafe.config.{ Config, ConfigFactory }
+import java.util.Properties
+
+import scala.util.Try
+
+import com.typesafe.config.{Config, ConfigFactory}
 import org.simplejavamail.config.ConfigLoader
 import zio._
-
-import java.util.Properties
-import scala.util.Try
 
 /** configuration for simple java mail
  *

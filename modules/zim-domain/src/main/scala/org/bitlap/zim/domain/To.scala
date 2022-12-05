@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.domain
 
-import io.circe.{ Decoder, Encoder, HCursor, Json }
+import io.circe._
 
 /** 发送给...的信息
  *

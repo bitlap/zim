@@ -16,26 +16,25 @@
 
 package org.bitlap.zim.api
 
+import scala.concurrent.Future
+
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
+import io.circe._
 import io.circe.generic.extras.Configuration
 import io.circe.parser.parse
 import io.circe.syntax.EncoderOps
-import io.circe.{ Decoder, Encoder, HCursor, Json }
 import org.bitlap.zim.domain.ZimError.BusinessException
 import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.model.{ GroupList, User }
+import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
+import org.bitlap.zim.domain.model.{Receive, _}
+import org.reactivestreams.Publisher
 import sttp.tapir.Codec.JsonCodec
+import sttp.tapir._
 import sttp.tapir.json.circe._
-import sttp.tapir.{ Schema, SchemaType }
 import zio._
 import zio.interop.reactivestreams.streamToPublisher
 import zio.stream.ZStream
-import org.bitlap.zim.domain.model.Receive
-import org.bitlap.zim.domain.input.UserSecurity.UserSecurityInfo
-import org.reactivestreams.Publisher
-
-import scala.concurrent.Future
 
 /** API的circe解码器
  *
@@ -171,11 +170,12 @@ trait ApiJsonCodec {
   ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = (for {
       ret <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
-      result = (
-        if (ret == null && returnError)
-          ResultSet[T](data = null.asInstanceOf[T], code = SystemConstant.ERROR, msg = SystemConstant.ERROR_MESSAGE)
-        else ResultSet[T](data = ret)
-      ).asJson.noSpaces
+      result =
+        (
+          if (ret == null && returnError)
+            ResultSet[T](data = null.asInstanceOf[T], code = SystemConstant.ERROR, msg = SystemConstant.ERROR_MESSAGE)
+          else ResultSet[T](data = ret)
+        ).asJson.noSpaces
       r <- ZStream.succeed(result).map(body => ByteString(body)).toPublisher
     } yield r).catchSome(catchStreamError)
     Future.successful(

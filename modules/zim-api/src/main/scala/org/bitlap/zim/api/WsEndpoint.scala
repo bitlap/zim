@@ -16,16 +16,16 @@
 
 package org.bitlap.zim.api
 
+import scala.concurrent.duration.DurationInt
+
+import akka.http.scaladsl.model.ws.TextMessage
 import sttp.capabilities.WebSockets
 import sttp.capabilities.akka.AkkaStreams
 import sttp.capabilities.akka.AkkaStreams.Pipe
 import sttp.tapir.Codec.parsedString
+import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass
-import sttp.tapir.{ endpoint, query, _ }
 import sttp.ws.WebSocketFrame
-
-import scala.concurrent.duration.DurationInt
-import akka.http.scaladsl.model.ws.TextMessage
 
 /** @author
  *    梦境迷离

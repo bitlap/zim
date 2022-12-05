@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.api.repository
 
-import org.bitlap.zim.domain.model.FriendGroup
+import org.bitlap.zim.domain.model._
 
 /** 好友分组操作定义
  *

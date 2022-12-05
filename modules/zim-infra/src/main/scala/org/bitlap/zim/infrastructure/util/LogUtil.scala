@@ -16,8 +16,8 @@
 
 package org.bitlap.zim.infrastructure.util
 
-import zio.stream._
 import zio._
+import zio.stream._
 
 /** @author
  *    梦境迷离
