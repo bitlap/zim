@@ -89,8 +89,10 @@ object TangibleFriendGroupFriendRepositorySpec {
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
        """
 
-    val friendGroupFriendLayer = TangibleFriendGroupFriendRepository.make(h2ConfigurationProperties.databaseName)
-    val friendGroupLayer       = TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
+    val friendGroupFriendLayer: ULayer[FriendGroupFriendRepository[RStream]] =
+      TangibleFriendGroupFriendRepository.make(h2ConfigurationProperties.databaseName)
+    val friendGroupLayer: ULayer[FriendGroupRepository[RStream]] =
+      TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
 
     val env: ULayer[FriendGroupRepository[RStream] with FriendGroupFriendRepository[RStream]] =
       friendGroupFriendLayer ++ friendGroupLayer

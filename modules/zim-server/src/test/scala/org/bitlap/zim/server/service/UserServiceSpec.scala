@@ -16,11 +16,11 @@
 
 package org.bitlap.zim.server.service
 
+import org.bitlap.zim.api.service.UserService
 import org.bitlap.zim.domain.model
 import org.bitlap.zim.domain.model._
-import zio.ZIO
 import org.bitlap.zim.infrastructure.repository.RStream
-import org.bitlap.zim.api.service.UserService
+import zio.ZIO
 
 /** @author
  *    梦境迷离

@@ -26,7 +26,7 @@ import zio.test.Assertion._
 import zio.test._
 
 object TangibleFriendGroupRepositoryMainSpec extends TangibleFriendGroupRepositorySpec {
-  override def spec = suite("Tangible friendGroup repository")(
+  override def spec: Spec[Any, Throwable] = suite("Tangible friendGroup repository")(
     test("find by id") {
       for {
         _  <- TangibleFriendGroupRepository.createFriendGroup(mockFriendGroup).runHead

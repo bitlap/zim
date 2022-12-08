@@ -40,7 +40,7 @@ import zio.{Task, ZIO}
  *  @since 2022/3/5
  *  @version 2.0
  */
-case class WsServiceLive(private val app: ApplicationConfiguration) extends WsService[Task] {
+final case class WsServiceLive(private val app: ApplicationConfiguration) extends WsService[Task] {
 
   private val userService: UserService[RStream] = app.userService
 

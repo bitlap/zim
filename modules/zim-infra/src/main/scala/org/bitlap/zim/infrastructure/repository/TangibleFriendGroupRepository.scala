@@ -17,9 +17,10 @@
 package org.bitlap.zim.infrastructure.repository
 
 import org.bitlap.zim.api.repository.FriendGroupRepository
-import org.bitlap.zim.domain.model.FriendGroup
+import org.bitlap.zim.domain.model._
 import scalikejdbc._
 import zio._
+import zio.stream._
 
 /** 好友分组操作实现
  *
@@ -48,14 +49,14 @@ object TangibleFriendGroupRepository {
   def apply(databaseName: String): FriendGroupRepository[RStream] =
     new TangibleFriendGroupRepository(databaseName)
 
-  def findById(id: Int): stream.ZStream[FriendGroupRepository[RStream], Throwable, FriendGroup] =
-    stream.ZStream.environmentWithStream(_.get.findById(id))
+  def findById(id: Int): ZStream[FriendGroupRepository[RStream], Throwable, FriendGroup] =
+    ZStream.environmentWithStream(_.get.findById(id))
 
-  def createFriendGroup(friend: FriendGroup): stream.ZStream[FriendGroupRepository[RStream], Throwable, Int] =
-    stream.ZStream.environmentWithStream(_.get.createFriendGroup(friend))
+  def createFriendGroup(friend: FriendGroup): ZStream[FriendGroupRepository[RStream], Throwable, Int] =
+    ZStream.environmentWithStream(_.get.createFriendGroup(friend))
 
-  def findFriendGroupsById(uid: Int): stream.ZStream[FriendGroupRepository[RStream], Throwable, FriendGroup] =
-    stream.ZStream.environmentWithStream(_.get.findFriendGroupsById(uid))
+  def findFriendGroupsById(uid: Int): ZStream[FriendGroupRepository[RStream], Throwable, FriendGroup] =
+    ZStream.environmentWithStream(_.get.findFriendGroupsById(uid))
 
   def make(databaseName: String): ULayer[FriendGroupRepository[RStream]] = ZLayer.succeed(databaseName) >>> ZLayer(
     ZIO.service[String].map(TangibleFriendGroupRepository.apply)

@@ -19,6 +19,7 @@ import org.bitlap.zim.api.repository._
 import org.bitlap.zim.infrastructure._
 import org.bitlap.zim.infrastructure.repository.RStream
 import zio._
+import org.bitlap.zim.api.service.UserService
 
 /** 测试service的所有layer
  *
@@ -29,7 +30,7 @@ import zio._
  */
 trait TestServiceEnv {
 
-  lazy val infra = InfrastructureConfiguration()
+  lazy val infra: InfrastructureConfiguration = InfrastructureConfiguration()
 
   val friendGroupLayer: ULayer[FriendGroupRepository[RStream]] = ZLayer.succeed(infra.friendGroupRepository)
 
@@ -59,6 +60,6 @@ trait TestServiceEnv {
   ] = userLayer ++ groupLayer ++ receiveLayer ++ friendGroupLayer ++
     friendGroupMemberLayer ++ groupMemberLayer ++ addMessageLayer
 
-  lazy val userServiceLayer = repositoryLayer >>> UserServiceImpl.live
+  lazy val userServiceLayer: ZLayer[Any, Throwable, UserService[RStream]] = repositoryLayer >>> UserServiceImpl.live
 
 }

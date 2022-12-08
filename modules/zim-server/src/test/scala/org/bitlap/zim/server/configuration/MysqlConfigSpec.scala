@@ -18,12 +18,13 @@ package org.bitlap.zim.server.configuration
 
 import org.bitlap.zim.server.ZIOBaseSuit
 import scalikejdbc._
-import zio.test._
 import zio.test.Assertion._
+import zio.test._
+import zio.Scope
 
 object MysqlConfigSpec extends ZIOBaseSuit {
 
-  def spec = suite("MysqlConfigSpec")(
+  def spec: Spec[Environment with TestEnvironment with Scope, Any] = suite("MysqlConfigSpec")(
     test("test the database connect working state") {
       assert(isConnected)(equalTo(true))
     }

@@ -54,7 +54,7 @@ trait ZIOBaseSuit extends ZIOSpecDefault {
     )
   )
 
-  val mockAddMessage = AddMessage(
+  val mockAddMessage: AddMessage = AddMessage(
     id = 1,
     fromUid = 1,
     toUid = 2,
@@ -65,7 +65,7 @@ trait ZIOBaseSuit extends ZIOSpecDefault {
     time = DateHelper.getConstantTime
   )
 
-  val mockUser =
+  val mockUser: User =
     User(
       1,
       "zhangsan",
@@ -79,14 +79,14 @@ trait ZIOBaseSuit extends ZIOSpecDefault {
       "1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d"
     )
 
-  val mockGroupList = GroupList(
+  val mockGroupList: GroupList = GroupList(
     id = 1,
     groupName = "我的好友",
     avatar = "",
     createId = 1
   )
 
-  val mockReceive = model.Receive(
+  val mockReceive: model.Receive = model.Receive(
     toid = 1,
     mid = 2,
     username = null,
@@ -100,19 +100,19 @@ trait ZIOBaseSuit extends ZIOSpecDefault {
     status = 0
   )
 
-  val mockGroupMembers = model.GroupMember(
+  val mockGroupMembers: model.GroupMember = model.GroupMember(
     id = 1,
     gid = 1,
     uid = 1
   )
 
-  val mockFriendGroup = model.FriendGroup(
+  val mockFriendGroup: model.FriendGroup = model.FriendGroup(
     id = 1,
     uid = 1,
     groupName = "zim"
   )
 
-  val mockAddFriend = model.AddFriend(
+  val mockAddFriend: model.AddFriend = model.AddFriend(
     uid = 1,
     fgid = 2,
     id = 1

@@ -16,6 +16,10 @@
 
 package org.bitlap.zim.server.api
 
+import java.util.concurrent._
+
+import scala.concurrent.duration.FiniteDuration
+
 import akka.http.scaladsl.marshalling._
 import akka.http.scaladsl.model.MediaTypes._
 import akka.http.scaladsl.model._
@@ -33,9 +37,6 @@ import org.bitlap.zim.server.route._
 import org.bitlap.zim.server.service._
 import zio._
 
-import java.util.concurrent._
-import scala.concurrent.duration.FiniteDuration
-
 /** 测试akka-http route
  *
  *  @author
@@ -45,10 +46,10 @@ import scala.concurrent.duration.FiniteDuration
  */
 class ZimUserApiSpec extends TestService with ZimServiceConfiguration with ScalatestRouteTest {
 
-  implicit val timeout = RouteTestTimeout(FiniteDuration(15, TimeUnit.SECONDS).dilated)
+  implicit val timeout: RouteTestTimeout = RouteTestTimeout(FiniteDuration(15, TimeUnit.SECONDS).dilated)
 
-  val authorityHeaders = Seq(Cookie("Authorization", "ZHJlYW15bG9zdEBvdXRsb29rLmNvbToxMjM0NTY="))
-  val pwdUser          = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
+  val authorityHeaders: Seq[Cookie] = Seq(Cookie("Authorization", "ZHJlYW15bG9zdEBvdXRsb29rLmNvbToxMjM0NTY="))
+  val pwdUser: User                 = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
 
   val api: TaskLayer[ZimUserApi] =
     ZimUserApi.make(

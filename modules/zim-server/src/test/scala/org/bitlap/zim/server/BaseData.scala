@@ -53,7 +53,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Common
     )
   )
 
-  val mockAddMessage = AddMessage(
+  val mockAddMessage: AddMessage = AddMessage(
     id = 1,
     fromUid = 1,
     toUid = 2,
@@ -64,7 +64,7 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Common
     time = DateHelper.getConstantTime
   )
 
-  val mockUser =
+  val mockUser: User =
     User(
       1,
       "zhangsan",
@@ -78,14 +78,14 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Common
       "1ade893a1b1940a5bb8dc8447538a6a6a18ad80bcf84437a8cfb67213337202d"
     )
 
-  val mockGroupList = GroupList(
+  val mockGroupList: GroupList = GroupList(
     id = 1,
     groupName = "我的好友",
     avatar = "",
     createId = 1
   )
 
-  val mockReceive = model.Receive(
+  val mockReceive: Receive = model.Receive(
     toid = 1,
     mid = 2,
     username = null,

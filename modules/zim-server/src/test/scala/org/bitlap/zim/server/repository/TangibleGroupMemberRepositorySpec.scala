@@ -21,11 +21,11 @@ import org.bitlap.zim.server.ZIOBaseSuit
 import org.bitlap.zim.server.repository.TangibleGroupMemberRepositorySpec.TangibleGroupMemberRepositoryConfigurationSpec
 import scalikejdbc._
 import zio._
-import zio.test._
 import zio.test.Assertion._
+import zio.test._
 
 object TangibleGroupMemberRepositoryMainSpec extends TangibleGroupMemberRepositoryConfigurationSpec {
-  override def spec = suite("Tangible GroupMember Repository")(
+  override def spec: Spec[Any, Throwable] = suite("Tangible GroupMember Repository")(
     test("find by id") {
       for {
         _  <- TangibleGroupMemberRepository.addGroupMember(mockGroupMembers).runHead

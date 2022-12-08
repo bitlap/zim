@@ -17,6 +17,7 @@
 package org.bitlap.zim.server.service.ws
 import java.util.concurrent._
 
+import scala.collection.mutable
 import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
 
 import _root_.io.circe.syntax.EncoderOps
@@ -27,8 +28,8 @@ import akka.actor.{ActorRef, Status, typed}
 import akka.http.scaladsl.model.ws._
 import akka.stream._
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
-import org.bitlap.zim._
 import org.bitlap.zim.api.service.WsService
+import org.bitlap.zim.domain.model._
 import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.domain.{Message => IMMessage, SystemConstant}
 import org.bitlap.zim.server.actor.akka._
@@ -36,7 +37,7 @@ import org.bitlap.zim.server.configuration._
 import org.bitlap.zim.server.service._
 import org.reactivestreams._
 import zio._
-import zio.actors.akka.AkkaTypedActor
+import zio.actors.akka._
 
 /** @author
  *    梦境迷离
@@ -54,34 +55,34 @@ object WsService extends ZimServiceConfiguration {
   private val customDispatcher = DispatcherSelector.fromConfig("custom-dispatcher")
 
   // 非最佳实践，为了使用unsafeRun，不能把environment传递到最外层，这里直接provideLayer
-  def sendMessage(message: domain.Message): Task[Unit] =
+  def sendMessage(message: IMMessage): Task[Unit] =
     ZIO.serviceWithZIO[WsService[Task]](_.sendMessage(message)).provideLayer(wsLayer)
 
-  def agreeAddGroup(msg: domain.Message): Task[Unit] =
+  def agreeAddGroup(msg: IMMessage): Task[Unit] =
     ZIO.serviceWithZIO[WsService[Task]](_.agreeAddGroup(msg)).provideLayer(wsLayer)
 
-  def refuseAddGroup(msg: domain.Message): Task[Unit] =
+  def refuseAddGroup(msg: IMMessage): Task[Unit] =
     ZIO.serviceWithZIO[WsService[Task]](_.refuseAddGroup(msg)).provideLayer(wsLayer)
 
   def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean] =
     ZIO.serviceWithZIO[WsService[Task]](_.refuseAddFriend(messageBoxId, username, to)).provideLayer(wsLayer)
 
-  def deleteGroup(master: domain.model.User, groupname: String, gid: Int, uid: Int): Task[Unit] =
+  def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): Task[Unit] =
     ZIO.serviceWithZIO[WsService[Task]](_.deleteGroup(master, groupname, gid, uid)).provideLayer(wsLayer)
 
   def removeFriend(uId: Int, friendId: Int): Task[Unit] =
     ZIO.serviceWithZIO[WsService[Task]](_.removeFriend(uId, friendId)).provideLayer(wsLayer)
 
-  def addGroup(uId: Int, message: domain.Message): Task[Unit] =
+  def addGroup(uId: Int, message: IMMessage): Task[Unit] =
     ZIO.serviceWithZIO[WsService[Task]](_.addGroup(uId, message)).provideLayer(wsLayer)
 
-  def addFriend(uId: Int, message: domain.Message): Task[Unit] =
+  def addFriend(uId: Int, message: IMMessage): Task[Unit] =
     ZIO.serviceWithZIO[WsService[Task]](_.addFriend(uId, message)).provideLayer(wsLayer)
 
   def countUnHandMessage(uId: Int): Task[Map[String, String]] =
     ZIO.serviceWithZIO[WsService[Task]](_.countUnHandMessage(uId)).provideLayer(wsLayer)
 
-  def checkOnline(message: domain.Message): Task[Map[String, String]] =
+  def checkOnline(message: IMMessage): Task[Map[String, String]] =
     ZIO.serviceWithZIO[WsService[Task]](_.checkOnline(message)).provideLayer(wsLayer)
 
   def sendMessage(message: String, actorRef: ActorRef): Task[Unit] =
@@ -90,13 +91,13 @@ object WsService extends ZimServiceConfiguration {
   def changeOnline(uId: Int, status: String): Task[Boolean] =
     ZIO.serviceWithZIO[WsService[Task]](_.changeOnline(uId, status)).provideLayer(wsLayer)
 
-  def readOfflineMessage(message: domain.Message): Task[Unit] =
+  def readOfflineMessage(message: IMMessage): Task[Unit] =
     ZIO.serviceWithZIO[WsService[Task]](_.readOfflineMessage(message)).provideLayer(wsLayer)
 
   def getConnections: Task[Int] =
     ZIO.serviceWithZIO[WsService[Task]](_.getConnections).provideLayer(wsLayer)
 
-  private val actorRefs = new scala.collection.mutable.HashMap[String, akka.actor.typed.ActorRef[Command[_]]]
+  private val actorRefs = new mutable.HashMap[String, typed.ActorRef[Command[_]]]
 
   private def getActorRef(akkaSystem: ActorSystem[_], uid: Long): typed.ActorRef[Command[_]] =
     actorRefs.getOrElseUpdate(
@@ -130,7 +131,6 @@ object WsService extends ZimServiceConfiguration {
       ).asJson.noSpaces
       akkaSystem <- AkkaActorSystemConfiguration.make
       akkaTypedActor = getActorRef(akkaSystem, uId)
-      // FIXME: until zio-actors support zio 2.0
       _ <- ZIO.attempt(akkaTypedActor ! TransmitMessageProxy(uId, msg, None))
     } yield ()
 
