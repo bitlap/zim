@@ -16,18 +16,19 @@
 
 package org.bitlap.zim.server
 
+import java.io._
+import java.nio.charset.Charset
+
+import scala.collection.mutable
+import scala.io.Source
+import scala.util.Using
+
 import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
 import org.bitlap.zim.infrastructure.util._
 import sttp.model.Part
 import sttp.tapir.TapirFile
 import zio._
-
-import java.io._
-import java.nio.charset.Charset
-import scala.collection.mutable
-import scala.io.Source
-import scala.util.Using
 
 /** @author
  *    梦境迷离
@@ -113,6 +114,7 @@ object FileUtil {
     Using.resources(inputStream, new FileOutputStream(file)) { (in, out) =>
       val data = Iterator.continually(in.read()).takeWhile(_ != -1).map(_.toByte).toArray
       out.write(data)
+      out.flush()
     }
   }
 

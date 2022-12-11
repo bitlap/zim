@@ -147,7 +147,7 @@ package object ws {
     userService
       .findOffLineMessage(message.mine.id, 0)
       .runCount
-      .map { c =>
+      .flatMap { c =>
         {
           if (message.to.`type` == SystemConstant.GROUP_TYPE) {
             // 我所有的群中有未读的消息吗
