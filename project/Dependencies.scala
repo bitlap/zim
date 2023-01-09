@@ -21,7 +21,7 @@ object Dependencies {
     val mysql                         = "8.0.30"
     val `simple-java-mail`            = "7.5.0"
     val h2                            = "2.1.214"
-    val scalaTest                     = "3.2.14"
+    val scalaTest                     = "3.2.15"
     val `zio-actors`                  = "0.1.0"
     val refined                       = "0.10.1"
     val `zio-schema`                  = "0.3.1"
