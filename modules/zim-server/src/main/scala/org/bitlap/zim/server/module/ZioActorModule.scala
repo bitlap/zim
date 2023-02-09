@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.configuration
+package org.bitlap.zim.server.module
 
 import org.bitlap.zim.domain.ws._
 import org.bitlap.zim.server.actor._
 import zio._
 import zio.actors._
 
-/** zio actor configuration
+/** zio actor
  *
  *  @author
  *    梦境迷离
  *  @since 2021/12/25
  *  @version 2.0
  */
-object ZioActorSystemConfiguration {
+object ZioActorModule {
 
   /** create a zio actorSystem
    */

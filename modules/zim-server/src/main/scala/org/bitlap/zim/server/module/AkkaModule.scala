@@ -14,33 +14,38 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.configuration
-
-import akka.actor.typed.ActorSystem
-import org.bitlap.zim.infrastructure._
-import zio._
+package org.bitlap.zim.server.module
 
 import scala.concurrent.Future
 
-/** akka actor configuration
+import akka.actor.typed.ActorSystem
+import akka.stream.Materializer
+import org.bitlap.zim.infrastructure._
+import zio._
+
+/** akka actor
  *
  *  @author
  *    梦境迷离
  *  @since 2021/12/25
  *  @version 2.0
  */
-object AkkaActorSystemConfiguration {
+object AkkaModule {
 
   // we do not need guardian actor.
   private lazy val akkaActorSystem = ActorSystem.wrap(akka.actor.ActorSystem("akkaActorSystem"))
 
-  // akka http
+  // akka system
   lazy val live: TaskLayer[ActorSystem[_]] =
     InfrastructureConfiguration.layer >>> ZLayer.scoped {
       ZIO.acquireReleaseExit(ZIO.attempt(akkaActorSystem))((release, _) =>
         ZIO.fromFuture(implicit ec => Future(release.terminate())).ignore
       )
     }
+
+  lazy val materializerLive: URLayer[ActorSystem[_], Materializer] = ZLayer {
+    ZIO.service[ActorSystem[_]].map(implicit actor => Materializer.matFromSystem)
+  }
 
   def make: Task[ActorSystem[_]] = ZIO.succeed(akkaActorSystem)
 }

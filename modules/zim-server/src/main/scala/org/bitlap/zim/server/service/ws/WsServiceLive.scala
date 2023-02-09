@@ -31,7 +31,7 @@ import org.bitlap.zim.domain.ws.protocol.Protocol
 import org.bitlap.zim.domain.{Add, SystemConstant}
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util.LogUtil
-import org.bitlap.zim.server.configuration.ApplicationConfiguration
+import org.bitlap.zim.server.module.ServiceModule
 import org.bitlap.zim.server.service.RedisCache
 import zio.{Task, ZIO}
 
@@ -40,7 +40,7 @@ import zio.{Task, ZIO}
  *  @since 2022/3/5
  *  @version 2.0
  */
-final case class WsServiceLive(private val app: ApplicationConfiguration) extends WsService[Task] {
+final case class WsServiceLive(private val app: ServiceModule) extends WsService[Task] {
 
   private val userService: UserService[RStream] = app.userService
 

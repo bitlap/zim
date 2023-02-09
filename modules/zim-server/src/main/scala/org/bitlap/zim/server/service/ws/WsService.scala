@@ -33,7 +33,7 @@ import org.bitlap.zim.domain.model._
 import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.domain.{Message => IMMessage, SystemConstant}
 import org.bitlap.zim.server.actor.akka._
-import org.bitlap.zim.server.configuration._
+import org.bitlap.zim.server.module._
 import org.bitlap.zim.server.service._
 import org.reactivestreams._
 import zio._
@@ -43,11 +43,11 @@ import zio.actors.akka._
  *    梦境迷离
  *  @version 2.0, 2022/1/11
  */
-object WsService extends ZimServiceConfiguration {
+object WsService extends ZimModule {
 
   private lazy val wsLayer: ULayer[WsService[Task]] = ZLayer.make[WsService[Task]](
-    applicationConfigurationLayer,
-    ZLayer(ZIO.service[ApplicationConfiguration].map(WsServiceLive.apply))
+    serviceLayer,
+    ZLayer(ZIO.service[ServiceModule].map(WsServiceLive.apply))
   )
 
   final lazy val actorRefSessions: ConcurrentHashMap[Integer, ActorRef] = new ConcurrentHashMap[Integer, ActorRef]
@@ -129,7 +129,7 @@ object WsService extends ZimServiceConfiguration {
           if (status == SystemConstant.status.ONLINE) SystemConstant.status.ONLINE
           else SystemConstant.status.HIDE
       ).asJson.noSpaces
-      akkaSystem <- AkkaActorSystemConfiguration.make
+      akkaSystem <- AkkaModule.make
       akkaTypedActor = getActorRef(akkaSystem, uId)
       _ <- ZIO.attempt(akkaTypedActor ! TransmitMessageProxy(uId, msg, None))
     } yield ()
@@ -165,7 +165,7 @@ object WsService extends ZimServiceConfiguration {
       // if we use zio-actors in ws, because zio only support typed actor,
       // we need forward to akka typed actor for sending message to akka classic actor which return by akka http.
       // so we only use akka here
-      akkaSystem <- AkkaActorSystemConfiguration.make
+      akkaSystem <- AkkaModule.make
       akkaTypedActor = getActorRef(akkaSystem, uId)
       _         <- changeStatus(uId, SystemConstant.status.ONLINE)
       akkaActor <- AkkaTypedActor.make(akkaTypedActor)
@@ -191,7 +191,7 @@ object WsService extends ZimServiceConfiguration {
    *
    *  @param id
    */
-  def closeConnection(id: Int): Unit =
+  private def closeConnection(id: Int): Unit =
     wsConnections.asScala.get(id).foreach { ar =>
       wsConnections.remove(id)
       Unsafe.unsafe { implicit runtime =>
@@ -203,7 +203,7 @@ object WsService extends ZimServiceConfiguration {
       ar ! Status.Success(Done)
     }
 
-  def userStatusChangeByServer(uId: Int, status: String): ZIO[Any, Throwable, Unit] = ZIO.scoped {
-    ZioActorSystemConfiguration.userStatusActor.flatMap(actor => actor ! UserStatusChangeMessage(uId, status))
+  private def userStatusChangeByServer(uId: Int, status: String): ZIO[Any, Throwable, Unit] = ZIO.scoped {
+    ZioActorModule.userStatusActor.flatMap(actor => actor ! UserStatusChangeMessage(uId, status))
   }
 }

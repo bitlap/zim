@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.configuration
+package org.bitlap.zim.server.module
 
-import akka.actor.typed.ActorSystem
 import org.bitlap.zim.infrastructure._
 import zio._
 
@@ -27,16 +26,15 @@ import zio._
  *  @since 2021/12/25
  *  @version 2.0
  */
-trait ZimServiceConfiguration {
+trait ZimModule {
 
-  protected lazy val applicationConfigurationLayer: ULayer[ApplicationConfiguration] =
-    ZLayer.make[ApplicationConfiguration](InfrastructureConfiguration.layer, ApplicationConfiguration.live)
+  protected lazy val serviceLayer: ULayer[ServiceModule] =
+    ZLayer.make[ServiceModule](InfrastructureConfiguration.layer, ServiceModule.live)
 
-  protected lazy val apiConfigurationLayer: RLayer[ActorSystem[_], ApiConfiguration with AkkaHttpConfiguration] =
-    ZLayer.makeSome[ActorSystem[_], ApiConfiguration](
-      applicationConfigurationLayer,
-      AkkaHttpConfiguration.materializerLive,
-      ApiConfiguration.live
-    ) ++ AkkaHttpConfiguration.live
+  protected lazy val akkaHttpLayer: ULayer[AkkaHttpModule] =
+    ZLayer.make[AkkaHttpModule](
+      AkkaHttpModule.live,
+      serviceLayer
+    )
 
 }

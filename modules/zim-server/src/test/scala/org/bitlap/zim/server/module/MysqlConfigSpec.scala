@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.configuration
+package org.bitlap.zim.server.module
 
 import org.bitlap.zim.server.ZIOBaseSuit
 import scalikejdbc._

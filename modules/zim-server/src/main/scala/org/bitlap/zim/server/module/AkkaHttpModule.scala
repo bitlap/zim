@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.configuration
+package org.bitlap.zim.server.module
 
 import java.util.concurrent.atomic._
 
-import akka.actor.typed._
 import akka.http.scaladsl._
-import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.settings._
 import akka.stream._
 import akka.util._
@@ -30,28 +29,38 @@ import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.route._
 import zio._
 
-/** akka http configuration
+/** akka http
  *
  *  @author
  *    梦境迷离
  *  @since 2021/12/25
  *  @version 1.0
  */
-final class AkkaHttpConfiguration()(implicit actorSystem: ActorSystem[_]) {
+final class AkkaHttpModule(serviceModule: ServiceModule) {
 
-  private lazy val imServerSettings: ServerSettings = {
-    val defaultSettings = ServerSettings(actorSystem)
-    val pingCounter     = new AtomicInteger()
-    val imWebsocketSettings = defaultSettings.websocketSettings.withPeriodicKeepAliveData(() =>
-      ByteString(s"debug-ping-${pingCounter.incrementAndGet()}")
-    )
-    defaultSettings.withWebsocketSettings(imWebsocketSettings)
-  }
+  private lazy val system = AkkaModule.make
 
-  def httpServer(route: Route): Task[Unit] =
+  def httpServer(): Task[Unit] =
     for {
+      actorSystem <- system
+      imServerSettings <- {
+        val defaultSettings = ServerSettings(actorSystem)
+        val pingCounter     = new AtomicInteger()
+        val imWebsocketSettings = defaultSettings.websocketSettings.withPeriodicKeepAliveData(() =>
+          ByteString(s"debug-ping-${pingCounter.incrementAndGet()}")
+        )
+        ZIO.succeed(defaultSettings.withWebsocketSettings(imWebsocketSettings))
+      }
+      sys = actorSystem.classicSystem
+      m   = Materializer.matFromSystem(sys)
+      route <- ZIO.attempt(
+        ZimOpenApi.zimOpenApiInstance.route ~ ZimActuatorApi().route ~ ZimWsApi()(
+          m
+        ).route ~ ZimOpenApi.zimOpenApiInstance.wsDocsRoute ~ ZimUserApi(serviceModule.apiService)(m).route
+      )
       infoConf <- InfrastructureConfiguration.zimConfigurationProperties
       eventualBinding <- ZIO.attempt {
+        implicit val s = sys
         Http()
           .newServerAt(
             infoConf.interface,
@@ -84,8 +93,8 @@ final class AkkaHttpConfiguration()(implicit actorSystem: ActorSystem[_]) {
       _ <- server.join
     } yield ()
 
-  def scheduleTask(): Task[Unit] = ZIO.scoped {
-    val task = ZioActorSystemConfiguration.scheduleActor
+  private def scheduleTask(): Task[Unit] = ZIO.scoped {
+    val task = ZioActorModule.scheduleActor
       .flatMap(f => f ! OnlineUserMessage(Some("scheduleTask"))) repeat Schedule.secondOfMinute(0)
     task
       .foldZIO(
@@ -95,20 +104,15 @@ final class AkkaHttpConfiguration()(implicit actorSystem: ActorSystem[_]) {
   }
 }
 
-object AkkaHttpConfiguration {
+object AkkaHttpModule {
 
-  def apply(actorSystem: ActorSystem[_]): AkkaHttpConfiguration =
-    new AkkaHttpConfiguration()(actorSystem)
+  def apply(serviceModule: ServiceModule): AkkaHttpModule =
+    new AkkaHttpModule(serviceModule)
 
-  def httpServer(route: Route): RIO[AkkaHttpConfiguration, Unit] =
-    ZIO.environmentWithZIO(_.get.httpServer(route))
+  def httpServer(): RIO[AkkaHttpModule, Unit] =
+    ZIO.environmentWithZIO(_.get.httpServer())
 
-  lazy val materializerLive: URLayer[ActorSystem[_], Materializer] = ZLayer {
-    ZIO.service[ActorSystem[_]].map(implicit actor => Materializer.matFromSystem)
-  }
-
-  lazy val live: URLayer[ActorSystem[_], AkkaHttpConfiguration] = ZLayer {
-    ZIO.service[ActorSystem[_]].map(AkkaHttpConfiguration.apply)
-  }
+  lazy val live: URLayer[ServiceModule, AkkaHttpModule] =
+    ZLayer.fromFunction((am: ServiceModule) => AkkaHttpModule.apply(am))
 
 }
