@@ -24,7 +24,7 @@ import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
-import org.bitlap.zim.infrastructure._
+import org.bitlap.zim.infrastructure.properties.{MailConfigurationProperties, ZimConfigurationProperties}
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.service.ws.WsService
@@ -38,7 +38,7 @@ import zio.stream._
  *  @since 2021/12/25
  *  @version 1.0
  */
-private final class UserServiceImpl(
+final class UserServiceImpl(
   userRepository: UserRepository[RStream],
   groupRepository: GroupRepository[RStream],
   receiveRepository: ReceiveRepository[RStream],
@@ -313,49 +313,30 @@ private final class UserServiceImpl(
         id <- userRepository.saveUser(userCopy).runHead
         _  <- createFriendGroup(SystemConstant.DEFAULT_GROUP_NAME, id.map(_.toInt).getOrElse(0)).runHead
         // 通过infra层访问配置
-        zimConf  <- InfrastructureConfiguration.zimConfigurationProperties
-        mailConf <- InfrastructureConfiguration.mailConfigurationProperties
-        host = if (zimConf.port == 80) zimConf.webHost else s"${zimConf.webHost}:${zimConf.port}"
+        port    <- ZIO.serviceWith[ZimConfigurationProperties](_.port)
+        webHost <- ZIO.serviceWith[ZimConfigurationProperties](_.webHost)
+        host = if (port == 80) webHost else s"${webHost}:${port}"
         _ <- MailServiceImpl
           .sendHtmlMail(
             userCopy.email,
             SystemConstant.SUBJECT,
             s"${userCopy.username} 请确定这是你本人注册的账号, http://$host/user/active/" + activeCode
           )
-          .provideLayer(MailServiceImpl.make(mailConf))
+          .provide(MailServiceImpl.live, MailConfigurationProperties.live)
         _ <-
           LogUtil.info(
-            s"saveUser uid=$id, user=>$user, activeCode=>$activeCode, userCopy=>$userCopy, zimConf=>$zimConf, mailConf=>$mailConf"
+            s"saveUser uid=$id, user=>$user, activeCode=>$activeCode, userCopy=>$userCopy"
           )
       } yield true
-    }
+    }.provideLayer(ZimConfigurationProperties.live)
 
 }
 
 object UserServiceImpl {
 
-  def apply(
-    userRepository: UserRepository[RStream],
-    groupRepository: GroupRepository[RStream],
-    receiveRepository: ReceiveRepository[RStream],
-    friendGroupRepository: FriendGroupRepository[RStream],
-    friendGroupFriendRepository: FriendGroupFriendRepository[RStream],
-    groupMemberRepository: GroupMemberRepository[RStream],
-    addMessageRepository: AddMessageRepository[RStream]
-  ): UserService[RStream] =
-    new UserServiceImpl(
-      userRepository,
-      groupRepository,
-      receiveRepository,
-      friendGroupRepository,
-      friendGroupFriendRepository,
-      groupMemberRepository,
-      addMessageRepository
-    )
-
   // 测试用
   // TODO 构造注入的代价，以后少用
-  val live: URLayer[AddMessageRepository[RStream]
+  lazy val live: URLayer[AddMessageRepository[RStream]
     with GroupMemberRepository[RStream]
     with FriendGroupFriendRepository[RStream]
     with FriendGroupRepository[RStream]
@@ -371,7 +352,7 @@ object UserServiceImpl {
         friendGroupFriend <- ZIO.service[FriendGroupFriendRepository[RStream]]
         groupMember       <- ZIO.service[GroupMemberRepository[RStream]]
         addMessage        <- ZIO.service[AddMessageRepository[RStream]]
-      } yield UserServiceImpl(
+      } yield new UserServiceImpl(
         userRepository = user,
         groupRepository = group,
         receiveRepository = receive,

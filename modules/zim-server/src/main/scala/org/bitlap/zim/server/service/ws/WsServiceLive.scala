@@ -31,20 +31,20 @@ import org.bitlap.zim.domain.ws.protocol.Protocol
 import org.bitlap.zim.domain.{Add, SystemConstant}
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util.LogUtil
-import org.bitlap.zim.server.configuration.ApplicationConfiguration
+import org.bitlap.zim.server.module.ServiceModule
 import org.bitlap.zim.server.service.RedisCache
-import zio.{Task, ZIO}
+import zio.{Task, ZIO, ZLayer}
 
 /** @author
  *    梦境迷离
  *  @since 2022/3/5
  *  @version 2.0
  */
-final case class WsServiceLive(private val app: ApplicationConfiguration) extends WsService[Task] {
+final case class WsServiceLive(private val app: ServiceModule) {
 
   private val userService: UserService[RStream] = app.userService
 
-  override def sendMessage(message: domain.Message): Task[Unit] =
+  def sendMessage(message: domain.Message): Task[Unit] =
     message.synchronized {
       // 看起来有点怪 是否有必要存在？
       // 聊天类型，可能来自朋友或群组
@@ -55,14 +55,14 @@ final case class WsServiceLive(private val app: ApplicationConfiguration) extend
       }
     }
 
-  override def agreeAddGroup(msg: domain.Message): Task[Unit] = {
+  def agreeAddGroup(msg: domain.Message): Task[Unit] = {
     val agree = decode[RefuseOrAgreeMessage](msg.msg).getOrElse(null)
     agree.messageBoxId.synchronized {
       agreeAddGroupHandler(userService)(agree)
     }.unless(agree == null).map(_.getOrElse(()))
   }
 
-  override def refuseAddGroup(msg: domain.Message): Task[Unit] = {
+  def refuseAddGroup(msg: domain.Message): Task[Unit] = {
     val refuse = decode[RefuseOrAgreeMessage](msg.msg).getOrElse(null)
     refuse.messageBoxId.synchronized {
       val actor = WsService.actorRefSessions.get(refuse.toUid)
@@ -76,12 +76,12 @@ final case class WsServiceLive(private val app: ApplicationConfiguration) extend
     }.unless(refuse == null).map(_.getOrElse(()))
   }
 
-  override def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean] =
+  def refuseAddFriend(messageBoxId: Int, username: String, to: Int): Task[Boolean] =
     messageBoxId.synchronized {
       refuseAddFriendHandler(userService)(messageBoxId, username, to)
     }
 
-  override def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): Task[Unit] =
+  def deleteGroup(master: User, groupname: String, gid: Int, uid: Int): Task[Unit] =
     gid.synchronized {
       val actor: ActorRef = WsService.actorRefSessions.get(uid);
       {
@@ -96,7 +96,7 @@ final case class WsServiceLive(private val app: ApplicationConfiguration) extend
       }.when(actor != null && uid != master.id).map(_.getOrElse(()))
     }
 
-  override def removeFriend(uId: Int, friendId: Int): Task[Unit] =
+  def removeFriend(uId: Int, friendId: Int): Task[Unit] =
     uId.synchronized {
       // 对方是否在线，在线则处理，不在线则不处理
       val actor = WsService.actorRefSessions.get(friendId)
@@ -117,7 +117,7 @@ final case class WsServiceLive(private val app: ApplicationConfiguration) extend
         .map(_.getOrElse(()))
     }
 
-  override def addGroup(uId: Int, message: domain.Message): Task[Unit] =
+  def addGroup(uId: Int, message: domain.Message): Task[Unit] =
     uId.synchronized {
       val t = decode[Group](message.msg).getOrElse(null);
       {
@@ -145,7 +145,7 @@ final case class WsServiceLive(private val app: ApplicationConfiguration) extend
       }.map(_.getOrElse(()))
     }
 
-  override def addFriend(uId: Int, message: domain.Message): Task[Unit] =
+  def addFriend(uId: Int, message: domain.Message): Task[Unit] =
     uId.synchronized {
       val mine     = message.mine
       val actorRef = WsService.actorRefSessions.get(message.to.id)
@@ -167,7 +167,7 @@ final case class WsServiceLive(private val app: ApplicationConfiguration) extend
         ).when(actorRef != null).map(_.getOrElse(()))
     }
 
-  override def countUnHandMessage(uId: Int): Task[Map[String, String]] =
+  def countUnHandMessage(uId: Int): Task[Map[String, String]] =
     userService.countUnHandMessage(uId, Some(0)).runHead.map { count =>
       Map(
         "type"  -> Protocol.unHandMessage.stringify,
@@ -175,7 +175,7 @@ final case class WsServiceLive(private val app: ApplicationConfiguration) extend
       )
     }
 
-  override def checkOnline(message: domain.Message): Task[Map[String, String]] = {
+  def checkOnline(message: domain.Message): Task[Map[String, String]] = {
     val result = mutable.HashMap[String, String]()
     result.put("type", Protocol.checkOnline.stringify)
     RedisCache.getSets(SystemConstant.ONLINE_USER).map { uids =>
@@ -186,19 +186,23 @@ final case class WsServiceLive(private val app: ApplicationConfiguration) extend
     }
   }
 
-  override def sendMessage(message: String, actorRef: ActorRef): Task[Unit] =
+  def sendMessage(message: String, actorRef: ActorRef): Task[Unit] =
     LogUtil
       .info(s"sendMessage message=>$message actorRef=>${actorRef.path}")
       .as(actorRef ! message)
       .when(actorRef != null)
       .map(_.getOrElse(()))
 
-  override def changeOnline(uId: Int, status: String): Task[Boolean] =
+  def changeOnline(uId: Int, status: String): Task[Boolean] =
     changeOnlineHandler(userService)(uId, status)
 
-  override def readOfflineMessage(message: domain.Message): Task[Unit] =
+  def readOfflineMessage(message: domain.Message): Task[Unit] =
     readOfflineMessageHandler(userService)(message)
 
-  override def getConnections: Task[Int] = ZIO.attempt(WsService.actorRefSessions.size())
+  def getConnections: Task[Int] = ZIO.attempt(WsService.actorRefSessions.size())
 
+}
+object WsServiceLive {
+  lazy val live: ZLayer[ServiceModule, Nothing, WsServiceLive] =
+    ZLayer.fromFunction(WsServiceLive.apply(_))
 }

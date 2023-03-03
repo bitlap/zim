@@ -16,9 +16,9 @@
 
 package org.bitlap.zim.infrastructure.util
 
-import zio._
-
 import java.util.UUID
+
+import zio._
 
 /** UUID工具
  *

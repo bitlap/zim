@@ -17,22 +17,23 @@
 package org.bitlap.zim.server.api
 
 import java.util.concurrent._
-
 import scala.concurrent.duration.FiniteDuration
-
+import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.marshalling._
 import akka.http.scaladsl.model.MediaTypes._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.testkit._
+import akka.stream.Materializer
 import akka.testkit.TestDuration
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository._
-import org.bitlap.zim.server.configuration._
+import org.bitlap.zim.server.module._
+import org.bitlap.zim.server.route.ZimUserApi
 import org.bitlap.zim.server.route._
 import org.bitlap.zim.server.service._
 import zio._
@@ -44,7 +45,7 @@ import zio._
  *  @since 2022/2/11
  *  @version 1.0
  */
-class ZimUserApiSpec extends TestService with ZimServiceConfiguration with ScalatestRouteTest {
+class ZimUserApiSpec extends TestService with ScalatestRouteTest {
 
   implicit val timeout: RouteTestTimeout = RouteTestTimeout(FiniteDuration(15, TimeUnit.SECONDS).dilated)
 
@@ -52,9 +53,15 @@ class ZimUserApiSpec extends TestService with ZimServiceConfiguration with Scala
   val pwdUser: User                 = mockUser.copy(password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
 
   val api: TaskLayer[ZimUserApi] =
-    ZimUserApi.make(
+    ZLayer.make[ZimUserApi](
       ApiServiceImpl.make(userServiceLayer),
-      AkkaActorSystemConfiguration.live >>> AkkaHttpConfiguration.materializerLive
+      Scope.default,
+      ZimUserApi.live,
+      AkkaModule.live >>> ZLayer {
+        ZIO.service[ActorSystem[Nothing]].map { actor =>
+          Materializer.matFromSystem
+        }
+      }
     )
 
   def getRoute(zapi: ZimUserApi => Route): Route = {

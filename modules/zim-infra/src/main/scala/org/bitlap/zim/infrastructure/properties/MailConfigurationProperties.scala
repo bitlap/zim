@@ -55,7 +55,7 @@ object MailConfigurationProperties {
 
   private lazy val config: Config = ConfigFactory.load().getConfig("infrastructure.javamail")
 
-  def make: UIO[MailConfigurationProperties] = ZIO.succeed(MailConfigurationProperties(config))
+  lazy val live: ULayer[MailConfigurationProperties] = ZLayer.succeed(MailConfigurationProperties(config))
 
   def apply(config: Config = config): MailConfigurationProperties =
     MailConfigurationProperties(

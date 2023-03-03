@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.configuration
+package org.bitlap.zim.server.module
 
 import org.bitlap.zim.server.ZIOBaseSuit
 import scalikejdbc._
+import zio.Scope
 import zio.test.Assertion._
 import zio.test._
-import zio.Scope
 
 object MysqlConfigSpec extends ZIOBaseSuit {
 
