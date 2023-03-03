@@ -34,7 +34,6 @@ import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository._
 import org.bitlap.zim.server.module._
 import org.bitlap.zim.server.route.ZimUserApi
-import org.bitlap.zim.server.route._
 import org.bitlap.zim.server.service._
 import zio._
 
