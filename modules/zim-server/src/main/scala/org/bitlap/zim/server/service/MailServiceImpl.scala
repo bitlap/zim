@@ -16,14 +16,14 @@
 
 package org.bitlap.zim.server.service
 
+import scala.jdk.FutureConverters.CompletionStageOps
+
 import org.bitlap.zim.infrastructure.properties._
 import org.simplejavamail.api.mailer._
 import org.simplejavamail.config._
 import org.simplejavamail.email._
 import org.simplejavamail.mailer._
 import zio._
-
-import scala.jdk.FutureConverters.CompletionStageOps
 
 /** 邮件发送服务
  *
@@ -71,7 +71,4 @@ object MailServiceImpl {
   lazy val live: URLayer[MailConfigurationProperties, MailServiceImpl] = ZLayer(
     ZIO.service[MailConfigurationProperties].map(MailServiceImpl.apply)
   )
-
-  def make(mailConfigurationProperties: MailConfigurationProperties): ULayer[MailServiceImpl] =
-    ZLayer.succeed(mailConfigurationProperties) >>> MailServiceImpl.live
 }

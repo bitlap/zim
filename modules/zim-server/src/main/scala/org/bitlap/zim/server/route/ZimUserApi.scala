@@ -404,19 +404,11 @@ object ZimUserApi {
   def apply(app: ApiService[RStream, Task])(implicit materializer: Materializer): ZimUserApi =
     new ZimUserApi(app)
 
-  val route: URIO[ZimUserApi, Route] =
-    ZIO.environmentWith[ZimUserApi](_.get.route)
-
-  val live: ZLayer[ApiService[RStream, Task] with Materializer, Nothing, ZimUserApi] =
+  lazy val live: ZLayer[ApiService[RStream, Task] with Materializer, Nothing, ZimUserApi] =
     ZLayer(
       for {
         apiService   <- ZIO.service[ApiService[RStream, Task]]
         materializer <- ZIO.service[Materializer]
       } yield ZimUserApi(apiService)(materializer)
     )
-
-  def make(
-    apiApplicationLayer: TaskLayer[ApiService[RStream, Task]],
-    materializerLayer: TaskLayer[Materializer]
-  ): TaskLayer[ZimUserApi] = ZLayer.make[ZimUserApi](apiApplicationLayer, materializerLayer, live)
 }
