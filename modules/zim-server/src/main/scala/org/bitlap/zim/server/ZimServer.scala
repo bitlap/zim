@@ -16,7 +16,9 @@
 
 package org.bitlap.zim.server
 
-import org.bitlap.zim.server.configuration._
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
+import org.bitlap.zim.infrastructure.properties.ZimConfigurationProperties
+import org.bitlap.zim.server.module._
 import zio._
 
 /** main方法
@@ -25,9 +27,8 @@ import zio._
  *    梦境迷离
  *  @version 1.0,2021/12/24
  */
-object ZimServer extends ZimServiceConfiguration with zio.ZIOAppDefault {
+object ZimServer extends zio.ZIOAppDefault {
   override def run: ZIO[Any, Throwable, Unit] = (for {
-    routes <- ApiConfiguration.routes
     _ <- Console.printLine("""
                              |                                 ____
                              |                ,--,           ,'  , `.
@@ -41,7 +42,14 @@ object ZimServer extends ZimServiceConfiguration with zio.ZIOAppDefault {
                              | ./__;     .' |  | '.'||   | |`-'
                              | ;   |  .'    ;  :    ;|   ;/
                              | `---'        |  ,   / '---'""".stripMargin)
-    _ <- AkkaHttpConfiguration.httpServer(routes)
-  } yield ()).provideLayer(AkkaActorSystemConfiguration.live >>> apiConfigurationLayer)
-
+    _ <- ZIO.environmentWithZIO[AkkaHttpModule](_.get.httpServer())
+    _ <- ZIO.never
+  } yield ()).provide(
+    AkkaModule.live,
+    AkkaHttpModule.live,
+    ServiceModule.live,
+    InfrastructureConfiguration.live,
+    ZimConfigurationProperties.live,
+    Scope.default
+  )
 }

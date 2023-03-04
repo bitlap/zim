@@ -75,37 +75,7 @@ final class InfrastructureConfiguration {
 /** infrastructure dependencies
  */
 object InfrastructureConfiguration {
-  def apply(): InfrastructureConfiguration = new InfrastructureConfiguration()
-  // ==================================system configuration============================================
-  val mysqlConfigurationProperties: URIO[InfrastructureConfiguration, MysqlConfigurationProperties] =
-    ZIO.environmentWith(_.get.mysqlConfigurationProperties)
-
-  val zimConfigurationProperties: UIO[ZimConfigurationProperties] =
-    ZimConfigurationProperties.make
-
-  val mailConfigurationProperties: UIO[MailConfigurationProperties] =
-    MailConfigurationProperties.make
-
-  // ==================================数据库============================================
-  val userRepository: URIO[InfrastructureConfiguration, UserRepository[RStream]] =
-    ZIO.environmentWith(_.get.userRepository)
-
-  val groupRepository: URIO[InfrastructureConfiguration, GroupRepository[RStream]] =
-    ZIO.environmentWith(_.get.groupRepository)
-
-  val receiveRepository: URIO[InfrastructureConfiguration, ReceiveRepository[RStream]] =
-    ZIO.environmentWith(_.get.receiveRepository)
-
-  val friendGroupFriendRepository: URIO[InfrastructureConfiguration, FriendGroupFriendRepository[RStream]] =
-    ZIO.environmentWith(_.get.friendGroupFriendRepository)
-
-  val groupMemberRepository: URIO[InfrastructureConfiguration, GroupMemberRepository[RStream]] =
-    ZIO.environmentWith(_.get.groupMemberRepository)
-
-  val addMessageRepository: URIO[InfrastructureConfiguration, AddMessageRepository[RStream]] =
-    ZIO.environmentWith(_.get.addMessageRepository)
-
-  lazy val layer: ULayer[InfrastructureConfiguration] =
-    ZLayer.succeed[InfrastructureConfiguration](InfrastructureConfiguration())
+  lazy val live: ULayer[InfrastructureConfiguration] =
+    ZLayer.succeed[InfrastructureConfiguration](new InfrastructureConfiguration())
 
 }

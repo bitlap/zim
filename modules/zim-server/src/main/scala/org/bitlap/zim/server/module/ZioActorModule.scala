@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.configuration
+package org.bitlap.zim.server.module
 
 import org.bitlap.zim.domain.ws._
 import org.bitlap.zim.server.actor._
@@ -28,11 +28,7 @@ import zio.actors._
  *  @since 2021/12/25
  *  @version 2.0
  */
-object ZioActorSystemConfiguration {
-
-  /** create a zio actorSystem
-   */
-  private lazy val actorSystem: Task[ActorSystem] = ActorSystem("zioActorSystem")
+object ZioActorModule {
 
   lazy val scheduleActor: ZIO[Scope, Throwable, ActorRef[protocol.Command]] =
     live
@@ -44,6 +40,6 @@ object ZioActorSystemConfiguration {
         _.make(Constants.USER_STATUS_CHANGE_ACTOR, zio.actors.Supervisor.none, (), UserStatusStateful.stateful)
       )
 
-  lazy val live: ZIO[Scope, Throwable, ActorSystem] =
-    ZIO.acquireReleaseExit(actorSystem)((release, _) => release.shutdown.ignore)
+  private lazy val live: ZIO[Scope, Throwable, ActorSystem] =
+    ZIO.acquireReleaseExit(ActorSystem("zioActorSystem"))((release, _) => release.shutdown.ignore)
 }

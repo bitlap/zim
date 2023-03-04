@@ -95,7 +95,5 @@ final class ZimOpenApi {
 
 object ZimOpenApi {
 
-  lazy val zimOpenApiInstance: ZimOpenApi = ZimOpenApi()
-
-  def apply(): ZimOpenApi = new ZimOpenApi()
+  lazy val zimOpenApiInstance: ZimOpenApi = new ZimOpenApi()
 }

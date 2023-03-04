@@ -320,7 +320,7 @@ object ApiServiceImpl {
 
   private[service] val EMAIL_REGEX = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$".r
 
-  val live: URLayer[UserService[RStream], ApiService[RStream, Task]] = ZLayer(
+  lazy val live: URLayer[UserService[RStream], ApiService[RStream, Task]] = ZLayer(
     ZIO
       .service[UserService[RStream]]
       .map((p: UserService[RStream]) => new ApiServiceImpl(p))

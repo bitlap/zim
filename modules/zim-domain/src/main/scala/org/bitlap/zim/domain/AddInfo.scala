@@ -16,11 +16,11 @@
 
 package org.bitlap.zim.domain
 
+import java.time.ZonedDateTime
+
 import io.circe._
 import io.circe.generic.semiauto._
 import org.bitlap.zim.domain.model.User
-
-import java.time.ZonedDateTime
 
 /** 返回添加好友、群组消息
  *

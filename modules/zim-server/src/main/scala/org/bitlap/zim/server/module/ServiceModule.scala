@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.configuration
+package org.bitlap.zim.server.module
 
 import org.bitlap.zim.api.service._
 import org.bitlap.zim.infrastructure._
@@ -29,10 +29,9 @@ import zio._
  *  @since 2021/12/25
  *  @version 1.0
  */
-final class ApplicationConfiguration(infrastructureConfiguration: InfrastructureConfiguration) {
+final class ServiceModule(infrastructureConfiguration: InfrastructureConfiguration) {
 
-  // multi application
-  val userService: UserService[RStream] = UserServiceImpl(
+  val userService: UserService[RStream] = new UserServiceImpl(
     infrastructureConfiguration.userRepository,
     infrastructureConfiguration.groupRepository,
     infrastructureConfiguration.receiveRepository,
@@ -46,26 +45,10 @@ final class ApplicationConfiguration(infrastructureConfiguration: Infrastructure
 
 }
 
-/** application dependencies
- */
-object ApplicationConfiguration {
+object ServiceModule {
 
-  def apply(infrastructureConfiguration: InfrastructureConfiguration): ApplicationConfiguration =
-    new ApplicationConfiguration(infrastructureConfiguration)
+  def apply(infrastructureConfiguration: InfrastructureConfiguration): ServiceModule =
+    new ServiceModule(infrastructureConfiguration)
 
-  val userApplication: URIO[ApplicationConfiguration, UserService[RStream]] =
-    ZIO.environmentWith(_.get.userService)
-
-  val apiApplication: URIO[ApplicationConfiguration, ApiService[RStream, Task]] =
-    ZIO.environmentWith(_.get.apiService)
-
-  val live: URLayer[InfrastructureConfiguration, ApplicationConfiguration] = ZLayer {
-    for {
-      infra <- ZIO.service[InfrastructureConfiguration]
-    } yield ApplicationConfiguration(infra)
-  }
-
-  def make(infrastructureConfiguration: InfrastructureConfiguration): ULayer[ApplicationConfiguration] =
-    ZLayer.succeed(infrastructureConfiguration) >>> live
-
+  lazy val live: URLayer[InfrastructureConfiguration, ServiceModule] = ZLayer.fromFunction(ServiceModule.apply(_))
 }
