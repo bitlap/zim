@@ -355,16 +355,13 @@ object UserServiceImpl {
 
   // 测试用
   // TODO 构造注入的代价，以后少用
-  val live: URLayer[
-    AddMessageRepository[RStream]
-      with GroupMemberRepository[RStream]
-      with FriendGroupFriendRepository[RStream]
-      with FriendGroupRepository[RStream]
-      with ReceiveRepository[RStream]
-      with GroupRepository[RStream]
-      with UserRepository[RStream],
-    UserService[RStream]
-  ] =
+  val live: URLayer[AddMessageRepository[RStream]
+    with GroupMemberRepository[RStream]
+    with FriendGroupFriendRepository[RStream]
+    with FriendGroupRepository[RStream]
+    with ReceiveRepository[RStream]
+    with GroupRepository[RStream]
+    with UserRepository[RStream], UserService[RStream]] =
     ZLayer {
       for {
         user              <- ZIO.service[UserRepository[RStream]]
