@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.properties.{MailConfigurationProperties, ZimConfigurationProperties}
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util._
@@ -334,24 +335,16 @@ final class UserServiceImpl(
 
 object UserServiceImpl {
 
-  // 测试用
-  // TODO 构造注入的代价，以后少用
-  lazy val live: URLayer[AddMessageRepository[RStream]
-    with GroupMemberRepository[RStream]
-    with FriendGroupFriendRepository[RStream]
-    with FriendGroupRepository[RStream]
-    with ReceiveRepository[RStream]
-    with GroupRepository[RStream]
-    with UserRepository[RStream], UserService[RStream]] =
+  lazy val live: ZLayer[InfrastructureConfiguration, Nothing, UserService[RStream]] =
     ZLayer {
       for {
-        user              <- ZIO.service[UserRepository[RStream]]
-        group             <- ZIO.service[GroupRepository[RStream]]
-        receive           <- ZIO.service[ReceiveRepository[RStream]]
-        friendGroup       <- ZIO.service[FriendGroupRepository[RStream]]
-        friendGroupFriend <- ZIO.service[FriendGroupFriendRepository[RStream]]
-        groupMember       <- ZIO.service[GroupMemberRepository[RStream]]
-        addMessage        <- ZIO.service[AddMessageRepository[RStream]]
+        user              <- ZIO.service[InfrastructureConfiguration].map(_.userRepository)
+        group             <- ZIO.service[InfrastructureConfiguration].map(_.groupRepository)
+        receive           <- ZIO.service[InfrastructureConfiguration].map(_.receiveRepository)
+        friendGroup       <- ZIO.service[InfrastructureConfiguration].map(_.friendGroupRepository)
+        friendGroupFriend <- ZIO.service[InfrastructureConfiguration].map(_.friendGroupFriendRepository)
+        groupMember       <- ZIO.service[InfrastructureConfiguration].map(_.groupMemberRepository)
+        addMessage        <- ZIO.service[InfrastructureConfiguration].map(_.addMessageRepository)
       } yield new UserServiceImpl(
         userRepository = user,
         groupRepository = group,
@@ -362,5 +355,4 @@ object UserServiceImpl {
         addMessageRepository = addMessage
       )
     }
-
 }
