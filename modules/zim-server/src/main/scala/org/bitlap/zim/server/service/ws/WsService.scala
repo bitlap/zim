@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ import zio.actors.akka._
 object WsService {
 
   private lazy val wsLayer =
-    InfrastructureConfiguration.live >>> ServiceModule.live >>> WsServiceLive.live
+    InfrastructureConfiguration.live >>> UserServiceImpl.live >>> WsServiceLive.live
 
   final lazy val actorRefSessions: ConcurrentHashMap[Integer, ActorRef] = new ConcurrentHashMap[Integer, ActorRef]
 
