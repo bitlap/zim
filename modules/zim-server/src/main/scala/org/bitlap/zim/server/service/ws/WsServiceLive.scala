@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.bitlap.zim.domain.ws.protocol.Protocol
 import org.bitlap.zim.domain.{Add, SystemConstant}
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util.LogUtil
-import org.bitlap.zim.server.module.ServiceModule
 import org.bitlap.zim.server.service.RedisCache
 import zio.{Task, ZIO, ZLayer}
 
@@ -40,9 +39,7 @@ import zio.{Task, ZIO, ZLayer}
  *  @since 2022/3/5
  *  @version 2.0
  */
-final case class WsServiceLive(private val app: ServiceModule) {
-
-  private val userService: UserService[RStream] = app.userService
+final case class WsServiceLive(private val userService: UserService[RStream]) {
 
   def sendMessage(message: domain.Message): Task[Unit] =
     message.synchronized {
@@ -100,7 +97,7 @@ final case class WsServiceLive(private val app: ServiceModule) {
     uId.synchronized {
       // 对方是否在线，在线则处理，不在线则不处理
       val actor = WsService.actorRefSessions.get(friendId)
-      app.userService
+      userService
         .findUserById(uId)
         .runHead
         .flatMap { u =>
@@ -203,6 +200,6 @@ final case class WsServiceLive(private val app: ServiceModule) {
 
 }
 object WsServiceLive {
-  lazy val live: ZLayer[ServiceModule, Nothing, WsServiceLive] =
+  lazy val live: ZLayer[UserService[RStream], Nothing, WsServiceLive] =
     ZLayer.fromFunction(WsServiceLive.apply(_))
 }
