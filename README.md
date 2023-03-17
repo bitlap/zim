@@ -2,13 +2,14 @@
 
 [![Build](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml/badge.svg?branch=master)](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml)
 [![codecov](https://codecov.io/gh/bitlap/zim/branch/master/graph/badge.svg?token=V95ZMWUUCE)](https://codecov.io/gh/bitlap/zim)
-![Docker Image Version (latest semver)](https://img.shields.io/docker/v/liguobin/zim)
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/liguobin/zim)](https://hub.docker.com/r/liguobin/zim/tags)
 
 [在线预览地址](http://im.dreamylost.cn:8989) 
 > 账号dreamylost@outlook.com 密码123456（注册有时不可用）
+
 > 服务器到期时间（为爱发电）：2024-11-28 19:55:29	
 
-[可直接运行的ZIM Docker镜像，内含redis和mysql，但无法使用注册功能，账号在`./init.sql`，密码都是`123456`](https://hub.docker.com/r/liguobin/zim/tags)
+> Docker镜像可直接运行，内含redis和mysql，但无法使用注册功能，账号在`./init.sql`，密码都是`123456`
 
 **如果感兴趣可以watch一下，如果对你有帮助可以点个star，欢迎贡献。**
 
