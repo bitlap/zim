@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.bitlap.zim.server
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.properties.ZimConfigurationProperties
 import org.bitlap.zim.server.module._
+import org.bitlap.zim.server.service.ApiServiceImpl
 import zio._
 
 /** main方法
@@ -47,9 +48,9 @@ object ZimServer extends zio.ZIOAppDefault {
   } yield ()).provide(
     AkkaModule.live,
     AkkaHttpModule.live,
-    ServiceModule.live,
     InfrastructureConfiguration.live,
     ZimConfigurationProperties.live,
+    ApiServiceImpl.live,
     Scope.default
   )
 }

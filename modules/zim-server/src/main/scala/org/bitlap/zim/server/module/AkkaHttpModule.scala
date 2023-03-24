@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,10 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.settings._
 import akka.stream._
 import akka.util._
+import org.bitlap.zim.api.service.ApiService
 import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.infrastructure.properties.ZimConfigurationProperties
+import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.route._
 import zio._
@@ -37,9 +39,10 @@ import zio._
  *  @since 2021/12/25
  *  @version 1.0
  */
-final class AkkaHttpModule(serviceModule: ServiceModule) {
+final class AkkaHttpModule {
 
-  def httpServer(): ZIO[ActorSystem[Nothing] with ZimConfigurationProperties with Scope, Throwable, Unit] =
+  def httpServer()
+    : ZIO[ActorSystem[Nothing] with ApiService[RStream, Task] with ZimConfigurationProperties with Scope, Throwable, Unit] =
     for {
       actorSystem <- ZIO.service[ActorSystem[Nothing]]
       imServerSettings <- {
@@ -50,12 +53,13 @@ final class AkkaHttpModule(serviceModule: ServiceModule) {
         )
         ZIO.succeed(defaultSettings.withWebsocketSettings(imWebsocketSettings))
       }
+      apiService <- ZIO.service[ApiService[RStream, Task]]
       sys = actorSystem.classicSystem
       m   = Materializer.matFromSystem(sys)
       route <- ZIO.attempt(
         ZimOpenApi.zimOpenApiInstance.route ~ ZimActuatorApi().route ~ new ZimWsApi()(
           m
-        ).route ~ ZimOpenApi.zimOpenApiInstance.wsDocsRoute ~ ZimUserApi(serviceModule.apiService)(m).route
+        ).route ~ ZimOpenApi.zimOpenApiInstance.wsDocsRoute ~ ZimUserApi(apiService)(m).route
       )
       interface <- ZIO.serviceWith[ZimConfigurationProperties](_.interface)
       port      <- ZIO.serviceWith[ZimConfigurationProperties](_.port)
@@ -107,6 +111,6 @@ final class AkkaHttpModule(serviceModule: ServiceModule) {
 
 object AkkaHttpModule {
 
-  lazy val live: URLayer[ServiceModule, AkkaHttpModule] =
-    ZLayer.fromFunction((am: ServiceModule) => new AkkaHttpModule(am))
+  lazy val live: ULayer[AkkaHttpModule] =
+    ZLayer.succeed(new AkkaHttpModule())
 }

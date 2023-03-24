@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model._
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.properties.{MailConfigurationProperties, ZimConfigurationProperties}
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util._
@@ -334,9 +335,21 @@ final class UserServiceImpl(
 
 object UserServiceImpl {
 
+  lazy val live: ZLayer[InfrastructureConfiguration, Throwable, UserService[RStream]] =
+    ZLayer.fromFunction((infrastructureConfiguration: InfrastructureConfiguration) =>
+      new UserServiceImpl(
+        infrastructureConfiguration.userRepository,
+        infrastructureConfiguration.groupRepository,
+        infrastructureConfiguration.receiveRepository,
+        infrastructureConfiguration.friendGroupRepository,
+        infrastructureConfiguration.friendGroupFriendRepository,
+        infrastructureConfiguration.groupMemberRepository,
+        infrastructureConfiguration.addMessageRepository
+      )
+    )
   // 测试用
   // TODO 构造注入的代价，以后少用
-  lazy val live: URLayer[AddMessageRepository[RStream]
+  lazy val testLive: URLayer[AddMessageRepository[RStream]
     with GroupMemberRepository[RStream]
     with FriendGroupFriendRepository[RStream]
     with FriendGroupRepository[RStream]
