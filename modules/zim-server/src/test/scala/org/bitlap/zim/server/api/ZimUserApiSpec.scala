@@ -31,6 +31,7 @@ import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model._
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.repository._
 import org.bitlap.zim.server.module._
 import org.bitlap.zim.server.route.ZimUserApi
@@ -53,7 +54,8 @@ class ZimUserApiSpec extends TestService with ScalatestRouteTest {
 
   val api: TaskLayer[ZimUserApi] =
     ZLayer.make[ZimUserApi](
-      ApiServiceImpl.make(userServiceLayer),
+      InfrastructureConfiguration.live,
+      ApiServiceImpl.live,
       Scope.default,
       ZimUserApi.live,
       AkkaModule.live >>> ZLayer {

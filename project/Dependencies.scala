@@ -8,9 +8,9 @@ import sbt._
 object Dependencies {
 
   object Version {
-    val zio                           = "2.0.9"
+    val zio                           = "2.0.10"
     val `zio-logging`                 = "2.1.7"
-    val tapir                         = "1.2.3"
+    val tapir                         = "1.2.11"
     val `akka-http`                   = "10.2.10"
     val akka                          = "2.6.20"
     val circe                         = "0.14.3"
@@ -25,7 +25,7 @@ object Dependencies {
     val `zio-actors`                  = "0.1.0"
     val refined                       = "0.10.1"
     val `zio-schema`                  = "0.3.1"
-    val `sttp-apispec`                = "0.3.1"
+    val `sttp-apispec`                = "0.3.2"
     val redis4cats                    = "1.3.0"
     val `zio-interop-cats`            = "23.0.0.0"
     val `log4cats-slf4j`              = "2.5.0"

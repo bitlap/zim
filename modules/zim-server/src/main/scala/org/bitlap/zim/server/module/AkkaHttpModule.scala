@@ -41,13 +41,9 @@ import zio._
  */
 final class AkkaHttpModule {
 
-  def httpServer(): ZIO[
-    Scope with ZimConfigurationProperties with ActorSystem[Nothing] with ApiService[RStream, Task],
-    Throwable,
-    Unit
-  ] =
+  def httpServer()
+    : ZIO[ActorSystem[Nothing] with ApiService[RStream, Task] with ZimConfigurationProperties with Scope, Throwable, Unit] =
     for {
-      apiService  <- ZIO.service[ApiService[RStream, Task]]
       actorSystem <- ZIO.service[ActorSystem[Nothing]]
       imServerSettings <- {
         val defaultSettings = ServerSettings(actorSystem)
@@ -57,6 +53,7 @@ final class AkkaHttpModule {
         )
         ZIO.succeed(defaultSettings.withWebsocketSettings(imWebsocketSettings))
       }
+      apiService <- ZIO.service[ApiService[RStream, Task]]
       sys = actorSystem.classicSystem
       m   = Materializer.matFromSystem(sys)
       route <- ZIO.attempt(

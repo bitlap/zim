@@ -19,7 +19,7 @@ package org.bitlap.zim.server
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.properties.ZimConfigurationProperties
 import org.bitlap.zim.server.module._
-import org.bitlap.zim.server.service.{ApiServiceImpl, UserServiceImpl}
+import org.bitlap.zim.server.service.ApiServiceImpl
 import zio._
 
 /** main方法
@@ -51,7 +51,6 @@ object ZimServer extends zio.ZIOAppDefault {
     InfrastructureConfiguration.live,
     ZimConfigurationProperties.live,
     ApiServiceImpl.live,
-    UserServiceImpl.live,
     Scope.default
   )
 }
