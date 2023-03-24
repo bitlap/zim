@@ -48,18 +48,7 @@ trait TestServiceEnv {
   val userLayer: ZLayer[Any, Throwable, UserRepository[RStream]] =
     ZLayer.succeed(infra.userRepository)
 
-  val repositoryLayer: Layer[
-    Throwable,
-    UserRepository[RStream]
-      with GroupRepository[RStream]
-      with ReceiveRepository[RStream]
-      with FriendGroupRepository[RStream]
-      with FriendGroupFriendRepository[RStream]
-      with GroupMemberRepository[RStream]
-      with AddMessageRepository[RStream]
-  ] = userLayer ++ groupLayer ++ receiveLayer ++ friendGroupLayer ++
-    friendGroupMemberLayer ++ groupMemberLayer ++ addMessageLayer
-
-  lazy val userServiceLayer: ZLayer[Any, Throwable, UserService[RStream]] = repositoryLayer >>> UserServiceImpl.testLive
+  lazy val userServiceLayer: ZLayer[Any, Throwable, UserService[RStream]] =
+    ZLayer.succeed(infra) >>> UserServiceImpl.live
 
 }
