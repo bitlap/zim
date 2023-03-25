@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -404,19 +404,11 @@ object ZimUserApi {
   def apply(app: ApiService[RStream, Task])(implicit materializer: Materializer): ZimUserApi =
     new ZimUserApi(app)
 
-  val route: URIO[ZimUserApi, Route] =
-    ZIO.environmentWith[ZimUserApi](_.get.route)
-
-  val live: ZLayer[ApiService[RStream, Task] with Materializer, Nothing, ZimUserApi] =
+  lazy val live: ZLayer[ApiService[RStream, Task] with Materializer, Nothing, ZimUserApi] =
     ZLayer(
       for {
         apiService   <- ZIO.service[ApiService[RStream, Task]]
         materializer <- ZIO.service[Materializer]
       } yield ZimUserApi(apiService)(materializer)
     )
-
-  def make(
-    apiApplicationLayer: TaskLayer[ApiService[RStream, Task]],
-    materializerLayer: TaskLayer[Materializer]
-  ): TaskLayer[ZimUserApi] = ZLayer.make[ZimUserApi](apiApplicationLayer, materializerLayer, live)
 }

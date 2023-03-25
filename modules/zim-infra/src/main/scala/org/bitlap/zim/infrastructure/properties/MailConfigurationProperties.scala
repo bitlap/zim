@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ object MailConfigurationProperties {
 
   private lazy val config: Config = ConfigFactory.load().getConfig("infrastructure.javamail")
 
-  def make: UIO[MailConfigurationProperties] = ZIO.succeed(MailConfigurationProperties(config))
+  lazy val live: ULayer[MailConfigurationProperties] = ZLayer.succeed(MailConfigurationProperties(config))
 
   def apply(config: Config = config): MailConfigurationProperties =
     MailConfigurationProperties(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.configuration
+package org.bitlap.zim.server.module
 
 import org.bitlap.zim.server.ZIOBaseSuit
 import scalikejdbc._
+import zio.Scope
 import zio.test.Assertion._
 import zio.test._
-import zio.Scope
 
 object MysqlConfigSpec extends ZIOBaseSuit {
 

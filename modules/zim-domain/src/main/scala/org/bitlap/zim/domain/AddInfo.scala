@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package org.bitlap.zim.domain
 
+import java.time.ZonedDateTime
+
 import io.circe._
 import io.circe.generic.semiauto._
 import org.bitlap.zim.domain.model.User
-
-import java.time.ZonedDateTime
 
 /** 返回添加好友、群组消息
  *
