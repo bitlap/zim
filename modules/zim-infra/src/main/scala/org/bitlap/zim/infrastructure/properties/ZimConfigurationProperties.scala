@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ object ZimConfigurationProperties {
 
   lazy val config: Config = ConfigFactory.load().getConfig("application")
 
-  def make: UIO[ZimConfigurationProperties] = ZIO.succeed(ZimConfigurationProperties(config))
+  lazy val live: ULayer[ZimConfigurationProperties] = ZLayer.succeed(ZimConfigurationProperties(config))
 
   def apply(config: Config = config): ZimConfigurationProperties =
     ZimConfigurationProperties(

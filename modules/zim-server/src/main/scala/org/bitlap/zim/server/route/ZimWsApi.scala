@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.bitlap.zim.server.route
 
+import scala.concurrent._
+
 import akka._
 import akka.http.scaladsl.model.ws._
 import akka.http.scaladsl.server._
@@ -25,8 +27,6 @@ import org.bitlap.zim.api._
 import org.bitlap.zim.server.service.ws._
 import sttp.tapir.server.akkahttp._
 import zio._
-
-import scala.concurrent._
 
 /** @author
  *    梦境迷离
@@ -46,11 +46,5 @@ final class ZimWsApi()(implicit materializer: Materializer) {
       catch { case _: Exception => Left(()) }
     Future.successful(ret)
   })
-
-}
-
-object ZimWsApi {
-
-  def apply()(implicit materializer: Materializer): ZimWsApi = new ZimWsApi()
 
 }

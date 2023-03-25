@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import sttp.tapir.swagger._
  *  @author
  *    梦境迷离
  *  @since 2021/12/25
- *  @version 2.0
+ *  @version 2.1
  */
 final class ZimOpenApi {
 
@@ -47,15 +47,38 @@ final class ZimOpenApi {
   private lazy val wsContextPath           = "wsDocs"
   lazy val openapi: String                 = s"${ApiEndpoint.apiResource}/${ApiEndpoint.apiVersion}/$contextPath"
 
-  // 需要鉴权的不支持
-  private lazy val endpoints: Seq[AnyEndpoint] = Seq(
-    ActuatorEndpoint.healthEndpoint,
-    ZimUserEndpoint.userGetOneEndpoint,
-    ZimUserEndpoint.existEmailEndpoint,
-    ZimUserEndpoint.loginEndpoint,
-    ZimUserEndpoint.registerEndpoint,
-    ZimUserEndpoint.activeUserEndpoint
-  )
+  private lazy val endpoints: Seq[AnyEndpoint] =
+    Seq(
+      ActuatorEndpoint.healthEndpoint,
+      ZimUserEndpoint.userGetOneEndpoint,
+      ZimUserEndpoint.existEmailEndpoint,
+      ZimUserEndpoint.loginEndpoint,
+      ZimUserEndpoint.registerEndpoint,
+      ZimUserEndpoint.activeUserEndpoint
+    ) ++ Seq(
+      ZimUserEndpoint.agreeFriendEndpoint,
+      ZimUserEndpoint.changeGroupEndpoint,
+      ZimUserEndpoint.chatLogEndpoint,
+      ZimUserEndpoint.createGroupEndpoint,
+      ZimUserEndpoint.createUserGroupEndpoint,
+      ZimUserEndpoint.findAddInfoEndpoint,
+      ZimUserEndpoint.findGroupsEndpoint,
+      ZimUserEndpoint.findMyGroupsEndpoint,
+      ZimUserEndpoint.findUserEndpoint,
+      ZimUserEndpoint.findUsersEndpoint,
+      ZimUserEndpoint.getMembersEndpoint,
+      ZimUserEndpoint.getOffLineMessageEndpoint,
+      ZimUserEndpoint.initEndpoint,
+      ZimUserEndpoint.leaveOutGroupEndpoint,
+      ZimUserEndpoint.refuseFriendEndpoint,
+      ZimUserEndpoint.removeFriendEndpoint,
+      ZimUserEndpoint.updateAvatarEndpoint,
+      ZimUserEndpoint.updateInfoEndpoint,
+      ZimUserEndpoint.updateSignEndpoint,
+      ZimUserEndpoint.uploadFileEndpoint,
+      ZimUserEndpoint.uploadImageEndpoint,
+      ZimUserEndpoint.uploadGroupAvatarEndpoint
+    ).map(_.endpoint)
 
   private lazy val openApiYaml: String = OpenAPIDocsInterpreter()
     .toOpenAPI(
@@ -95,7 +118,5 @@ final class ZimOpenApi {
 
 object ZimOpenApi {
 
-  lazy val zimOpenApiInstance: ZimOpenApi = ZimOpenApi()
-
-  def apply(): ZimOpenApi = new ZimOpenApi()
+  lazy val zimOpenApiInstance: ZimOpenApi = new ZimOpenApi()
 }

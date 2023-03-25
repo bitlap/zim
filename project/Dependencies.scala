@@ -8,9 +8,9 @@ import sbt._
 object Dependencies {
 
   object Version {
-    val zio                           = "2.0.9"
+    val zio                           = "2.0.10"
     val `zio-logging`                 = "2.1.7"
-    val tapir                         = "1.2.3"
+    val tapir                         = "1.2.11"
     val `akka-http`                   = "10.2.10"
     val akka                          = "2.6.20"
     val circe                         = "0.14.3"
@@ -18,16 +18,16 @@ object Dependencies {
     val logback                       = "1.4.5"
     val config                        = "1.4.1"
     val `zio-interop-reactiveStreams` = "2.0.1"
-    val mysql                         = "8.0.30"
+    val mysql                         = "8.0.32"
     val `simple-java-mail`            = "7.5.0"
     val h2                            = "2.1.214"
-    val scalaTest                     = "3.2.14"
+    val scalaTest                     = "3.2.15"
     val `zio-actors`                  = "0.1.0"
-    val refined                       = "0.10.1"
+    val refined                       = "0.10.3"
     val `zio-schema`                  = "0.3.1"
-    val `sttp-apispec`                = "0.3.1"
+    val `sttp-apispec`                = "0.3.2"
     val redis4cats                    = "1.3.0"
-    val `zio-interop-cats`            = "23.0.0.0"
+    val `zio-interop-cats`            = "23.0.0.2"
     val `log4cats-slf4j`              = "2.5.0"
     val `zio-redis`                   = "0.0.0+453-a4649d3b-SNAPSHOT" // Experimental
     val `zio-crypto`                  = "0.0.0+102-23de4b47-SNAPSHOT" // Experimental
