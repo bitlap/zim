@@ -17,9 +17,7 @@
 package org.bitlap.zim.server.service.ws
 
 import java.time.ZonedDateTime
-
 import scala.collection.mutable
-
 import akka.actor.ActorRef
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps

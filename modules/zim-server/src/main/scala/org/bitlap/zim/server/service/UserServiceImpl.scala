@@ -335,16 +335,36 @@ final class UserServiceImpl(
 
 object UserServiceImpl {
 
-  lazy val live: ZLayer[InfrastructureConfiguration, Nothing, UserService[RStream]] =
+  lazy val live: ZLayer[InfrastructureConfiguration, Throwable, UserService[RStream]] =
+    ZLayer.fromFunction((infrastructureConfiguration: InfrastructureConfiguration) =>
+      new UserServiceImpl(
+        infrastructureConfiguration.userRepository,
+        infrastructureConfiguration.groupRepository,
+        infrastructureConfiguration.receiveRepository,
+        infrastructureConfiguration.friendGroupRepository,
+        infrastructureConfiguration.friendGroupFriendRepository,
+        infrastructureConfiguration.groupMemberRepository,
+        infrastructureConfiguration.addMessageRepository
+      )
+    )
+  // 测试用
+  // TODO 构造注入的代价，以后少用
+  lazy val testLive: URLayer[AddMessageRepository[RStream]
+    with GroupMemberRepository[RStream]
+    with FriendGroupFriendRepository[RStream]
+    with FriendGroupRepository[RStream]
+    with ReceiveRepository[RStream]
+    with GroupRepository[RStream]
+    with UserRepository[RStream], UserService[RStream]] =
     ZLayer {
       for {
-        user              <- ZIO.service[InfrastructureConfiguration].map(_.userRepository)
-        group             <- ZIO.service[InfrastructureConfiguration].map(_.groupRepository)
-        receive           <- ZIO.service[InfrastructureConfiguration].map(_.receiveRepository)
-        friendGroup       <- ZIO.service[InfrastructureConfiguration].map(_.friendGroupRepository)
-        friendGroupFriend <- ZIO.service[InfrastructureConfiguration].map(_.friendGroupFriendRepository)
-        groupMember       <- ZIO.service[InfrastructureConfiguration].map(_.groupMemberRepository)
-        addMessage        <- ZIO.service[InfrastructureConfiguration].map(_.addMessageRepository)
+        user              <- ZIO.service[UserRepository[RStream]]
+        group             <- ZIO.service[GroupRepository[RStream]]
+        receive           <- ZIO.service[ReceiveRepository[RStream]]
+        friendGroup       <- ZIO.service[FriendGroupRepository[RStream]]
+        friendGroupFriend <- ZIO.service[FriendGroupFriendRepository[RStream]]
+        groupMember       <- ZIO.service[GroupMemberRepository[RStream]]
+        addMessage        <- ZIO.service[AddMessageRepository[RStream]]
       } yield new UserServiceImpl(
         userRepository = user,
         groupRepository = group,
@@ -355,4 +375,5 @@ object UserServiceImpl {
         addMessageRepository = addMessage
       )
     }
+
 }
