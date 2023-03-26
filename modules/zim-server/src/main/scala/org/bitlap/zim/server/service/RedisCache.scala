@@ -31,27 +31,21 @@ object RedisCache {
   def getSets(k: String)(implicit cacheType: CacheType): Task[List[String]] = cacheType match {
     case ZioCache => ZIO.serviceWithZIO[ZRedis](_.getSets(k)).provideLayer(ZioRedisConfiguration.zimRedisLayer)
     case CatsCache =>
-      ZIO.runtime[Any].flatMap { implicit runtime =>
-        LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.getSets(k))
-      }
+      LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.getSets(k))
   }
 
   def removeSetValue(k: String, m: String)(implicit cacheType: CacheType): Task[Long] = cacheType match {
     case ZioCache =>
       ZIO.serviceWithZIO[ZRedis](_.removeSetValue(k, m)).provideLayer(ZioRedisConfiguration.zimRedisLayer)
     case CatsCache =>
-      ZIO.runtime[Any].flatMap { implicit runtime =>
-        LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.removeSetValue(k, m))
-      }
+      LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.removeSetValue(k, m))
   }
 
   def setSet(k: String, m: String)(implicit cacheType: CacheType): Task[Long] =
     cacheType match {
       case ZioCache => ZIO.serviceWithZIO[ZRedis](_.setSet(k, m)).provideLayer(ZioRedisConfiguration.zimRedisLayer)
       case CatsCache =>
-        ZIO.runtime[Any].flatMap { implicit runtime =>
-          LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.setSet(k, m))
-        }
+        LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.setSet(k, m))
     }
 
   def set[T: Schema](key: String, value: T)(implicit
@@ -62,9 +56,7 @@ object RedisCache {
       case ZioCache =>
         ZIO.serviceWithZIO[ZRedis](_.set[T](key, value)).provideLayer(ZioRedisConfiguration.zimRedisLayer)
       case CatsCache =>
-        ZIO.runtime[Any].flatMap { implicit runtime =>
-          LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.set(key, value))
-        }
+        LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.set(key, value))
     }
 
   // zio-redis没有真正使用Schema，因为存在cats redis
@@ -75,26 +67,20 @@ object RedisCache {
     case ZioCache =>
       ZIO.serviceWithZIO[ZRedis](_.get[T](key)).provideLayer(ZioRedisConfiguration.zimRedisLayer)
     case CatsCache =>
-      ZIO.runtime[Any].flatMap { implicit runtime =>
-        LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.get(key))
-      }
+      LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.get(key))
   }
 
   def exists(key: String)(implicit cacheType: CacheType): Task[Boolean] = cacheType match {
     case ZioCache =>
       ZIO.serviceWithZIO[ZRedis](_.exists(key)).provideLayer(ZioRedisConfiguration.zimRedisLayer)
     case CatsCache =>
-      ZIO.runtime[Any].flatMap { implicit runtime =>
-        LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.exists(key))
-      }
+      LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.exists(key))
   }
 
   def del(key: String)(implicit cacheType: CacheType): Task[Boolean] = cacheType match {
     case ZioCache =>
       ZIO.serviceWithZIO[ZRedis](_.del(key)).provideLayer(ZioRedisConfiguration.zimRedisLayer)
     case CatsCache =>
-      ZIO.runtime[Any].flatMap { implicit runtime =>
-        LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.del(key))
-      }
+      LiftIO.liftK[Task].apply(CatsRedisConfiguration.instance.del(key))
   }
 }
