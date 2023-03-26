@@ -105,7 +105,7 @@ lazy val `zim-domain` = (project in file("modules/zim-domain"))
   .enablePlugins(GitVersioning, BuildInfoPlugin, ScalafmtPlugin, HeaderPlugin)
 
 lazy val `zim-cache-api` = (project in file("modules/zim-cache-api"))
-  .settings(libraryDependencies ++= Dependencies.cacheRedis4zioDeps)
+  .settings(libraryDependencies ++= Dependencies.cacheApiDeps)
   .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
 
