@@ -40,7 +40,7 @@ import zio.{ULayer, ZLayer}
  *    梦境迷离
  *  @version 1.0,2022/8/18
  */
-object CatsRedisService {
+object CatsRedisServiceLive {
 
   private val stringCodec: RedisCodec[String, String] = RedisCodec.Utf8
 
@@ -69,10 +69,11 @@ object CatsRedisService {
       redis  <- Redis[IO].fromClient(client, stringCodec)
     } yield redis
 
-  lazy val live: ULayer[CRedis] = ZLayer.succeed(new CatsRedisService(resource))
+  lazy val live: ULayer[CRedis] = ZLayer.succeed(new CatsRedisServiceLive(resource))
 }
-final case class CatsRedisService(redis: Resource[IO, RedisCommands[IO, String, String]])(implicit logger: Logger[IO])
-    extends RedisService[IO] {
+final case class CatsRedisServiceLive(redis: Resource[IO, RedisCommands[IO, String, String]])(implicit
+  logger: Logger[IO]
+) extends RedisService[IO] {
 
   override def getSets(k: String): IO[List[String]] =
     logger.info(s"Redis sMembers command: $k") *> redis.use { redis =>

@@ -21,7 +21,8 @@ import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.cache._
 import zio._
-import zio.redis.Redis
+import zio.redis.{Redis, RedisError, RedisExecutor}
+import zio.schema.codec.ProtobufCodec
 
 /** @author
  *    梦境迷离
@@ -29,10 +30,19 @@ import zio.redis.Redis
  *    https://zio.dev/version-1.x/datatypes/contextual/#module-pattern-20
  *  @version 3.0,2022/1/17
  */
-object ZioRedisLive {
-  lazy val layer: URLayer[Redis, ZRedis] = ZLayer.fromFunction(ZioRedisLive.apply _)
+object ZioRedisServiceLive {
+
+  private lazy val redisServiceLive: URLayer[Redis, ZRedis] = ZLayer.fromFunction(ZioRedisServiceLive.apply _)
+
+  lazy val live: ZLayer[Any, RedisError.IOError, ZRedis] = ZLayer.make[ZRedis](
+    ZioRedisConfiguration.redisConf,
+    RedisExecutor.layer,
+    ZLayer.succeed(ProtobufCodec),
+    redisServiceLive,
+    Redis.layer
+  )
 }
-final case class ZioRedisLive(private val rs: Redis) extends RedisService[Task] {
+final case class ZioRedisServiceLive(private val rs: Redis) extends RedisService[Task] {
 
   override def getSets(k: String): Task[List[String]] =
     rs.sMembers(k)

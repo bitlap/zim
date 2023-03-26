@@ -19,7 +19,6 @@ package org.bitlap.zim.cache.redis4zio
 import com.typesafe.config.{Config, _}
 import zio._
 import zio.redis._
-import zio.schema.codec._
 
 /** redis configuration
  *
@@ -32,20 +31,11 @@ object ZioRedisConfiguration {
 
   private val conf: Config = ConfigFactory.load().getConfig("cache.redis")
 
-  private val redisConf: ULayer[RedisConfig] = ZLayer.succeed {
+  lazy val redisConf: ULayer[RedisConfig] = ZLayer.succeed {
     if (conf.isEmpty) {
       RedisConfig.Default
     } else {
       RedisConfig(conf.getString("host"), conf.getInt("port"))
     }
   }
-
-  lazy val zimRedisLayer: Layer[RedisError.IOError, ZRedis] =
-    ZLayer.make[ZRedis](
-      redisConf,
-      RedisExecutor.layer,
-      ZLayer.succeed(ProtobufCodec),
-      ZioRedisLive.layer,
-      Redis.layer
-    )
 }
