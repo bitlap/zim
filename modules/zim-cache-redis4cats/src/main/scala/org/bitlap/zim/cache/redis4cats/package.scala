@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.cache.redis4cats
-import com.typesafe.config._
+package org.bitlap.zim.cache
 
-/** redis configuration
- *
- *  @author
+import cats.effect.IO
+
+/** @author
  *    梦境迷离
- *  @since 2022/8/18
- *  @version 1.0
+ *  @version 1.0,2023/3/26
  */
-object CatsRedisConfiguration {
-
-  private val conf: Config   = ConfigFactory.load().getConfig("cache.redis")
-  lazy val redisHost: String = conf.getString("host")
-  lazy val redisPort: Int    = conf.getInt("port")
-
+package object redis4cats {
+  type CRedis = RedisService[IO]
 }

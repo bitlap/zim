@@ -9,14 +9,14 @@ object Dependencies {
 
   object Version {
     val zio                           = "2.0.10"
-    val `zio-logging`                 = "2.1.7"
+    val `zio-logging`                 = "2.1.11"
     val tapir                         = "1.2.11"
     val `akka-http`                   = "10.2.10"
     val akka                          = "2.6.20"
     val circe                         = "0.14.3"
     val scalikejdbc                   = "3.5.0"
     val logback                       = "1.4.6"
-    val config                        = "1.4.1"
+    val config                        = "1.4.2"
     val `zio-interop-reactiveStreams` = "2.0.1"
     val mysql                         = "8.0.32"
     val `simple-java-mail`            = "7.5.0"
@@ -26,10 +26,10 @@ object Dependencies {
     val refined                       = "0.10.3"
     val `zio-schema`                  = "0.3.1"
     val `sttp-apispec`                = "0.3.2"
-    val redis4cats                    = "1.3.0"
+    val redis4cats                    = "1.4.0"
     val `zio-interop-cats`            = "23.0.0.2"
     val `log4cats-slf4j`              = "2.5.0"
-    val `zio-redis`                   = "0.0.0+453-a4649d3b-SNAPSHOT" // Experimental
+    val `zio-redis`                   = "0.1.0"
     val `zio-crypto`                  = "0.0.0+102-23de4b47-SNAPSHOT" // Experimental
   }
 
@@ -116,18 +116,21 @@ object Dependencies {
     "dev.zio"           %% "zio-crypto"           % Version.`zio-crypto`
   )
 
+  lazy val cacheApiDeps: Seq[ModuleID] = Seq(
+    "com.typesafe" % "config"     % Version.config,
+    "dev.zio"     %% "zio"        % Version.zio,
+    "io.circe"    %% "circe-core" % Version.circe
+  )
+
   lazy val cacheRedis4zioDeps: Seq[ModuleID] = Seq(
-    "com.typesafe" % "config"              % Version.config,
-    "dev.zio"     %% "zio-redis"           % Version.`zio-redis`,
-    "dev.zio"     %% "zio"                 % Version.zio,
-    "dev.zio"     %% "zio-schema"          % Version.`zio-schema`,
-    "dev.zio"     %% "zio-schema-protobuf" % Version.`zio-schema`,
-    "io.circe"    %% "circe-core"          % Version.circe,
-    "io.circe"    %% "circe-parser"        % Version.circe
+    "dev.zio"  %% "zio-redis"           % Version.`zio-redis`,
+    "dev.zio"  %% "zio-schema"          % Version.`zio-schema`,
+    "dev.zio"  %% "zio-schema-protobuf" % Version.`zio-schema`,
+    "io.circe" %% "circe-core"          % Version.circe,
+    "io.circe" %% "circe-parser"        % Version.circe
   )
 
   lazy val cacheRedis4catsDeps: Seq[ModuleID] = Seq(
-    "com.typesafe"    % "config"              % Version.config,
     "dev.profunktor" %% "redis4cats-effects"  % Version.redis4cats,
     "dev.profunktor" %% "redis4cats-log4cats" % Version.redis4cats,
     "dev.profunktor" %% "redis4cats-streams"  % Version.redis4cats,
