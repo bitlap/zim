@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,16 @@
 
 package org.bitlap.zim.cache.redis4cats
 
+import java.time.Duration
+
 import scala.concurrent.duration._
+
 import cats.effect.{IO, Resource}
-import dev.profunktor.redis4cats.{Redis, RedisCommands}
 import dev.profunktor.redis4cats.connection.{RedisClient, RedisURI}
 import dev.profunktor.redis4cats.data.RedisCodec
 import dev.profunktor.redis4cats.effects._
 import dev.profunktor.redis4cats.log4cats.log4CatsInstance
+import dev.profunktor.redis4cats.{Redis, RedisCommands}
 import io.circe._
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
@@ -32,8 +35,6 @@ import org.bitlap.zim.cache.{JavaDuration, RedisService}
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import zio.{ULayer, ZLayer}
-
-import java.time.Duration
 
 /** @author
  *    梦境迷离

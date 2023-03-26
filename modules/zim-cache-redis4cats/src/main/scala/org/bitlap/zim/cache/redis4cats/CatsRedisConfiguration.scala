@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import com.typesafe.config._
  */
 object CatsRedisConfiguration {
 
-  private val conf: Config = ConfigFactory.load().getConfig("cache.redis")
-  lazy val redisHost       = conf.getString("host")
-  lazy val redisPort       = conf.getInt("port")
+  private val conf: Config   = ConfigFactory.load().getConfig("cache.redis")
+  lazy val redisHost: String = conf.getString("host")
+  lazy val redisPort: Int    = conf.getInt("port")
 
 }

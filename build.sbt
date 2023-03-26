@@ -128,7 +128,7 @@ lazy val `zim-cache-redis4cats` = (project in file("modules/zim-cache-redis4cats
   .dependsOn(`zim-cache-api`)
 
 lazy val `zim-cache-redis4zio` = (project in file("modules/zim-cache-redis4zio"))
-  .settings(libraryDependencies ++= Dependencies.domainDeps)
+  .settings(libraryDependencies ++= Dependencies.cacheRedis4zioDeps)
   .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
   .dependsOn(`zim-cache-api`)
