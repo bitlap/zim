@@ -8,7 +8,7 @@ import sbt._
 object Dependencies {
 
   object Version {
-    val zio                           = "2.0.10"
+    val zio                           = "2.0.12"
     val `zio-logging`                 = "2.1.11"
     val tapir                         = "1.2.11"
     val `akka-http`                   = "10.2.10"
