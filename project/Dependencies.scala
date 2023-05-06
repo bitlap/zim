@@ -15,7 +15,7 @@ object Dependencies {
     val akka                          = "2.6.20"
     val circe                         = "0.14.3"
     val scalikejdbc                   = "3.5.0"
-    val logback                       = "1.4.6"
+    val logback                       = "1.4.7"
     val config                        = "1.4.2"
     val `zio-interop-reactiveStreams` = "2.0.1"
     val mysql                         = "8.0.33"
