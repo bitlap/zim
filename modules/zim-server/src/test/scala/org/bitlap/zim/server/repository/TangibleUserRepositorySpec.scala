@@ -15,11 +15,13 @@
  */
 
 package org.bitlap.zim.server.repository
+
 import org.bitlap.zim.api.repository._
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository._
 import org.bitlap.zim.server.BaseData
 import org.bitlap.zim.server.repository.TangibleUserRepositorySpec._
+
 import scalikejdbc._
 import zio._
 

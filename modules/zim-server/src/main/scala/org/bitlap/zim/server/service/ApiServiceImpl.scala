@@ -18,18 +18,20 @@ package org.bitlap.zim.server.service
 
 import java.time._
 
-import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api._
 import org.bitlap.zim.api.service.{UserService, _}
-import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
+import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain.input._
+import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.FileUtil
+
+import io.circe.syntax.EncoderOps
+
 import zio._
 import zio.stream._
 

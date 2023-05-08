@@ -1,8 +1,8 @@
-import sbt.Keys._
-import sbt.{url, Def, Developer, ScmInfo}
-import sbt.URL
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerCreateAll
+import sbt.{url, Def, Developer, ScmInfo}
 import sbt.Compile
+import sbt.Keys._
+import sbt.URL
 
 /** @author
  *    梦境迷离

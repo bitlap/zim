@@ -19,10 +19,12 @@ package org.bitlap.zim.server.route
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
 import org.bitlap.zim.ZimBuildInfo
 import org.bitlap.zim.api._
+
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
+
 import sttp.apispec.asyncapi.circe.yaml.RichAsyncAPI
 import sttp.apispec.openapi._
 import sttp.apispec.openapi.circe.yaml.RichOpenAPI

@@ -19,6 +19,7 @@ package org.bitlap.zim.infrastructure
 import org.bitlap.zim.api.repository._
 import org.bitlap.zim.infrastructure.properties._
 import org.bitlap.zim.infrastructure.repository.{RStream, _}
+
 import scalikejdbc._
 import zio._
 
@@ -52,6 +53,7 @@ final class InfrastructureConfiguration {
   lazy val groupRepository: GroupRepository[RStream] = TangibleGroupRepository(
     mysqlConfigurationProperties.databaseName
   )
+
   lazy val receiveRepository: ReceiveRepository[RStream] = TangibleReceiveRepository(
     mysqlConfigurationProperties.databaseName
   )
@@ -67,6 +69,7 @@ final class InfrastructureConfiguration {
   lazy val groupMemberRepository: GroupMemberRepository[RStream] = TangibleGroupMemberRepository(
     mysqlConfigurationProperties.databaseName
   )
+
   lazy val addMessageRepository: AddMessageRepository[RStream] = TangibleAddMessageRepository(
     mysqlConfigurationProperties.databaseName
   )
@@ -75,6 +78,7 @@ final class InfrastructureConfiguration {
 /** infrastructure dependencies
  */
 object InfrastructureConfiguration {
+
   lazy val live: ULayer[InfrastructureConfiguration] =
     ZLayer.succeed[InfrastructureConfiguration](new InfrastructureConfiguration())
 

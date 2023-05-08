@@ -18,17 +18,19 @@ package org.bitlap.zim.api
 
 import scala.concurrent.Future
 
+import org.bitlap.zim.domain
+import org.bitlap.zim.domain._
+import org.bitlap.zim.domain.ZimError._
+import org.bitlap.zim.domain.input._
+import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
+import org.bitlap.zim.domain.model._
+
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import org.bitlap.zim.domain
-import org.bitlap.zim.domain.ZimError._
-import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
-import org.bitlap.zim.domain.input._
-import org.bitlap.zim.domain.model._
+
 import sttp.capabilities.akka.AkkaStreams
-import sttp.model.HeaderNames.Authorization
 import sttp.model._
+import sttp.model.HeaderNames.Authorization
 import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass

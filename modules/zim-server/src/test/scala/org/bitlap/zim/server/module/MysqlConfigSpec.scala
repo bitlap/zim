@@ -17,10 +17,11 @@
 package org.bitlap.zim.server.module
 
 import org.bitlap.zim.server.ZIOBaseSuit
+
 import scalikejdbc._
 import zio.Scope
-import zio.test.Assertion._
 import zio.test._
+import zio.test.Assertion._
 
 object MysqlConfigSpec extends ZIOBaseSuit {
 

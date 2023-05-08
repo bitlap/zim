@@ -16,10 +16,12 @@
 
 package org.bitlap.zim.domain
 
+import org.bitlap.zim.domain.model.User
+
 import io.circe._
 import io.circe.generic.semiauto._
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.domain.model.User
+
 import zio.schema._
 
 /** 好友列表
@@ -41,6 +43,7 @@ final case class FriendList(override val id: Int, override val groupName: String
 object FriendList {
 
   implicit val decoder: Decoder[FriendList] = deriveDecoder[FriendList]
+
   implicit val encoder: Encoder[FriendList] = (a: FriendList) =>
     if (a == null) Json.Null
     else

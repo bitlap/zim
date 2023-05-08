@@ -20,6 +20,7 @@ import org.bitlap.zim.api.service.UserService
 import org.bitlap.zim.domain.model
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository.RStream
+
 import zio.ZIO
 
 /** @author

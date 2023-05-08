@@ -1,7 +1,8 @@
-import ProjectSetting.optimizerOptions
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
-import sbt.Keys._
+
+import ProjectSetting.optimizerOptions
 import sbt.{CrossVersion, Def, _}
+import sbt.Keys._
 
 /** @author
  *    梦境迷离

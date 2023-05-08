@@ -16,10 +16,12 @@
 
 package org.bitlap.zim.api
 
-import akka.event.slf4j._
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server._
 import org.bitlap.zim.domain.ZimError._
+
+import akka.event.slf4j._
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.Directives._
+
 import sttp.model._
 import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass

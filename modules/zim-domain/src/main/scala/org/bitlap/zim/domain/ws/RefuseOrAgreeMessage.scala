@@ -16,9 +16,10 @@
 
 package org.bitlap.zim.domain.ws
 
+import org.bitlap.zim.domain.Mine
+
 import io.circe._
 import io.circe.generic.semiauto._
-import org.bitlap.zim.domain.Mine
 
 /** 同意或拒绝添加群的信息
  */

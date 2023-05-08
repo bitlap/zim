@@ -23,11 +23,13 @@ import scala.collection.mutable
 import scala.io.Source
 import scala.util.Using
 
-import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
+import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.infrastructure.util._
+
 import sttp.model.Part
 import sttp.tapir.TapirFile
+
 import zio._
 
 /** @author

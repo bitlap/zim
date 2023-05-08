@@ -16,18 +16,21 @@
 
 package org.bitlap.zim.server.service
 
-import cats.effect._
-import cats.effect.unsafe.implicits.global
-import io.circe._
-import org.bitlap.zim.cache.redis4cats.{CRedis, CatsRedisServiceLive}
+import org.bitlap.zim.cache.redis4cats.{CatsRedisServiceLive, CRedis}
 import org.bitlap.zim.cache.redis4zio._
 import org.bitlap.zim.server.CacheType
 import org.bitlap.zim.server.CacheType._
+
+import io.circe._
+
+import cats.effect._
+import cats.effect.unsafe.implicits.global
 import zio._
 import zio.interop.catz._
 import zio.schema.Schema
 
 object RedisCache {
+
   def getSets(k: String)(implicit cacheType: CacheType): Task[List[String]] = cacheType match {
     case ZioCache => ZIO.serviceWithZIO[ZRedis](_.getSets(k)).provideLayer(ZioRedisServiceLive.live)
     case CatsCache =>

@@ -31,6 +31,7 @@ import io.circe.generic.semiauto._
 object Group {
 
   implicit val decoder: Decoder[Group] = deriveDecoder[Group]
+
   implicit val encoder: Encoder[Group] = (a: Group) =>
     if (a == null) Json.Null
     else

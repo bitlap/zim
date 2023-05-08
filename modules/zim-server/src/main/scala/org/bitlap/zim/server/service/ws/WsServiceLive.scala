@@ -20,18 +20,21 @@ import java.time.ZonedDateTime
 
 import scala.collection.mutable
 
-import akka.actor.ActorRef
-import io.circe.parser.decode
-import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain
+import org.bitlap.zim.domain.{Add, SystemConstant}
 import org.bitlap.zim.domain.model.{AddMessage, User}
 import org.bitlap.zim.domain.ws._
 import org.bitlap.zim.domain.ws.protocol.Protocol
-import org.bitlap.zim.domain.{Add, SystemConstant}
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util.LogUtil
 import org.bitlap.zim.server.service.RedisCache
+
+import akka.actor.ActorRef
+
+import io.circe.parser.decode
+import io.circe.syntax.EncoderOps
+
 import zio.{Task, ZIO, ZLayer}
 
 /** @author
@@ -199,7 +202,9 @@ final case class WsServiceLive(private val userService: UserService[RStream]) {
   def getConnections: Task[Int] = ZIO.attempt(WsService.actorRefSessions.size())
 
 }
+
 object WsServiceLive {
+
   lazy val live: ZLayer[UserService[RStream], Nothing, WsServiceLive] =
     ZLayer.fromFunction(WsServiceLive.apply(_))
 }

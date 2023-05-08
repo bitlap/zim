@@ -33,6 +33,7 @@ class ResultSet[T](
 )
 
 object ResultSet {
+
   def apply[T](
     data: T = null,
     code: Int = SystemConstant.SUCCESS,

@@ -16,10 +16,12 @@
 
 package org.bitlap.zim.cache.redis4zio
 
+import org.bitlap.zim.cache._
+
 import io.circe._
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.cache._
+
 import zio._
 import zio.redis.{Redis, RedisError, RedisExecutor}
 import zio.schema.codec.ProtobufCodec
@@ -42,6 +44,7 @@ object ZioRedisServiceLive {
     Redis.layer
   )
 }
+
 final case class ZioRedisServiceLive(private val rs: Redis) extends RedisService[Task] {
 
   override def getSets(k: String): Task[List[String]] =

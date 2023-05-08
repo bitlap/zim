@@ -22,8 +22,9 @@ import scala.concurrent._
 import scala.util.Try
 
 import org.bitlap.zim.domain.ZimError._
-import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.bitlap.zim.domain.input._
+import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
+
 import zio._
 
 /** Cookie based authentication

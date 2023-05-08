@@ -20,8 +20,10 @@ import java.util.Properties
 
 import scala.util.Try
 
-import com.typesafe.config.{Config, ConfigFactory}
 import org.simplejavamail.config.ConfigLoader
+
+import com.typesafe.config.{Config, ConfigFactory}
+
 import zio._
 
 /** configuration for simple java mail
@@ -41,6 +43,7 @@ final case class MailConfigurationProperties(
   connectionPoolCoreSize: Int,
   debug: Boolean
 ) {
+
   def toProperties: Properties = {
     val properties = new Properties()
     properties.setProperty(ConfigLoader.Property.SMTP_HOST.key(), this.host)

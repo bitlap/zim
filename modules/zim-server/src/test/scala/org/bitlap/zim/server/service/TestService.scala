@@ -17,6 +17,7 @@
 package org.bitlap.zim.server.service
 
 import org.bitlap.zim.server.BaseData
+
 import scalikejdbc._
 
 /** 测试service的基类

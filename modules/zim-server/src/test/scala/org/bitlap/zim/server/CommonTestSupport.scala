@@ -23,6 +23,7 @@ import zio._
  *    梦境迷离
  */
 trait CommonTestSupport {
+
   def unsafeRun[T](action: => ZIO[Any, Throwable, T]): T =
     Unsafe.unsafe { implicit runtime =>
       Runtime.default.unsafe.run(action).getOrThrowFiberFailure()

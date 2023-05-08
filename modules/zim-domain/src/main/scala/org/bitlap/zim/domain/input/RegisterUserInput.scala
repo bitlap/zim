@@ -33,6 +33,7 @@ final case class RegisterUserInput(
   password: String,
   email: String
 )
+
 object RegisterUserInput {
 
   implicit val decoder: Decoder[RegisterUserInput] = deriveDecoder[RegisterUserInput]

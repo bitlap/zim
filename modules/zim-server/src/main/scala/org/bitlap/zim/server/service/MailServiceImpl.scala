@@ -23,6 +23,7 @@ import org.simplejavamail.api.mailer._
 import org.simplejavamail.config._
 import org.simplejavamail.email._
 import org.simplejavamail.mailer._
+
 import zio._
 
 /** 邮件发送服务
@@ -65,6 +66,7 @@ object MailServiceImpl {
   def apply(mailConfigurationProperties: MailConfigurationProperties): MailServiceImpl = new MailServiceImpl(
     mailConfigurationProperties
   )
+
   def sendHtmlMail(to: String, subject: String, content: String): URIO[MailServiceImpl, Any] =
     ZIO.environmentWithZIO(_.get.sendHtmlMail(to, subject, content))
 
