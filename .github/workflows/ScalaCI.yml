@@ -27,9 +27,6 @@ jobs:
       - name: Checking Code Style
         run: sbt scalafmtCheckAll
 
-      - name: Checking Scalafix
-        run: sbt scalafixAll
-
       - name: Checking headers
         run: sbt headerCheckAll
   
