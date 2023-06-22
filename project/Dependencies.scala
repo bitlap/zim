@@ -25,7 +25,7 @@ object Dependencies {
     val `zio-actors`                  = "0.1.0"
     val refined                       = "0.10.3"
     val `zio-schema`                  = "0.3.1"
-    val `sttp-apispec`                = "0.3.2"
+    val `sttp-apispec`                = "0.5.2"
     val redis4cats                    = "1.4.1"
     val `zio-interop-cats`            = "23.0.03"
     val `log4cats-slf4j`              = "2.6.0"
