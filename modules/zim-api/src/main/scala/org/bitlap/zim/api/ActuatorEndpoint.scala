@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 
 package org.bitlap.zim.api
 
+import org.bitlap.zim.ZimBuildInfo
+
+import sttp.model.StatusCode
+import sttp.tapir._
+import sttp.tapir.Codec.JsonCodec
+import sttp.tapir.json.circe._
+
 import io.circe.Json
 import io.circe.parser._
-import org.bitlap.zim.ZimBuildInfo
-import sttp.model.StatusCode
-import sttp.tapir.Codec.JsonCodec
-import sttp.tapir._
-import sttp.tapir.json.circe._
 
 /** Actuator的端点
  *

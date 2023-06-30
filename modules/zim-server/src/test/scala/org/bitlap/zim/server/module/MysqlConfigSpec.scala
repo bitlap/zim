@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.domain.input
+package org.bitlap.zim.server.module
 
-import io.circe._
-import io.circe.generic.semiauto._
+import org.bitlap.zim.server.ZIOBaseSuit
 
-/** @author
- *    梦境迷离
- *  @since 2022/2/5
- *  @version 1.0
- */
-final case class AgreeFriendInput(uid: Int, from_group: Int, group: Int, messageBoxId: Int)
+import scalikejdbc._
+import zio.Scope
+import zio.test._
+import zio.test.Assertion._
 
-object AgreeFriendInput {
+object MysqlConfigSpec extends ZIOBaseSuit {
 
-  implicit val decoder: Decoder[AgreeFriendInput] = deriveDecoder[AgreeFriendInput]
+  def spec: Spec[Environment with TestEnvironment with Scope, Any] = suite("MysqlConfigSpec")(
+    test("test the database connect working state") {
+      assert(isConnected)(equalTo(true))
+    }
+  )
+
+  val isConnected: Boolean = NamedDB(Symbol(h2ConfigurationProperties.databaseName)).conn.isValid(0)
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,9 @@ import scala.concurrent._
 import scala.util.Try
 
 import org.bitlap.zim.domain.ZimError._
-import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.bitlap.zim.domain.input._
+import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
+
 import zio._
 
 /** Cookie based authentication

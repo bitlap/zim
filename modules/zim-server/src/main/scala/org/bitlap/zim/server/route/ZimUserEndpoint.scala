@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package org.bitlap.zim.server.route
 
 import scala.concurrent._
 
-import io.circe.jawn
-import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api._
 import org.bitlap.zim.auth.CookieAuthority
 import org.bitlap.zim.domain.ZimError.Unauthorized
@@ -29,9 +27,14 @@ import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
 import org.bitlap.zim.infrastructure.repository.TangibleUserRepository
 import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.service.RedisCache
+
 import sttp.model.HeaderNames.Authorization
 import sttp.tapir._
 import sttp.tapir.server.PartialServerEndpoint
+
+import io.circe.jawn
+import io.circe.syntax.EncoderOps
+
 import zio._
 
 /** 用户接口的端点
@@ -44,6 +47,7 @@ import zio._
 trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndpoint {
 
   implicit val ec: ExecutionContext
+
   def authorityCacheFunction(email: String, passwd: String): IO[Throwable, (Boolean, Option[UserSecurityInfo])] =
     for {
       userSecurityInfo <- RedisCache

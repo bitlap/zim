@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,15 @@
 
 package org.bitlap.zim.server.actor.akka
 
-import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.Behaviors
-import io.circe.syntax.EncoderOps
 import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.infrastructure.util.LogUtil
 import org.bitlap.zim.server.service.ws.WsService
+
+import akka.actor.typed.Behavior
+import akka.actor.typed.scaladsl.Behaviors
+
+import io.circe.syntax.EncoderOps
+
 import zio._
 
 /** akka typed actor

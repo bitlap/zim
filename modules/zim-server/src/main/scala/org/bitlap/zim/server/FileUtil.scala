@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,13 @@ import scala.collection.mutable
 import scala.io.Source
 import scala.util.Using
 
-import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
+import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.infrastructure.util._
+
 import sttp.model.Part
 import sttp.tapir.TapirFile
+
 import zio._
 
 /** @author

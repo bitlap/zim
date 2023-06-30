@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package org.bitlap.zim.server.configuration
+package org.bitlap.zim.cache
 
-import org.bitlap.zim.server.ZIOBaseSuit
-import scalikejdbc._
-import zio.test.Assertion._
-import zio.test._
-import zio.Scope
+import cats.effect.IO
 
-object MysqlConfigSpec extends ZIOBaseSuit {
-
-  def spec: Spec[Environment with TestEnvironment with Scope, Any] = suite("MysqlConfigSpec")(
-    test("test the database connect working state") {
-      assert(isConnected)(equalTo(true))
-    }
-  )
-
-  val isConnected: Boolean = NamedDB(Symbol(h2ConfigurationProperties.databaseName)).conn.isValid(0)
-
+/** @author
+ *    梦境迷离
+ *  @version 1.0,2023/3/26
+ */
+package object redis4cats {
+  type CRedis = RedisService[IO]
 }

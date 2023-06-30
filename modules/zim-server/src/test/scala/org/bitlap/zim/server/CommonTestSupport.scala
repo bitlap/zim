@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import zio._
  *    梦境迷离
  */
 trait CommonTestSupport {
+
   def unsafeRun[T](action: => ZIO[Any, Throwable, T]): T =
     Unsafe.unsafe { implicit runtime =>
       Runtime.default.unsafe.run(action).getOrThrowFiberFailure()

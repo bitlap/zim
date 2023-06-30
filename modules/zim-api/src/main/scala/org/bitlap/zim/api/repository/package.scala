@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ package object repository {
     final case class ConditionValidator()
 
     object ConditionValidator {
+
       implicit val conditionValueValidate: Validate.Plain[Condition, ConditionValidator] = Validate.fromPredicate(
         p =>
           p != null ||

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,15 @@
 
 package org.bitlap.zim.server.util
 
-import io.circe.parser.decode
-import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api.ApiJsonCodec
+import org.bitlap.zim.domain.{FriendAndGroupInfo, FriendList, Message, Mine, ResultSet}
 import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.bitlap.zim.domain.model.{GroupList, User}
-import org.bitlap.zim.domain.{FriendAndGroupInfo, FriendList, Message, Mine, ResultSet}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+
+import io.circe.parser.decode
+import io.circe.syntax.EncoderOps
 
 /** @author
  *    梦境迷离

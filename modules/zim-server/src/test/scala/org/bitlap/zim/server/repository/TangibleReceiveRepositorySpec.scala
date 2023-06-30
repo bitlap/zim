@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 
 package org.bitlap.zim.server.repository
+
 import org.bitlap.zim.api.repository.ReceiveRepository
 import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.infrastructure.repository._
 import org.bitlap.zim.server.BaseData
 import org.bitlap.zim.server.repository.TangibleReceiveRepositorySpec.TangibleReceiveRepositoryConfigurationSpec
+
 import scalikejdbc._
 import zio._
 

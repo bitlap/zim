@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,20 @@ package org.bitlap.zim.server.service
 
 import java.time._
 
-import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api._
-import org.bitlap.zim.api.service._
-import org.bitlap.zim.domain.ZimError._
+import org.bitlap.zim.api.service.{UserService, _}
 import org.bitlap.zim.domain._
-import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
+import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain.input._
+import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.bitlap.zim.domain.model._
+import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.FileUtil
+
+import io.circe.syntax.EncoderOps
+
 import zio._
 import zio.stream._
 
@@ -320,14 +323,6 @@ object ApiServiceImpl {
 
   private[service] val EMAIL_REGEX = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$".r
 
-  val live: URLayer[UserService[RStream], ApiService[RStream, Task]] = ZLayer(
-    ZIO
-      .service[UserService[RStream]]
-      .map((p: UserService[RStream]) => new ApiServiceImpl(p))
-  )
-
-  def make(
-    userServiceLayer: TaskLayer[UserService[RStream]]
-  ): TaskLayer[ApiService[RStream, Task]] = userServiceLayer >>> live
-
+  lazy val live: ZLayer[InfrastructureConfiguration, Throwable, ApiService[RStream, Task]] =
+    UserServiceImpl.live >>> ZLayer.fromFunction((u: UserService[RStream]) => new ApiServiceImpl(u))
 }

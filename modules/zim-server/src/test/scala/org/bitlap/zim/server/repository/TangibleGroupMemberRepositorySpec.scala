@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,19 @@
  */
 
 package org.bitlap.zim.server.repository
+
 import org.bitlap.zim.api.repository.GroupMemberRepository
 import org.bitlap.zim.infrastructure.repository.{RStream, TangibleGroupMemberRepository}
 import org.bitlap.zim.server.ZIOBaseSuit
 import org.bitlap.zim.server.repository.TangibleGroupMemberRepositorySpec.TangibleGroupMemberRepositoryConfigurationSpec
+
 import scalikejdbc._
 import zio._
-import zio.test.Assertion._
 import zio.test._
+import zio.test.Assertion._
 
 object TangibleGroupMemberRepositoryMainSpec extends TangibleGroupMemberRepositoryConfigurationSpec {
+
   override def spec: Spec[Any, Throwable] = suite("Tangible GroupMember Repository")(
     test("find by id") {
       for {
@@ -48,12 +51,15 @@ object TangibleGroupMemberRepositoryMainSpec extends TangibleGroupMemberReposito
 }
 
 object TangibleGroupMemberRepositorySpec {
+
   trait TangibleGroupMemberRepositoryConfigurationSpec extends ZIOBaseSuit {
+
     override val sqlAfter: SQL[_, NoExtractor] =
       sql"""
         drop table if exists t_group;
         drop table if exists t_group_members;
          """
+
     override val sqlBefore: SQL[_, NoExtractor] =
       sql"""
             DROP TABLE IF EXISTS `t_group`;
@@ -74,6 +80,7 @@ object TangibleGroupMemberRepositorySpec {
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
          """
+
     val env: ULayer[GroupMemberRepository[RStream]] =
       TangibleGroupMemberRepository.make(h2ConfigurationProperties.databaseName)
   }

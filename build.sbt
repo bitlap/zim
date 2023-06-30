@@ -48,13 +48,6 @@ lazy val commonConfiguration: Project => Project =
     .settings(ProjectSetting.noPublish)
     .settings(commands ++= Commands.value)
 //    .settings(assemblySettings)
-    .settings(
-      semanticdbEnabled                                          := true, // enable SemanticDB
-      semanticdbVersion                                          := scalafixSemanticdb.revision,
-      ThisBuild / scalafixScalaBinaryVersion                     := CrossVersion.binaryScalaVersion(scalaVersion.value),
-      ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0",
-      scalafixOnCompile                                          := true
-    )
 
 lazy val zim = (project in file("."))
   .settings(name := "zim")
@@ -105,7 +98,7 @@ lazy val `zim-domain` = (project in file("modules/zim-domain"))
   .enablePlugins(GitVersioning, BuildInfoPlugin, ScalafmtPlugin, HeaderPlugin)
 
 lazy val `zim-cache-api` = (project in file("modules/zim-cache-api"))
-  .settings(libraryDependencies ++= Dependencies.cacheRedis4zioDeps)
+  .settings(libraryDependencies ++= Dependencies.cacheApiDeps)
   .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
 
@@ -128,7 +121,7 @@ lazy val `zim-cache-redis4cats` = (project in file("modules/zim-cache-redis4cats
   .dependsOn(`zim-cache-api`)
 
 lazy val `zim-cache-redis4zio` = (project in file("modules/zim-cache-redis4zio"))
-  .settings(libraryDependencies ++= Dependencies.domainDeps)
+  .settings(libraryDependencies ++= Dependencies.cacheRedis4zioDeps)
   .configure(commonConfiguration)
   .enablePlugins(ScalafmtPlugin, HeaderPlugin)
   .dependsOn(`zim-cache-api`)

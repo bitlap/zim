@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.bitlap.zim.infrastructure
 import org.bitlap.zim.api.repository._
 import org.bitlap.zim.infrastructure.properties._
 import org.bitlap.zim.infrastructure.repository.{RStream, _}
+
 import scalikejdbc._
 import zio._
 
@@ -52,6 +53,7 @@ final class InfrastructureConfiguration {
   lazy val groupRepository: GroupRepository[RStream] = TangibleGroupRepository(
     mysqlConfigurationProperties.databaseName
   )
+
   lazy val receiveRepository: ReceiveRepository[RStream] = TangibleReceiveRepository(
     mysqlConfigurationProperties.databaseName
   )
@@ -67,6 +69,7 @@ final class InfrastructureConfiguration {
   lazy val groupMemberRepository: GroupMemberRepository[RStream] = TangibleGroupMemberRepository(
     mysqlConfigurationProperties.databaseName
   )
+
   lazy val addMessageRepository: AddMessageRepository[RStream] = TangibleAddMessageRepository(
     mysqlConfigurationProperties.databaseName
   )
@@ -75,37 +78,8 @@ final class InfrastructureConfiguration {
 /** infrastructure dependencies
  */
 object InfrastructureConfiguration {
-  def apply(): InfrastructureConfiguration = new InfrastructureConfiguration()
-  // ==================================system configuration============================================
-  val mysqlConfigurationProperties: URIO[InfrastructureConfiguration, MysqlConfigurationProperties] =
-    ZIO.environmentWith(_.get.mysqlConfigurationProperties)
 
-  val zimConfigurationProperties: UIO[ZimConfigurationProperties] =
-    ZimConfigurationProperties.make
-
-  val mailConfigurationProperties: UIO[MailConfigurationProperties] =
-    MailConfigurationProperties.make
-
-  // ==================================数据库============================================
-  val userRepository: URIO[InfrastructureConfiguration, UserRepository[RStream]] =
-    ZIO.environmentWith(_.get.userRepository)
-
-  val groupRepository: URIO[InfrastructureConfiguration, GroupRepository[RStream]] =
-    ZIO.environmentWith(_.get.groupRepository)
-
-  val receiveRepository: URIO[InfrastructureConfiguration, ReceiveRepository[RStream]] =
-    ZIO.environmentWith(_.get.receiveRepository)
-
-  val friendGroupFriendRepository: URIO[InfrastructureConfiguration, FriendGroupFriendRepository[RStream]] =
-    ZIO.environmentWith(_.get.friendGroupFriendRepository)
-
-  val groupMemberRepository: URIO[InfrastructureConfiguration, GroupMemberRepository[RStream]] =
-    ZIO.environmentWith(_.get.groupMemberRepository)
-
-  val addMessageRepository: URIO[InfrastructureConfiguration, AddMessageRepository[RStream]] =
-    ZIO.environmentWith(_.get.addMessageRepository)
-
-  lazy val layer: ULayer[InfrastructureConfiguration] =
-    ZLayer.succeed[InfrastructureConfiguration](InfrastructureConfiguration())
+  lazy val live: ULayer[InfrastructureConfiguration] =
+    ZLayer.succeed[InfrastructureConfiguration](new InfrastructureConfiguration())
 
 }

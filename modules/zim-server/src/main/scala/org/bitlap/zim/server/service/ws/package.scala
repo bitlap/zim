@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,15 @@ package org.bitlap.zim.server.service
 
 import java.time.ZonedDateTime
 
-import io.circe.syntax.EncoderOps
 import org.bitlap.zim.api.service.UserService
 import org.bitlap.zim.domain._
 import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.domain.ws.RefuseOrAgreeMessage
 import org.bitlap.zim.domain.ws.protocol.Protocol
 import org.bitlap.zim.infrastructure.repository.RStream
+
+import io.circe.syntax.EncoderOps
+
 import zio._
 import zio.stream.ZStream
 

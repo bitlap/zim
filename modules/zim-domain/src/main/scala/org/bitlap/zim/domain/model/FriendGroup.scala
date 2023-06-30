@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.bitlap.zim.domain.model
 
 import io.circe._
 import io.circe.generic.semiauto._
+
 import scalikejdbc.{WrappedResultSet, _}
 
 /** 用户创建的好友列表
@@ -43,6 +44,7 @@ object FriendGroup extends BaseModel[FriendGroup] {
   override def tableName: String = "t_friend_group"
 
   implicit val decoder: Decoder[FriendGroup] = deriveDecoder[FriendGroup]
+
   implicit val encoder: Encoder[FriendGroup] = (a: FriendGroup) =>
     if (a == null) Json.Null
     else

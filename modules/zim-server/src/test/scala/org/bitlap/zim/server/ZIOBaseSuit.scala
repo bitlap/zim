@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.bitlap.zim.domain.model
 import org.bitlap.zim.domain.model.{AddMessage, GroupList, User}
 import org.bitlap.zim.infrastructure.properties.MysqlConfigurationProperties
 import org.bitlap.zim.server.util.DateHelper
+
 import scalikejdbc.{ConnectionPool, ConnectionPoolSettings, NamedDB, NoExtractor, SQL}
 import zio.test.ZIOSpecDefault
 

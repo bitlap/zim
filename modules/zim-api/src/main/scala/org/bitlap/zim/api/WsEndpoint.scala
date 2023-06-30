@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@ package org.bitlap.zim.api
 import scala.concurrent.duration.DurationInt
 
 import akka.http.scaladsl.model.ws.TextMessage
+
 import sttp.capabilities.WebSockets
 import sttp.capabilities.akka.AkkaStreams
 import sttp.capabilities.akka.AkkaStreams.Pipe
-import sttp.tapir.Codec.parsedString
 import sttp.tapir._
+import sttp.tapir.Codec.parsedString
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.ws.WebSocketFrame
 

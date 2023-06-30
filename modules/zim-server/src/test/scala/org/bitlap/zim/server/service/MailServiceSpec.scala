@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,14 @@
  */
 
 package org.bitlap.zim.server.service
+
 import org.bitlap.zim.infrastructure.properties._
 import org.bitlap.zim.server.CommonTestSupport
-import org.bitlap.zim.server.service.MailServiceSpec._
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
+
+import com.typesafe.config.ConfigFactory
+
 import zio._
 
 /** @author
@@ -29,26 +32,18 @@ import zio._
  */
 final class MailServiceSpec extends AnyFlatSpec with Matchers with CommonTestSupport {
 
+  // 本地
+  lazy val live: ULayer[MailConfigurationProperties] = ZLayer.succeed(
+    MailConfigurationProperties(ConfigFactory.load("application-test.conf").getConfig("infrastructure.javamail"))
+  )
+
   "sendHtmlMail" should "send async ignore error" in {
     val task =
       MailServiceImpl
         .sendHtmlMail("12222@qq.com", "hello world", """<a href="http://localhost:9000"/>""")
-        .provideLayer(env)
+        .provide(MailConfigurationProperties.live, MailServiceImpl.live)
     val ret = unsafeRun(task)
     assert(ret != null)
   }
-
-}
-
-object MailServiceSpec {
-
-  // 本地
-//  lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties(
-//    config = ConfigFactory.load("application-test.conf").getConfig("infrastructure.javamail")
-//  )
-
-  lazy val mailConfigurationProperties: MailConfigurationProperties = MailConfigurationProperties()
-
-  val env: ULayer[MailServiceImpl] = MailServiceImpl.make(mailConfigurationProperties)
 
 }

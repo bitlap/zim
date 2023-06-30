@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 package org.bitlap.zim.api
 
-import akka.event.slf4j._
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server._
 import org.bitlap.zim.domain.ZimError._
+
+import akka.event.slf4j._
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.Directives._
+
 import sttp.model._
 import sttp.tapir._
 import sttp.tapir.generic.auto.schemaForCaseClass

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.bitlap.zim.api.service.UserService
 import org.bitlap.zim.domain.model
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository.RStream
+
 import zio.ZIO
 
 /** @author
@@ -29,7 +30,7 @@ import zio.ZIO
  */
 final class UserServiceSpec extends TestService {
 
-  "UserApplication" should "saveUser ok" in {
+  "UserService" should "saveUser ok" in {
     val stream = (for {
       _    <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
       user <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(mockUser.id).runHead)
@@ -38,7 +39,7 @@ final class UserServiceSpec extends TestService {
     ret.map(_.username) shouldBe Some(mockUser.username)
   }
 
-  "UserApplication" should "matchUser ok" in {
+  "UserService" should "matchUser ok" in {
     val stream = (for {
       _    <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
       user <- ZIO.serviceWithZIO[UserService[RStream]](_.matchUser(mockUser).runHead)
@@ -47,7 +48,7 @@ final class UserServiceSpec extends TestService {
     ret.map(_.password) shouldBe Some("jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=")
   }
 
-  "UserApplication" should "creator leaveOutGroup ok" in {
+  "UserService" should "creator leaveOutGroup ok" in {
     val stream = (for {
       _     <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
       _     <- ZIO.serviceWithZIO[UserService[RStream]](_.createGroup(GroupList(1, "g", "", 1)).runHead)
@@ -60,7 +61,7 @@ final class UserServiceSpec extends TestService {
     ret shouldBe true
   }
 
-  "UserApplication" should "leaveOutGroup ok" in {
+  "UserService" should "leaveOutGroup ok" in {
     val stream = (for {
       _     <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
       _     <- ZIO.serviceWithZIO[UserService[RStream]](_.createGroup(GroupList(1, "g", "", 1)).runHead)
@@ -73,7 +74,7 @@ final class UserServiceSpec extends TestService {
     ret shouldBe true
   }
 
-  "UserApplication" should "changeGroup ok" in {
+  "UserService" should "changeGroup ok" in {
     val stream = (for {
       // save时创建了默认的好友分组 gid=1 uid=1
       saveU1 <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
@@ -91,7 +92,7 @@ final class UserServiceSpec extends TestService {
     ret shouldBe (Some(true), Some(1), Some(true), Some(1), Some(true), Some(true), List("lisi"))
   }
 
-  "UserApplication" should "friend findAddInfo ok" in {
+  "UserService" should "friend findAddInfo ok" in {
     val stream = (for {
       saveU1  <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
       _       <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser.copy(id = 2, username = "lisi")).runHead)
@@ -103,7 +104,7 @@ final class UserServiceSpec extends TestService {
     ret shouldBe (Some(true), Some(1), Some((2, "申请添加你为好友")))
   }
 
-  "UserApplication" should "friend findHistoryMessage ok" in {
+  "UserService" should "friend findHistoryMessage ok" in {
     val stream = (for {
       // save时创建了默认的好友分组 gid=1 uid=1
       saveU1 <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
@@ -116,7 +117,7 @@ final class UserServiceSpec extends TestService {
     ret shouldBe (Some(true), Some(1), Some(("lisi", "receive")))
   }
 
-  "UserApplication" should "group findHistoryMessage ok" in {
+  "UserService" should "group findHistoryMessage ok" in {
     val stream = (for {
       // save时创建了默认的好友分组 gid=1 uid=1
       saveU1 <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
@@ -129,7 +130,7 @@ final class UserServiceSpec extends TestService {
     ret shouldBe (Some(true), Some(1), Some(("lisi", "receive")))
   }
 
-  "UserApplication" should "group countHistoryMessage ok" in {
+  "UserService" should "group countHistoryMessage ok" in {
     val stream = (for {
       // save时创建了默认的好友分组 gid=1 uid=1
       saveU1 <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
@@ -142,7 +143,7 @@ final class UserServiceSpec extends TestService {
     ret shouldBe (Some(true), Some(1), Some(1))
   }
 
-  "UserApplication" should "findById ok" in {
+  "UserService" should "findById ok" in {
     val stream = (for {
       _   <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
       ret <- ZIO.serviceWithZIO[UserService[RStream]](_.findUserById(1).runHead)
@@ -152,7 +153,7 @@ final class UserServiceSpec extends TestService {
     ret.map(_.username) shouldBe Some(mockUser.username)
   }
 
-  "UserApplication" should "removeFriend and findAddInfo ok" in {
+  "UserService" should "removeFriend and findAddInfo ok" in {
     val stream = (for {
       _    <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser).runHead)
       _    <- ZIO.serviceWithZIO[UserService[RStream]](_.saveUser(mockUser.copy(username = "lisi")).runHead)
@@ -168,7 +169,7 @@ final class UserServiceSpec extends TestService {
     ret shouldBe Some(2) -> Some(true)
   }
 
-  "UserApplication" should "updateUserInfo, sign, avatar, should success" in {
+  "UserService" should "updateUserInfo, sign, avatar, should success" in {
     val saveUser = ZIO
       .serviceWithZIO[UserService[RStream]](_.saveUser(mockUser.copy(username = "world")).runHead)
       .provideLayer(userServiceLayer)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,15 @@
 
 package org.bitlap.zim.server.service
 
+import scala.jdk.FutureConverters.CompletionStageOps
+
 import org.bitlap.zim.infrastructure.properties._
 import org.simplejavamail.api.mailer._
 import org.simplejavamail.config._
 import org.simplejavamail.email._
 import org.simplejavamail.mailer._
-import zio._
 
-import scala.jdk.FutureConverters.CompletionStageOps
+import zio._
 
 /** 邮件发送服务
  *
@@ -65,13 +66,11 @@ object MailServiceImpl {
   def apply(mailConfigurationProperties: MailConfigurationProperties): MailServiceImpl = new MailServiceImpl(
     mailConfigurationProperties
   )
+
   def sendHtmlMail(to: String, subject: String, content: String): URIO[MailServiceImpl, Any] =
     ZIO.environmentWithZIO(_.get.sendHtmlMail(to, subject, content))
 
   lazy val live: URLayer[MailConfigurationProperties, MailServiceImpl] = ZLayer(
     ZIO.service[MailConfigurationProperties].map(MailServiceImpl.apply)
   )
-
-  def make(mailConfigurationProperties: MailConfigurationProperties): ULayer[MailServiceImpl] =
-    ZLayer.succeed(mailConfigurationProperties) >>> MailServiceImpl.live
 }

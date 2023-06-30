@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.bitlap.zim.infrastructure.repository
 
 import org.bitlap.zim.api.repository.GroupRepository
 import org.bitlap.zim.domain.model.GroupList
+
 import scalikejdbc._
 import zio._
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 
 package org.bitlap.zim.cache.redis4zio
 
+import org.bitlap.zim.cache._
+
 import io.circe._
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
-import org.bitlap.zim.cache._
+
 import zio._
-import zio.redis.Redis
-import zio.schema.DeriveSchema.gen
+import zio.redis.{Redis, RedisError, RedisExecutor}
+import zio.schema.codec.ProtobufCodec
 
 /** @author
  *    梦境迷离
@@ -30,45 +32,50 @@ import zio.schema.DeriveSchema.gen
  *    https://zio.dev/version-1.x/datatypes/contextual/#module-pattern-20
  *  @version 3.0,2022/1/17
  */
-final case class ZioRedisLive(private val rs: Redis) extends RedisService[Task] {
+object ZioRedisServiceLive {
 
-  private lazy val redisLayer: ULayer[Redis] = ZLayer.succeed(rs)
+  private lazy val redisServiceLive: URLayer[Redis, ZRedis] = ZLayer.fromFunction(ZioRedisServiceLive.apply _)
+
+  lazy val live: ZLayer[Any, RedisError.IOError, ZRedis] = ZLayer.make[ZRedis](
+    ZioRedisConfiguration.redisConf,
+    RedisExecutor.layer,
+    ZLayer.succeed(ProtobufCodec),
+    redisServiceLive,
+    Redis.layer
+  )
+}
+
+final case class ZioRedisServiceLive(private val rs: Redis) extends RedisService[Task] {
 
   override def getSets(k: String): Task[List[String]] =
-    redis
-      .sMembers(k)
+    rs.sMembers(k)
       .returning[String]
       .orDie
-      .provideLayer(redisLayer)
       .map(_.toList)
 
   override def removeSetValue(k: String, m: String): Task[Long] =
-    redis.sRem(k, m).orDie.provideLayer(redisLayer)
+    rs.sRem(k, m).orDie
 
   override def setSet(k: String, m: String): Task[Long] =
-    redis.sAdd(k, m).orDie.provideLayer(redisLayer)
+    rs.sAdd(k, m).orDie
 
   override def set[T](k: String, v: T, expireTime: JavaDuration = java.time.Duration.ofMinutes(30))(implicit
     encoder: Encoder[T]
   ): Task[Boolean] =
-    redis
-      .set[String, String](k, v.asJson.noSpaces, expireTime = Some(expireTime))
-      .provideLayer(redisLayer)
+    rs.set[String, String](k, v.asJson.noSpaces, expireTime = Some(expireTime))
 
   // we didn't use zio-schema here to serialize objects to store into redis
   override def get[T](key: String)(implicit decoder: Decoder[T]): Task[Option[T]] =
-    redis
-      .get(key)
+    rs.get(key)
       .returning[String]
-      .provideLayer(redisLayer)
       .map {
         case Some(value) => decode(value).toOption
         case None        => None
       }
 
   override def exists(key: String): Task[Boolean] =
-    redis.exists(key).provideLayer(redisLayer).map(_ > 0)
+    rs.exists(key).map(_ > 0)
 
   override def del(key: String): Task[Boolean] =
-    redis.del[String](key).provideLayer(redisLayer).map(_ > 0)
+    rs.del[String](key).map(_ > 0)
 }

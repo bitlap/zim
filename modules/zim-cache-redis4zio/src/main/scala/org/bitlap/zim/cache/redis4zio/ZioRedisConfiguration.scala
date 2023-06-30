@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package org.bitlap.zim.cache.redis4zio
 
 import com.typesafe.config.{Config, _}
+
 import zio._
 import zio.redis._
-import zio.schema.codec._
 
 /** redis configuration
  *
@@ -32,16 +32,11 @@ object ZioRedisConfiguration {
 
   private val conf: Config = ConfigFactory.load().getConfig("cache.redis")
 
-  private val redisConf: RedisConfig =
+  lazy val redisConf: ULayer[RedisConfig] = ZLayer.succeed {
     if (conf.isEmpty) {
       RedisConfig.Default
     } else {
       RedisConfig(conf.getString("host"), conf.getInt("port"))
     }
-
-  private lazy val zioRedisLayer: Layer[RedisError.IOError, Redis] =
-    ZLayer.make[Redis](ZLayer.succeed(redisConf), RedisExecutor.layer, ZLayer.succeed(ProtobufCodec), RedisLive.layer)
-
-  lazy val zimRedisLayer: Layer[RedisError.IOError, ZioRedisLive] =
-    zioRedisLayer >>> ZLayer.fromFunction(ZioRedisLive.apply _)
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,6 @@ import java.time.Instant
 import scala.concurrent._
 import scala.util.Try
 
-import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directive.addDirectiveApply
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server._
-import akka.stream._
 import org.bitlap.zim.api._
 import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain._
@@ -35,10 +29,19 @@ import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.server.FileUtil
 import org.bitlap.zim.server.route.ZimUserEndpoint._
+
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.Directive.addDirectiveApply
+import akka.http.scaladsl.server.Directives._
+import akka.stream._
+
 import sttp.model.HeaderNames._
 import sttp.model.Uri
 import sttp.model.headers._
 import sttp.tapir.server.akkahttp._
+
 import zio._
 import zio.stream._
 
@@ -404,19 +407,11 @@ object ZimUserApi {
   def apply(app: ApiService[RStream, Task])(implicit materializer: Materializer): ZimUserApi =
     new ZimUserApi(app)
 
-  val route: URIO[ZimUserApi, Route] =
-    ZIO.environmentWith[ZimUserApi](_.get.route)
-
-  val live: ZLayer[ApiService[RStream, Task] with Materializer, Nothing, ZimUserApi] =
+  lazy val live: ZLayer[ApiService[RStream, Task] with Materializer, Nothing, ZimUserApi] =
     ZLayer(
       for {
         apiService   <- ZIO.service[ApiService[RStream, Task]]
         materializer <- ZIO.service[Materializer]
       } yield ZimUserApi(apiService)(materializer)
     )
-
-  def make(
-    apiApplicationLayer: TaskLayer[ApiService[RStream, Task]],
-    materializerLayer: TaskLayer[Materializer]
-  ): TaskLayer[ZimUserApi] = ZLayer.make[ZimUserApi](apiApplicationLayer, materializerLayer, live)
 }

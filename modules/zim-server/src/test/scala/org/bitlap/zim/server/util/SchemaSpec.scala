@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 bitlap
+ * Copyright 2023 bitlap
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.bitlap.zim.api.ApiJsonCodec
 import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+
 import zio.schema.codec.ProtobufCodec
 
 /** @author
