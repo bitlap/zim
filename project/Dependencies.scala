@@ -18,7 +18,7 @@ object Dependencies {
     val logback                       = "1.4.8"
     val config                        = "1.4.2"
     val `zio-interop-reactiveStreams` = "2.0.2"
-    val mysql                         = "8.0.33"
+    val mysql                         = "8.1.0"
     val `simple-java-mail`            = "7.5.0"
     val h2                            = "2.1.214"
     val scalaTest                     = "3.2.16"
@@ -109,11 +109,11 @@ object Dependencies {
   )
 
   lazy val infrastructureDeps: Seq[ModuleID] = zioDeps ++ Seq(
-    "org.simplejavamail" % "simple-java-mail"     % Version.`simple-java-mail`,
-    "org.scalikejdbc"   %% "scalikejdbc-streams"  % Version.scalikejdbc,
-    "com.typesafe"       % "config"               % Version.config,
-    "mysql"              % "mysql-connector-java" % Version.mysql,
-    "dev.zio"           %% "zio-crypto"           % Version.`zio-crypto`
+    "org.simplejavamail" % "simple-java-mail"    % Version.`simple-java-mail`,
+    "org.scalikejdbc"   %% "scalikejdbc-streams" % Version.scalikejdbc,
+    "com.typesafe"       % "config"              % Version.config,
+    "com.mysql"          % "mysql-connector-j"   % Version.mysql,
+    "dev.zio"           %% "zio-crypto"          % Version.`zio-crypto`
   )
 
   lazy val cacheApiDeps: Seq[ModuleID] = Seq(
