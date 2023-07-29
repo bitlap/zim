@@ -21,8 +21,9 @@ import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 import org.bitlap.zim.cache._
 import zio._
-import zio.redis.{Redis, RedisError, RedisExecutor}
-import zio.schema.codec.ProtobufCodec
+import zio.redis._
+import zio.schema.Schema
+import zio.schema.codec.{BinaryCodec, ProtobufCodec}
 
 /** @author
  *    梦境迷离
@@ -37,9 +38,11 @@ object ZioRedisServiceLive {
   lazy val live: ZLayer[Any, RedisError.IOError, ZRedis] = ZLayer.make[ZRedis](
     ZioRedisConfiguration.redisConf,
     RedisExecutor.layer,
-    ZLayer.succeed(ProtobufCodec),
     redisServiceLive,
-    Redis.layer
+    Redis.layer,
+    ZLayer.succeed[CodecSupplier](new CodecSupplier {
+      override def get[A: Schema]: BinaryCodec[A] = ProtobufCodec.protobufCodec
+    })
   )
 }
 final case class ZioRedisServiceLive(private val rs: Redis) extends RedisService[Task] {
@@ -47,14 +50,13 @@ final case class ZioRedisServiceLive(private val rs: Redis) extends RedisService
   override def getSets(k: String): Task[List[String]] =
     rs.sMembers(k)
       .returning[String]
-      .orDie
       .map(_.toList)
 
   override def removeSetValue(k: String, m: String): Task[Long] =
-    rs.sRem(k, m).orDie
+    rs.sRem(k, m)
 
   override def setSet(k: String, m: String): Task[Long] =
-    rs.sAdd(k, m).orDie
+    rs.sAdd(k, m)
 
   override def set[T](k: String, v: T, expireTime: JavaDuration = java.time.Duration.ofMinutes(30))(implicit
     encoder: Encoder[T]

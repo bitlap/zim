@@ -72,7 +72,7 @@ package object repository {
    */
   implicit class executeSQLOperation[T](sql: SQL[T, HasExtractor]) {
     def toSQLOperation(implicit databaseName: String): stream.Stream[Throwable, T] =
-      ZStream.fromIterable(NamedDB(Symbol(databaseName)).localTx(implicit session => sql.list().apply()))
+      ZStream.fromIterable(NamedDB(Symbol(databaseName)).localTx(implicit session => sql.list.apply()))
   }
 
   /** scalikejdbc流转换
@@ -124,7 +124,7 @@ package object repository {
 
   // ==============================测试SQL========================================
   private[repository] def queryFindReceiveById(id: Long): SQL[Receive, HasExtractor] =
-    sql"SELECT ${r.result.*} FROM ${Receive as r} WHERE id = $id".list().map(rs => Receive(rs))
+    sql"SELECT ${r.result.*} FROM ${Receive as r} WHERE id = $id".list.map(rs => Receive(rs))
   // ==============================用户 SQL实现========================================
 
   /** 更新用户头像
@@ -134,7 +134,7 @@ package object repository {
    *  @return
    */
   private[repository] def _updateAvatar(avatar: String, uid: Int): SQLUpdate =
-    sql"update ${User.table} set avatar=$avatar where id=$uid;".update()
+    sql"update ${User.table} set avatar=$avatar where id=$uid;".update
 
   /** 更新签名
    *
@@ -143,7 +143,7 @@ package object repository {
    *  @return
    */
   private[repository] def _updateSign(sign: String, uid: Int): SQLUpdate =
-    sql"update ${User.table} set sign = $sign where id = $uid;".update()
+    sql"update ${User.table} set sign = $sign where id = $uid;".update
 
   /** 更新用户信息
    *
@@ -152,8 +152,7 @@ package object repository {
    *  @return
    */
   private[repository] def _updateUserInfo(id: Int, user: User): SQLUpdate =
-    sql"update ${User.table} set username= ${user.username}, sex = ${user.sex}, sign = ${user.sign}, password = ${user.password} where id = ${id}; "
-      .update()
+    sql"update ${User.table} set username= ${user.username}, sex = ${user.sex}, sign = ${user.sign}, password = ${user.password} where id = ${id}; ".update
 
   /** 更新用户状态
    *
@@ -162,7 +161,7 @@ package object repository {
    *  @return
    */
   private[repository] def _updateUserStatus(status: String, uid: Int): SQLUpdate =
-    sql"update ${User.table} set status = $status where id = $uid;".update()
+    sql"update ${User.table} set status = $status where id = $uid;".update
 
   /** 激活用户账号
    *
@@ -170,7 +169,7 @@ package object repository {
    *  @return
    */
   private[repository] def _activeUser(activeCode: String): SQLUpdate =
-    sql"update ${User.table} set status = 'hide' where active = $activeCode;".update()
+    sql"update ${User.table} set status = 'hide' where active = $activeCode;".update
 
   /** 根据群组ID查询群里用户的信息
    *
@@ -181,7 +180,7 @@ package object repository {
   private[repository] def _findUserByGroupId(gid: Int): StreamReadySQL[User] =
     sql"select ${u.result.*} from ${User as u} where id in(select ${gm.uid} from ${GroupMember as gm} where gid = $gid);"
       .map(User(_))
-      .list()
+      .list
       .iterator()
 
   /** 根据好友列表ID查询用户信息列表
@@ -192,7 +191,7 @@ package object repository {
   private[repository] def _findUsersByFriendGroupIds(fgid: Int): StreamReadySQL[User] =
     sql"select ${u.result.*} from ${User as u} where id in (select ${af.uid} from ${AddFriend as af} where fgid = $fgid);"
       .map(User(_))
-      .list()
+      .list
       .iterator()
 
   /** 保存用户信息
@@ -222,7 +221,7 @@ package object repository {
    *  @return
    */
   private[repository] def _deleteGroup(id: Int): SQLUpdate =
-    sql"delete from ${GroupList.table} where id = $id;".executeUpdate()
+    sql"delete from ${GroupList.table} where id = $id;".executeUpdate
 
   /** 根据群名模糊统计
    *
@@ -238,7 +237,7 @@ package object repository {
             groupName.map(gn => sqls.like(g.column("group_name"), s"%$gn%"))
           )
         )
-    }.toList().map(rs => rs.int(1)).iterator()
+    }.toList.map(rs => rs.int(1)).iterator()
 
   /** 根据群名模糊查询群
    *
@@ -255,7 +254,7 @@ package object repository {
             groupName.map(gn => sqls.like(g.column("group_name"), s"%$gn%"))
           )
         )
-    }.toList().map(rs => GroupList(rs)).iterator()
+    }.toList.map(rs => GroupList(rs)).iterator()
 
   /** 根据群id查询群信息
    *
@@ -265,7 +264,7 @@ package object repository {
   private[repository] def _findGroupById(gid: Int): StreamReadySQL[GroupList] =
     sql"select ${g.result.*} from ${GroupList as g} where id = $gid;"
       .map(rs => GroupList(rs))
-      .list()
+      .list
       .iterator()
 
   /** 根据用户id查询用户所在的群组列表，不管是自己创建的还是别人创建的
@@ -278,7 +277,7 @@ package object repository {
   ): StreamReadySQL[GroupList] =
     sql"select ${g.result.*} from ${GroupList as g} where id in(select distinct ${gm.gid} from ${GroupMember as gm} where uid = $uid);"
       .map(rs => GroupList(rs))
-      .list()
+      .list
       .iterator()
 
   // ==============================聊天消息 SQL实现========================================
@@ -289,8 +288,7 @@ package object repository {
    *  @return
    */
   private[repository] def _saveMessage(receive: Receive): SQLUpdate =
-    sql"insert into ${Receive.table}(toid,mid,fromid,content,type,timestamp,status) values(${receive.toid},${receive.mid},${receive.fromid},${receive.content},${receive.`type`},${receive.timestamp},${receive.status});"
-      .update()
+    sql"insert into ${Receive.table}(toid,mid,fromid,content,type,timestamp,status) values(${receive.toid},${receive.mid},${receive.fromid},${receive.content},${receive.`type`},${receive.timestamp},${receive.status});".update
 
   /** 查询消息
    *
@@ -306,7 +304,7 @@ package object repository {
   ): StreamReadySQL[Receive] =
     sql"select ${r.result.*} from ${Receive as r} where toid = $uid and status = $status;"
       .map(rs => Receive(rs))
-      .list()
+      .list
       .iterator()
 
   /** 查询消息
@@ -350,7 +348,7 @@ package object repository {
           )
         )
         .orderBy(r.timestamp)
-    }.toList().map(rs => Receive(rs)).iterator()
+    }.toList.map(rs => Receive(rs)).iterator()
 
   /** 统计查询消息
    *
@@ -393,7 +391,7 @@ package object repository {
           )
         )
         .orderBy(r.timestamp)
-    }.toList().map(rs => rs.int(1)).iterator()
+    }.toList.map(rs => rs.int(1)).iterator()
 
   /** 置为已读
    *
@@ -403,8 +401,7 @@ package object repository {
    *  @return
    */
   private[repository] def _readMessage(mine: Int, to: Int, typ: String): SQLUpdate =
-    sql"update ${Receive.table} set status = 1 where status = 0 and mid = $mine and toid = $to and type = $typ;"
-      .update()
+    sql"update ${Receive.table} set status = 1 where status = 0 and mid = $mine and toid = $to and type = $typ;".update
 
   // ==============================好友分组 SQL实现========================================
 
@@ -415,8 +412,7 @@ package object repository {
    *  @return
    */
   private[repository] def _createFriendGroup(friendGroup: FriendGroup): SQLUpdate =
-    sql"insert into ${FriendGroup.table}(group_name,uid) values(${friendGroup.groupName},${friendGroup.uid});"
-      .update()
+    sql"insert into ${FriendGroup.table}(group_name,uid) values(${friendGroup.groupName},${friendGroup.uid});".update
 
   /** 根据ID查询该用户的好友分组的列表
    *
@@ -427,7 +423,7 @@ package object repository {
   private[repository] def _findFriendGroupsById(uid: Int): StreamReadySQL[FriendGroup] =
     sql"select ${fg.result.*} from ${FriendGroup as fg} where uid = $uid;"
       .map(rs => FriendGroup(rs))
-      .list()
+      .list
       .iterator()
 
   // ==============================好友分组中人的操作 SQL实现========================================
@@ -439,8 +435,7 @@ package object repository {
    *  @return
    */
   private[repository] def _removeFriend(friendId: Int, uId: Int) =
-    sql"delete from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid in ($friendId, $uId)) and uid in($friendId, $uId);"
-      .executeUpdate()
+    sql"delete from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid in ($friendId, $uId)) and uid in($friendId, $uId);".executeUpdate
 
   /** 移动好友分组
    *
@@ -449,8 +444,7 @@ package object repository {
    *  @return
    */
   private[repository] def _changeGroup(groupId: Int, originRecordId: Int) =
-    sql"update ${AddFriend.table} set fgid = $groupId where id = $originRecordId;"
-      .executeUpdate()
+    sql"update ${AddFriend.table} set fgid = $groupId where id = $originRecordId;".executeUpdate
 
   /** 查询我的好友的分组
    *
@@ -463,8 +457,7 @@ package object repository {
     uId: Int,
     mId: Int
   ): StreamReadySQL[Int] =
-    sql"select id from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid = $mId) and uid = $uId"
-      .list()
+    sql"select id from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid = $mId) and uid = $uId".list
       .map(rs => rs.int(1))
       .iterator()
 
@@ -475,8 +468,7 @@ package object repository {
    *  @return
    */
   private[repository] def _addFriend(from: AddFriend, to: AddFriend): SQLUpdate =
-    sql"insert into ${AddFriend.table}(fgid,uid) values(${from.fgid},${to.uid}),(${to.fgid}, ${from.uid});"
-      .update()
+    sql"insert into ${AddFriend.table}(fgid,uid) values(${from.fgid},${to.uid}),(${to.fgid}, ${from.uid});".update
 
   // ==============================群组成员 SQL实现==============================================
 
@@ -487,7 +479,7 @@ package object repository {
    *  @return
    */
   private[repository] def _leaveOutGroup(groupMember: GroupMember): SQLUpdate =
-    sql"delete from ${GroupMember.table} where gid = ${groupMember.gid} and uid = ${groupMember.uid};".update()
+    sql"delete from ${GroupMember.table} where gid = ${groupMember.gid} and uid = ${groupMember.uid};".update
 
   /** 查询用户编号
    *
@@ -495,8 +487,7 @@ package object repository {
    *  @return
    */
   private[repository] def _findGroupMembers(gid: Int): StreamReadySQL[Int] =
-    sql" select uid from ${GroupMember.table} where gid = $gid;"
-      .list()
+    sql" select uid from ${GroupMember.table} where gid = $gid;".list
       .map(rs => rs.int(1))
       .iterator()
 
@@ -507,8 +498,7 @@ package object repository {
    *  @return
    */
   private[repository] def _addGroupMember(groupMember: GroupMember): SQLUpdate =
-    sql"insert into ${GroupMember.table}(gid,uid) values(${groupMember.gid},${groupMember.uid});"
-      .update()
+    sql"insert into ${GroupMember.table}(gid,uid) values(${groupMember.gid},${groupMember.uid});".update
 
   // ==============================申请消息 SQL实现==============================================
   /** 查询添加好友、群组信息
@@ -525,7 +515,7 @@ package object repository {
         .eq(am.toUid, uid)
         .orderBy(am.time)
         .desc
-    }.map(rs => AddMessage(rs)).list().iterator()
+    }.map(rs => AddMessage(rs)).list.iterator()
 
   /** 更新好友、群组信息请求
    *
@@ -536,7 +526,7 @@ package object repository {
    *  @return
    */
   private[repository] def _updateAgree(id: Int, agree: Int): SQLUpdate =
-    sql"update ${AddMessage.table} set agree = $agree where id = $id".update()
+    sql"update ${AddMessage.table} set agree = $agree where id = $id".update
 
   /** 添加好友、群组信息请求 ON DUPLICATE KEY UPDATE 首先这个语法的目的是为了解决重复性，当数据库中存在某个记录时，执行这条语句会更新它，而不存在这条记录时，会插入它。
    *
@@ -545,6 +535,5 @@ package object repository {
    *  @return
    */
   private[repository] def _saveAddMessage(addMessage: AddMessage): SQLUpdate =
-    sql"insert into ${AddMessage.table}(from_uid,to_uid,group_id,remark,agree,type,time) values(${addMessage.fromUid},${addMessage.toUid},${addMessage.groupId},${addMessage.remark},${addMessage.agree},${addMessage.`type`},${addMessage.time}) ON DUPLICATE KEY UPDATE remark=${addMessage.remark},time=${addMessage.time},agree=${addMessage.agree};"
-      .update()
+    sql"insert into ${AddMessage.table}(from_uid,to_uid,group_id,remark,agree,type,time) values(${addMessage.fromUid},${addMessage.toUid},${addMessage.groupId},${addMessage.remark},${addMessage.agree},${addMessage.`type`},${addMessage.time}) ON DUPLICATE KEY UPDATE remark=${addMessage.remark},time=${addMessage.time},agree=${addMessage.agree};".update
 }
