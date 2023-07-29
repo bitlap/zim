@@ -1,7 +1,7 @@
 version: '3'
 services:
   zim_server:
-    image: liguobin/zim:0.6.0
+    image: liguobin/zim:0.6.3
     container_name: zim_server
     depends_on:
       - zim_mysql_server
