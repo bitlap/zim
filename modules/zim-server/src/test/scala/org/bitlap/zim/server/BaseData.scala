@@ -105,14 +105,14 @@ trait BaseData extends AnyFlatSpec with Matchers with BeforeAndAfter with Common
     //  sqlBefore.statement.split(";").toList.foreach(stmt.addBatch)
     //  stmt.executeBatch()
     NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
-      sqlBefore.execute().apply()
+      sqlBefore.execute.apply()
     }
   }
 
   after {
 
     NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
-      sqlAfter.execute().apply()
+      sqlAfter.execute.apply()
     }
   }
 }

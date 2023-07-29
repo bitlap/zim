@@ -1,8 +1,8 @@
+import scala.io.AnsiColor._
+
 import de.heikoseeberger.sbtheader.HeaderPlugin
 
 Global / onLoad := {
-  val GREEN = "\u001b[32m"
-  val RESET = "\u001b[0m"
   println(s"""$GREEN
              |$GREEN                                 ____
              |$GREEN                ,--,           ,'  , `.
@@ -23,11 +23,8 @@ Global / onLoad := {
 }
 
 ThisBuild / resolvers ++= Seq(
-  Resolver.mavenLocal,
-  Resolver.sonatypeRepo("public"),
-  Resolver.sonatypeRepo("snapshots"),
   "New snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-)
+) ++ Resolver.sonatypeOssRepos("snapshots")
 
 // sbt-assembly, not support build docker image by sbt task, so we use sbt-native-packager
 //lazy val assemblySettings = Seq(

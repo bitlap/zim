@@ -1,8 +1,6 @@
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerCreateAll
-import sbt.{url, Def, Developer, ScmInfo}
-import sbt.Compile
+import sbt.*
 import sbt.Keys._
-import sbt.URL
 
 /** @author
  *    梦境迷离
@@ -21,7 +19,7 @@ object Information {
     licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
     developers := List(
       Developer(
-        "dreamylost",
+        "jxnu-liguobin",
         "梦境迷离",
         "dreamylost@outlook.com",
         url("https://github.com/jxnu-liguobin")

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# It can only be executed after `docker-deploy.sh`
-image=`docker images | grep liguobin/zim | awk '{print $1}'`
-tag=`docker images | grep liguobin/zim | awk '{print $2}'`
+tag=$1
 
-docker push $image:$tag
+sbt docker:publishLocal
+
+docker push liguobin/zim:$tag

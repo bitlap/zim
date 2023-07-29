@@ -31,12 +31,12 @@ trait ZIOBaseSuit extends ZIOSpecDefault {
 
   lazy val before: Boolean =
     NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
-      sqlBefore.execute().apply()
+      sqlBefore.execute.apply()
     }
 
   lazy val after: Boolean =
     NamedDB(Symbol(h2ConfigurationProperties.databaseName)).autoCommit { implicit session =>
-      sqlAfter.execute().apply()
+      sqlAfter.execute.apply()
     }
 
   val h2ConfigurationProperties: MysqlConfigurationProperties = MysqlConfigurationProperties()
