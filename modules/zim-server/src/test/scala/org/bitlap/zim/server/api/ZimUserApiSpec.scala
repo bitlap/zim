@@ -20,7 +20,6 @@ import java.util.concurrent._
 
 import scala.concurrent.duration.FiniteDuration
 
-
 import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model._

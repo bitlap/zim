@@ -1,6 +1,6 @@
-import sbt.Keys._
-import sbt.*
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerCreateAll
+import sbt.*
+import sbt.Keys._
 
 /** @author
  *    梦境迷离
