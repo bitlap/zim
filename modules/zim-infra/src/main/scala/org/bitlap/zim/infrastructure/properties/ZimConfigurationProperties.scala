@@ -17,6 +17,7 @@
 package org.bitlap.zim.infrastructure.properties
 
 import com.typesafe.config.{Config, ConfigFactory}
+
 import zio._
 
 /** application configuration（exclude database）

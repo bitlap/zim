@@ -15,9 +15,11 @@
  */
 
 package org.bitlap.zim.server.actor
+
 import org.bitlap.zim.domain.ws.protocol._
 import org.bitlap.zim.infrastructure.util.LogUtil
 import org.bitlap.zim.server.service.ws.WsService
+
 import zio._
 import zio.actors.Actor.Stateful
 import zio.actors.Context

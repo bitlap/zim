@@ -1,8 +1,6 @@
 import sbt.Keys._
 import sbt.*
-import sbt.URL
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerCreateAll
-import sbt.Compile
 
 /** @author
  *    梦境迷离

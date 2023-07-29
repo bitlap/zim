@@ -18,6 +18,7 @@ package org.bitlap.zim.infrastructure.repository
 
 import org.bitlap.zim.api.repository.FriendGroupRepository
 import org.bitlap.zim.domain.model._
+
 import scalikejdbc._
 import zio._
 import zio.stream._
@@ -34,6 +35,7 @@ private final class TangibleFriendGroupRepository(databaseName: String)
     with FriendGroupRepository[RStream] {
 
   override implicit val dbName: String = databaseName
+
   override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[FriendGroup], FriendGroup] =
     FriendGroup.syntax("fg")
 

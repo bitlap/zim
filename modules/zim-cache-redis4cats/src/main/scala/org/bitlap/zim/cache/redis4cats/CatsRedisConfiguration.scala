@@ -15,6 +15,7 @@
  */
 
 package org.bitlap.zim.cache.redis4cats
+
 import com.typesafe.config._
 
 /** redis configuration

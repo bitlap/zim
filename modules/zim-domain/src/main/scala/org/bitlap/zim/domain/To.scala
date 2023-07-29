@@ -41,6 +41,7 @@ final case class To(
   status: String,
   `type`: String
 )
+
 object To {
 
   implicit val decoder: Decoder[To] = (c: HCursor) =>

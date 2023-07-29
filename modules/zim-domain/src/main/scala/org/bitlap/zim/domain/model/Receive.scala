@@ -18,6 +18,7 @@ package org.bitlap.zim.domain.model
 
 import io.circe._
 import io.circe.generic.semiauto._
+
 import scalikejdbc.{WrappedResultSet, _}
 
 /** 收到的消息
@@ -69,6 +70,7 @@ object Receive extends SQLSyntaxSupport[Receive] {
   override val tableName = "t_message"
 
   implicit val decoder: Decoder[Receive] = deriveDecoder[Receive]
+
   implicit val encoder: Encoder[Receive] = (a: Receive) =>
     if (a == null) Json.Null
     else

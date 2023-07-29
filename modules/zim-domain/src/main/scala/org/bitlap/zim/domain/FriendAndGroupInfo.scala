@@ -16,9 +16,11 @@
 
 package org.bitlap.zim.domain
 
+import org.bitlap.zim.domain.model._
+
 import io.circe._
 import io.circe.generic.semiauto._
-import org.bitlap.zim.domain.model._
+
 import zio.schema._
 
 /** 好友和群组整个信息集

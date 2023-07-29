@@ -18,6 +18,7 @@ package org.bitlap.zim.infrastructure.repository
 
 import org.bitlap.zim.api.repository.GroupMemberRepository
 import org.bitlap.zim.domain.model.GroupMember
+
 import scalikejdbc._
 import zio._
 import zio.stream.ZStream
@@ -27,6 +28,7 @@ private final class TangibleGroupMemberRepository(databaseName: String)
     with GroupMemberRepository[RStream] {
 
   override implicit val dbName: String = databaseName
+
   override implicit val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[GroupMember], GroupMember] =
     GroupMember.syntax("gm")
 

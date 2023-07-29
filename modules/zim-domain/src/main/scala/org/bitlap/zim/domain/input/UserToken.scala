@@ -15,11 +15,13 @@
  */
 
 package org.bitlap.zim.domain.input
+
 import java.nio.charset.Charset
 import java.util.Base64
 
 import io.circe._
 import io.circe.generic.semiauto._
+
 import zio.schema._
 
 /** 用户登录 输入 cookie
@@ -33,6 +35,7 @@ object UserToken {
   implicit val decoder: Decoder[UserToken] = deriveDecoder[UserToken]
 
   case class UserSecurityInfo(id: Int, email: String, password: String, username: String) {
+
     def toCookieValue: String = {
       val base64 = Base64.getEncoder.encode(s"$email:$password".getBytes(Charset.forName("utf8")))
       new String(base64)

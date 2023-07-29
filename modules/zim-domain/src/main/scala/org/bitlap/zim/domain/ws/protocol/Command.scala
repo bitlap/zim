@@ -16,9 +16,11 @@
 
 package org.bitlap.zim.domain.ws.protocol
 
-import akka.actor.ActorRef
-import io.circe.parser.decode
 import org.bitlap.zim.domain.Message
+
+import akka.actor.ActorRef
+
+import io.circe.parser.decode
 
 /** ws actor command
  */

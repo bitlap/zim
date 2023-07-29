@@ -15,11 +15,14 @@
  */
 
 package org.bitlap.zim.server.service
-import com.typesafe.config.ConfigFactory
+
 import org.bitlap.zim.infrastructure.properties._
 import org.bitlap.zim.server.CommonTestSupport
 import org.scalatest.flatspec._
 import org.scalatest.matchers.should._
+
+import com.typesafe.config.ConfigFactory
+
 import zio._
 
 /** @author

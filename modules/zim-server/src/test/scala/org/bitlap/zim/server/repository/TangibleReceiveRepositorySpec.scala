@@ -15,11 +15,13 @@
  */
 
 package org.bitlap.zim.server.repository
+
 import org.bitlap.zim.api.repository.ReceiveRepository
 import org.bitlap.zim.domain.model.Receive
 import org.bitlap.zim.infrastructure.repository._
 import org.bitlap.zim.server.BaseData
 import org.bitlap.zim.server.repository.TangibleReceiveRepositorySpec.TangibleReceiveRepositoryConfigurationSpec
+
 import scalikejdbc._
 import zio._
 

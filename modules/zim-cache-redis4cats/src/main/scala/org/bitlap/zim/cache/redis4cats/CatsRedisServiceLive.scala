@@ -20,20 +20,22 @@ import java.time.Duration
 
 import scala.concurrent.duration._
 
-import cats.effect.{IO, Resource}
-import dev.profunktor.redis4cats.connection.{RedisClient, RedisURI}
-import dev.profunktor.redis4cats.data.RedisCodec
-import dev.profunktor.redis4cats.effects._
-import dev.profunktor.redis4cats.log4cats.log4CatsInstance
-import dev.profunktor.redis4cats.{Redis, RedisCommands}
+import org.bitlap.zim.cache.{JavaDuration, RedisService}
+import org.bitlap.zim.cache.redis4cats.CatsRedisConfiguration.{redisHost, redisPort}
+import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.slf4j.Slf4jLogger
+
 import io.circe._
 import io.circe.parser.decode
 import io.circe.syntax.EncoderOps
 import io.lettuce.core.{ClientOptions, TimeoutOptions}
-import org.bitlap.zim.cache.redis4cats.CatsRedisConfiguration.{redisHost, redisPort}
-import org.bitlap.zim.cache.{JavaDuration, RedisService}
-import org.typelevel.log4cats.Logger
-import org.typelevel.log4cats.slf4j.Slf4jLogger
+
+import cats.effect.{IO, Resource}
+import dev.profunktor.redis4cats.{Redis, RedisCommands}
+import dev.profunktor.redis4cats.connection.{RedisClient, RedisURI}
+import dev.profunktor.redis4cats.data.RedisCodec
+import dev.profunktor.redis4cats.effects._
+import dev.profunktor.redis4cats.log4cats.log4CatsInstance
 import zio.{ULayer, ZLayer}
 
 /** @author
@@ -71,6 +73,7 @@ object CatsRedisServiceLive {
 
   lazy val live: ULayer[CRedis] = ZLayer.succeed(new CatsRedisServiceLive(resource))
 }
+
 final case class CatsRedisServiceLive(redis: Resource[IO, RedisCommands[IO, String, String]])(implicit
   logger: Logger[IO]
 ) extends RedisService[IO] {

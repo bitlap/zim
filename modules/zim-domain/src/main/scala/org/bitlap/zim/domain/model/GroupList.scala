@@ -16,9 +16,11 @@
 
 package org.bitlap.zim.domain.model
 
+import org.bitlap.zim.domain.Group
+
 import io.circe._
 import io.circe.generic.semiauto._
-import org.bitlap.zim.domain.Group
+
 import scalikejdbc.{WrappedResultSet, _}
 import zio.schema._
 
@@ -50,6 +52,7 @@ object GroupList extends BaseModel[GroupList] {
   override def tableName: String = "t_group"
 
   implicit val decoder: Decoder[GroupList] = deriveDecoder[GroupList]
+
   implicit val encoder: Encoder[GroupList] = (a: GroupList) =>
     if (a == null) Json.Null
     else

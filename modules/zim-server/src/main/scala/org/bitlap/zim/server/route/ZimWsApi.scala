@@ -18,14 +18,17 @@ package org.bitlap.zim.server.route
 
 import scala.concurrent._
 
+import org.bitlap.zim.api._
+import org.bitlap.zim.server.service.ws._
+
 import akka._
 import akka.http.scaladsl.model.ws._
 import akka.http.scaladsl.server._
 import akka.stream._
 import akka.stream.scaladsl.Flow
-import org.bitlap.zim.api._
-import org.bitlap.zim.server.service.ws._
+
 import sttp.tapir.server.akkahttp._
+
 import zio._
 
 /** @author

@@ -15,6 +15,7 @@
  */
 
 package org.bitlap.zim.domain.input
+
 import io.circe._
 import io.circe.generic.semiauto._
 

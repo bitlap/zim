@@ -30,6 +30,7 @@ package object repository {
     final case class ConditionValidator()
 
     object ConditionValidator {
+
       implicit val conditionValueValidate: Validate.Plain[Condition, ConditionValidator] = Validate.fromPredicate(
         p =>
           p != null ||

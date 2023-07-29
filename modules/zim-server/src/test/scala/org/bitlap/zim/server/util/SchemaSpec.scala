@@ -20,6 +20,7 @@ import org.bitlap.zim.api.ApiJsonCodec
 import org.bitlap.zim.domain.input.UserToken.UserSecurityInfo
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+
 import zio.schema.codec.ProtobufCodec
 
 /** @author

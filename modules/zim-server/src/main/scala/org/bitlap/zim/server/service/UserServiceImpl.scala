@@ -21,14 +21,15 @@ import java.time._
 import org.bitlap.zim._
 import org.bitlap.zim.api.repository._
 import org.bitlap.zim.api.service._
-import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain._
+import org.bitlap.zim.domain.ZimError._
 import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.properties.{MailConfigurationProperties, ZimConfigurationProperties}
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.infrastructure.util._
 import org.bitlap.zim.server.service.ws.WsService
+
 import zio._
 import zio.stream._
 
@@ -347,6 +348,7 @@ object UserServiceImpl {
         infrastructureConfiguration.addMessageRepository
       )
     )
+
   // 测试用
   // TODO 构造注入的代价，以后少用
   lazy val testLive: URLayer[

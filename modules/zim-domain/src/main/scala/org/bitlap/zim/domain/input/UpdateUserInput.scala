@@ -41,6 +41,7 @@ final case class UpdateUserInput(
   sign: String,
   sex: String
 )
+
 object UpdateUserInput {
 
   implicit val decoder: Decoder[UpdateUserInput] = deriveDecoder[UpdateUserInput]

@@ -21,12 +21,6 @@ import java.time.Instant
 import scala.concurrent._
 import scala.util.Try
 
-import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directive.addDirectiveApply
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server._
-import akka.stream._
 import org.bitlap.zim.api._
 import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain._
@@ -35,10 +29,19 @@ import org.bitlap.zim.domain.model._
 import org.bitlap.zim.infrastructure.repository.RStream
 import org.bitlap.zim.server.FileUtil
 import org.bitlap.zim.server.route.ZimUserEndpoint._
+
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.Directive.addDirectiveApply
+import akka.http.scaladsl.server.Directives._
+import akka.stream._
+
 import sttp.model.HeaderNames._
 import sttp.model.Uri
 import sttp.model.headers._
 import sttp.tapir.server.akkahttp._
+
 import zio._
 import zio.stream._
 

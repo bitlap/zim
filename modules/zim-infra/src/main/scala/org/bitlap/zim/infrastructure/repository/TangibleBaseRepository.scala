@@ -19,6 +19,7 @@ package org.bitlap.zim.infrastructure.repository
 import org.bitlap.zim.api.repository.BaseRepository
 import org.bitlap.zim.api.repository.Condition._
 import org.bitlap.zim.domain.model.BaseModel
+
 import scalikejdbc._
 
 abstract class TangibleBaseRepository[T](M: BaseModel[T]) extends BaseRepository[RStream, T] {

@@ -20,16 +20,7 @@ import java.util.concurrent._
 
 import scala.concurrent.duration.FiniteDuration
 
-import akka.actor.typed.ActorSystem
-import akka.http.scaladsl.marshalling._
-import akka.http.scaladsl.model.MediaTypes._
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers._
-import akka.http.scaladsl.server._
-import akka.http.scaladsl.testkit._
-import akka.stream.Materializer
-import akka.testkit.TestDuration
-import io.circe.syntax.EncoderOps
+
 import org.bitlap.zim.api.service._
 import org.bitlap.zim.domain.input._
 import org.bitlap.zim.domain.model._
@@ -38,6 +29,19 @@ import org.bitlap.zim.infrastructure.repository._
 import org.bitlap.zim.server.module._
 import org.bitlap.zim.server.route.ZimUserApi
 import org.bitlap.zim.server.service._
+
+import akka.actor.typed.ActorSystem
+import akka.http.scaladsl.marshalling._
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.MediaTypes._
+import akka.http.scaladsl.model.headers._
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.testkit._
+import akka.stream.Materializer
+import akka.testkit.TestDuration
+
+import io.circe.syntax.EncoderOps
+
 import zio._
 
 /** 测试akka-http route

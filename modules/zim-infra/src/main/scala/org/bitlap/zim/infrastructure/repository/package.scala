@@ -20,13 +20,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.bitlap.zim.api.repository.Condition
 import org.bitlap.zim.domain.model._
-import scalikejdbc.streams._
+
 import scalikejdbc.{SQL, _}
+import scalikejdbc.streams._
+import sqls.count
 import zio._
 import zio.interop.reactivestreams._
 import zio.stream.ZStream
-
-import sqls.count
 
 /** 用户操作SQL
  *
@@ -48,6 +48,7 @@ package object repository {
    *  @param sqlUpdateWithGeneratedKey
    */
   implicit class sqlUpdateWithGeneratedKey(sqlUpdateWithGeneratedKey: SQLUpdateWithGeneratedKey) {
+
     def toUpdateReturnKey(implicit databaseName: String): stream.Stream[Throwable, Long] =
       ZStream.fromZIO(
         ZIO.attempt(NamedDB(Symbol(databaseName)).localTx(implicit session => sqlUpdateWithGeneratedKey.apply()))
@@ -59,6 +60,7 @@ package object repository {
    *  @param sqlUpdate
    */
   implicit class executeUpdateOperation(sqlUpdate: SQLUpdate) {
+
     def toUpdateOperation(implicit databaseName: String): stream.Stream[Throwable, Int] =
       ZStream.fromZIO(
         ZIO.attempt(NamedDB(Symbol(databaseName)).localTx(implicit session => sqlUpdate.apply()))
@@ -71,6 +73,7 @@ package object repository {
    *  @tparam T
    */
   implicit class executeSQLOperation[T](sql: SQL[T, HasExtractor]) {
+
     def toSQLOperation(implicit databaseName: String): stream.Stream[Throwable, T] =
       ZStream.fromIterable(NamedDB(Symbol(databaseName)).localTx(implicit session => sql.list.apply()))
   }
@@ -81,6 +84,7 @@ package object repository {
    *  @tparam T
    */
   implicit class executeStreamOperation[T](streamReadySQL: StreamReadySQL[T]) {
+
     def toStreamOperation(implicit databaseName: String): stream.Stream[Throwable, T] =
       (NamedDB(Symbol(databaseName)) readOnlyStream streamReadySQL).toZIOStream()
   }
@@ -89,9 +93,10 @@ package object repository {
     val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[T], T]
   ) {
 
-    import eu.timepit.refined.refineV
     import org.bitlap.zim.api.repository.Condition._
     import org.bitlap.zim.api.repository.Condition.ConditionValidator._
+
+    import eu.timepit.refined.refineV
 
     @inline def like(y: Option[String]): Option[ZCondition] =
       refineV(Condition(self, y.map(sqls.like(sp.column(self), _)).orNull)).toOption

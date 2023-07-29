@@ -20,6 +20,7 @@ import org.bitlap.zim.infrastructure.InfrastructureConfiguration
 import org.bitlap.zim.infrastructure.properties.ZimConfigurationProperties
 import org.bitlap.zim.server.module._
 import org.bitlap.zim.server.service.ApiServiceImpl
+
 import zio._
 
 /** main方法
@@ -29,6 +30,7 @@ import zio._
  *  @version 1.0,2021/12/24
  */
 object ZimServer extends zio.ZIOAppDefault {
+
   override def run: ZIO[Any, Throwable, Unit] = (for {
     _ <- Console.printLine("""
                              |                                 ____

@@ -25,12 +25,14 @@ import org.bitlap.zim.infrastructure.repository.{
 }
 import org.bitlap.zim.server.ZIOBaseSuit
 import org.bitlap.zim.server.repository.TangibleFriendGroupFriendRepositorySpec.TangibleFriendGroupFriendRepositorySpec
+
 import scalikejdbc._
 import zio._
-import zio.test.Assertion._
 import zio.test._
+import zio.test.Assertion._
 
 object TangibleFriendGroupFriendRepositoryMainSpec extends TangibleFriendGroupFriendRepositorySpec {
+
   def spec: Spec[Any, Throwable] = suite("Tangible friendGroupFriend repository")(
     test("find user group") {
       for {
@@ -62,7 +64,9 @@ object TangibleFriendGroupFriendRepositoryMainSpec extends TangibleFriendGroupFr
 }
 
 object TangibleFriendGroupFriendRepositorySpec {
+
   trait TangibleFriendGroupFriendRepositorySpec extends ZIOBaseSuit {
+
     override val sqlAfter: SQL[_, NoExtractor] =
       sql"""
            |        drop table if exists t_friend_group_friends;
@@ -91,6 +95,7 @@ object TangibleFriendGroupFriendRepositorySpec {
 
     val friendGroupFriendLayer: ULayer[FriendGroupFriendRepository[RStream]] =
       TangibleFriendGroupFriendRepository.make(h2ConfigurationProperties.databaseName)
+
     val friendGroupLayer: ULayer[FriendGroupRepository[RStream]] =
       TangibleFriendGroupRepository.make(h2ConfigurationProperties.databaseName)
 
