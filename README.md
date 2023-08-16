@@ -2,7 +2,7 @@
 
 [![Build](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml/badge.svg?branch=master)](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml)
 [![codecov](https://codecov.io/gh/bitlap/zim/branch/master/graph/badge.svg?token=V95ZMWUUCE)](https://codecov.io/gh/bitlap/zim)
-[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/liguobin/zim)](https://hub.docker.com/r/liguobin/zim/tags)
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/liguobin/zim?label=docker-image)](https://hub.docker.com/r/liguobin/zim/tags)
 
 [在线预览地址](http://im.dreamylost.cn:8989) 
 > 账号dreamylost@outlook.com 密码123456（注册有时不可用）
