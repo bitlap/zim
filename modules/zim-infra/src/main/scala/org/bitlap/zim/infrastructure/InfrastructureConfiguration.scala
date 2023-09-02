@@ -32,19 +32,23 @@ import zio._
  */
 final class InfrastructureConfiguration {
 
-  ConnectionPool.add(
-    Symbol(mysqlConfigurationProperties.databaseName),
-    mysqlConfigurationProperties.url,
-    mysqlConfigurationProperties.user,
-    mysqlConfigurationProperties.password,
-    ConnectionPoolSettings(
-      initialSize = mysqlConfigurationProperties.initialSize,
-      maxSize = mysqlConfigurationProperties.maxSize,
-      connectionTimeoutMillis = mysqlConfigurationProperties.connectionTimeoutMillis,
-      validationQuery = mysqlConfigurationProperties.validationQuery,
-      driverName = mysqlConfigurationProperties.driverName
-    )
-  )
+  def initPool(): URIO[Any, Unit] = {
+    ZIO.attempt {
+      ConnectionPool.add(
+        Symbol(mysqlConfigurationProperties.databaseName),
+        mysqlConfigurationProperties.url,
+        mysqlConfigurationProperties.user,
+        mysqlConfigurationProperties.password,
+        ConnectionPoolSettings(
+          initialSize = mysqlConfigurationProperties.initialSize,
+          maxSize = mysqlConfigurationProperties.maxSize,
+          connectionTimeoutMillis = mysqlConfigurationProperties.connectionTimeoutMillis,
+          validationQuery = mysqlConfigurationProperties.validationQuery,
+          driverName = mysqlConfigurationProperties.driverName
+        )
+      )
+    }.orDie
+  }
 
   lazy val mysqlConfigurationProperties: MysqlConfigurationProperties = MysqlConfigurationProperties()
 

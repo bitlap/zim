@@ -45,7 +45,8 @@ object ZimServer extends zio.ZIOAppDefault {
                              | ./__;     .' |  | '.'||   | |`-'
                              | ;   |  .'    ;  :    ;|   ;/
                              | `---'        |  ,   / '---'""".stripMargin)
-    _ <- ZIO.environmentWithZIO[AkkaHttpModule](_.get.httpServer())
+    _ <- ZIO.serviceWithZIO[InfrastructureConfiguration](_.initPool()) // init pool
+    _ <- ZIO.serviceWithZIO[AkkaHttpModule](_.httpServer())
     _ <- ZIO.never
   } yield ()).provide(
     AkkaModule.live,

@@ -23,5 +23,5 @@ import cats.effect.IO
  *  @version 1.0,2023/3/26
  */
 package object redis4cats {
-  type CRedis = RedisService[IO]
+  type Redis = RedisService[IO]
 }

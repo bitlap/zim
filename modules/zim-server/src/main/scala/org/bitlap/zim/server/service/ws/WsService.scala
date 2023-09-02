@@ -48,12 +48,13 @@ import zio.actors.akka._
  */
 object WsService {
 
-  private lazy val wsLayer =
-    InfrastructureConfiguration.live >>> UserServiceImpl.live >>> WsServiceLive.live
+  private lazy val wsLayer: ZLayer[Any, Throwable, WsServiceLive] = {
+    ZLayer.make[WsServiceLive](InfrastructureConfiguration.live, UserServiceImpl.live, WsServiceLive.live)
+  }
 
   final lazy val actorRefSessions: ConcurrentHashMap[Integer, ActorRef] = new ConcurrentHashMap[Integer, ActorRef]
 
-  private val customDispatcher = DispatcherSelector.fromConfig("custom-dispatcher")
+  private val customDispatcher: DispatcherSelector = DispatcherSelector.fromConfig("custom-dispatcher")
 
   // 非最佳实践，为了使用unsafeRun，不能把environment传递到最外层，这里直接provideLayer
   def sendMessage(message: IMMessage): Task[Unit] =

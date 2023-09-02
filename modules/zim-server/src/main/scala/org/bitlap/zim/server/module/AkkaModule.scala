@@ -37,10 +37,10 @@ object AkkaModule {
   lazy val live: ZLayer[Any with Any with Scope, Throwable, ActorSystem[Nothing]] =
     ZLayer.fromZIO(ZIO.acquireRelease(ZIO.attempt(akkaActorSystem))(a => ZIO.attempt(a.terminate()).ignore))
 
-  lazy val wslive: ZLayer[Any, Throwable, ActorSystem[Nothing]] =
+  private lazy val actorSystemLive: ZLayer[Any, Throwable, ActorSystem[Nothing]] =
     ZLayer.fromZIO(ZIO.attempt(wsAkkaActorSystem))
 
   def make: ZIO[Any, Throwable, ActorSystem[Nothing]] = Scope.global.use {
-    ZIO.service[ActorSystem[Nothing]].provideLayer(wslive)
+    ZIO.service[ActorSystem[Nothing]].provideLayer(actorSystemLive)
   }
 }
