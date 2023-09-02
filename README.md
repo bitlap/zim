@@ -1,3 +1,4 @@
+<div align="center"><img src="logo.png"></div>
 # zim
 
 [![Build](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml/badge.svg?branch=master)](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml)
