@@ -71,7 +71,7 @@ object CatsRedisServiceLive {
       redis  <- Redis[IO].fromClient(client, stringCodec)
     } yield redis
 
-  lazy val live: ULayer[CRedis] = ZLayer.succeed(new CatsRedisServiceLive(resource))
+  lazy val live: ULayer[Redis] = ZLayer.succeed(new CatsRedisServiceLive(resource))
 }
 
 final case class CatsRedisServiceLive(redis: Resource[IO, RedisCommands[IO, String, String]])(implicit

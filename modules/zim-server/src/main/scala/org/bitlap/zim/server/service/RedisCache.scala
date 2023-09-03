@@ -16,7 +16,7 @@
 
 package org.bitlap.zim.server.service
 
-import org.bitlap.zim.cache.redis4cats.{CatsRedisServiceLive, CRedis}
+import org.bitlap.zim.cache.redis4cats.{CatsRedisServiceLive, Redis}
 import org.bitlap.zim.cache.redis4zio._
 import org.bitlap.zim.server.CacheType
 import org.bitlap.zim.server.CacheType._
@@ -34,7 +34,7 @@ object RedisCache {
   def getSets(k: String)(implicit cacheType: CacheType): Task[List[String]] = cacheType match {
     case ZioCache => ZIO.serviceWithZIO[ZRedis](_.getSets(k)).provideLayer(ZioRedisServiceLive.live)
     case CatsCache =>
-      ZIO.serviceWithZIO[CRedis](c => LiftIO.liftK[Task].apply(c.getSets(k))).provideLayer(CatsRedisServiceLive.live)
+      ZIO.serviceWithZIO[Redis](c => LiftIO.liftK[Task].apply(c.getSets(k))).provideLayer(CatsRedisServiceLive.live)
   }
 
   def removeSetValue(k: String, m: String)(implicit cacheType: CacheType): Task[Long] = cacheType match {
@@ -42,7 +42,7 @@ object RedisCache {
       ZIO.serviceWithZIO[ZRedis](_.removeSetValue(k, m)).provideLayer(ZioRedisServiceLive.live)
     case CatsCache =>
       ZIO
-        .serviceWithZIO[CRedis](c => LiftIO.liftK[Task].apply(c.removeSetValue(k, m)))
+        .serviceWithZIO[Redis](c => LiftIO.liftK[Task].apply(c.removeSetValue(k, m)))
         .provideLayer(CatsRedisServiceLive.live)
   }
 
@@ -51,7 +51,7 @@ object RedisCache {
       case ZioCache => ZIO.serviceWithZIO[ZRedis](_.setSet(k, m)).provideLayer(ZioRedisServiceLive.live)
       case CatsCache =>
         ZIO
-          .serviceWithZIO[CRedis](c => LiftIO.liftK[Task].apply(c.setSet(k, m)))
+          .serviceWithZIO[Redis](c => LiftIO.liftK[Task].apply(c.setSet(k, m)))
           .provideLayer(CatsRedisServiceLive.live)
     }
 
@@ -64,7 +64,7 @@ object RedisCache {
         ZIO.serviceWithZIO[ZRedis](_.set[T](key, value)).provideLayer(ZioRedisServiceLive.live)
       case CatsCache =>
         ZIO
-          .serviceWithZIO[CRedis](c => LiftIO.liftK[Task].apply(c.set(key, value)))
+          .serviceWithZIO[Redis](c => LiftIO.liftK[Task].apply(c.set(key, value)))
           .provideLayer(CatsRedisServiceLive.live)
     }
 
@@ -76,20 +76,20 @@ object RedisCache {
     case ZioCache =>
       ZIO.serviceWithZIO[ZRedis](_.get[T](key)).provideLayer(ZioRedisServiceLive.live)
     case CatsCache =>
-      ZIO.serviceWithZIO[CRedis](c => LiftIO.liftK[Task].apply(c.get(key))).provideLayer(CatsRedisServiceLive.live)
+      ZIO.serviceWithZIO[Redis](c => LiftIO.liftK[Task].apply(c.get(key))).provideLayer(CatsRedisServiceLive.live)
   }
 
   def exists(key: String)(implicit cacheType: CacheType): Task[Boolean] = cacheType match {
     case ZioCache =>
       ZIO.serviceWithZIO[ZRedis](_.exists(key)).provideLayer(ZioRedisServiceLive.live)
     case CatsCache =>
-      ZIO.serviceWithZIO[CRedis](c => LiftIO.liftK[Task].apply(c.exists(key))).provideLayer(CatsRedisServiceLive.live)
+      ZIO.serviceWithZIO[Redis](c => LiftIO.liftK[Task].apply(c.exists(key))).provideLayer(CatsRedisServiceLive.live)
   }
 
   def del(key: String)(implicit cacheType: CacheType): Task[Boolean] = cacheType match {
     case ZioCache =>
       ZIO.serviceWithZIO[ZRedis](_.del(key)).provideLayer(ZioRedisServiceLive.live)
     case CatsCache =>
-      ZIO.serviceWithZIO[CRedis](c => LiftIO.liftK[Task].apply(c.del(key))).provideLayer(CatsRedisServiceLive.live)
+      ZIO.serviceWithZIO[Redis](c => LiftIO.liftK[Task].apply(c.del(key))).provideLayer(CatsRedisServiceLive.live)
   }
 }
