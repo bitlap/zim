@@ -2,6 +2,7 @@
 
 # zim
 
+[![Project stage](https://img.shields.io/badge/Project%20Stage-Concept-orange.svg)](https://github.com/bitlap/bitlap/wiki/Project-Stages)
 [![Build](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml/badge.svg?branch=master)](https://github.com/bitlap/zim/actions/workflows/ScalaCI.yml)
 [![codecov](https://codecov.io/gh/bitlap/zim/branch/master/graph/badge.svg?token=V95ZMWUUCE)](https://codecov.io/gh/bitlap/zim)
 [![Docker Image Version (latest semver)](https://img.shields.io/docker/v/liguobin/zim?label=docker-image)](https://hub.docker.com/r/liguobin/zim/tags)
