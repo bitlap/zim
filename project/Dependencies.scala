@@ -14,7 +14,7 @@ object Dependencies {
     val `akka-http`                   = "10.5.0"
     val akka                          = "2.8.0"
     val circe                         = "0.14.3"
-    val scalikejdbc                   = "4.0.0"
+    val scalikejdbc                   = "4.1.0"
     val logback                       = "1.4.11"
     val config                        = "1.4.3"
     val `zio-interop-reactiveStreams` = "2.0.2"
