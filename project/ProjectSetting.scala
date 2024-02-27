@@ -10,7 +10,7 @@ import sbt.Keys._
  */
 object ProjectSetting {
 
-  lazy val scala213 = "2.13.8"
+  lazy val scala213 = "2.13.13"
 
   def extraOptions(optimize: Boolean): List[String] = List("-Wunused:imports") ++ optimizerOptions(optimize)
 
