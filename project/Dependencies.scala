@@ -23,7 +23,7 @@ object Dependencies {
     val h2                            = "2.2.224"
     val scalaTest                     = "3.2.17"
     val `zio-actors`                  = "0.1.0"
-    val refined                       = "0.10.3"
+    val refined                       = "0.11.1"
     val `zio-schema`                  = "0.4.17"
     val `sttp-apispec`                = "0.6.3"
     val redis4cats                    = "1.4.1"
