@@ -30,7 +30,7 @@ object Dependencies {
     val `zio-interop-cats`            = "23.0.03"
     val `log4cats-slf4j`              = "2.7.0"
     val `zio-redis`                   = "0.2.0"
-    val `zio-crypto`                  = "0.0.0+102-23de4b47-SNAPSHOT" // Experimental
+    val `zio-crypto`                  = "0.0.0+249-d7572168-SNAPSHOT" // Experimental
   }
 
   lazy val zioDeps: Seq[ModuleID] = Seq(
