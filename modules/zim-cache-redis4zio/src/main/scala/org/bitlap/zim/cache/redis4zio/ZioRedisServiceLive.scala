@@ -62,7 +62,7 @@ final case class ZioRedisServiceLive(private val rs: Redis) extends RedisService
     rs.sAdd(k, m)
 
   override def set[T](k: String, v: T, expireTime: JavaDuration = java.time.Duration.ofMinutes(30))(implicit
-    encoder: Encoder[T]
+      encoder: Encoder[T]
   ): Task[Boolean] =
     rs.set[String, String](k, v.asJson.noSpaces, expireTime = Some(expireTime))
 

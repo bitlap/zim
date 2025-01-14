@@ -29,9 +29,9 @@ import io.circe.generic.semiauto._
  *    密码
  */
 final case class RegisterUserInput(
-  username: String,
-  password: String,
-  email: String
+    username: String,
+    password: String,
+    email: String
 )
 
 object RegisterUserInput {

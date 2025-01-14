@@ -26,15 +26,15 @@ import com.typesafe.config._
  *  @version 1.0
  */
 final case class MysqlConfigurationProperties(
-  url: String,
-  user: String,
-  password: String,
-  databaseName: String,
-  initialSize: Integer,
-  maxSize: Integer,
-  connectionTimeoutMillis: Long,
-  validationQuery: String,
-  driverName: String
+    url: String,
+    user: String,
+    password: String,
+    databaseName: String,
+    initialSize: Integer,
+    maxSize: Integer,
+    connectionTimeoutMillis: Long,
+    validationQuery: String,
+    driverName: String
 )
 
 object MysqlConfigurationProperties {

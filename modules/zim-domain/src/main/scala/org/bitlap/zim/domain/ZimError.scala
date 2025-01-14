@@ -31,12 +31,12 @@ sealed trait ZimError extends Throwable with Product {
 object ZimError {
 
   case class BusinessException(
-    override val code: Int = SystemConstant.ERROR,
-    override val msg: String = SystemConstant.ERROR_MESSAGE
+      override val code: Int = SystemConstant.ERROR,
+      override val msg: String = SystemConstant.ERROR_MESSAGE
   ) extends ZimError
 
   case class Unauthorized(
-    override val code: Int = SystemConstant.ERROR,
-    override val msg: String = SystemConstant.NOT_LOGIN
+      override val code: Int = SystemConstant.ERROR,
+      override val msg: String = SystemConstant.NOT_LOGIN
   ) extends ZimError
 }

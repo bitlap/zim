@@ -34,12 +34,12 @@ import io.circe.generic.semiauto._
  *    性别
  */
 final case class UpdateUserInput(
-  id: Int,
-  username: String,
-  password: Option[String],
-  oldpwd: Option[String],
-  sign: String,
-  sex: String
+    id: Int,
+    username: String,
+    password: Option[String],
+    oldpwd: Option[String],
+    sign: String,
+    sex: String
 )
 
 object UpdateUserInput {

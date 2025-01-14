@@ -107,7 +107,7 @@ package object ws {
   }
 
   private[ws] def agreeAddGroupHandler(
-    userService: UserService[RStream]
+      userService: UserService[RStream]
   )(agree: RefuseOrAgreeMessage): IO[Throwable, Unit] =
     userService.addGroupMember(agree.groupId, agree.toUid, agree.messageBoxId).runHead.map { f =>
       userService
@@ -131,7 +131,7 @@ package object ws {
     }
 
   private[ws] def refuseAddFriendHandler(
-    userService: UserService[RStream]
+      userService: UserService[RStream]
   )(messageBoxId: Int, username: String, to: Int): IO[Throwable, Boolean] =
     userService.updateAgree(messageBoxId, 2).runHead.flatMap { r =>
       r.fold(ZIO.attempt(false)) { ret =>
@@ -144,7 +144,7 @@ package object ws {
     }
 
   private[ws] def readOfflineMessageHandler(
-    userService: UserService[RStream]
+      userService: UserService[RStream]
   )(message: Message): IO[Throwable, Unit] =
     userService
       .findOffLineMessage(message.mine.id, 0)
@@ -162,7 +162,7 @@ package object ws {
       .unit
 
   private[ws] def changeOnlineHandler(
-    userService: UserService[RStream]
+      userService: UserService[RStream]
   )(uId: Int, status: String): IO[Throwable, Boolean] = {
     val isOnline = SystemConstant.status.ONLINE.equals(status)
     val beforeChange =

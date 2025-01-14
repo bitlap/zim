@@ -90,7 +90,7 @@ package object repository {
   }
 
   implicit final class SQLSyntaxStringArrow[T](private val self: String)(implicit
-    val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[T], T]
+      val sp: QuerySQLSyntaxProvider[SQLSyntaxSupport[T], T]
   ) {
 
     import org.bitlap.zim.api.repository.Condition._
@@ -278,7 +278,7 @@ package object repository {
    *  @return
    */
   private[repository] def _findGroupsById(
-    uid: Int
+      uid: Int
   ): StreamReadySQL[GroupList] =
     sql"select ${g.result.*} from ${GroupList as g} where id in(select distinct ${gm.gid} from ${GroupMember as gm} where uid = $uid);"
       .map(rs => GroupList(rs))
@@ -304,8 +304,8 @@ package object repository {
    *  @return
    */
   private[repository] def _findOffLineMessage(
-    uid: Int,
-    status: Int
+      uid: Int,
+      status: Int
   ): StreamReadySQL[Receive] =
     sql"select ${r.result.*} from ${Receive as r} where toid = $uid and status = $status;"
       .map(rs => Receive(rs))
@@ -323,9 +323,9 @@ package object repository {
    *  @return
    */
   private[repository] def _findHistoryMessage(
-    uid: Option[Int],
-    mid: Option[Int],
-    typ: Option[String]
+      uid: Option[Int],
+      mid: Option[Int],
+      typ: Option[String]
   ): StreamReadySQL[Receive] =
     withSQL {
       select
@@ -366,9 +366,9 @@ package object repository {
    *  @return
    */
   private[repository] def _countHistoryMessage(
-    uid: Option[Int],
-    mid: Option[Int],
-    typ: Option[String]
+      uid: Option[Int],
+      mid: Option[Int],
+      typ: Option[String]
   ): StreamReadySQL[Int] =
     withSQL {
       select(count(r.mid))
@@ -459,8 +459,8 @@ package object repository {
    *    我的id
    */
   private[repository] def _findUserGroup(
-    uId: Int,
-    mId: Int
+      uId: Int,
+      mId: Int
   ): StreamReadySQL[Int] =
     sql"select id from ${AddFriend.table} where fgid in (select id from ${FriendGroup.table} where uid = $mId) and uid = $uId".list
       .map(rs => rs.int(1))

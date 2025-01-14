@@ -28,10 +28,10 @@ import zio._
  *  @version 1.0
  */
 final case class ZimConfigurationProperties(
-  name: String,
-  interface: String,
-  port: Int,
-  webHost: String
+    name: String,
+    interface: String,
+    port: Int,
+    webHost: String
 )
 
 object ZimConfigurationProperties {

@@ -43,8 +43,9 @@ import zio._
  */
 final class AkkaHttpModule {
 
-  def httpServer()
-    : ZIO[ActorSystem[Nothing] with ApiService[RStream, Task] with ZimConfigurationProperties with Scope, Throwable, Unit] =
+  def httpServer(): ZIO[ActorSystem[
+    Nothing
+  ] with ApiService[RStream, Task] with ZimConfigurationProperties with Scope, Throwable, Unit] =
     for {
       actorSystem <- ZIO.service[ActorSystem[Nothing]]
       imServerSettings <- {

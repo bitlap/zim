@@ -40,16 +40,16 @@ private final class TangibleReceiveRepository(databaseName: String) extends Rece
     _findOffLineMessage(uid, status).toStreamOperation
 
   override def findHistoryMessage(
-    uid: Option[Int],
-    mid: Option[Int],
-    typ: Option[String]
+      uid: Option[Int],
+      mid: Option[Int],
+      typ: Option[String]
   ): RStream[Receive] =
     _findHistoryMessage(uid, mid, typ).toStreamOperation
 
   override def countHistoryMessage(
-    uid: Option[Int],
-    mid: Option[Int],
-    typ: Option[String]
+      uid: Option[Int],
+      mid: Option[Int],
+      typ: Option[String]
   ): RStream[Int] =
     _countHistoryMessage(uid, mid, typ).toStreamOperation
 
@@ -72,16 +72,16 @@ object TangibleReceiveRepository {
     stream.ZStream.environmentWithStream(_.get.findOffLineMessage(uid, status))
 
   def findHistoryMessage(
-    uid: Option[Int],
-    mid: Option[Int],
-    typ: Option[String]
+      uid: Option[Int],
+      mid: Option[Int],
+      typ: Option[String]
   ): ZStream[ReceiveRepository[RStream], Throwable, Receive] =
     stream.ZStream.environmentWithStream(_.get.findHistoryMessage(uid, mid, typ))
 
   def countHistoryMessage(
-    uid: Option[Int],
-    mid: Option[Int],
-    typ: Option[String]
+      uid: Option[Int],
+      mid: Option[Int],
+      typ: Option[String]
   ): ZStream[ReceiveRepository[RStream], Throwable, Int] =
     stream.ZStream.environmentWithStream(_.get.countHistoryMessage(uid, mid, typ))
 

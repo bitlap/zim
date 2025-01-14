@@ -62,7 +62,7 @@ trait RedisService[F[_]] {
    *    Boolean
    */
   def set[T](k: String, v: T, expireTime: JavaDuration = java.time.Duration.ofMinutes(30))(implicit
-    encoder: Encoder[T]
+      encoder: Encoder[T]
   ): F[Boolean]
 
   /** 根据key获取value

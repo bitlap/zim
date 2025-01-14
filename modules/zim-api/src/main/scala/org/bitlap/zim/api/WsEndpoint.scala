@@ -37,7 +37,7 @@ trait WsEndpoint {
 
   // TODO typed ws
   lazy val wsEndpoint
-    : PublicEndpoint[Int, Unit, Pipe[TextMessage.Strict, String], Any with AkkaStreams with WebSockets] =
+      : PublicEndpoint[Int, Unit, Pipe[TextMessage.Strict, String], Any with AkkaStreams with WebSockets] =
     endpoint
       .in("websocket" / query[Int]("uid"))
       .description("Websocket Endpoint")

@@ -41,13 +41,13 @@ import zio.stream._
  *  @version 1.0
  */
 final class UserServiceImpl(
-  userRepository: UserRepository[RStream],
-  groupRepository: GroupRepository[RStream],
-  receiveRepository: ReceiveRepository[RStream],
-  friendGroupRepository: FriendGroupRepository[RStream],
-  friendGroupFriendRepository: FriendGroupFriendRepository[RStream],
-  groupMemberRepository: GroupMemberRepository[RStream],
-  addMessageRepository: AddMessageRepository[RStream]
+    userRepository: UserRepository[RStream],
+    groupRepository: GroupRepository[RStream],
+    receiveRepository: ReceiveRepository[RStream],
+    friendGroupRepository: FriendGroupRepository[RStream],
+    friendGroupFriendRepository: FriendGroupFriendRepository[RStream],
+    groupMemberRepository: GroupMemberRepository[RStream],
+    addMessageRepository: AddMessageRepository[RStream]
 ) extends UserService[RStream] {
 
   override def leaveOutGroup(gid: Int, uid: Int): RStream[Boolean] =
@@ -110,11 +110,11 @@ final class UserServiceImpl(
     }
 
   override def addFriend(
-    mid: Int,
-    mgid: Int,
-    tid: Int,
-    tgid: Int,
-    messageBoxId: Int
+      mid: Int,
+      mgid: Int,
+      tid: Int,
+      tgid: Int,
+      messageBoxId: Int
   ): RStream[Boolean] =
     if (mid == tid) {
       ZStream.succeed(false)
@@ -198,9 +198,9 @@ final class UserServiceImpl(
     }
 
   override def findHistoryMessage(
-    user: User,
-    mid: Int,
-    `type`: String
+      user: User,
+      mid: Int,
+      `type`: String
   ): RStream[domain.ChatHistory] = {
     def userHistory(): RStream[ChatHistory] =
       // 单人聊天记录

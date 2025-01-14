@@ -146,7 +146,7 @@ trait ApiJsonCodec {
    *  @return
    */
   def buildFlowResponse[T <: Product]
-    : stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
+      : stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = (for {
       list <- respStream.runCollect
       resp = ResultSet[List[T]](data = list.toList).asJson.noSpaces
@@ -170,7 +170,7 @@ trait ApiJsonCodec {
    *  @return
    */
   def buildMonoResponse[T <: Product](
-    returnError: Boolean = false
+      returnError: Boolean = false
   ): stream.Stream[Throwable, T] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = (for {
       ret <- respStream.runHead.map(_.getOrElse(null.asInstanceOf[T]))
@@ -190,9 +190,9 @@ trait ApiJsonCodec {
   }
 
   def buildIntMonoResponse(
-    returnError: Boolean = true,
-    code: Int = SystemConstant.ERROR,
-    msg: String = SystemConstant.ERROR_MESSAGE
+      returnError: Boolean = true,
+      code: Int = SystemConstant.ERROR,
+      msg: String = SystemConstant.ERROR_MESSAGE
   ): stream.Stream[Throwable, Int] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = (for {
       resp <- respStream.runHead.map(_.getOrElse(0))
@@ -208,9 +208,9 @@ trait ApiJsonCodec {
   }
 
   def buildBooleanMonoResponse(
-    returnError: Boolean = true,
-    code: Int = SystemConstant.ERROR,
-    msg: String = SystemConstant.ERROR_MESSAGE
+      returnError: Boolean = true,
+      code: Int = SystemConstant.ERROR,
+      msg: String = SystemConstant.ERROR_MESSAGE
   ): stream.Stream[Throwable, Boolean] => Future[Either[ZimError, Source[ByteString, Any]]] = respStream => {
     val resp = (for {
       resp <- respStream.runHead.map(_.getOrElse(false))
@@ -226,7 +226,7 @@ trait ApiJsonCodec {
   }
 
   def buildPagesResponse[T <: Product]
-    : IO[Throwable, ResultPageSet[T]] => Future[Either[ZimError, Source[ByteString, Any]]] =
+      : IO[Throwable, ResultPageSet[T]] => Future[Either[ZimError, Source[ByteString, Any]]] =
     respIO => {
       val resp: ZIO[Any, Throwable, Publisher[ByteString]] = (for {
         resp <- respIO

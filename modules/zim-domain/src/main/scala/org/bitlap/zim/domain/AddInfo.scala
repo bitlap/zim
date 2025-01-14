@@ -48,17 +48,17 @@ import io.circe.generic.semiauto._
  *    消息发送者
  */
 final case class AddInfo(
-  id: Int,
-  uid: Int,
-  content: String,
-  from: Int,
-  from_group: Int,
-  `type`: Int,
-  remark: String,
-  href: String,
-  read: Int,
-  time: ZonedDateTime,
-  user: User
+    id: Int,
+    uid: Int,
+    content: String,
+    from: Int,
+    from_group: Int,
+    `type`: Int,
+    remark: String,
+    href: String,
+    read: Int,
+    time: ZonedDateTime,
+    user: User
 )
 
 object AddInfo {

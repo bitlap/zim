@@ -56,8 +56,8 @@ object RedisCache {
     }
 
   def set[T: Schema](key: String, value: T)(implicit
-    cacheType: CacheType,
-    encoder: Encoder[T]
+      cacheType: CacheType,
+      encoder: Encoder[T]
   ): Task[Boolean] =
     cacheType match {
       case ZioCache =>
@@ -70,8 +70,8 @@ object RedisCache {
 
   // zio-redis没有真正使用Schema，因为存在cats redis
   def get[T: Schema](key: String)(implicit
-    cacheType: CacheType,
-    decoder: Decoder[T]
+      cacheType: CacheType,
+      decoder: Decoder[T]
   ): zio.Task[Option[T]] = cacheType match {
     case ZioCache =>
       ZIO.serviceWithZIO[ZRedis](_.get[T](key)).provideLayer(ZioRedisServiceLive.live)

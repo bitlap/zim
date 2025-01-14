@@ -53,7 +53,7 @@ import zio.stream._
  *  @version 2.0
  */
 final class ZimUserApi(apiService: ApiService[RStream, Task])(implicit
-  materializer: Materializer
+    materializer: Materializer
 ) extends ApiJsonCodec
     with ApiErrorMapping {
 

@@ -75,7 +75,7 @@ object CatsRedisServiceLive {
 }
 
 final case class CatsRedisServiceLive(redis: Resource[IO, RedisCommands[IO, String, String]])(implicit
-  logger: Logger[IO]
+    logger: Logger[IO]
 ) extends RedisService[IO] {
 
   override def getSets(k: String): IO[List[String]] =
@@ -94,7 +94,7 @@ final case class CatsRedisServiceLive(redis: Resource[IO, RedisCommands[IO, Stri
     }
 
   override def set[T](k: String, v: T, expireTime: JavaDuration = java.time.Duration.ofMinutes(30))(implicit
-    encoder: Encoder[T]
+      encoder: Encoder[T]
   ): IO[Boolean] =
     logger.info(s"Redis set command: $k, $v, $expireTime") *> redis.use { redis =>
       redis

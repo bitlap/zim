@@ -34,14 +34,14 @@ import zio._
  *  @version 1.0
  */
 final case class MailConfigurationProperties(
-  host: String,
-  username: String,
-  password: String,
-  sender: String,
-  port: Int,
-  threadPoolSize: Int,
-  connectionPoolCoreSize: Int,
-  debug: Boolean
+    host: String,
+    username: String,
+    password: String,
+    sender: String,
+    port: Int,
+    threadPoolSize: Int,
+    connectionPoolCoreSize: Int,
+    debug: Boolean
 ) {
 
   def toProperties: Properties = {
