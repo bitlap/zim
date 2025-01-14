@@ -96,8 +96,8 @@ object TangibleUserRepository {
     stream.ZStream.environmentWithStream(_.get.countUser(username, sex))
 
   def findUsers(
-    username: Option[String],
-    sex: Option[Int]
+      username: Option[String],
+      sex: Option[Int]
   ): stream.ZStream[UserRepository[RStream], Throwable, model.User] =
     stream.ZStream.environmentWithStream(_.get.findUsers(username, sex))
 

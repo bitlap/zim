@@ -27,16 +27,16 @@ package org.bitlap.zim.domain
  *    梦境迷离
  */
 class ResultSet[T](
-  val data: T,
-  val code: Int = SystemConstant.SUCCESS,
-  val msg: String = SystemConstant.SUCCESS_MESSAGE
+    val data: T,
+    val code: Int = SystemConstant.SUCCESS,
+    val msg: String = SystemConstant.SUCCESS_MESSAGE
 )
 
 object ResultSet {
 
   def apply[T](
-    data: T = null,
-    code: Int = SystemConstant.SUCCESS,
-    msg: String = SystemConstant.SUCCESS_MESSAGE
+      data: T = null,
+      code: Int = SystemConstant.SUCCESS,
+      msg: String = SystemConstant.SUCCESS_MESSAGE
   ): ResultSet[T] = new ResultSet(data, code, msg)
 }

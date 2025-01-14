@@ -190,11 +190,11 @@ final class ApiServiceImpl(userService: UserService[RStream]) extends ApiService
     userService.refuseAddFriend(messageBoxId, username, to)
 
   override def agreeFriend(
-    uid: Int,
-    fromGroup: Int,
-    group: Int,
-    messageBoxId: Int,
-    mid: Int
+      uid: Int,
+      fromGroup: Int,
+      group: Int,
+      messageBoxId: Int,
+      mid: Int
   ): RStream[Boolean] =
     userService.addFriend(mid, group, uid, fromGroup, messageBoxId)
 

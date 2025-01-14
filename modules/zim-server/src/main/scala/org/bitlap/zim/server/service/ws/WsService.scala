@@ -170,7 +170,7 @@ object WsService {
    *  @return
    */
   def openConnection(
-    uId: Int
+      uId: Int
   )(implicit m: Materializer): ZIO[Any, Throwable, Flow[Message, String, NotUsed]] = {
     implicit val ec = m.executionContext
     // closeConnection(uId)

@@ -69,7 +69,7 @@ trait ZimUserEndpoint extends ApiErrorMapping with CookieAuthority with UserEndp
     } yield check -> user
 
   override val secureEndpoint
-    : PartialServerEndpoint[UserToken, UserSecurityInfo, Unit, Unauthorized, Unit, Any, Future] = endpoint
+      : PartialServerEndpoint[UserToken, UserSecurityInfo, Unit, Unauthorized, Unit, Any, Future] = endpoint
     .securityIn(cookie[String](Authorization).mapTo[UserToken])
     .errorOut(customCodecJsonBody[Unauthorized])
     .serverSecurityLogic(token => authenticate(token)(authorityCacheFunction))

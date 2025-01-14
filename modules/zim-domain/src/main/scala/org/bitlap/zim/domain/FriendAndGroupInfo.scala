@@ -33,9 +33,9 @@ import zio.schema._
  *    群组信息列表
  */
 final case class FriendAndGroupInfo(
-  mine: User,
-  friend: List[FriendList],
-  group: List[GroupList]
+    mine: User,
+    friend: List[FriendList],
+    group: List[GroupList]
 )
 
 object FriendAndGroupInfo {

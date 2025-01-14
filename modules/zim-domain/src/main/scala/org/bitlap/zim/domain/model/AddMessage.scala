@@ -45,14 +45,14 @@ import scalikejdbc.{WrappedResultSet, _}
  *    申请时间
  */
 final case class AddMessage(
-  id: Int,
-  fromUid: Int,
-  toUid: Int,
-  groupId: Int,
-  remark: String,
-  agree: Int,
-  `type`: Int,
-  time: ZonedDateTime
+    id: Int,
+    fromUid: Int,
+    toUid: Int,
+    groupId: Int,
+    remark: String,
+    agree: Int,
+    `type`: Int,
+    time: ZonedDateTime
 )
 
 object AddMessage extends BaseModel[AddMessage] {
@@ -82,12 +82,12 @@ object AddMessage extends BaseModel[AddMessage] {
     )
 
   def apply(
-    fromUid: Int,
-    toUid: Int,
-    groupId: Int,
-    remark: String,
-    `type`: Int,
-    time: ZonedDateTime = ZonedDateTime.now()
+      fromUid: Int,
+      toUid: Int,
+      groupId: Int,
+      remark: String,
+      `type`: Int,
+      time: ZonedDateTime = ZonedDateTime.now()
   ): AddMessage =
     AddMessage(0, fromUid, toUid, groupId, remark, 0, `type`, time)
 }

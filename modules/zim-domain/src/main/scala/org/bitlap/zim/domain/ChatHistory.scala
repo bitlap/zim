@@ -33,11 +33,11 @@ import io.circe.generic.semiauto._
  *    时间
  */
 final case class ChatHistory(
-  id: Int,
-  username: String,
-  avatar: String,
-  content: String,
-  timestamp: Long
+    id: Int,
+    username: String,
+    avatar: String,
+    content: String,
+    timestamp: Long
 )
 
 object ChatHistory {

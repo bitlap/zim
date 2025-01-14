@@ -42,9 +42,9 @@ trait CookieAuthority {
    *  @return
    */
   def authenticate(
-    token: UserToken
+      token: UserToken
   )(
-    authorityFunction: AuthorityFunction
+      authorityFunction: AuthorityFunction
   )(implicit ec: ExecutionContext): Future[Either[Unauthorized, UserSecurityInfo]] =
     Future {
       val tk             = if (token.cookie.trim.contains(" ")) token.cookie.trim.split(" ")(1) else token.cookie

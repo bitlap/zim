@@ -34,9 +34,9 @@ sealed trait Command[+T]
  *    The message comes from user, who send message to server flow by akka.
  */
 final case class TransmitMessageProxy(
-  uId: Int,
-  msg: String,
-  originActorRef: Option[ActorRef]
+    uId: Int,
+    msg: String,
+    originActorRef: Option[ActorRef]
 ) extends Command[String] {
 
   def getMessage: Message = decode[Message](msg).getOrElse(null)

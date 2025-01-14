@@ -34,12 +34,12 @@ import io.circe._
  *    聊天类型，一般分friend和group两种，group即群聊
  */
 final case class To(
-  id: Int,
-  username: String,
-  sign: String,
-  avatar: String,
-  status: String,
-  `type`: String
+    id: Int,
+    username: String,
+    sign: String,
+    avatar: String,
+    status: String,
+    `type`: String
 )
 
 object To {

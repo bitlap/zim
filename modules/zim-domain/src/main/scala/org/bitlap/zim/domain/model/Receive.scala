@@ -48,17 +48,17 @@ import scalikejdbc.{WrappedResultSet, _}
  *    消息的状态
  */
 final case class Receive(
-  toid: Int,
-  mid: Int,
-  username: String,
-  avatar: String,
-  `type`: String,
-  content: String,
-  cid: Int,
-  mine: Boolean,
-  fromid: Int,
-  timestamp: Long,
-  status: Int
+    toid: Int,
+    mid: Int,
+    username: String,
+    avatar: String,
+    `type`: String,
+    content: String,
+    cid: Int,
+    mine: Boolean,
+    fromid: Int,
+    timestamp: Long,
+    status: Int
 )
 
 object Receive extends SQLSyntaxSupport[Receive] {

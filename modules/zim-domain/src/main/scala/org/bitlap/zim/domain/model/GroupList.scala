@@ -38,10 +38,10 @@ import zio.schema._
  *    创建人ID
  */
 final case class GroupList(
-  override val id: Int,
-  override val groupName: String,
-  avatar: String,
-  createId: Int
+    override val id: Int,
+    override val groupName: String,
+    avatar: String,
+    createId: Int
 ) extends Group(id, groupName)
 
 object GroupList extends BaseModel[GroupList] {
